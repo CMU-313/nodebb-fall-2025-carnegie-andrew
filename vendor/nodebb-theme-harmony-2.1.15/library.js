@@ -4,7 +4,6 @@ const nconf = require.main.require('nconf');
 const meta = require.main.require('./src/meta');
 const _ = require.main.require('lodash');
 const user = require.main.require('./src/user');
-
 const controllers = require('./lib/controllers');
 
 const library = module.exports;
@@ -28,6 +27,9 @@ library.init = async function (params) {
 
 	routeHelpers.setupAdminPageRoute(router, '/admin/plugins/harmony', [], controllers.renderAdminPage);
 
+	// ADD THIS LINE:
+	routeHelpers.setupPageRoute(router, '/voice', [], controllers.renderVoice);
+
 	routeHelpers.setupPageRoute(router, '/user/:userslug/theme', [
 		middleware.exposeUid,
 		middleware.ensureLoggedIn,
@@ -39,6 +41,7 @@ library.init = async function (params) {
 		setTimeout(buildSkins, 0);
 	}
 };
+
 
 async function buildSkins() {
 	try {
@@ -86,7 +89,7 @@ library.defineWidgetAreas = async function (areas) {
 	const templates = [
 		'categories.tpl', 'category.tpl', 'topic.tpl', 'users.tpl',
 		'unread.tpl', 'recent.tpl', 'popular.tpl', 'top.tpl', 'tags.tpl', 'tag.tpl',
-		'login.tpl', 'register.tpl', 'world.tpl',
+		'login.tpl', 'register.tpl', 'world.tpl', 'voice.tpl',
 	];
 	function capitalizeFirst(str) {
 		return str.charAt(0).toUpperCase() + str.slice(1);
@@ -185,4 +188,4 @@ library.saveUserSettings = async function (hookData) {
 library.filterMiddlewareRenderHeader = async function (hookData) {
 	hookData.templateData.bootswatchSkinOptions = await meta.css.getSkinSwitcherOptions(hookData.req.uid);
 	return hookData;
-};
+}

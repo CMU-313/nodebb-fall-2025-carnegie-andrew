@@ -19,7 +19,8 @@ User.reset = require('./reset');
 User.digest = require('./digest');
 User.interstitials = require('./interstitials');
 
-User.pin = require('./pin');
+// there was an error with this line, will comment this out because I'm only working on voice rn
+//User.pin = require('./pin');
 
 require('./data')(User);
 require('./auth')(User);

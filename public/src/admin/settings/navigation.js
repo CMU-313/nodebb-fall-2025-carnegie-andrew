@@ -27,10 +27,11 @@ define('admin/settings/navigation', [
 			accept: $('#available li .drag-item'),
 		});
 
+		//the icon on the sidebar
 		$('#enabled').on('click', '.iconPicker', function () {
 			const iconEl = $(this).find('i');
 			iconSelect.init(iconEl, function (el) {
-				const newIconClass = el.attr('value');
+				const newIconClass = el.attr('value' + );
 				const index = iconEl.parents('[data-index]').attr('data-index');
 				$('#active-navigation [data-index="' + index + '"] i.nav-icon').attr('class', 'fa fa-fw ' + newIconClass);
 				iconEl.siblings('[name="iconClass"]').val(newIconClass);

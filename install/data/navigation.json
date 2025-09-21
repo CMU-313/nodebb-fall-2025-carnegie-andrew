@@ -42,6 +42,15 @@
 		"text": "[[global:header.popular]]"
 	},
 	{
+		"route": "/voice",
+		"title": "[[global:header.voice]]",
+		"enabled": true,
+		"iconClass": "fa-headphones",
+		"textClass": "d-lg-none",
+		"text": "[[global:header.voice]]",
+		"id":1234
+	},
+	{
 		"route": "/world",
 		"title": "[[global:header.world]]",
 		"enabled": true,

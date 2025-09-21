@@ -7,8 +7,8 @@
 				<span class="d-flex gap-2 align-items-center text-nowrap truncate-open">
 					<span class="position-relative">
 						{{{ if ./iconClass }}}
-						<i class="fa fa-fw {./iconClass}" data-content="{./content}"></i>
-						<span component="navigation/count" class="visible-closed position-absolute top-0 start-100 translate-middle badge rounded-1 bg-primary {{{ if !./content }}}hidden{{{ end }}}">{./content}</span>
+							<i class="fa fa-fw {./iconClass}" data-content="{./content}"></i>
+							<span component="navigation/count" class="visible-closed position-absolute top-0 start-100 translate-middle badge rounded-1 bg-primary {{{ if !./content }}}hidden{{{ end }}}">{./content}</span>
 						{{{ end }}}
 					</span>
 					{{{ if ./text }}}<span class="nav-text small visible-open fw-semibold text-truncate">{./text}</span>{{{ end }}}
@@ -23,7 +23,19 @@
 		</li>
 		{{{ end }}}
 		{{{ end }}}
+
+		<li class="nav-item mx-2" title="Voice">
+			<a class="nav-link navigation-link d-flex gap-2 justify-content-between align-items-center" href="/voice">
+				<span class="d-flex gap-2 align-items-center text-nowrap truncate-open">
+					<span class="position-relative">
+						<i class="fa fa-fw fa-headset"></i>
+					</span>
+					<span class="nav-text small visible-open fw-semibold text-truncate">Voice</span>
+				</span>
+			</a>
+		</li>
 	</ul>
+
 	<div class="sidebar-toggle-container align-self-start">
 		{{{ if !config.disableCustomUserSkins }}}
 		<!-- IMPORT partials/skin-switcher.tpl -->
