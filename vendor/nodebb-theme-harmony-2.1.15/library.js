@@ -27,8 +27,13 @@ library.init = async function (params) {
 
 	routeHelpers.setupAdminPageRoute(router, '/admin/plugins/harmony', [], controllers.renderAdminPage);
 
-	// ADD THIS LINE:
-	routeHelpers.setupPageRoute(router, '/voice', [], controllers.renderVoice);
+	routeHelpers.setupPageRoute(router, '/voice', middleware, [], controllers.renderVoice);
+	
+// helping debug ui pathways
+	routeHelpers.setupApiRoute(router, 'get', '/voice', [], (req, res) => {
+		res.json({ ok: true, route: '/voice' });
+	});
+
 
 	routeHelpers.setupPageRoute(router, '/user/:userslug/theme', [
 		middleware.exposeUid,

@@ -1,4 +1,4 @@
 Controllers.renderVoice = (req, res) => {
     res.send('Hello World');
-    // later: res.render('voice', { title: 'Voice' });
+    console.log("i am in voice js rn");
 };
