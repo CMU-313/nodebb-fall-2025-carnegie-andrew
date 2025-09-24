@@ -23,6 +23,18 @@
 		</li>
 		{{{ end }}}
 		{{{ end }}}
+
+		
+		<li class="nav-item mx-2" title="Voice">
+			<a class="nav-link navigation-link d-flex gap-2 justify-content-between align-items-center" href="/voice">
+				<span class="d-flex gap-2 align-items-center text-nowrap truncate-open">
+					<span class="position-relative">
+						<i class="fa fa-fw fa-headset"></i>
+					</span>
+					<span class="nav-text small visible-open fw-semibold text-truncate">Voice</span>
+				</span>
+			</a>
+		</li>
 	</ul>
 	<div class="sidebar-toggle-container align-self-start">
 		{{{ if !config.disableCustomUserSkins }}}

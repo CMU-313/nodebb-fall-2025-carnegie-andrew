@@ -28,6 +28,9 @@ library.init = async function (params) {
 
 	routeHelpers.setupAdminPageRoute(router, '/admin/plugins/harmony', [], controllers.renderAdminPage);
 
+	//setting up voice
+	routeHelpers.setupPageRoute(router, '/voice', middleware, [], controllers.renderVoice);
+
 	routeHelpers.setupPageRoute(router, '/user/:userslug/theme', [
 		middleware.exposeUid,
 		middleware.ensureLoggedIn,
@@ -86,7 +89,7 @@ library.defineWidgetAreas = async function (areas) {
 	const templates = [
 		'categories.tpl', 'category.tpl', 'topic.tpl', 'users.tpl',
 		'unread.tpl', 'recent.tpl', 'popular.tpl', 'top.tpl', 'tags.tpl', 'tag.tpl',
-		'login.tpl', 'register.tpl', 'world.tpl',
+		'login.tpl', 'register.tpl', 'world.tpl', 'voice.tpl',
 	];
 	function capitalizeFirst(str) {
 		return str.charAt(0).toUpperCase() + str.slice(1);
