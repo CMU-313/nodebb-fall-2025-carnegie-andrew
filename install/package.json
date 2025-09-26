@@ -156,6 +156,7 @@
         "zxcvbn": "4.4.2"
     },
     "devDependencies": {
+        "sinon": "^latest",
         "@apidevtools/swagger-parser": "10.1.0",
         "@commitlint/cli": "19.8.1",
         "@commitlint/config-angular": "19.8.1",
