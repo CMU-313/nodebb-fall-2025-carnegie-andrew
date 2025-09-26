@@ -1,0 +1,123 @@
+put:
+  tags:
+    - topics
+  summary: Pin a post to the top for the current user
+  description: Pins a specific post to the top of the topic for the current user only. This is a user-specific action that doesn't affect other users' views.
+  parameters:
+    - name: tid
+      in: path
+      required: true
+      schema:
+        type: string
+      example: 1
+    - name: pid
+      in: path
+      required: true
+      schema:
+        type: string
+      example: 1
+  responses:
+    "200":
+      description: Post successfully pinned
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - status
+              - response
+            properties:
+              status:
+                type: object
+                required:
+                  - code
+                  - message
+                properties:
+                  code:
+                    type: string
+                    example: "ok"
+                  message:
+                    type: string
+                    example: "OK"
+              response:
+                type: object
+                required:
+                  - pid
+                  - pinned
+                properties:
+                  pid:
+                    type: number
+                    description: The post identifier
+                  pinned:
+                    type: boolean
+                    description: Whether the post is now pinned
+                    example: true
+    "400":
+      description: Invalid request data
+    "401":
+      description: User not logged in
+    "403":
+      description: Insufficient privileges to access the post
+    "404":
+      description: Post not found
+
+delete:
+  tags:
+    - topics
+  summary: Unpin a post from the top for the current user
+  description: Removes a post from the pinned position for the current user only. This is a user-specific action that doesn't affect other users' views.
+  parameters:
+    - name: tid
+      in: path
+      required: true
+      schema:
+        type: string
+      example: 1
+    - name: pid
+      in: path
+      required: true
+      schema:
+        type: string
+      example: 1
+  responses:
+    "200":
+      description: Post successfully unpinned
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - status
+              - response
+            properties:
+              status:
+                type: object
+                required:
+                  - code
+                  - message
+                properties:
+                  code:
+                    type: string
+                    example: "ok"
+                  message:
+                    type: string
+                    example: "OK"
+              response:
+                type: object
+                required:
+                  - pid
+                  - pinned
+                properties:
+                  pid:
+                    type: number
+                    description: The post identifier
+                  pinned:
+                    type: boolean
+                    description: Whether the post is now pinned
+                    example: false
+    "400":
+      description: Invalid request data
+    "401":
+      description: User not logged in
+    "404":
+      description: Post not found

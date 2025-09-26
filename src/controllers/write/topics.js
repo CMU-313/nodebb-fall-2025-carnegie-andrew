@@ -220,3 +220,13 @@ Topics.move = async (req, res) => {
 
 	helpers.formatApiResponse(200, res);
 };
+
+Topics.userPin = async (req, res) => {
+	const payload = await api.topics.userPin(req, { pid: req.params.pid });
+	helpers.formatApiResponse(200, res, payload);
+};
+
+Topics.userUnpin = async (req, res) => {
+	const payload = await api.topics.userUnpin(req, { pid: req.params.pid });
+	helpers.formatApiResponse(200, res, payload);
+};
