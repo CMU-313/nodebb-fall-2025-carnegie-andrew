@@ -56,6 +56,11 @@
 				<span class="badge bg-danger rounded-1">[[user:banned]]</span>
 				{{{ end }}}
 
+				{{{ if posts.userPinned }}}
+				<span class="badge bg-primary rounded-1" title="[[topic:pinned]]">
+					<i class="fa fa-thumb-tack me-1"></i>[[topic:pinned]]
+				</span>
+				{{{ end }}}
 				<div class="d-flex gap-1 align-items-center">
 					<span class="text-muted">{generateWrote(@value, config.timeagoCutoff)}</span>
 
@@ -109,6 +114,11 @@
 				{{{ end }}}
 				<div component="post/actions" class="d-flex flex-grow-1 align-items-center justify-content-end gap-1 post-tools">
 					<!-- IMPORT partials/topic/reactions.tpl -->
+					{{{ if config.loggedIn }}}
+					<button component="post/user-pin" class="btn btn-ghost btn-sm{{{ if posts.userPinned }}} active{{{ end }}}" title="{{{ if posts.userPinned }}}[[topic:pinned]]{{{ else }}}[[post:pin-to-top]]{{{ end }}}" aria-label="{{{ if posts.userPinned }}}[[topic:pinned]]{{{ else }}}[[post:pin-to-top]]{{{ end }}}">
+						<i class="fa fa-fw fa-thumb-tack{{{ if posts.userPinned }}} text-primary{{{ else }}} text-secondary{{{ end }}}"></i>
+					</button>
+					{{{ end }}}
 					<a component="post/reply" href="#" class="btn btn-ghost btn-sm {{{ if !privileges.topics:reply }}}hidden{{{ end }}}" title="[[topic:reply]]"><i class="fa fa-fw fa-reply text-primary"></i></a>
 					<a component="post/quote" href="#" class="btn btn-ghost btn-sm {{{ if !privileges.topics:reply }}}hidden{{{ end }}}" title="[[topic:quote]]"><i class="fa fa-fw fa-quote-right text-primary"></i></a>
 
