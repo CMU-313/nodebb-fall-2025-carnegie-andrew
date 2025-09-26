@@ -90,6 +90,26 @@ topicsController.get = async function getTopic(req, res, next) {
 
 	await topics.getTopicWithPosts(topicData, set, req.uid, start, stop, reverse);
 
+	// Add user-specific pinned status to posts
+	if (req.uid && topicData.posts && topicData.posts.length) {
+		const db = require('../database');
+		// const pids = topicData.posts.map(post => post.pid);
+		const userPinnedPids = await db.getSortedSetMembers(`uid:${req.uid}:pinned_posts`);
+		topicData.posts.forEach((post) => {
+			post.userPinned = userPinnedPids.includes(String(post.pid));
+		});
+		
+		// Sort posts to move user-pinned posts to the top
+		topicData.posts.sort((a, b) => {
+			// First sort by user-pinned status (pinned posts first)
+			if (a.userPinned !== b.userPinned) {
+				return b.userPinned - a.userPinned;
+			}
+			// Then maintain original order (by index)
+			return parseInt(a.index, 10) - parseInt(b.index, 10);
+		});
+	}
+
 	topics.modifyPostsByPrivilege(topicData, userPrivileges);
 	topicData.tagWhitelist = categories.filterTagWhitelist(topicData.tagWhitelist, userPrivileges.isAdminOrMod);
 
