@@ -75,6 +75,9 @@ define('forum/topic', [
 		handleTopicSearch();
 
 		hooks.fire('action:topic.loaded', ajaxify.data);
+		
+		// Initialize user pin functionality
+		Topic.initUserPin();
 	};
 
 	function handleTopicSearch() {
@@ -480,6 +483,161 @@ define('forum/topic', [
 		}
 	}
 
+	Topic.initUserPin = function () {
+		// Initialize pinned state for posts that are already pinned
+		$('[component="post/user-pin"].active').each(function () {
+			const button = $(this);
+			const postElement = button.closest('[component="post"]');
+			postElement.attr('data-pinned', 'true');
+		});
+		
+		// Handle pin/unpin clicks on posts
+		$(document).off('click', '[component="post/user-pin"]').on('click', '[component="post/user-pin"]', function (e) {
+			e.preventDefault();
+			e.stopPropagation();
+			
+			const button = $(this);
+			const postElement = button.closest('[component="post"]');
+			const pid = postElement.attr('data-pid');
+			
+			if (!pid) {
+				return;
+			}
+			
+			const isPinned = button.hasClass('active');
+			
+			if (isPinned) {
+				Topic.unpinPost(pid, button, postElement);
+			} else {
+				Topic.pinPost(pid, button, postElement);
+			}
+		});
+	};
+
+	Topic.pinPost = function (pid, button, postElement) {
+		const tid = ajaxify.data.tid;
+		api.put(`/topics/${tid}/posts/${pid}/user-pin`, {})
+			.then(() => {
+				// Update button appearance
+				button.addClass('active');
+				button.find('i').removeClass('text-secondary').addClass('text-primary');
+				button.attr('title', '[[post:user-pinned]]');
+				button.attr('aria-label', '[[post:user-pinned]]');
+				
+				// Move post to top of topic
+				Topic.movePostToTop(postElement);
+				
+				// Show success message
+				alerts.success('[[post:pin-success]]');
+				
+				// Fire hook for other modules
+				hooks.fire('action:post.userPinned', { pid: pid });
+			})
+			.catch((err) => {
+				alerts.error(err);
+			});
+	};
+
+	Topic.unpinPost = function (pid, button, postElement) {
+		const tid = ajaxify.data.tid;
+		api.del(`/topics/${tid}/posts/${pid}/user-pin`, {})
+			.then(() => {
+				// Update button appearance
+				button.removeClass('active');
+				button.find('i').removeClass('text-primary').addClass('text-secondary');
+				button.attr('title', '[[post:pin-to-top]]');
+				button.attr('aria-label', '[[post:pin-to-top]]');
+				
+				// Move post back to original position
+				Topic.movePostToOriginalPosition(postElement);
+				
+				// Show success message
+				alerts.success('[[post:unpin-success]]');
+				
+				// Fire hook for other modules
+				hooks.fire('action:post.userUnpinned', { pid: pid });
+			})
+			.catch((err) => {
+				alerts.error(err);
+			});
+	};
+
+	Topic.movePostToTop = function (postElement) {
+		// Add pinned badge immediately
+		Topic.addPinnedBadge(postElement);
+		
+		// Mark as pinned for future reference
+		postElement.attr('data-pinned', 'true');
+		
+		// Find the topic posts container
+		const postsContainer = $('[component="topic"]');
+		if (postsContainer.length) {
+			// Find all currently pinned posts
+			// const pinnedPosts = postsContainer.find('[component="post"][data-pinned="true"]');
+			
+			// Remove this post from the container temporarily
+			postElement.detach();
+			
+			// Insert this post at the beginning (top of pinned posts)
+			postsContainer.prepend(postElement);
+		}
+	};
+
+	Topic.movePostToOriginalPosition = function (postElement) {
+		// Remove pinned badge immediately
+		Topic.removePinnedBadge(postElement);
+		
+		// Remove pinned marker
+		postElement.removeAttr('data-pinned');
+		
+		// Find the topic posts container
+		const postsContainer = $('[component="topic"]');
+		const allPosts = postsContainer.find('[component="post"]').toArray();
+		
+		// Sort all posts by their data-index attribute (original order)
+		allPosts.sort((a, b) => {
+			const indexA = parseInt($(a).find('[component="post/anchor"]').attr('data-index') || '999999', 10);
+			const indexB = parseInt($(b).find('[component="post/anchor"]').attr('data-index') || '999999', 10);
+			return indexA - indexB;
+		});
+		
+		// Separate pinned and unpinned posts
+		const pinnedPosts = allPosts.filter(post => {
+			const $post = $(post);
+			// Check both data-pinned attribute and if button has active class
+			return $post.attr('data-pinned') === 'true' || $post.find('[component="post/user-pin"]').hasClass('active');
+		});
+		const unpinnedPosts = allPosts.filter(post => {
+			const $post = $(post);
+			return $post.attr('data-pinned') !== 'true' && !$post.find('[component="post/user-pin"]').hasClass('active');
+		});
+		
+		// Re-append all posts: pinned first (in original order), then unpinned (in original order)
+		postsContainer.empty();
+		pinnedPosts.forEach(post => postsContainer.append(post));
+		unpinnedPosts.forEach(post => postsContainer.append(post));
+	};
+
+	Topic.addPinnedBadge = function (postElement) {
+		// Check if badge already exists
+		const existingBadge = postElement.find('.pinned-badge');
+		if (existingBadge.length) return;
+		
+		// Find the location to insert the badge (after banned badge or at the end of user badges)
+		const badgeContainer = postElement.find('.d-flex.gap-1.flex-wrap.align-items-center.text-truncate').first();
+		if (badgeContainer.length) {
+			const pinnedBadge = $('<span class="badge bg-primary rounded-1 pinned-badge" title="Pinned"><i class="fa fa-thumb-tack me-1"></i>Pinned</span>');
+			badgeContainer.append(pinnedBadge);
+		}
+	};
+
+	Topic.removePinnedBadge = function (postElement) {
+		// Remove both server-rendered badge and dynamically added badge
+		postElement.find('.badge.bg-primary').filter(function () {
+			return $(this).text().includes('Pinned') || $(this).find('.fa-thumb-tack').length > 0;
+		}).remove();
+		postElement.find('.pinned-badge').remove();
+	};
 
 	return Topic;
 });
