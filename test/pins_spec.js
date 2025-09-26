@@ -46,7 +46,7 @@ describe('Pins data model (isolated)', () => {
 			isMember: sinon.stub().resolves(false),
 		};
 
-		pins = proxyquire('../src/user/pin', {
+		pins = proxyquire('../src/user/pins', {
 			'../database': dbStub,
 			'../groups': groupsStub,
 			'../privileges': privilegesStub,
