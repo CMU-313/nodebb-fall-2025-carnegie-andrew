@@ -168,6 +168,8 @@ paths:
     $ref: 'write/topics/tid/bump.yaml'
   /topics/{tid}/move:
     $ref: 'write/topics/tid/move.yaml'
+  /topics/{tid}/posts/{pid}/user-pin:
+    $ref: 'write/topics/tid/posts/pid/user-pin.yaml'
   /tags/{tag}/follow:
     $ref: 'write/tags/tag/follow.yaml'
   /posts/{pid}:

@@ -372,6 +372,9 @@ PostDataObject:
         flagId:
           type: number
           description: The flag identifier, if this particular post has been flagged before
+        userPinned:
+          type: boolean
+          description: Whether the current user has pinned this post to the top
     - type: object
       description: Optional properties that may or may not be present (except for `pid`, which is always present, and is only here as a hack to pass validation)
       properties:
