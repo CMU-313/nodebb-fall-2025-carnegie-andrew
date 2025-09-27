@@ -11,6 +11,14 @@ Controllers.renderAdminPage = (req, res) => {
 	});
 };
 
+// voice path
+Controllers.renderVoice = async (req, res) => {
+	res.render('voice', {
+		title: 'Voice',
+		breadcrumbs: helpers.buildBreadcrumbs([{ text: 'Voice' }]),
+	});
+};
+
 Controllers.renderThemeSettings = async (req, res, next) => {
 	const userData = await accountHelpers.getUserDataByUserSlug(req.params.userslug, req.uid, req.query);
 	if (!userData) {
