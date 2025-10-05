@@ -11,6 +11,7 @@ const privileges = require('../privileges');
 const events = require('../events');
 const batch = require('../batch');
 const activitypub = require('../activitypub');
+const anonymous = require('../anonymous');
 
 const activitypubApi = require('./activitypub');
 const apiHelpers = require('./helpers');
@@ -79,7 +80,14 @@ topicsAPI.create = async function (caller, data) {
 		return await posts.addToQueue(payload);
 	}
 
-	const result = await topics.post(payload);
+	// Handle anonymous posting
+	let result;
+	if (data.anonymous && anonymous.isEnabled()) {
+		result = await anonymous.createTopic(payload);
+	} else {
+		result = await topics.post(payload);
+	}
+	
 	await topics.thumbs.migrate(data.uuid, result.topicData.tid);
 
 	socketHelpers.emitToUids('event:new_post', { posts: [result.postData] }, [caller.uid]);
@@ -107,7 +115,13 @@ topicsAPI.reply = async function (caller, data) {
 		return await posts.addToQueue(payload);
 	}
 
-	const postData = await topics.reply(payload);
+	// Handle anonymous posting
+	let postData;
+	if (data.anonymous && anonymous.isEnabled()) {
+		postData = await anonymous.createReply(payload);
+	} else {
+		postData = await topics.reply(payload);
+	}
 
 	const result = {
 		posts: [postData],
