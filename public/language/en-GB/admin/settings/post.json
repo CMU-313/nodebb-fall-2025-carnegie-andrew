@@ -60,5 +60,7 @@
 	"backlinks.help": "If a post references another topic, a link back to the post will be inserted into the referenced topic at that point in time.",
 	"ip-tracking": "IP Tracking",
 	"ip-tracking.each-post": "Track IP Address for each post",
-	"enable-post-history": "Enable Post History"
+	"enable-post-history": "Enable Post History",
+	"allow-anonymous-posts": "Allow Anonymous Posts",
+	"allow-anonymous-posts-help": "Allow logged-in users to post anonymously. Anonymous posts will show as posted by an anonymous user instead of the actual username."
 }
