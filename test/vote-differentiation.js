@@ -34,12 +34,6 @@ describe('Vote Differentiation', () => {
 		}));
 	});
 
-	after(async () => {
-		// Clean up test data
-		await topics.purge(topicData.tid, voterUid);
-		await categories.purge(cid, voterUid);
-	});
-
 	it('should track upvotes and downvotes separately', async () => {
 		// Upvote the post
 		const upvoteResult = await apiPosts.upvote(
