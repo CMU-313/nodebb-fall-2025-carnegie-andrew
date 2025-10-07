@@ -132,9 +132,9 @@
 							<i class="fa fa-fw fa-chevron-up text-primary"></i>
 						</a>
 
-						<meta itemprop="upvoteCount" content="{posts.upvotes}">
-						<meta itemprop="downvoteCount" content="{posts.downvotes}">
-						<a href="#" class="px-2 mx-1 btn btn-ghost btn-sm" component="post/vote-count" data-votes="{posts.votes}" title="[[global:voters]]">{posts.votes}</a>
+					<meta itemprop="upvoteCount" content="{posts.upvotes}">
+					<meta itemprop="downvoteCount" content="{posts.downvotes}">
+					<a href="#" class="px-2 mx-1 btn btn-ghost btn-sm" component="post/vote-count" data-votes="{posts.votes}" data-upvotes="{posts.upvotes}" data-downvotes="{posts.downvotes}" title="[[global:voters]]">{posts.votes}</a>
 
 						{{{ if !downvote:disabled }}}
 						<a component="post/downvote" href="#" class="btn btn-ghost btn-sm{{{ if posts.downvoted }}} downvoted{{{ end }}}" title="[[topic:downvote-post]]">
