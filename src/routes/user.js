@@ -1,6 +1,7 @@
 'use strict';
 
 const helpers = require('./helpers');
+const nconf = require('nconf');
 
 const { setupPageRoute } = helpers;
 
@@ -16,11 +17,26 @@ module.exports = function (app, name, middleware, controllers) {
 		middleware.checkAccountPermissions,
 	];
 
+	// Block direct viewing of the anonymous/guest account
+function blockAnonymousProfile(req, res, next) {
+	const slug = String(req.params.userslug || '').toLowerCase();
+	// Adjust these checks to whatever your forum uses for the anon account
+	if (slug === 'anonymous' || slug === 'guest') {
+		// API callers get a 403; browsers get a redirect + flash
+		if (req.path.startsWith('/api/')) {
+			return res.status(403).json({ message: 'Anonymous profile is not accessible.' });
+		}
+		req.flash('error', 'Anonymous profile is not accessible.');
+		return res.redirect(`${nconf.get('relative_path')}/`);
+	}
+	next();
+}
+
 	setupPageRoute(app, '/me', [], middleware.redirectMeToUserslug);
 	setupPageRoute(app, '/me/*', [], middleware.redirectMeToUserslug);
 	setupPageRoute(app, '/uid/:uid*', [], middleware.redirectUidToUserslug);
 
-	setupPageRoute(app, `/${name}/:userslug`, middlewares, controllers.accounts.profile.get);
+	setupPageRoute(app, `/${name}/:userslug`, [...middlewares, blockAnonymousProfile], controllers.accounts.profile.get);
 	setupPageRoute(app, `/${name}/:userslug/following`, middlewares, controllers.accounts.follow.getFollowing);
 	setupPageRoute(app, `/${name}/:userslug/followers`, middlewares, controllers.accounts.follow.getFollowers);
 
@@ -55,4 +71,6 @@ module.exports = function (app, name, middleware, controllers) {
 	setupPageRoute(app, '/chats/:roomid?/:index?', [middleware.ensureLoggedIn], controllers.accounts.chats.redirectToChat);
 
 	setupPageRoute(app, `/message/:mid`, [middleware.ensureLoggedIn], controllers.accounts.chats.redirectToMessage);
+
+	module.exports._blockAnonymousProfile = blockAnonymousProfile;
 };
