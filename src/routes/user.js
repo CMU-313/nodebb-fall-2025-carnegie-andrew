@@ -18,19 +18,19 @@ module.exports = function (app, name, middleware, controllers) {
 	];
 
 	// Block direct viewing of the anonymous/guest account
-function blockAnonymousProfile(req, res, next) {
-	const slug = String(req.params.userslug || '').toLowerCase();
-	// Adjust these checks to whatever your forum uses for the anon account
-	if (slug === 'anonymous' || slug === 'guest') {
-		// API callers get a 403; browsers get a redirect + flash
-		if (req.path.startsWith('/api/')) {
-			return res.status(403).json({ message: 'Anonymous profile is not accessible.' });
+	function blockAnonymousProfile(req, res, next) {
+		const slug = String(req.params.userslug || '').toLowerCase();
+		// Adjust these checks to whatever your forum uses for the anon account
+		if (slug === 'anonymous' || slug === 'guest') {
+			// API callers get a 403; browsers get a redirect + flash
+			if (req.path.startsWith('/api/')) {
+				return res.status(403).json({ message: 'Anonymous profile is not accessible.' });
+			}
+			req.flash('error', 'Anonymous profile is not accessible.');
+			return res.redirect(`${nconf.get('relative_path')}/`);
 		}
-		req.flash('error', 'Anonymous profile is not accessible.');
-		return res.redirect(`${nconf.get('relative_path')}/`);
+		next();
 	}
-	next();
-}
 
 	setupPageRoute(app, '/me', [], middleware.redirectMeToUserslug);
 	setupPageRoute(app, '/me/*', [], middleware.redirectMeToUserslug);
