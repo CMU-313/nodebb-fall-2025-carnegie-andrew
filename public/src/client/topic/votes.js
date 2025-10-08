@@ -53,10 +53,17 @@ define('forum/topic/votes', [
 			tooltip.dispose();
 			$this.attr('title', '');
 		}
-		const path = $this.attr('component') === 'post/vote-count' ?
-			`/posts/${encodeURIComponent(pid)}/upvoters` :
-			`/posts/${encodeURIComponent(pid)}/announcers/tooltip`;
 
+		// For vote-count, show upvotes/downvotes breakdown
+		if ($this.attr('component') === 'post/vote-count') {
+			const upvotes = parseInt($this.attr('data-upvotes'), 10) || 0;
+			const downvotes = parseInt($this.attr('data-downvotes'), 10) || 0;
+			createVoteBreakdownTooltip($this, upvotes, downvotes);
+			return;
+		}
+
+		// For other components (like announcers), use the API
+		const path = `/posts/${encodeURIComponent(pid)}/announcers/tooltip`;
 		api.get(path, {}, function (err, data) {
 			if (err) {
 				return alerts.error(err);
@@ -65,6 +72,19 @@ define('forum/topic/votes', [
 				createTooltip($this, data);
 			}
 		});
+	}
+
+	function createVoteBreakdownTooltip(el, upvotes, downvotes) {
+		const tooltipContent = `<div style="text-align: center;">
+			<div style="color: #28a745; font-weight: bold;">↑ ${upvotes} upvote${upvotes !== 1 ? 's' : ''}</div>
+			<div style="color: #dc3545; font-weight: bold;">↓ ${downvotes} downvote${downvotes !== 1 ? 's' : ''}</div>
+		</div>`;
+		
+		el.attr('title', tooltipContent);
+		(new bootstrap.Tooltip(el, {
+			container: '#content',
+			html: true,
+		})).show();
 	}
 
 	function createTooltip(el, data) {

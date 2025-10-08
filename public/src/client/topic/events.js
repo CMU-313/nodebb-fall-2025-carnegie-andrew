@@ -70,7 +70,9 @@ define('forum/topic/events', [
 			return $(el).closest('[data-pid]').attr('data-pid') === String(data.post.pid);
 		});
 		const reputationElements = $('.reputation[data-uid="' + data.post.uid + '"]');
-		votes.html(data.post.votes).attr('data-votes', data.post.votes);
+		votes.html(data.post.votes).attr('data-votes', data.post.votes)
+			.attr('data-upvotes', data.post.upvotes)
+			.attr('data-downvotes', data.post.downvotes);
 		reputationElements.html(data.user.reputation).attr('data-reputation', data.user.reputation);
 	}
 
@@ -250,6 +252,10 @@ define('forum/topic/events', [
 		post.find('[component="post/downvote"]').filter(function (index, el) {
 			return $(el).closest('[data-pid]').attr('data-pid') === String(data.post.pid);
 		}).toggleClass('downvoted', data.downvote);
+		// Update vote count data attributes for tooltip
+		post.find('[component="post/vote-count"]').filter(function (index, el) {
+			return $(el).closest('[data-pid]').attr('data-pid') === String(data.post.pid);
+		}).attr('data-upvotes', data.post.upvotes).attr('data-downvotes', data.post.downvotes);
 	}
 
 	function onNewNotification(data) {
