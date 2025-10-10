@@ -144,3 +144,97 @@ npm test -- test/pins_spec.js
 - **Cleanup**: Includes proper test cleanup to prevent side effects
 **Running the Tests**:
 npm test -- test/vote-differentiation.js
+
+# User Guide – Anonymous Replies
+
+## Overview
+The **Anonymous Replies** feature lets any logged-in user post replies anonymously within existing discussion threads. When enabled, your display name is hidden and an anonymous handle is shown instead, allowing you to ask questions or share feedback without revealing your identity.
+
+---
+
+## How to Use
+
+### Enabling Anonymous Mode in Quick Reply
+1. **Log in** to your account.
+2. Open any topic and scroll to the **Quick Reply** area.
+3. Use the **Anonymous** toggle (checkbox) to switch between:
+   - **OFF (Public):** posts as your user.
+   - **ON (Anonymous):** posts using an anonymous handle.
+4. Start typing your reply and submit as usual.
+
+### What You’ll See
+- When toggled **ON**, the UI shows an anonymous state (e.g., a badge/label) and a status message such as **“Anonymous mode ON.”**
+- When toggled **OFF**, the UI returns to normal and may show **“Anonymous mode OFF.”**
+
+### Posting
+- **Anonymous ON:** Your reply publishes as **Anonymous** (UID swapped to system anonymous user).
+- **Anonymous OFF:** Your reply publishes as **you** (normal behavior).
+
+---
+
+## Key Behaviors
+- The toggle state is reflected in a hidden input (`"1"` for ON, `"0"` for OFF`) and used at submit time.
+- Anonymous replies show a deterministic handle (e.g., `Anonymous_XXXX`) rather than your username.
+- Server configuration must allow anonymous posting for the option to appear.
+- This feature applies to **replies** in Quick Reply; creating topics may follow separate rules depending on configuration.
+
+---
+
+## Limitations & Notes
+- Forum administrators can disable anonymous posting globally; if disabled, the toggle will not appear.
+- Moderators/admins may still have tools to audit content as permitted by forum policy.
+- Anonymous mode does **not** retroactively anonymize previously posted content.
+
+---
+
+## Troubleshooting
+- **I don’t see the Anonymous toggle:** It may be disabled by configuration or you’re viewing as a guest. Log in and check with an admin if needed.
+- **My reply posted as me even though I toggled ON:** Ensure the toggle reads **ON** right before submitting (hidden value should be `"1"`). Refresh and try again.
+- **Status messages not showing:** Custom themes or ad-blockers may interfere with UI scripts; try disabling extensions or testing in a default theme.
+
+---
+
+## User Testing Instructions
+
+### Test Case 1: Toggle Behavior
+1. Open a topic and locate **Quick Reply**.
+2. Toggle **Anonymous ON**.
+3. **Expected:** UI indicates anonymous mode (badge/label) and shows **“Anonymous mode ON.”**
+4. Toggle **Anonymous OFF**.
+5. **Expected:** UI returns to public state and shows **“Anonymous mode OFF.”**
+
+### Test Case 2: Post Anonymously vs Public
+1. Toggle **Anonymous ON** and submit a short reply.
+2. **Expected:** Reply appears as **Anonymous** with anonymous handle.
+3. Toggle **Anonymous OFF** and submit another reply.
+4. **Expected:** Reply appears under your normal username.
+
+### Test Case 3: Page Reload / Initialization
+1. Set the toggle to **ON**, then **reload** the page.
+2. **Expected:** Initial UI matches the underlying state; submitting while **ON** still posts anonymously.
+
+### Test Case 4: Permissions / Config Off
+1. Ask an admin to disable the “allow anonymous posts” setting (or use a test env).
+2. **Expected:** Anonymous option is hidden or disabled; you cannot post anonymously.
+
+---
+
+## Automated Tests
+
+### Backend Tests
+**Location:** `test/anonymous_backend.js`
+
+**What is Tested & Why it’s Sufficient**
+- **Configuration toggles & constants:** Verifies feature gates (on/off) and special constants to ensure the system respects admin settings.
+- **Deterministic handle generation:** Same user/thread consistently maps to the same anonymous handle—crucial for coherent discussion while preserving anonymity.
+- **Permission checks:** Ensures only authorized scenarios permit anonymous posting (category privileges, valid UIDs).
+- **Anonymization on create:** Validates that creating **topics/replies** with `anonymous: true` swaps to the anonymous UID and assigns a handle.
+- **Mapping storage & retrieval:** Confirms original UID ↔ anonymous post linkage is stored correctly for internal bookkeeping and moderation workflows.
+- **User history retrieval:** Fetches anonymous posts associated with a user (internal/admin use cases).
+- **Composer build filtering:** Populates `showAnonymousOption` and `canPostAnonymously` flags to drive the client UI correctly.
+
+**Run:**
+```bash
+npm test -- test/anonymous_backend.js
+# or
+npm run test
