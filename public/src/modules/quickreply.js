@@ -1,5 +1,7 @@
 'use strict';
 
+// Use this in client:
+const currentUserSlug = (app && app.user && app.user.userslug) ? app.user.userslug : 'unknown';
 define('quickreply', [
 	'components', 'autocomplete', 'api',
 	'alerts', 'uploadHelpers', 'mousetrap', 'storage', 'hooks',
@@ -23,6 +25,48 @@ define('quickreply', [
 				},
 			},
 		};
+
+		// === Anonymous state wiring ===
+		const $anonToggle = $('#qr-anon-toggle').length ?
+			$('#qr-anon-toggle') :
+			components.get('topic/quickreply/anonymous/toggle');
+		const $anonHidden = $('[component="topic/quickreply/anonymous"]');
+
+		// single source of truth during this page view
+		let isAnonymous = !!($anonToggle && $anonToggle.prop && $anonToggle.prop('checked'));
+
+		// keep hidden input in sync (for any form posts that read it)
+		if ($anonHidden && $anonHidden.length) {
+			$anonHidden.val(isAnonymous ? '1' : '0');
+		}
+
+		// helper to show a small toast
+		function toastMode(state) {
+			const msg = state ?
+				'Anonymous mode ON — replies will post as Anonymous.' :
+				'Anonymous mode OFF — replies will post as yourself.';
+			alerts.alert({
+				type: 'info',
+				title: 'Posting mode changed',
+				message: msg,
+				timeout: 2500,
+			});
+		}
+
+		// announce initial state (optional; comment out if you don’t want it)
+		toastMode(isAnonymous);
+
+		// when user flips the checkbox, update state + hidden + toast
+		if ($anonToggle && $anonToggle.length) {
+			$anonToggle.on('change', function () {
+				isAnonymous = !!$(this).prop('checked');
+				if ($anonHidden && $anonHidden.length) {
+					$anonHidden.val(isAnonymous ? '1' : '0');
+				}
+				toastMode(isAnonymous);
+			});
+		}
+
 
 		destroyAutoComplete();
 		$(window).one('action:ajaxify.start', () => {
@@ -61,17 +105,64 @@ define('quickreply', [
 			}
 
 			const replyMsg = components.get('topic/quickreply/text').val();
+
+			// === NEW: determine anonymous toggle state ===
+			const anonymousNow = (function () {
+				// prefer live checkbox
+				const $anonToggle = $('#qr-anon-toggle');
+				if ($anonToggle && $anonToggle.length && $anonToggle.prop) {
+					return !!$anonToggle.prop('checked');
+				}
+				// fallback to hidden input if present
+				const $anonHidden = $('[component="topic/quickreply/anonymous"]');
+				if ($anonHidden && $anonHidden.length) {
+					const v = $anonHidden.val();
+					return v === '1' || v === 1 || v === true || v === 'true';
+				}
+				return false;
+			})();
+
+			// Build reply data with anonymous flag
 			const replyData = {
 				tid: ajaxify.data.tid,
 				handle: undefined,
 				content: replyMsg,
+				anonymous: anonymousNow,
 			};
+
+			// Debug
+			console.log('quickreply submit', { user: currentUserSlug, replyData });
+
 			const replyLen = replyMsg.length;
+
+			//console.log('posting with ' + 'user ' + user.slug + replyData + ']]');
 			if (replyLen < parseInt(config.minimumPostLength, 10)) {
 				return alerts.error('[[error:content-too-short, ' + config.minimumPostLength + ']]');
 			} else if (replyLen > parseInt(config.maximumPostLength, 10)) {
 				return alerts.error('[[error:content-too-long, ' + config.maximumPostLength + ']]');
 			}
+			// If the anonymous toggle is ON, do a frontend-only confirmation first
+			// (no backend call). This satisfies STEP 1: confirm UI flow without DB change.
+			if (replyData.anonymous) {
+				alerts.alert({
+					type: 'success',
+					title: '[[global:alert.success]]',
+					message: 'anonymous posting: ' + (app && app.user && app.user.userslug ? app.user.userslug : 'unknown') + ' posted anonymously',
+					timeout: 3000,
+				});
+
+				// Clear the draft and textarea as if we've handled the reply locally.
+				components.get('topic/quickreply/text').val('');
+				storage.removeItem(qrDraftId);
+				if (QuickReply._autocomplete) {
+					QuickReply._autocomplete.hide();
+				}
+				// Fire the same success hook so other parts of the UI can respond.
+				hooks.fire('action:quickreply.success', { data: { anonymous: true, frontendOnly: true } });
+
+				return;
+			}
+			
 
 			ready = false;
 			api.post(`/topics/${ajaxify.data.tid}`, replyData, function (err, data) {
