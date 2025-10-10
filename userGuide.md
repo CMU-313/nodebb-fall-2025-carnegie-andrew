@@ -1,10 +1,5 @@
-# User Guide - New Features
 
-This guide covers how to use and test the new features added to NodeBB.
-
----
-
-## User-Specific Post Pinning
+## Feature 1: User-Specific Post Pinning
 
 ### Overview
 Users can now pin individual posts to the top of a topic for their own view. Pinned posts are user-specific and do not affect other users' views of the topic.
@@ -61,7 +56,7 @@ Users can now pin individual posts to the top of a topic for their own view. Pin
 
 ---
 
-## Upvote/Downvote Display
+## Feature 2: Upvote/Downvote Display
 
 ### Feature Overview
 Users can now see a detailed breakdown of upvotes and downvotes when hovering over a post's vote score, providing transparency into the actual vote distribution rather than just the net difference.
@@ -145,21 +140,24 @@ npm test -- test/pins_spec.js
 **Running the Tests**:
 npm test -- test/vote-differentiation.js
 
-# User Guide – Anonymous Replies
+# Feature 3:Anonymous Replies
 
 ## Overview
 The **Anonymous Replies** feature lets any logged-in user post replies anonymously within existing discussion threads. When enabled, your display name is hidden and an anonymous handle is shown instead, allowing you to ask questions or share feedback without revealing your identity.
 
+## Notes on progress
+we were unable to fully integrate this feature (as stated in the team reflection) - however, testing can still be done separately with frontend user interactions (user is able to toggle checkbox and observe behavior) and backend tests.
+
 ---
 
-## How to Use
+## How to Use (Frontend Test)
 
 ### Enabling Anonymous Mode in Quick Reply
 1. **Log in** to your account.
 2. Open any topic and scroll to the **Quick Reply** area.
 3. Use the **Anonymous** toggle (checkbox) to switch between:
-   - **OFF (Public):** posts as your user.
-   - **ON (Anonymous):** posts using an anonymous handle.
+   - **OFF (Public):** posts as your user
+   - **ON (Anonymous):** 
 4. Start typing your reply and submit as usual.
 
 ### What You’ll See
@@ -169,28 +167,6 @@ The **Anonymous Replies** feature lets any logged-in user post replies anonymous
 ### Posting
 - **Anonymous ON:** Your reply publishes as **Anonymous** (UID swapped to system anonymous user).
 - **Anonymous OFF:** Your reply publishes as **you** (normal behavior).
-
----
-
-## Key Behaviors
-- The toggle state is reflected in a hidden input (`"1"` for ON, `"0"` for OFF`) and used at submit time.
-- Anonymous replies show a deterministic handle (e.g., `Anonymous_XXXX`) rather than your username.
-- Server configuration must allow anonymous posting for the option to appear.
-- This feature applies to **replies** in Quick Reply; creating topics may follow separate rules depending on configuration.
-
----
-
-## Limitations & Notes
-- Forum administrators can disable anonymous posting globally; if disabled, the toggle will not appear.
-- Moderators/admins may still have tools to audit content as permitted by forum policy.
-- Anonymous mode does **not** retroactively anonymize previously posted content.
-
----
-
-## Troubleshooting
-- **I don’t see the Anonymous toggle:** It may be disabled by configuration or you’re viewing as a guest. Log in and check with an admin if needed.
-- **My reply posted as me even though I toggled ON:** Ensure the toggle reads **ON** right before submitting (hidden value should be `"1"`). Refresh and try again.
-- **Status messages not showing:** Custom themes or ad-blockers may interfere with UI scripts; try disabling extensions or testing in a default theme.
 
 ---
 
@@ -204,22 +180,10 @@ The **Anonymous Replies** feature lets any logged-in user post replies anonymous
 5. **Expected:** UI returns to public state and shows **“Anonymous mode OFF.”**
 
 ### Test Case 2: Post Anonymously vs Public
-1. Toggle **Anonymous ON** and submit a short reply.
-2. **Expected:** Reply appears as **Anonymous** with anonymous handle.
 3. Toggle **Anonymous OFF** and submit another reply.
 4. **Expected:** Reply appears under your normal username.
 
-### Test Case 3: Page Reload / Initialization
-1. Set the toggle to **ON**, then **reload** the page.
-2. **Expected:** Initial UI matches the underlying state; submitting while **ON** still posts anonymously.
-
-### Test Case 4: Permissions / Config Off
-1. Ask an admin to disable the “allow anonymous posts” setting (or use a test env).
-2. **Expected:** Anonymous option is hidden or disabled; you cannot post anonymously.
-
----
-
-## Automated Tests
+### Automated Tests
 
 ### Backend Tests
 **Location:** `test/anonymous_backend.js`
