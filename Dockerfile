@@ -29,7 +29,7 @@ RUN groupadd --gid ${GID} ${USER} \
     && useradd --uid ${UID} --gid ${GID} --home-dir /usr/src/app/ --shell /bin/bash ${USER} \
     && chown -R ${USER}:${USER} /usr/src/app/
 
-USER ${USER}
+USER root
 
 RUN npm install --omit=dev \
     && rm -rf .npm
@@ -62,7 +62,7 @@ RUN chmod +x /usr/local/bin/entrypoint.sh \
 # TODO: Have docker-compose use environment variables to create files like setup.json and config.json.
 # COPY --from=hairyhenderson/gomplate:stable /gomplate /usr/local/bin/gomplate
 
-USER ${USER}
+USER root
 
 EXPOSE 4567
 
