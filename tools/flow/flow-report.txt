@@ -1,0 +1,1833 @@
+Launching Flow server for /workspaces/nodebb-fall-2025-carnegie-andrew
+Spawned flow server (pid=28240)
+Logs will go to /tmp/flow/zSworkspaceszSnodebb-fall-2025-carnegie-andrew.log
+Monitor logs will go to /tmp/flow/zSworkspaceszSnodebb-fall-2025-carnegie-andrew.monitor_log
+Started a new flow server: -Please wait. Server is starting up Flow server
+Please wait. Server is initializing (parsed files 0)
+Please wait. Server is initializing (parsed files 15000)
+Please wait. Server is initializing (parsed files 19000)
+Please wait. Server is initializing (parsed files 37000)
+Please wait. Server is initializing (parsed files 44000)
+Please wait. Server is initializing (parsed files 45478)
+Please wait. Server is initializing (loading libraries)
+Please wait. Server is initializing (resolving dependencies)
+Please wait. Server is initializing (indexing files 0/171 (0.0%))
+Please wait. Server is initializing (indexing files (post-process))
+Please wait. Server is initializing (post-Indexing work)
+Please wait. Server is initializing (parsed files 0/0 (0.0%))
+Please wait. Server is initializing (calculating dependencies)
+Please wait. Server is initializing (merged module interfaces 0/3 (0.0%))
+Please wait. Server is initializing (checked files 1/3 (33.3%))
+Please wait. Server is initializing (collating errors)
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:10:1
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   10| window.ajaxify = window.ajaxify || {};
+       ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:10:18
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   10| window.ajaxify = window.ajaxify || {};
+                        ^^^^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:11:1
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   11| ajaxify.widgets = { render: render };
+       ^^^^^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:19:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   19| 	ajaxify.count = 0;
+        ^^^^^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:20:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   20| 	ajaxify.currentPage = null;
+        ^^^^^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:21:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   21| 	ajaxify.requestedPage = null;
+        ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:24:29
+
+Cannot resolve name `history`. [cannot-resolve-name]
+
+   24| 	if ('scrollRestoration' in history) {
+                                   ^^^^^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:25:3
+
+Cannot resolve name `history`. [cannot-resolve-name]
+
+   25| 		history.scrollRestoration = 'manual';
+         ^^^^^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:28:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   28| 	ajaxify.check = (item) => {
+        ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:36:34
+
+Cannot resolve name `Element`. [cannot-resolve-name]
+
+   36| 		let pathname = item instanceof Element ? item.getAttribute('href') : undefined;
+                                        ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:38:17
+
+Cannot resolve name `URL`. [cannot-resolve-name]
+
+   38| 			urlObj = new URL(item, `${document.location.origin}${config.relative_path}`);
+                       ^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:38:30
+
+Cannot resolve name `document`. [cannot-resolve-name]
+
+   38| 			urlObj = new URL(item, `${document.location.origin}${config.relative_path}`);
+                                    ^^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:38:57
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   38| 			urlObj = new URL(item, `${document.location.origin}${config.relative_path}`);
+                                                               ^^^^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:39:8
+
+This condition is likely truthy.
+[WARNING]: Flow's type inference may be incorrect that it could be null at runtime (due to `any` annotations,
+out-of-bounds array accesses, etc.). If the check is valid, you might want to make [1] nullable (`T` -> `?T`).
+[constant-condition]
+
+   public/src/ajaxify.js:39:8
+   39| 			if (!pathname) {
+              ^^^^^^^^^
+
+References:
+   public/src/ajaxify.js:36:72
+   36| 		let pathname = item instanceof Element ? item.getAttribute('href') : undefined;
+                                                                              ^^^^^^^^^ [1]
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:47:24
+
+Cannot resolve name `utils`. [cannot-resolve-name]
+
+   47| 		const internalLink = utils.isInternalURI(urlObj, window.location, config.relative_path);
+                              ^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:47:52
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   47| 		const internalLink = utils.isInternalURI(urlObj, window.location, config.relative_path);
+                                                          ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:47:69
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   47| 		const internalLink = utils.isInternalURI(urlObj, window.location, config.relative_path);
+                                                                           ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:49:21
+
+Missing an annotation on `href`. [missing-local-annot]
+
+   49| 		const hrefEmpty = href => href === undefined || href === '' || href === 'javascript:;';
+                           ^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:51:23
+
+Cannot resolve name `Element`. [cannot-resolve-name]
+
+   51| 		if (item instanceof Element) {
+                             ^^^^^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:52:8
+
+Cannot compare call of method `getAttribute` [1] to string literal `false` [2], because call of method
+`getAttribute` [1] is empty.  [invalid-compare]
+
+   public/src/ajaxify.js:52:8
+   52| 			if (item.getAttribute('data-ajaxify') === 'false') {
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+References:
+   public/src/ajaxify.js:52:8
+   52| 			if (item.getAttribute('data-ajaxify') === 'false') {
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+   public/src/ajaxify.js:52:46
+   52| 			if (item.getAttribute('data-ajaxify') === 'false') {
+                                                    ^^^^^^^ [2]
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:72:36
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   72| 			if (String(pathname).startsWith(config.relative_path + '/sitemap') && pathname.endsWith('.xml')) {
+                                          ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:78:40
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   78| 				return String(pathname).startsWith(config.relative_path + prefix);
+                                              ^^^^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:87:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   87| 	ajaxify.go = function (url, callback, quiet) {
+        ^^^^^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:89:8
+
+Cannot resolve name `socket`. [cannot-resolve-name]
+
+   89| 		if (!socket.connected && parseInt(app.user.uid, 10) >= 0) {
+              ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:89:37
+
+Cannot resolve name `app`. [cannot-resolve-name]
+
+   89| 		if (!socket.connected && parseInt(app.user.uid, 10) >= 0) {
+                                           ^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:90:4
+
+Cannot resolve name `app`. [cannot-resolve-name]
+
+   90| 			app.reconnect();
+          ^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:92:8
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   92| 			if (ajaxify.reconnectAction) {
+              ^^^^^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:93:5
+
+Cannot resolve name `$`. [cannot-resolve-name]
+
+   93| 				$(window).off('action:reconnected', ajaxify.reconnectAction);
+           ^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:93:7
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   93| 				$(window).off('action:reconnected', ajaxify.reconnectAction);
+             ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:93:41
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   93| 				$(window).off('action:reconnected', ajaxify.reconnectAction);
+                                               ^^^^^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:95:4
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   95| 			ajaxify.reconnectAction = function (e) {
+          ^^^^^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:96:5
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   96| 				ajaxify.go(url, callback, quiet);
+           ^^^^^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:97:5
+
+Cannot resolve name `$`. [cannot-resolve-name]
+
+   97| 				$(window).off(e);
+           ^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:97:7
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   97| 				$(window).off(e);
+             ^^^^^^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:99:4
+
+Cannot resolve name `$`. [cannot-resolve-name]
+
+   99| 			$(window).on('action:reconnected', ajaxify.reconnectAction);
+          ^
+
+
+Error --------------------------------------------------------------------------------------- public/src/ajaxify.js:99:6
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   99| 			$(window).on('action:reconnected', ajaxify.reconnectAction);
+            ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:99:39
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   99| 			$(window).on('action:reconnected', ajaxify.reconnectAction);
+                                             ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:103:7
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   103| 		if (ajaxify.requestedPage === url && ajaxifyTimer && (Date.now() - ajaxifyTimer) < 500) {
+              ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:107:3
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   107| 		ajaxify.requestedPage = url;
+          ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:109:7
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   109| 		if (ajaxify.handleRedirects(url)) {
+              ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:113:25
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   113| 		if (!quiet && url === ajaxify.currentPage + window.location.search + window.location.hash) {
+                                ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:113:47
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   113| 		if (!quiet && url === ajaxify.currentPage + window.location.search + window.location.hash) {
+                                                      ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:113:72
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   113| 		if (!quiet && url === ajaxify.currentPage + window.location.search + window.location.hash) {
+                                                                               ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:117:3
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   117| 		ajaxify.cleanup(url, ajaxify.data.template.name);
+          ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:117:24
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   117| 		ajaxify.cleanup(url, ajaxify.data.template.name);
+                               ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:119:7
+
+Cannot resolve name `$`. [cannot-resolve-name]
+
+   119| 		if ($('#content').hasClass('ajaxifying') && apiXHR) {
+              ^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:123:3
+
+Cannot resolve name `app`. [cannot-resolve-name]
+
+   123| 		app.previousUrl = !['reset'].includes(ajaxify.currentPage) ?
+          ^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:123:41
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   123| 		app.previousUrl = !['reset'].includes(ajaxify.currentPage) ?
+                                                ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:124:4
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   124| 			window.location.pathname.slice(config.relative_path.length) + window.location.search :
+           ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:124:35
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   124| 			window.location.pathname.slice(config.relative_path.length) + window.location.search :
+                                          ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:124:66
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   124| 			window.location.pathname.slice(config.relative_path.length) + window.location.search :
+                                                                         ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:125:4
+
+Cannot resolve name `app`. [cannot-resolve-name]
+
+   125| 			app.previousUrl;
+           ^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:127:9
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   127| 		url = ajaxify.start(url);
+                ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:131:58
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   131| 			hooks.fire('action:ajaxify.end', { url: url, tpl_url: ajaxify.data.template.name, title: ajaxify.data.title });
+                                                                 ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:131:93
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   131| 			hooks.fire('action:ajaxify.end', { url: url, tpl_url: ajaxify.data.template.name, title: ajaxify.data.title });
+                                                                                                    ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:135:23
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   135| 		previousBodyClass = ajaxify.data.bodyClass;
+                              ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:136:3
+
+Cannot resolve name `$`. [cannot-resolve-name]
+
+   136| 		$('#footer, #content').removeClass('hide').addClass('ajaxifying');
+          ^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:138:3
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   138| 		ajaxify.loadData(url, function (err, data) {
+          ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:144:5
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   144| 				ajaxify.updateHistory(url, quiet);
+            ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:160:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   160| 	ajaxify.coldLoad = function () {
+         ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:161:15
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   161| 		const url = ajaxify.start(window.location.pathname.slice(1) + window.location.search + window.location.hash);
+                      ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:161:29
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   161| 		const url = ajaxify.start(window.location.pathname.slice(1) + window.location.search + window.location.hash);
+                                    ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:161:65
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   161| 		const url = ajaxify.start(window.location.pathname.slice(1) + window.location.search + window.location.hash);
+                                                                        ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:161:90
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   161| 		const url = ajaxify.start(window.location.pathname.slice(1) + window.location.search + window.location.hash);
+                                                                                                 ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:162:3
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   162| 		ajaxify.updateHistory(url, true);
+          ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:163:3
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   163| 		ajaxify.end(url, ajaxify.data.template.name);
+          ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:163:20
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   163| 		ajaxify.end(url, ajaxify.data.template.name);
+                           ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:167:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   167| 	ajaxify.isCold = function () {
+         ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:168:10
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   168| 		return ajaxify.count <= 1;
+                 ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:171:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   171| 	ajaxify.handleRedirects = function (url) {
+         ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:172:9
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   172| 		url = ajaxify.removeRelativePath(url.replace(/^\/|\/$/g, '')).toLowerCase();
+                ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:173:54
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   173| 		const isClientToAdmin = url.startsWith('admin') && window.location.pathname.indexOf(config.relative_path + '/admin') !== 0;
+                                                             ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:173:87
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   173| 		const isClientToAdmin = url.startsWith('admin') && window.location.pathname.indexOf(config.relative_path + '/admin') !== 0;
+                                                                                              ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:174:55
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   174| 		const isAdminToClient = !url.startsWith('admin') && window.location.pathname.indexOf(config.relative_path + '/admin') === 0;
+                                                              ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:174:88
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   174| 		const isAdminToClient = !url.startsWith('admin') && window.location.pathname.indexOf(config.relative_path + '/admin') === 0;
+                                                                                               ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:177:4
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   177| 			window.open(config.relative_path + '/' + url, '_top');
+           ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:177:16
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   177| 			window.open(config.relative_path + '/' + url, '_top');
+                       ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:183:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   183| 	ajaxify.start = function (url) {
+         ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:184:9
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   184| 		url = ajaxify.removeRelativePath(url.replace(/^\/|\/$/g, ''));
+                ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:193:3
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   193| 		ajaxify.count += 1;
+          ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:198:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   198| 	ajaxify.updateHistory = function (url, quiet) {
+         ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:199:3
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   199| 		ajaxify.currentPage = url.split(/[?#]/)[0];
+          ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:200:3
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   200| 		ajaxify.requestedPage = null;
+          ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:201:7
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   201| 		if (window.history && window.history.pushState) {
+              ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:201:25
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   201| 		if (window.history && window.history.pushState) {
+                                ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:202:4
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   202| 			window.history[!quiet ? 'pushState' : 'replaceState']({
+           ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:204:12
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   204| 			}, url, config.relative_path + '/' + url);
+                   ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:208:23
+
+Missing an annotation on `err`. [missing-local-annot]
+
+   208| 	function onAjaxError(err, url, callback, quiet) {
+                              ^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:208:28
+
+Missing an annotation on `url`. [missing-local-annot]
+
+   208| 	function onAjaxError(err, url, callback, quiet) {
+                                   ^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:208:33
+
+Missing an annotation on `callback`. [missing-local-annot]
+
+   208| 	function onAjaxError(err, url, callback, quiet) {
+                                        ^^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:208:43
+
+Missing an annotation on `quiet`. [missing-local-annot]
+
+   208| 	function onAjaxError(err, url, callback, quiet) {
+                                                  ^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:217:21
+
+Cannot assign `undefined` to `ajaxifyTimer` because undefined [1] is incompatible with number [2]. [incompatible-type]
+
+All writes to `ajaxifyTimer` must be compatible with the type of its initial assignment [3]. Add an annotation to
+`ajaxifyTimer` [4] if a different type is desired.
+
+   public/src/ajaxify.js:217:21
+    217| 					ajaxifyTimer = undefined;
+                             ^^^^^^^^^ [1]
+
+References:
+   <BUILTINS>/core.js:1690:19
+   1690|     static now(): number;
+                           ^^^^^^ [2]
+   public/src/ajaxify.js:106:3
+    106| 		ajaxifyTimer = Date.now();
+           ^^^^^^^^^^^^ [3]
+   public/src/ajaxify.js:14:6
+     14| 	let ajaxifyTimer;
+              ^^^^^^^^^^^^ [4]
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:218:13
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   218| 					return ajaxify.go(url, callback, quiet);
+                    ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:224:6
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   224| 					ajaxify.data.bodyClass = data.responseJSON.bodyClass;
+             ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:225:33
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   225| 					data.responseJSON.config = config;
+                                        ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:228:5
+
+Cannot resolve name `$`. [cannot-resolve-name]
+
+   228| 				$('#footer, #content').removeClass('hide').addClass('ajaxifying');
+            ^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:232:5
+
+Cannot resolve name `app`. [cannot-resolve-name]
+
+   232| 				app.previousUrl = url;
+            ^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:233:5
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   233| 				window.location.href = config.relative_path + '/login';
+            ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:233:28
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   233| 				window.location.href = config.relative_path + '/login';
+                                   ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:238:6
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   238| 					window.location.href = data.responseJSON.external;
+             ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:240:21
+
+Cannot assign `undefined` to `ajaxifyTimer` because undefined [1] is incompatible with number [2]. [incompatible-type]
+
+All writes to `ajaxifyTimer` must be compatible with the type of its initial assignment [3]. Add an annotation to
+`ajaxifyTimer` [4] if a different type is desired.
+
+   public/src/ajaxify.js:240:21
+    240| 					ajaxifyTimer = undefined;
+                             ^^^^^^^^^ [1]
+
+References:
+   <BUILTINS>/core.js:1690:19
+   1690|     static now(): number;
+                           ^^^^^^ [2]
+   public/src/ajaxify.js:106:3
+    106| 		ajaxifyTimer = Date.now();
+           ^^^^^^^^^^^^ [3]
+   public/src/ajaxify.js:14:6
+     14| 	let ajaxifyTimer;
+              ^^^^^^^^^^^^ [4]
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:242:7
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   242| 						window.location.href = data.responseJSON;
+              ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:244:7
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   244| 						ajaxify.go(data.responseJSON.slice(1), callback, quiet);
+              ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:253:26
+
+Missing an annotation on `url`. [missing-local-annot]
+
+   253| 	function renderTemplate(url, tpl_url, data, callback) {
+                                 ^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:253:31
+
+Missing an annotation on `tpl_url`. [missing-local-annot]
+
+   253| 	function renderTemplate(url, tpl_url, data, callback) {
+                                      ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:253:40
+
+Missing an annotation on `data`. [missing-local-annot]
+
+   253| 	function renderTemplate(url, tpl_url, data, callback) {
+                                               ^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:253:46
+
+Missing an annotation on `callback`. [missing-local-annot]
+
+   253| 	function renderTemplate(url, tpl_url, data, callback) {
+                                                     ^^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:259:5
+
+Cannot resolve name `$`. [cannot-resolve-name]
+
+   259| 				$('body').removeClass(previousBodyClass).addClass(data.bodyClass);
+            ^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:260:5
+
+Cannot resolve name `$`. [cannot-resolve-name]
+
+   260| 				$('#content').html(translated);
+            ^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:262:5
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   262| 				ajaxify.end(url, tpl_url);
+            ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:268:5
+
+Cannot resolve name `$`. [cannot-resolve-name]
+
+   268| 				$('#content, #footer').removeClass('ajaxifying');
+            ^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:276:23
+
+Missing an annotation on `title`. [missing-local-annot]
+
+   276| 	function updateTitle(title) {
+                              ^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:281:11
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   281| 		title = config.titleLayout.replace(/&#123;/g, '{').replace(/&#125;/g, '}')
+                  ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:283:52
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   283| 			.replace('{browserTitle}', function () { return config.browserTitle; });
+                                                           ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:290:4
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   290| 			window.document.title = $('<div></div>').html(translated).text();
+           ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:290:28
+
+Cannot resolve name `$`. [cannot-resolve-name]
+
+   290| 			window.document.title = $('<div></div>').html(translated).text();
+                                   ^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:293:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   293| 	ajaxify.updateTitle = updateTitle;
+         ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:302:19
+
+Cannot get `Array.prototype.slice` because property `slice` [1] cannot be unbound from the context [2] where it was
+defined. [method-unbinding]
+
+   public/src/ajaxify.js:302:19
+   302| 		Array.prototype.slice
+                          ^^^^^ [1]
+
+References:
+   <BUILTINS>/core.js:929:5
+   929|     slice(start?: number, end?: number): Array<T>;
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [2]
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:303:10
+
+Cannot resolve name `document`. [cannot-resolve-name]
+
+   303| 			.call(document.querySelectorAll('head meta'))
+                 ^^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:311:5
+
+Cannot resolve name `document`. [cannot-resolve-name]
+
+   311| 				document.head.removeChild(el);
+            ^^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:315:3
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   315| 		ajaxify.data._header.tags.meta
+          ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:325:20
+
+Cannot resolve name `document`. [cannot-resolve-name]
+
+   325| 				const metaEl = document.createElement('meta');
+                           ^^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:329:5
+
+Cannot resolve name `document`. [cannot-resolve-name]
+
+   329| 				document.head.appendChild(metaEl);
+            ^^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:334:19
+
+Cannot get `Array.prototype.slice` because property `slice` [1] cannot be unbound from the context [2] where it was
+defined. [method-unbinding]
+
+   public/src/ajaxify.js:334:19
+   334| 		Array.prototype.slice
+                          ^^^^^ [1]
+
+References:
+   <BUILTINS>/core.js:929:5
+   929|     slice(start?: number, end?: number): Array<T>;
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [2]
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:335:10
+
+Cannot resolve name `document`. [cannot-resolve-name]
+
+   335| 			.call(document.querySelectorAll('head link'))
+                 ^^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:343:5
+
+Cannot resolve name `document`. [cannot-resolve-name]
+
+   343| 				document.head.removeChild(el);
+            ^^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:347:3
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   347| 		ajaxify.data._header.tags.link
+          ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:354:20
+
+Cannot resolve name `document`. [cannot-resolve-name]
+
+   354| 				const linkEl = document.createElement('link');
+                           ^^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:358:5
+
+Cannot resolve name `document`. [cannot-resolve-name]
+
+   358| 				document.head.appendChild(linkEl);
+            ^^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:362:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   362| 	ajaxify.end = function (url, tpl_url) {
+         ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:364:8
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   364| 		if (!ajaxify.isCold()) {
+               ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:365:4
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   365| 			window.scrollTo(0, 0);
+           ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:368:4
+
+The parameter passed to `require` must be a string literal. [unsupported-syntax]
+
+           v--------------------------------------------
+   368| 			require(['navigator'], function (navigator) {
+   369| 				if (navigator.shouldScrollToPost(ajaxify.data.postIndex)) {
+   370| 					navigator.scrollToPostIndex(ajaxify.data.postIndex - 1, true, 0);
+   371| 				}
+   372| 			});
+        			-^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:368:37
+
+An annotation on `navigator` is required because Flow cannot infer its type from local context. [missing-local-annot]
+
+   368| 			require(['navigator'], function (navigator) {
+                                            ^^^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:369:38
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   369| 				if (navigator.shouldScrollToPost(ajaxify.data.postIndex)) {
+                                             ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:370:34
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   370| 					navigator.scrollToPostIndex(ajaxify.data.postIndex - 1, true, 0);
+                                         ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:374:3
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   374| 		ajaxify.loadScript(tpl_url, function done() {
+          ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:375:74
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   375| 			hooks.fire('action:ajaxify.end', { url: url, tpl_url: tpl_url, title: ajaxify.data.title });
+                                                                                 ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:378:3
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   378| 		ajaxify.widgets.render(tpl_url);
+          ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:382:3
+
+Cannot resolve name `app`. [cannot-resolve-name]
+
+   382| 		app.processPage();
+          ^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:385:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   385| 	ajaxify.parseData = () => {
+         ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:386:18
+
+Cannot resolve name `document`. [cannot-resolve-name]
+
+   386| 		const dataEl = document.getElementById('ajaxify-data');
+                         ^^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:389:5
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   389| 				ajaxify.data = JSON.parse(dataEl.textContent);
+            ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:392:5
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   392| 				ajaxify.data = {};
+            ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:399:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   399| 	ajaxify.removeRelativePath = function (url) {
+         ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:400:22
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   400| 		if (url.startsWith(config.relative_path.slice(1))) {
+                             ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:401:20
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   401| 			url = url.slice(config.relative_path.length);
+                           ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:406:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   406| 	ajaxify.refresh = function (callback) {
+         ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:407:3
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   407| 		ajaxify.go(ajaxify.currentPage + window.location.search + window.location.hash, callback, true);
+          ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:407:14
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   407| 		ajaxify.go(ajaxify.currentPage + window.location.search + window.location.hash, callback, true);
+                     ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:407:36
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   407| 		ajaxify.go(ajaxify.currentPage + window.location.search + window.location.hash, callback, true);
+                                           ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:407:61
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   407| 		ajaxify.go(ajaxify.currentPage + window.location.search + window.location.hash, callback, true);
+                                                                    ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:410:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   410| 	ajaxify.loadScript = function (tpl_url, callback) {
+         ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:411:19
+
+Cannot resolve name `app`. [cannot-resolve-name]
+
+   411| 		let location = !app.inAdmin ? 'forum/' : '';
+                          ^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:436:28
+
+Cannot resolve name `app`. [cannot-resolve-name]
+
+   436| 						const module = await app.require(script);
+                                   ^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:465:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   465| 	ajaxify.loadData = function (url, callback) {
+         ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:466:9
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   466| 		url = ajaxify.removeRelativePath(url);
+                ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:470:12
+
+Cannot resolve name `$`. [cannot-resolve-name]
+
+   470| 		apiXHR = $.ajax({
+                   ^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:471:9
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   471| 			url: config.relative_path + '/api/' + url,
+                ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:474:20
+
+Cannot resolve name `app`. [cannot-resolve-name]
+
+   474| 				'X-Return-To': app.previousUrl,
+                           ^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:491:5
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   491| 				ajaxify.data = data;
+            ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:492:19
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   492| 				data.config = config;
+                          ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:512:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   512| 	ajaxify.loadTemplate = function (template, callback) {
+         ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:513:3
+
+Cannot resolve name `$`. [cannot-resolve-name]
+
+   513| 		$.ajax({
+          ^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:514:12
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   514| 			url: `${config.asset_base_url}/templates/${template}.js`,
+                   ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:520:20
+
+Cannot call `renderFunction` because no arguments are expected by new Function(..) [1]. [extra-arg]
+
+   public/src/ajaxify.js:520:20
+   520| 				renderFunction(moduleObj);
+                           ^^^^^^^^^
+
+References:
+   public/src/ajaxify.js:518:28
+   518| 				const renderFunction = new Function('module', script);
+                                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ [1]
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:529:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   529| 	ajaxify.cleanup = (url, tpl_url) => {
+         ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:530:3
+
+Cannot resolve name `app`. [cannot-resolve-name]
+
+   530| 		app.leaveCurrentRoom();
+          ^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:531:3
+
+Cannot resolve name `$`. [cannot-resolve-name]
+
+   531| 		$(window).off('scroll');
+          ^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:531:5
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   531| 		$(window).off('scroll');
+            ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:535:2
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   535| 	ajaxify.handleTransientElements = () => {
+         ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:539:15
+
+Cannot resolve name `document`. [cannot-resolve-name]
+
+   539| 			.map(el => document.querySelector(`${el} .dropdown-menu.show`) || document.querySelector(`${el} + .dropdown-menu.show`))
+                      ^^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:539:70
+
+Cannot resolve name `document`. [cannot-resolve-name]
+
+   539| 			.map(el => document.querySelector(`${el} .dropdown-menu.show`) || document.querySelector(`${el} + .dropdown-menu.show`))
+                                                                             ^^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:551:57
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   551| 	translator.translate(`[[global:reconnecting-message, ${config.siteTitle}]]`);
+                                                                ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:552:28
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   552| 	benchpress.registerLoader(ajaxify.loadTemplate);
+                                   ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:553:33
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   553| 	benchpress.setGlobal('config', config);
+                                        ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:558:1
+
+Cannot resolve name `$`. [cannot-resolve-name]
+
+   558| $(document).ready(function () {
+        ^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:558:3
+
+Cannot resolve name `document`. [cannot-resolve-name]
+
+   558| $(document).ready(function () {
+          ^^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:559:2
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   559| 	window.addEventListener('popstate', (ev) => {
+         ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:562:5
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   562| 				window.history.replaceState({
+            ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:564:29
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   564| 				}, ev.state.returnPath, config.relative_path + '/' + ev.state.returnPath);
+                                    ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:566:5
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   566| 				ajaxify.handleTransientElements();
+            ^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:567:5
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   567| 				ajaxify.go(ev.state.url, function () {
+            ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:575:20
+
+Cannot resolve name `document`. [cannot-resolve-name]
+
+   575| 		const location = document.location || window.location;
+                           ^^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:575:41
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   575| 		const location = document.location || window.location;
+                                                ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:577:21
+
+Cannot resolve name `document`. [cannot-resolve-name]
+
+   577| 		const contentEl = document.getElementById('content');
+                            ^^^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:580:3
+
+Cannot resolve name `$`. [cannot-resolve-name]
+
+   580| 		$(document.body).on('click', 'a', function (e) {
+          ^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:580:5
+
+Cannot resolve name `document`. [cannot-resolve-name]
+
+   580| 		$(document.body).on('click', 'a', function (e) {
+            ^^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:580:46
+
+Missing an annotation on implicit `this` parameter of function. [missing-this-annot]
+
+   580| 		$(document.body).on('click', 'a', function (e) {
+                                                     ^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:586:25
+
+Cannot resolve name `utils`. [cannot-resolve-name]
+
+   586| 			const internalLink = utils.isInternalURI(this, window.location, config.relative_path);
+                                ^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:586:51
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   586| 			const internalLink = utils.isInternalURI(this, window.location, config.relative_path);
+                                                          ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:586:68
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   586| 			const internalLink = utils.isInternalURI(this, window.location, config.relative_path);
+                                                                           ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:587:49
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   587| 			const rootAndPath = new RegExp(`^${rootUrl}${config.relative_path}/?`);
+                                                        ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:588:29
+
+Missing an annotation on implicit `this` parameter of function. [missing-this-annot]
+
+   588| 			const process = function () {
+                                    ^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:594:11
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   594| 						if (window.location.pathname === this.pathname && this.hash.length) {
+                  ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:595:8
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   595| 							window.location.hash = this.hash;
+               ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:596:18
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   596| 						} else if (ajaxify.go(pathname)) {
+                         ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:599:17
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   599| 					} else if (window.location.pathname !== config.relative_path + '/outgoing') {
+                        ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:599:46
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   599| 					} else if (window.location.pathname !== config.relative_path + '/outgoing') {
+                                                     ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:600:11
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   600| 						if (config.openOutgoingLinksInNewTab && $.contains(contentEl, this)) {
+                  ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:600:47
+
+Cannot resolve name `$`. [cannot-resolve-name]
+
+   600| 						if (config.openOutgoingLinksInNewTab && $.contains(contentEl, this)) {
+                                                      ^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:601:28
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   601| 							const externalTab = window.open();
+                                   ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:605:18
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   605| 						} else if (config.useOutgoingLinksPage) {
+                         ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:606:25
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   606| 							const safeUrls = config.outgoingLinksWhitelist.trim().split(/[\s,]+/g).filter(Boolean);
+                                ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:609:9
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   609| 								ajaxify.go('outgoing?url=' + encodeURIComponent(href));
+                ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:612:18
+
+Cannot resolve name `config`. [cannot-resolve-name]
+
+   612| 						} else if (config.activitypub.probe) {
+                         ^^^^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:613:8
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   613| 							ajaxify.go(`ap?resource=${encodeURIComponent(this.href)}`);
+               ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:620:18
+
+Cannot resolve name `ajaxify`. [cannot-resolve-name]
+
+   620| 			const check = ajaxify.check(this);
+                         ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:623:10
+
+Cannot resolve name `app`. [cannot-resolve-name]
+
+   623| 					if (app.flags && app.flags.hasOwnProperty('_unsaved') && app.flags._unsaved === true) {
+                 ^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:623:23
+
+Cannot resolve name `app`. [cannot-resolve-name]
+
+   623| 					if (app.flags && app.flags.hasOwnProperty('_unsaved') && app.flags._unsaved === true) {
+                              ^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:623:63
+
+Cannot resolve name `app`. [cannot-resolve-name]
+
+   623| 					if (app.flags && app.flags.hasOwnProperty('_unsaved') && app.flags._unsaved === true) {
+                                                                      ^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:628:7
+
+The parameter passed to `require` must be a string literal. [unsupported-syntax]
+
+              v----------------------------------------
+   628| 						require(['bootbox'], function (bootbox) {
+   629| 							bootbox.confirm('[[global:unsaved-changes]]', function (navigate) {
+   630| 								if (navigate) {
+   631| 									app.flags._unsaved = false;
+   632| 									process.call(_self);
+   633| 								}
+   634| 							});
+   635| 						});
+        						-^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:628:38
+
+An annotation on `bootbox` is required because Flow cannot infer its type from local context. [missing-local-annot]
+
+   628| 						require(['bootbox'], function (bootbox) {
+                                             ^^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:631:10
+
+Cannot resolve name `app`. [cannot-resolve-name]
+
+   631| 									app.flags._unsaved = false;
+                 ^^^
+
+
+Error -------------------------------------------------------------------------------------- public/src/ajaxify.js:653:6
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   653| 	if (window.history && window.history.pushState) {
+             ^^^^^^
+
+
+Error ------------------------------------------------------------------------------------- public/src/ajaxify.js:653:24
+
+Cannot resolve name `window`. [cannot-resolve-name]
+
+   653| 	if (window.history && window.history.pushState) {
+                               ^^^^^^
+
+
+
+Found 216 errors

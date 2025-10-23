@@ -15,9 +15,6 @@
         "test": "nyc --reporter=html --reporter=text-summary mocha",
         "coverage": "nyc report --reporter=text-lcov > ./coverage/lcov.info",
         "coveralls": "nyc report --reporter=text-lcov | coveralls && rm -r coverage",
-        "flow": "npx flow status",
-        "build": "npx babel src/ -d lib/",
-        "prepublish": "yarn run build"
     },
     "nyc": {
         "exclude": [
