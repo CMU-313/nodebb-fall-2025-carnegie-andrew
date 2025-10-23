@@ -20,19 +20,30 @@ Settings.get = async function (hash) {
 		db.getSetMembers(`settings:${hash}:sorted-lists`),
 	]);
 	const values = data || {};
-	await Promise.all(sortedLists.map(async (list) => {
-		const members = await db.getSortedSetRange(`settings:${hash}:sorted-list:${list}`, 0, -1);
-		const keys = members.map(order => `settings:${hash}:sorted-list:${list}:${order}`);
+	await Promise.all(
+		sortedLists.map(async (list) => {
+			const members = await db.getSortedSetRange(
+				`settings:${hash}:sorted-list:${list}`,
+				0,
+				-1
+			);
+			const keys = members.map(
+				(order) => `settings:${hash}:sorted-list:${list}:${order}`
+			);
 
-		values[list] = [];
+			values[list] = [];
 
-		const objects = await db.getObjects(keys);
-		objects.forEach((obj) => {
-			values[list].push(obj);
-		});
-	}));
+			const objects = await db.getObjects(keys);
+			objects.forEach((obj) => {
+				values[list].push(obj);
+			});
+		})
+	);
 
-	const result = await plugins.hooks.fire('filter:settings.get', { plugin: hash, values: values });
+	const result = await plugins.hooks.fire('filter:settings.get', {
+		plugin: hash,
+		values: values,
+	});
 	cache.set(`settings:${hash}`, result.values);
 	return _.cloneDeep(result.values);
 };
@@ -45,7 +56,15 @@ Settings.getOne = async function (hash, field) {
 Settings.set = async function (hash, values, quiet) {
 	quiet = quiet || false;
 
-	({ plugin: hash, settings: values, quiet } = await plugins.hooks.fire('filter:settings.set', { plugin: hash, settings: values, quiet }));
+	({
+		plugin: hash,
+		settings: values,
+		quiet,
+	} = await plugins.hooks.fire('filter:settings.set', {
+		plugin: hash,
+		settings: values,
+		quiet,
+	}));
 
 	const sortedListData = {};
 	for (const [key, value] of Object.entries(values)) {
@@ -58,25 +77,39 @@ Settings.set = async function (hash, values, quiet) {
 
 	if (sortedLists.length) {
 		// Remove provided (but empty) sorted lists from the hash set
-		await db.setRemove(`settings:${hash}:sorted-lists`, sortedLists.filter(list => !sortedListData[list].length));
+		await db.setRemove(
+			`settings:${hash}:sorted-lists`,
+			sortedLists.filter((list) => !sortedListData[list].length)
+		);
 		await db.setAdd(`settings:${hash}:sorted-lists`, sortedLists);
 
-		await Promise.all(sortedLists.map(async (list) => {
-			const numItems = await db.sortedSetCard(`settings:${hash}:sorted-list:${list}`);
-			const deleteKeys = [`settings:${hash}:sorted-list:${list}`];
-			for (let x = 0; x < numItems; x++) {
-				deleteKeys.push(`settings:${hash}:sorted-list:${list}:${x}`);
-			}
-			await db.deleteAll(deleteKeys);
-		}));
+		await Promise.all(
+			sortedLists.map(async (list) => {
+				const numItems = await db.sortedSetCard(
+					`settings:${hash}:sorted-list:${list}`
+				);
+				const deleteKeys = [`settings:${hash}:sorted-list:${list}`];
+				for (let x = 0; x < numItems; x++) {
+					deleteKeys.push(`settings:${hash}:sorted-list:${list}:${x}`);
+				}
+				await db.deleteAll(deleteKeys);
+			})
+		);
 
 		const sortedSetData = [];
 		const objectData = [];
 		sortedLists.forEach((list) => {
 			const arr = sortedListData[list];
 			arr.forEach((data, order) => {
-				sortedSetData.push([`settings:${hash}:sorted-list:${list}`, order, order]);
-				objectData.push([`settings:${hash}:sorted-list:${list}:${order}`, data]);
+				sortedSetData.push([
+					`settings:${hash}:sorted-list:${list}`,
+					order,
+					order,
+				]);
+				objectData.push([
+					`settings:${hash}:sorted-list:${list}:${order}`,
+					data,
+				]);
 			});
 		});
 
@@ -111,7 +144,7 @@ Settings.setOne = async function (hash, field, value) {
 };
 
 Settings.setOnEmpty = async function (hash, values) {
-	const settings = await Settings.get(hash) || {};
+	const settings = (await Settings.get(hash)) || {};
 	const empty = {};
 
 	Object.keys(values).forEach((key) => {
@@ -119,7 +152,6 @@ Settings.setOnEmpty = async function (hash, values) {
 			empty[key] = values[key];
 		}
 	});
-
 
 	if (Object.keys(empty).length) {
 		await Settings.set(hash, empty);

@@ -11,7 +11,6 @@ const groups = require('../../src/groups');
 const request = require('../../src/request');
 const adminUser = require('../../src/socket.io/admin/user');
 
-
 describe('custom user fields', () => {
 	let adminUid;
 	let lowRepUid;
@@ -27,12 +26,56 @@ describe('custom user fields', () => {
 
 	it('should create custom user fields', async () => {
 		const fields = [
-			{ key: 'website', icon: 'fa-solid fa-globe', name: 'Website', type: 'input-link', visibility: 'all', 'min:rep': 0 },
-			{ key: 'location', icon: 'fa-solid fa-pin', name: 'Location', type: 'input-text', visibility: 'all', 'min:rep': 0 },
-			{ key: 'favouriteDate', icon: '', name: 'Anniversary', type: 'input-date', visibility: 'all', 'min:rep': 0 },
-			{ key: 'favouriteLanguages', icon: 'fa-solid fa-code', name: 'Favourite Languages', type: 'select-multi', visibility: 'all', 'min:rep': 0, 'select-options': 'C++\nC\nJavascript\nPython\nAssembly' },
-			{ key: 'luckyNumber', icon: 'fa-solid fa-dice', name: 'Lucky Number', type: 'input-number', visibility: 'privileged', 'min:rep': 7 },
-			{ key: 'soccerTeam', icon: 'fa-regular fa-futbol', name: 'Soccer Team', type: 'select', visibility: 'all', 'min:rep': 0, 'select-options': 'Barcelona\nLiverpool\nArsenal\nGalatasaray\n' },
+			{
+				key: 'website',
+				icon: 'fa-solid fa-globe',
+				name: 'Website',
+				type: 'input-link',
+				visibility: 'all',
+				'min:rep': 0,
+			},
+			{
+				key: 'location',
+				icon: 'fa-solid fa-pin',
+				name: 'Location',
+				type: 'input-text',
+				visibility: 'all',
+				'min:rep': 0,
+			},
+			{
+				key: 'favouriteDate',
+				icon: '',
+				name: 'Anniversary',
+				type: 'input-date',
+				visibility: 'all',
+				'min:rep': 0,
+			},
+			{
+				key: 'favouriteLanguages',
+				icon: 'fa-solid fa-code',
+				name: 'Favourite Languages',
+				type: 'select-multi',
+				visibility: 'all',
+				'min:rep': 0,
+				'select-options': 'C++\nC\nJavascript\nPython\nAssembly',
+			},
+			{
+				key: 'luckyNumber',
+				icon: 'fa-solid fa-dice',
+				name: 'Lucky Number',
+				type: 'input-number',
+				visibility: 'privileged',
+				'min:rep': 7,
+			},
+			{
+				key: 'soccerTeam',
+				icon: 'fa-regular fa-futbol',
+				name: 'Soccer Team',
+				type: 'select',
+				visibility: 'all',
+				'min:rep': 0,
+				'select-options': 'Barcelona\nLiverpool\nArsenal\nGalatasaray\n',
+			},
 		];
 		await adminUser.saveCustomFields({ uid: adminUid }, fields);
 	});
@@ -43,7 +86,10 @@ describe('custom user fields', () => {
 				uid: lowRepUid,
 				luckyNumber: 13,
 			}),
-			{ message: '[[error:not-enough-reputation-custom-field, 7, Lucky Number]]' },
+			{
+				message:
+					'[[error:not-enough-reputation-custom-field, 7, Lucky Number]]',
+			}
 		);
 	});
 
@@ -53,7 +99,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				location: new Array(300).fill('a').join(''),
 			}),
-			{ message: '[[error:custom-user-field-value-too-long, Location]]' },
+			{ message: '[[error:custom-user-field-value-too-long, Location]]' }
 		);
 
 		await assert.rejects(
@@ -61,7 +107,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				luckyNumber: 'not-a-number',
 			}),
-			{ message: '[[error:custom-user-field-invalid-number, Lucky Number]]' },
+			{ message: '[[error:custom-user-field-invalid-number, Lucky Number]]' }
 		);
 
 		await assert.rejects(
@@ -69,7 +115,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				location: 'https://spam.com',
 			}),
-			{ message: '[[error:custom-user-field-invalid-text, Location]]' },
+			{ message: '[[error:custom-user-field-invalid-text, Location]]' }
 		);
 
 		await assert.rejects(
@@ -77,7 +123,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				favouriteDate: 'not-a-date',
 			}),
-			{ message: '[[error:custom-user-field-invalid-date, Anniversary]]' },
+			{ message: '[[error:custom-user-field-invalid-date, Anniversary]]' }
 		);
 
 		await assert.rejects(
@@ -85,7 +131,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				website: 'not-a-url',
 			}),
-			{ message: '[[error:custom-user-field-invalid-link, Website]]' },
+			{ message: '[[error:custom-user-field-invalid-link, Website]]' }
 		);
 
 		await assert.rejects(
@@ -93,7 +139,10 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				soccerTeam: 'not-in-options',
 			}),
-			{ message: '[[error:custom-user-field-select-value-invalid, Soccer Team]]' },
+			{
+				message:
+					'[[error:custom-user-field-select-value-invalid, Soccer Team]]',
+			}
 		);
 
 		await assert.rejects(
@@ -101,7 +150,10 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				favouriteLanguages: '["not-in-options"]',
 			}),
-			{ message: '[[error:custom-user-field-select-value-invalid, Favourite Languages]]' },
+			{
+				message:
+					'[[error:custom-user-field-select-value-invalid, Favourite Languages]]',
+			}
 		);
 	});
 
@@ -116,7 +168,9 @@ describe('custom user fields', () => {
 			soccerTeam: 'Galatasaray',
 		});
 
-		const { body } = await request.get(`${nconf.get('url')}/api/user/highrepuser`);
+		const { body } = await request.get(
+			`${nconf.get('url')}/api/user/highrepuser`
+		);
 		assert.strictEqual(body.website, 'https://nodebb.org');
 	});
 });

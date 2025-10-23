@@ -11,22 +11,33 @@ const inProgress = {};
 const uploads = module.exports;
 
 uploads.upload = async function (socket, data) {
-	if (!socket.uid || !data || !data.chunk || !data.params || !data.params.method) {
+	if (
+		!socket.uid ||
+		!data ||
+		!data.chunk ||
+		!data.params ||
+		!data.params.method
+	) {
 		throw new Error('[[error:invalid-data]]');
 	}
 	const { method } = data.params;
-	const defaultMaxSize = method === 'user.uploadCroppedPicture' ?
-		meta.config.maximumProfileImageSize : meta.config.maximumCoverImageSize;
+	const defaultMaxSize =
+		method === 'user.uploadCroppedPicture'
+			? meta.config.maximumProfileImageSize
+			: meta.config.maximumCoverImageSize;
 
-	const { methods, maxSize } = await plugins.hooks.fire('filter:uploads.upload', {
-		methods: {
-			'user.uploadCroppedPicture': socketUser.uploadCroppedPicture,
-			'user.updateCover': socketUser.updateCover,
-			'groups.cover.update': socketGroup.cover.update,
-		},
-		maxSize: defaultMaxSize,
-		data: data,
-	});
+	const { methods, maxSize } = await plugins.hooks.fire(
+		'filter:uploads.upload',
+		{
+			methods: {
+				'user.uploadCroppedPicture': socketUser.uploadCroppedPicture,
+				'user.updateCover': socketUser.updateCover,
+				'groups.cover.update': socketGroup.cover.update,
+			},
+			maxSize: defaultMaxSize,
+			data: data,
+		}
+	);
 
 	if (!methods.hasOwnProperty(data.params.method)) {
 		throw new Error('[[error:invalid-data]]');

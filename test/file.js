@@ -98,11 +98,16 @@ describe('file', () => {
 		});
 
 		it('should error if folder is relative', (done) => {
-			file.saveFileToLocal(filename, '../../text', `${tempPath}000000000`, (err) => {
-				assert(err);
-				assert.strictEqual(err.message, '[[error:invalid-path]]');
-				done();
-			});
+			file.saveFileToLocal(
+				filename,
+				'../../text',
+				`${tempPath}000000000`,
+				(err) => {
+					assert(err);
+					assert.strictEqual(err.message, '[[error:invalid-path]]');
+					done();
+				}
+			);
 		});
 	});
 

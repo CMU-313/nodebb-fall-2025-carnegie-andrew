@@ -20,7 +20,7 @@ infoController.get = function (req, res) {
 	const timeoutMS = 1000;
 	setTimeout(() => {
 		const data = [];
-		Object.keys(info).forEach(key => data.push(info[key]));
+		Object.keys(info).forEach((key) => data.push(info[key]));
 		data.sort((a, b) => {
 			if (a.id < b.id) {
 				return -1;
@@ -79,7 +79,10 @@ async function getNodeInfo() {
 			platform: os.platform(),
 			arch: os.arch(),
 			release: os.release(),
-			load: os.loadavg().map(load => load.toFixed(2)).join(', '),
+			load: os
+				.loadavg()
+				.map((load) => load.toFixed(2))
+				.join(', '),
 			freemem: os.freemem(),
 			totalmem: os.totalmem(),
 		},
@@ -92,7 +95,10 @@ async function getNodeInfo() {
 		},
 	};
 
-	data.process.memoryUsage.humanReadable = (data.process.memoryUsage.rss / (1024 * 1024 * 1024)).toFixed(3);
+	data.process.memoryUsage.humanReadable = (
+		data.process.memoryUsage.rss /
+		(1024 * 1024 * 1024)
+	).toFixed(3);
 	data.process.uptimeHumanReadable = humanReadableUptime(data.process.uptime);
 	data.os.freemem = (data.os.freemem / (1024 * 1024 * 1024)).toFixed(2);
 	data.os.totalmem = (data.os.totalmem / (1024 * 1024 * 1024)).toFixed(2);
@@ -108,9 +114,12 @@ async function getNodeInfo() {
 
 function getCpuUsage() {
 	const newUsage = process.cpuUsage();
-	const diff = (newUsage.user + newUsage.system) - (previousUsage.user + previousUsage.system);
+	const diff =
+		newUsage.user +
+		newUsage.system -
+		(previousUsage.user + previousUsage.system);
 	const now = Date.now();
-	const result = diff / ((now - usageStartDate) * 1000) * 100;
+	const result = (diff / ((now - usageStartDate) * 1000)) * 100;
 	previousUsage = newUsage;
 	usageStartDate = now;
 	return result.toFixed(2);

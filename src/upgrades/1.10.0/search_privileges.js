@@ -6,10 +6,15 @@ module.exports = {
 	method: async function () {
 		const meta = require('../../meta');
 		const privileges = require('../../privileges');
-		const allowGuestSearching = parseInt(meta.config.allowGuestSearching, 10) === 1;
-		const allowGuestUserSearching = parseInt(meta.config.allowGuestUserSearching, 10) === 1;
+		const allowGuestSearching =
+			parseInt(meta.config.allowGuestSearching, 10) === 1;
+		const allowGuestUserSearching =
+			parseInt(meta.config.allowGuestUserSearching, 10) === 1;
 
-		await privileges.global.give(['groups:search:content', 'groups:search:users', 'groups:search:tags'], 'registered-users');
+		await privileges.global.give(
+			['groups:search:content', 'groups:search:users', 'groups:search:tags'],
+			'registered-users'
+		);
 		const guestPrivs = [];
 		if (allowGuestSearching) {
 			guestPrivs.push('groups:search:content');

@@ -11,7 +11,8 @@ module.exports = {
 			return callback();
 		}
 
-		db.pool.query(`
+		db.pool.query(
+			`
 BEGIN TRANSACTION;
 
 CREATE TABLE IF NOT EXISTS "session" (
@@ -34,8 +35,10 @@ ALTER TABLE "session"
 CLUSTER "session";
 ANALYZE "session";
 
-COMMIT;`, (err) => {
-			callback(err);
-		});
+COMMIT;`,
+			(err) => {
+				callback(err);
+			}
+		);
 	},
 };

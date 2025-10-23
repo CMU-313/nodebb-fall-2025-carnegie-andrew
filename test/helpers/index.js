@@ -20,7 +20,9 @@ helpers.request = async function (method, uri, options = {}) {
 	const ignoreMethods = ['GET', 'HEAD', 'OPTIONS'];
 	const lowercaseMethod = String(method).toLowerCase();
 	let csrf_token;
-	if (!ignoreMethods.some(method => method.toLowerCase() === lowercaseMethod)) {
+	if (
+		!ignoreMethods.some((method) => method.toLowerCase() === lowercaseMethod)
+	) {
 		csrf_token = await helpers.getCsrfToken(options.jar);
 	}
 
@@ -89,7 +91,13 @@ helpers.connectSocketIO = function (res, csrf_token) {
 	});
 };
 
-helpers.uploadFile = async function (uploadEndPoint, filePath, data, jar, csrf_token) {
+helpers.uploadFile = async function (
+	uploadEndPoint,
+	filePath,
+	data,
+	jar,
+	csrf_token
+) {
 	const mime = require('mime');
 	const form = new FormData();
 	const file = await fs.promises.readFile(filePath);
@@ -129,13 +137,16 @@ helpers.registerUser = async function (data) {
 		data['password-confirm'] = data.password;
 	}
 
-	const { response, body } = await request.post(`${nconf.get('url')}/register`, {
-		body: data,
-		jar,
-		headers: {
-			'x-csrf-token': csrf_token,
-		},
-	});
+	const { response, body } = await request.post(
+		`${nconf.get('url')}/register`,
+		{
+			body: data,
+			jar,
+			headers: {
+				'x-csrf-token': csrf_token,
+			},
+		}
+	);
 	return { jar, response, body };
 };
 

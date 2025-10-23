@@ -32,19 +32,19 @@ Our minimalist "Harmony" theme gets you going right away, no coding experience r
 
 ## How can I follow along/contribute?
 
-* If you are a developer, feel free to check out the source and submit pull requests. We also have a wide array of [plugins](http://community.nodebb.org/category/7/nodebb-plugins) which would be a great starting point for learning the codebase.
-* If you are a designer, [NodeBB needs themes](http://community.nodebb.org/category/10/nodebb-themes)! NodeBB's theming system allows extension of the base templates as well as styling via SCSS or CSS. NodeBB's base theme utilizes [Bootstrap 5](http://getbootstrap.com/) as a frontend toolkit.
-* If you know languages other than English you can help us translate NodeBB. We use [Transifex](https://explore.transifex.com/nodebb/nodebb/) for internationalization.
-* Please don't forget to **like**, **follow**, and **star our repo**! Join our growing [community](http://community.nodebb.org) to keep up to date with the latest NodeBB development.
+- If you are a developer, feel free to check out the source and submit pull requests. We also have a wide array of [plugins](http://community.nodebb.org/category/7/nodebb-plugins) which would be a great starting point for learning the codebase.
+- If you are a designer, [NodeBB needs themes](http://community.nodebb.org/category/10/nodebb-themes)! NodeBB's theming system allows extension of the base templates as well as styling via SCSS or CSS. NodeBB's base theme utilizes [Bootstrap 5](http://getbootstrap.com/) as a frontend toolkit.
+- If you know languages other than English you can help us translate NodeBB. We use [Transifex](https://explore.transifex.com/nodebb/nodebb/) for internationalization.
+- Please don't forget to **like**, **follow**, and **star our repo**! Join our growing [community](http://community.nodebb.org) to keep up to date with the latest NodeBB development.
 
 ## Requirements
 
 NodeBB requires the following software to be installed:
 
-* A version of Node.js at least 20 or greater ([installation/upgrade instructions](https://github.com/nodesource/distributions))
-* MongoDB, version 5 or greater **or** Redis, version 7.2 or greater
-* If you are using [clustering](https://docs.nodebb.org/configuring/scaling/) you need Redis installed and configured.
-* nginx, version 1.3.13 or greater (**only if** intending to use nginx to proxy requests to a NodeBB)
+- A version of Node.js at least 20 or greater ([installation/upgrade instructions](https://github.com/nodesource/distributions))
+- MongoDB, version 5 or greater **or** Redis, version 7.2 or greater
+- If you are using [clustering](https://docs.nodebb.org/configuring/scaling/) you need Redis installed and configured.
+- nginx, version 1.3.13 or greater (**only if** intending to use nginx to proxy requests to a NodeBB)
 
 ## Installation
 
@@ -56,12 +56,11 @@ If installing via the cloud (or using Docker), [please see cloud-based installat
 It is important to ensure that your NodeBB and database servers are secured. Bear these points in mind:
 
 1. While some distributions set up Redis with a more restrictive configuration, Redis by default listens to all interfaces, which is especially dangerous when a server is open to the public. Some suggestions:
-    * Set `bind_address` to `127.0.0.1` so as to restrict access  to the local machine only
-    * Use `requirepass` to secure Redis behind a password (preferably a long one)
-    * Familiarise yourself with [Redis Security](http://redis.io/topics/security)
+   - Set `bind_address` to `127.0.0.1` so as to restrict access to the local machine only
+   - Use `requirepass` to secure Redis behind a password (preferably a long one)
+   - Familiarise yourself with [Redis Security](http://redis.io/topics/security)
 2. Use `iptables` to secure your server from unintended open ports. In Ubuntu, `ufw` provides a friendlier interface to working with `iptables`.
-    * e.g. If your NodeBB is proxied, no ports should be open except 80 (and possibly 22, for SSH access)
-
+   - e.g. If your NodeBB is proxied, no ports should be open except 80 (and possibly 22, for SSH access)
 
 ## Upgrading NodeBB
 
@@ -75,12 +74,12 @@ Interested in a sublicense agreement for use of NodeBB in a non-free/restrictive
 
 ## More Information/Links
 
-* [Demo](https://try.nodebb.org)
-* [Developer Community](http://community.nodebb.org)
-* [Documentation & Installation Instructions](https://docs.nodebb.org)
-* [Help translate NodeBB](https://explore.transifex.com/nodebb/nodebb/)
-* [NodeBB Blog](https://nodebb.org/blog)
-* [Premium Hosting for NodeBB](https://www.nodebb.org/ "NodeBB")
-* Unofficial IRC community &ndash; channel `#nodebb` on Libera.chat
-* [Follow us on Twitter](http://www.twitter.com/NodeBB/ "NodeBB Twitter")
-* [Like us on Facebook](http://www.facebook.com/NodeBB/ "NodeBB Facebook")
+- [Demo](https://try.nodebb.org)
+- [Developer Community](http://community.nodebb.org)
+- [Documentation & Installation Instructions](https://docs.nodebb.org)
+- [Help translate NodeBB](https://explore.transifex.com/nodebb/nodebb/)
+- [NodeBB Blog](https://nodebb.org/blog)
+- [Premium Hosting for NodeBB](https://www.nodebb.org/ 'NodeBB')
+- Unofficial IRC community &ndash; channel `#nodebb` on Libera.chat
+- [Follow us on Twitter](http://www.twitter.com/NodeBB/ 'NodeBB Twitter')
+- [Like us on Facebook](http://www.facebook.com/NodeBB/ 'NodeBB Facebook')

@@ -13,12 +13,16 @@ module.exports = {
 		for (let i = 1; i <= nextCid; i++) {
 			allCids.push(i);
 		}
-		await batch.processArray(allCids, async (cids) => {
-			await db.deleteAll(cids.map(cid => `cid:${cid}:read_by_uid`));
-			progress.incr(cids.length);
-		}, {
-			batch: 500,
-			progress,
-		});
+		await batch.processArray(
+			allCids,
+			async (cids) => {
+				await db.deleteAll(cids.map((cid) => `cid:${cid}:read_by_uid`));
+				progress.incr(cids.length);
+			},
+			{
+				batch: 500,
+				progress,
+			}
+		);
 	},
 };

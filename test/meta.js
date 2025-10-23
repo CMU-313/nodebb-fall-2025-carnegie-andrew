@@ -19,44 +19,55 @@ describe('meta', () => {
 	before((done) => {
 		Groups.cache.reset();
 		// Create 3 users: 1 admin, 2 regular
-		async.series([
-			async.apply(User.create, { username: 'foo', password: 'barbar' }), // admin
-			async.apply(User.create, { username: 'baz', password: 'quuxquux' }), // restricted user
-			async.apply(User.create, { username: 'herp', password: 'derpderp' }), // regular user
-		], (err, uids) => {
-			if (err) {
-				return done(err);
+		async.series(
+			[
+				async.apply(User.create, { username: 'foo', password: 'barbar' }), // admin
+				async.apply(User.create, { username: 'baz', password: 'quuxquux' }), // restricted user
+				async.apply(User.create, { username: 'herp', password: 'derpderp' }), // regular user
+			],
+			(err, uids) => {
+				if (err) {
+					return done(err);
+				}
+
+				fooUid = uids[0];
+				bazUid = uids[1];
+				herpUid = uids[2];
+
+				Groups.join('administrators', fooUid, done);
 			}
-
-			fooUid = uids[0];
-			bazUid = uids[1];
-			herpUid = uids[2];
-
-			Groups.join('administrators', fooUid, done);
-		});
+		);
 	});
 
 	describe('settings', () => {
 		const socketAdmin = require('../src/socket.io/admin');
 		it('it should set setting', (done) => {
-			socketAdmin.settings.set({ uid: fooUid }, { hash: 'some:hash', values: { foo: '1', derp: 'value' } }, (err) => {
-				assert.ifError(err);
-				db.getObject('settings:some:hash', (err, data) => {
+			socketAdmin.settings.set(
+				{ uid: fooUid },
+				{ hash: 'some:hash', values: { foo: '1', derp: 'value' } },
+				(err) => {
+					assert.ifError(err);
+					db.getObject('settings:some:hash', (err, data) => {
+						assert.ifError(err);
+						assert.equal(data.foo, '1');
+						assert.equal(data.derp, 'value');
+						done();
+					});
+				}
+			);
+		});
+
+		it('it should get setting', (done) => {
+			socketAdmin.settings.get(
+				{ uid: fooUid },
+				{ hash: 'some:hash' },
+				(err, data) => {
 					assert.ifError(err);
 					assert.equal(data.foo, '1');
 					assert.equal(data.derp, 'value');
 					done();
-				});
-			});
-		});
-
-		it('it should get setting', (done) => {
-			socketAdmin.settings.get({ uid: fooUid }, { hash: 'some:hash' }, (err, data) => {
-				assert.ifError(err);
-				assert.equal(data.foo, '1');
-				assert.equal(data.derp, 'value');
-				done();
-			});
+				}
+			);
 		});
 
 		it('should not set setting if not empty', (done) => {
@@ -107,34 +118,50 @@ describe('meta', () => {
 		const anotherList = [];
 
 		it('should set setting with sorted list', (done) => {
-			socketAdmin.settings.set({ uid: fooUid }, { hash: 'another:hash', values: { foo: '1', derp: 'value', someList: someList, anotherList: anotherList } }, (err) => {
-				if (err) {
-					return done(err);
-				}
-
-				db.getObject('settings:another:hash', (err, data) => {
+			socketAdmin.settings.set(
+				{ uid: fooUid },
+				{
+					hash: 'another:hash',
+					values: {
+						foo: '1',
+						derp: 'value',
+						someList: someList,
+						anotherList: anotherList,
+					},
+				},
+				(err) => {
 					if (err) {
 						return done(err);
 					}
 
-					assert.equal(data.foo, '1');
-					assert.equal(data.derp, 'value');
-					assert.equal(data.someList, undefined);
-					assert.equal(data.anotherList, undefined);
-					done();
-				});
-			});
+					db.getObject('settings:another:hash', (err, data) => {
+						if (err) {
+							return done(err);
+						}
+
+						assert.equal(data.foo, '1');
+						assert.equal(data.derp, 'value');
+						assert.equal(data.someList, undefined);
+						assert.equal(data.anotherList, undefined);
+						done();
+					});
+				}
+			);
 		});
 
 		it('should get setting with sorted list', (done) => {
-			socketAdmin.settings.get({ uid: fooUid }, { hash: 'another:hash' }, (err, data) => {
-				assert.ifError(err);
-				assert.strictEqual(data.foo, '1');
-				assert.strictEqual(data.derp, 'value');
-				assert.deepStrictEqual(data.someList, someList);
-				assert.deepStrictEqual(data.anotherList, anotherList);
-				done();
-			});
+			socketAdmin.settings.get(
+				{ uid: fooUid },
+				{ hash: 'another:hash' },
+				(err, data) => {
+					assert.ifError(err);
+					assert.strictEqual(data.foo, '1');
+					assert.strictEqual(data.derp, 'value');
+					assert.deepStrictEqual(data.someList, someList);
+					assert.deepStrictEqual(data.anotherList, anotherList);
+					done();
+				}
+			);
 		});
 
 		it('should not set setting if not empty', (done) => {
@@ -152,25 +179,33 @@ describe('meta', () => {
 		it('should not set setting with sorted list if not empty', (done) => {
 			meta.settings.setOnEmpty('another:hash', { foo: anotherList }, (err) => {
 				assert.ifError(err);
-				socketAdmin.settings.get({ uid: fooUid }, { hash: 'another:hash' }, (err, data) => {
-					assert.ifError(err);
-					assert.equal(data.foo, '1');
-					assert.equal(data.derp, 'value');
-					done();
-				});
+				socketAdmin.settings.get(
+					{ uid: fooUid },
+					{ hash: 'another:hash' },
+					(err, data) => {
+						assert.ifError(err);
+						assert.equal(data.foo, '1');
+						assert.equal(data.derp, 'value');
+						done();
+					}
+				);
 			});
 		});
 
 		it('should set setting with sorted list if empty', (done) => {
 			meta.settings.setOnEmpty('another:hash', { empty: someList }, (err) => {
 				assert.ifError(err);
-				socketAdmin.settings.get({ uid: fooUid }, { hash: 'another:hash' }, (err, data) => {
-					assert.ifError(err);
-					assert.equal(data.foo, '1');
-					assert.equal(data.derp, 'value');
-					assert.deepEqual(data.empty, someList);
-					done();
-				});
+				socketAdmin.settings.get(
+					{ uid: fooUid },
+					{ hash: 'another:hash' },
+					(err, data) => {
+						assert.ifError(err);
+						assert.equal(data.foo, '1');
+						assert.equal(data.derp, 'value');
+						assert.deepEqual(data.empty, someList);
+						done();
+					}
+				);
 			});
 		});
 
@@ -186,20 +221,26 @@ describe('meta', () => {
 		});
 	});
 
-
 	describe('config', () => {
 		const socketAdmin = require('../src/socket.io/admin');
 		before((done) => {
-			db.setObject('config', { minimumTagLength: 3, maximumTagLength: 15 }, done);
+			db.setObject(
+				'config',
+				{ minimumTagLength: 3, maximumTagLength: 15 },
+				done
+			);
 		});
 
 		it('should get config fields', (done) => {
-			meta.configs.getFields(['minimumTagLength', 'maximumTagLength'], (err, data) => {
-				assert.ifError(err);
-				assert.strictEqual(data.minimumTagLength, 3);
-				assert.strictEqual(data.maximumTagLength, 15);
-				done();
-			});
+			meta.configs.getFields(
+				['minimumTagLength', 'maximumTagLength'],
+				(err, data) => {
+					assert.ifError(err);
+					assert.strictEqual(data.minimumTagLength, 3);
+					assert.strictEqual(data.maximumTagLength, 15);
+					done();
+				}
+			);
 		});
 
 		it('should get the correct type and default value', (done) => {
@@ -283,14 +324,18 @@ describe('meta', () => {
 		});
 
 		it('should set multiple config values', (done) => {
-			socketAdmin.config.set({ uid: fooUid }, { key: 'someKey', value: 'someValue' }, (err) => {
-				assert.ifError(err);
-				meta.configs.getFields(['someKey'], (err, data) => {
+			socketAdmin.config.set(
+				{ uid: fooUid },
+				{ key: 'someKey', value: 'someValue' },
+				(err) => {
 					assert.ifError(err);
-					assert.equal(data.someKey, 'someValue');
-					done();
-				});
-			});
+					meta.configs.getFields(['someKey'], (err, data) => {
+						assert.ifError(err);
+						assert.equal(data.someKey, 'someValue');
+						done();
+					});
+				}
+			);
 		});
 
 		it('should set config value', (done) => {
@@ -356,19 +401,23 @@ describe('meta', () => {
 		});
 
 		it('should set multiple values', (done) => {
-			socketAdmin.config.setMultiple({ uid: fooUid }, {
-				someField1: 'someValue1',
-				someField2: 'someValue2',
-				customCSS: '.derp{color:#00ff00;}',
-			}, (err) => {
-				assert.ifError(err);
-				meta.configs.getFields(['someField1', 'someField2'], (err, data) => {
+			socketAdmin.config.setMultiple(
+				{ uid: fooUid },
+				{
+					someField1: 'someValue1',
+					someField2: 'someValue2',
+					customCSS: '.derp{color:#00ff00;}',
+				},
+				(err) => {
 					assert.ifError(err);
-					assert.equal(data.someField1, 'someValue1');
-					assert.equal(data.someField2, 'someValue2');
-					done();
-				});
-			});
+					meta.configs.getFields(['someField1', 'someField2'], (err, data) => {
+						assert.ifError(err);
+						assert.equal(data.someField1, 'someValue1');
+						assert.equal(data.someField2, 'someValue2');
+						done();
+					});
+				}
+			);
 		});
 
 		it('should not set config if not empty', (done) => {
@@ -394,7 +443,6 @@ describe('meta', () => {
 		});
 	});
 
-
 	describe('session TTL', () => {
 		it('should return 14 days in seconds', (done) => {
 			assert(meta.getSessionTTLSeconds(), 1209600);
@@ -416,10 +464,13 @@ describe('meta', () => {
 
 	describe('dependencies', () => {
 		it('should return ENOENT if module is not found', (done) => {
-			meta.dependencies.checkModule('some-module-that-does-not-exist', (err) => {
-				assert.equal(err.code, 'ENOENT');
-				done();
-			});
+			meta.dependencies.checkModule(
+				'some-module-that-does-not-exist',
+				(err) => {
+					assert.equal(err.code, 'ENOENT');
+					done();
+				}
+			);
 		});
 
 		it('should not error if module is a nodebb-plugin-*', (done) => {
@@ -437,13 +488,19 @@ describe('meta', () => {
 		});
 
 		it('should parse json package data', (done) => {
-			const pkgData = meta.dependencies.parseModuleData('nodebb-plugin-test', '{"a": 1}');
+			const pkgData = meta.dependencies.parseModuleData(
+				'nodebb-plugin-test',
+				'{"a": 1}'
+			);
 			assert.equal(pkgData.a, 1);
 			done();
 		});
 
 		it('should return null data with invalid json', (done) => {
-			const pkgData = meta.dependencies.parseModuleData('nodebb-plugin-test', 'asdasd');
+			const pkgData = meta.dependencies.parseModuleData(
+				'nodebb-plugin-test',
+				'asdasd'
+			);
 			assert.strictEqual(pkgData, null);
 			done();
 		});
@@ -454,12 +511,26 @@ describe('meta', () => {
 		});
 
 		it('should return false if moduleData doesnt not satisfy package.json', (done) => {
-			assert(!meta.dependencies.doesSatisfy({ name: 'nodebb-plugin-test', version: '0.9.0' }, '1.0.0'));
+			assert(
+				!meta.dependencies.doesSatisfy(
+					{ name: 'nodebb-plugin-test', version: '0.9.0' },
+					'1.0.0'
+				)
+			);
 			done();
 		});
 
 		it('should return true if _resolved is from github', (done) => {
-			assert(meta.dependencies.doesSatisfy({ name: 'nodebb-plugin-test', _resolved: 'https://github.com/some/repo', version: '0.9.0' }, '1.0.0'));
+			assert(
+				meta.dependencies.doesSatisfy(
+					{
+						name: 'nodebb-plugin-test',
+						_resolved: 'https://github.com/some/repo',
+						version: '0.9.0',
+					},
+					'1.0.0'
+				)
+			);
 			done();
 		});
 	});
@@ -492,9 +563,12 @@ describe('meta', () => {
 	describe('Access-Control-Allow-Origin', () => {
 		it('Access-Control-Allow-Origin header should be empty', async () => {
 			const jar = request.jar();
-			const { response } = await request.get(`${nconf.get('url')}/api/search?term=bug`, {
-				jar: jar,
-			});
+			const { response } = await request.get(
+				`${nconf.get('url')}/api/search?term=bug`,
+				{
+					jar: jar,
+				}
+			);
 
 			assert.equal(response.headers['access-control-allow-origin'], undefined);
 		});
@@ -503,14 +577,20 @@ describe('meta', () => {
 			const jar = request.jar();
 			const oldValue = meta.config['access-control-allow-origin'];
 			meta.config['access-control-allow-origin'] = 'test.com, mydomain.com';
-			const { response } = await request.get(`${nconf.get('url')}/api/search?term=bug`, {
-				jar: jar,
-				headers: {
-					origin: 'mydomain.com',
-				},
-			});
+			const { response } = await request.get(
+				`${nconf.get('url')}/api/search?term=bug`,
+				{
+					jar: jar,
+					headers: {
+						origin: 'mydomain.com',
+					},
+				}
+			);
 
-			assert.equal(response.headers['access-control-allow-origin'], 'mydomain.com');
+			assert.equal(
+				response.headers['access-control-allow-origin'],
+				'mydomain.com'
+			);
 			meta.config['access-control-allow-origin'] = oldValue;
 		});
 
@@ -518,13 +598,16 @@ describe('meta', () => {
 			const jar = request.jar();
 			const oldValue = meta.config['access-control-allow-origin'];
 			meta.config['access-control-allow-origin'] = 'test.com, mydomain.com';
-			const { response } = await request.get(`${nconf.get('url')}/api/search?term=bug`, {
-				data: {},
-				jar: jar,
-				headers: {
-					origin: 'notallowed.com',
-				},
-			});
+			const { response } = await request.get(
+				`${nconf.get('url')}/api/search?term=bug`,
+				{
+					data: {},
+					jar: jar,
+					headers: {
+						origin: 'notallowed.com',
+					},
+				}
+			);
 			assert.equal(response.headers['access-control-allow-origin'], undefined);
 			meta.config['access-control-allow-origin'] = oldValue;
 		});
@@ -532,28 +615,39 @@ describe('meta', () => {
 		it('should set proper Access-Control-Allow-Origin header', async () => {
 			const jar = request.jar();
 			const oldValue = meta.config['access-control-allow-origin-regex'];
-			meta.config['access-control-allow-origin-regex'] = 'match\\.this\\..+\\.domain.com, mydomain\\.com';
-			const { response } = await request.get(`${nconf.get('url')}/api/search?term=bug`, {
-				jar: jar,
-				headers: {
-					origin: 'match.this.anything123.domain.com',
-				},
-			});
+			meta.config['access-control-allow-origin-regex'] =
+				'match\\.this\\..+\\.domain.com, mydomain\\.com';
+			const { response } = await request.get(
+				`${nconf.get('url')}/api/search?term=bug`,
+				{
+					jar: jar,
+					headers: {
+						origin: 'match.this.anything123.domain.com',
+					},
+				}
+			);
 
-			assert.equal(response.headers['access-control-allow-origin'], 'match.this.anything123.domain.com');
+			assert.equal(
+				response.headers['access-control-allow-origin'],
+				'match.this.anything123.domain.com'
+			);
 			meta.config['access-control-allow-origin-regex'] = oldValue;
 		});
 
 		it('Access-Control-Allow-Origin header should be empty if origin does not match', async () => {
 			const jar = request.jar();
 			const oldValue = meta.config['access-control-allow-origin-regex'];
-			meta.config['access-control-allow-origin-regex'] = 'match\\.this\\..+\\.domain.com, mydomain\\.com';
-			const { response } = await request.get(`${nconf.get('url')}/api/search?term=bug`, {
-				jar: jar,
-				headers: {
-					origin: 'notallowed.com',
-				},
-			});
+			meta.config['access-control-allow-origin-regex'] =
+				'match\\.this\\..+\\.domain.com, mydomain\\.com';
+			const { response } = await request.get(
+				`${nconf.get('url')}/api/search?term=bug`,
+				{
+					jar: jar,
+					headers: {
+						origin: 'notallowed.com',
+					},
+				}
+			);
 			assert.equal(response.headers['access-control-allow-origin'], undefined);
 			meta.config['access-control-allow-origin-regex'] = oldValue;
 		});
@@ -561,14 +655,21 @@ describe('meta', () => {
 		it('should not error with invalid regexp', async () => {
 			const jar = request.jar();
 			const oldValue = meta.config['access-control-allow-origin-regex'];
-			meta.config['access-control-allow-origin-regex'] = '[match\\.this\\..+\\.domain.com, mydomain\\.com';
-			const { response } = await request.get(`${nconf.get('url')}/api/search?term=bug`, {
-				jar: jar,
-				headers: {
-					origin: 'mydomain.com',
-				},
-			});
-			assert.equal(response.headers['access-control-allow-origin'], 'mydomain.com');
+			meta.config['access-control-allow-origin-regex'] =
+				'[match\\.this\\..+\\.domain.com, mydomain\\.com';
+			const { response } = await request.get(
+				`${nconf.get('url')}/api/search?term=bug`,
+				{
+					jar: jar,
+					headers: {
+						origin: 'mydomain.com',
+					},
+				}
+			);
+			assert.equal(
+				response.headers['access-control-allow-origin'],
+				'mydomain.com'
+			);
 			meta.config['access-control-allow-origin-regex'] = oldValue;
 		});
 	});

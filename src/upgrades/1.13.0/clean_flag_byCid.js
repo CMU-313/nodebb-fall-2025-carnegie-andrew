@@ -9,19 +9,31 @@ module.exports = {
 	method: async function () {
 		const { progress } = this;
 
-		await batch.processSortedSet('flags:datetime', async (flagIds) => {
-			progress.incr(flagIds.length);
-			const flagData = await db.getObjects(flagIds.map(id => `flag:${id}`));
-			const bulkRemove = [];
-			for (const flagObj of flagData) {
-				if (flagObj && flagObj.type === 'user' && flagObj.targetId && flagObj.flagId) {
-					bulkRemove.push([`flags:byCid:${flagObj.targetId}`, flagObj.flagId]);
+		await batch.processSortedSet(
+			'flags:datetime',
+			async (flagIds) => {
+				progress.incr(flagIds.length);
+				const flagData = await db.getObjects(flagIds.map((id) => `flag:${id}`));
+				const bulkRemove = [];
+				for (const flagObj of flagData) {
+					if (
+						flagObj &&
+						flagObj.type === 'user' &&
+						flagObj.targetId &&
+						flagObj.flagId
+					) {
+						bulkRemove.push([
+							`flags:byCid:${flagObj.targetId}`,
+							flagObj.flagId,
+						]);
+					}
 				}
-			}
 
-			await db.sortedSetRemoveBulk(bulkRemove);
-		}, {
-			progress: progress,
-		});
+				await db.sortedSetRemoveBulk(bulkRemove);
+			},
+			{
+				progress: progress,
+			}
+		);
 	},
 };

@@ -1,6 +1,5 @@
 'use strict';
 
-
 const db = require('../../database');
 const batch = require('../../batch');
 
@@ -10,12 +9,18 @@ module.exports = {
 	method: async function () {
 		const { progress } = this;
 
-		await batch.processSortedSet('users:joindate', async (uids) => {
-			progress.incr(uids.length);
-			await db.deleteAll(uids.map(uid => `uid:${uid}:sessionUUID:sessionId`));
-		}, {
-			batch: 500,
-			progress: progress,
-		});
+		await batch.processSortedSet(
+			'users:joindate',
+			async (uids) => {
+				progress.incr(uids.length);
+				await db.deleteAll(
+					uids.map((uid) => `uid:${uid}:sessionUUID:sessionId`)
+				);
+			},
+			{
+				batch: 500,
+				progress: progress,
+			}
+		);
 	},
 };

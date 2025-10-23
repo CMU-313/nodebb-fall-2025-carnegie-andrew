@@ -24,7 +24,10 @@ module.exports = function (middleware) {
 
 		const [isAdmin, isMemberOfExempt] = await Promise.all([
 			user.isAdministrator(req.uid),
-			groups.isMemberOfAny(req.uid, meta.config.groupsExemptFromMaintenanceMode),
+			groups.isMemberOfAny(
+				req.uid,
+				meta.config.groupsExemptFromMaintenanceMode
+			),
 		]);
 
 		if (isAdmin || isMemberOfExempt) {
@@ -32,7 +35,10 @@ module.exports = function (middleware) {
 		}
 
 		if (req.originalUrl.startsWith(`${nconf.get('relative_path')}/api/v3/`)) {
-			return controllerHelpers.formatApiResponse(meta.config.maintenanceModeStatus, res);
+			return controllerHelpers.formatApiResponse(
+				meta.config.maintenanceModeStatus,
+				res
+			);
 		}
 
 		res.status(meta.config.maintenanceModeStatus);

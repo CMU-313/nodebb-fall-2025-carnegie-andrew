@@ -17,13 +17,14 @@ cacheController.get = async function (req, res) {
 			max: cache.max,
 			maxSize: cache.maxSize,
 			itemCount: cache.itemCount,
-			percentFull: cache.name === 'post' ?
-				((cache.length / cache.maxSize) * 100).toFixed(2) :
-				((cache.itemCount / cache.max) * 100).toFixed(2),
+			percentFull:
+				cache.name === 'post'
+					? ((cache.length / cache.maxSize) * 100).toFixed(2)
+					: ((cache.itemCount / cache.max) * 100).toFixed(2),
 			hits: utils.addCommas(String(cache.hits)),
 			hitsPerSecond: (cache.hits / uptimeInSeconds).toFixed(2),
 			misses: utils.addCommas(String(cache.misses)),
-			hitRatio: ((cache.hits / (cache.hits + cache.misses) || 0)).toFixed(4),
+			hitRatio: (cache.hits / (cache.hits + cache.misses) || 0).toFixed(4),
 			enabled: cache.enabled,
 			ttl: cache.ttl,
 		};
@@ -57,7 +58,10 @@ cacheController.dump = async function (req, res, next) {
 	}
 
 	const data = JSON.stringify(caches[req.query.name].dump(), null, 4);
-	res.setHeader('Content-disposition', `attachment; filename= ${req.query.name}-cache.json`);
+	res.setHeader(
+		'Content-disposition',
+		`attachment; filename= ${req.query.name}-cache.json`
+	);
 	res.setHeader('Content-type', 'application/json');
 	res.write(data, (err) => {
 		if (err) {

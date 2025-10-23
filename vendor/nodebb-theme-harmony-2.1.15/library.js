@@ -26,14 +26,24 @@ library.init = async function (params) {
 	const { router, middleware } = params;
 	const routeHelpers = require.main.require('./src/routes/helpers');
 
-	routeHelpers.setupAdminPageRoute(router, '/admin/plugins/harmony', [], controllers.renderAdminPage);
+	routeHelpers.setupAdminPageRoute(
+		router,
+		'/admin/plugins/harmony',
+		[],
+		controllers.renderAdminPage
+	);
 
-	routeHelpers.setupPageRoute(router, '/user/:userslug/theme', [
-		middleware.exposeUid,
-		middleware.ensureLoggedIn,
-		middleware.canViewUsers,
-		middleware.checkAccountPermissions,
-	], controllers.renderThemeSettings);
+	routeHelpers.setupPageRoute(
+		router,
+		'/user/:userslug/theme',
+		[
+			middleware.exposeUid,
+			middleware.ensureLoggedIn,
+			middleware.canViewUsers,
+			middleware.checkAccountPermissions,
+		],
+		controllers.renderThemeSettings
+	);
 
 	if (nconf.get('isPrimary') && process.env.NODE_ENV === 'production') {
 		setTimeout(buildSkins, 0);
@@ -84,9 +94,19 @@ library.addProfileItem = async (data) => {
 library.defineWidgetAreas = async function (areas) {
 	const locations = ['header', 'sidebar', 'footer'];
 	const templates = [
-		'categories.tpl', 'category.tpl', 'topic.tpl', 'users.tpl',
-		'unread.tpl', 'recent.tpl', 'popular.tpl', 'top.tpl', 'tags.tpl', 'tag.tpl',
-		'login.tpl', 'register.tpl', 'world.tpl',
+		'categories.tpl',
+		'category.tpl',
+		'topic.tpl',
+		'users.tpl',
+		'unread.tpl',
+		'recent.tpl',
+		'popular.tpl',
+		'top.tpl',
+		'tags.tpl',
+		'tag.tpl',
+		'login.tpl',
+		'register.tpl',
+		'world.tpl',
 	];
 	function capitalizeFirst(str) {
 		return str.charAt(0).toUpperCase() + str.slice(1);
@@ -143,7 +163,11 @@ library.loadThemeConfig = async function (uid) {
 		user.getSettings(uid),
 	]);
 
-	const config = { ...defaults, ...themeConfig, ...(_.pick(userConfig, Object.keys(defaults))) };
+	const config = {
+		...defaults,
+		...themeConfig,
+		..._.pick(userConfig, Object.keys(defaults)),
+	};
 	config.enableQuickReply = config.enableQuickReply === 'on';
 	config.enableBreadcrumbs = config.enableBreadcrumbs === 'on';
 	config.centerHeaderElements = config.centerHeaderElements === 'on';
@@ -183,6 +207,7 @@ library.saveUserSettings = async function (hookData) {
 };
 
 library.filterMiddlewareRenderHeader = async function (hookData) {
-	hookData.templateData.bootswatchSkinOptions = await meta.css.getSkinSwitcherOptions(hookData.req.uid);
+	hookData.templateData.bootswatchSkinOptions =
+		await meta.css.getSkinSwitcherOptions(hookData.req.uid);
 	return hookData;
 };

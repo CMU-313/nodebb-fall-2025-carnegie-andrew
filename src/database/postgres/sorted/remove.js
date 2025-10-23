@@ -74,8 +74,8 @@ DELETE FROM "legacy_zset"
 		if (!Array.isArray(data) || !data.length) {
 			return;
 		}
-		const keys = data.map(d => d[0]);
-		const values = data.map(d => d[1]);
+		const keys = data.map((d) => d[0]);
+		const values = data.map((d) => d[1]);
 
 		await module.pool.query({
 			name: 'sortedSetRemoveBulk',

@@ -8,7 +8,9 @@ const Chats = module.exports;
 Chats.list = async (req, res) => {
 	let stop;
 	let { page, perPage, start, uid } = req.query;
-	([page, perPage, start, uid] = [page, perPage, start, uid].map(value => isFinite(value) && parseInt(value, 10)));
+	[page, perPage, start, uid] = [page, perPage, start, uid].map(
+		(value) => isFinite(value) && parseInt(value, 10)
+	);
 	page = page || 1;
 	perPage = Math.min(100, perPage || 20);
 
@@ -30,7 +32,8 @@ Chats.create = async (req, res) => {
 };
 
 // currently only returns unread count, but open-ended for future additions if warranted.
-Chats.getUnread = async (req, res) => helpers.formatApiResponse(200, res, await api.chats.getUnread(req));
+Chats.getUnread = async (req, res) =>
+	helpers.formatApiResponse(200, res, await api.chats.getUnread(req));
 
 Chats.sortPublicRooms = async (req, res) => {
 	const { roomIds, scores } = req.body;
@@ -45,10 +48,14 @@ Chats.exists = async (req, res) => {
 };
 
 Chats.get = async (req, res) => {
-	helpers.formatApiResponse(200, res, await api.chats.get(req, {
-		uid: req.query.uid || req.uid,
-		roomId: req.params.roomId,
-	}));
+	helpers.formatApiResponse(
+		200,
+		res,
+		await api.chats.get(req, {
+			uid: req.query.uid || req.uid,
+			roomId: req.params.roomId,
+		})
+	);
 };
 
 Chats.post = async (req, res) => {
@@ -89,7 +96,8 @@ Chats.mark = async (req, res) => {
 };
 
 Chats.watch = async (req, res) => {
-	const state = req.method === 'DELETE' ? -1 : parseInt(req.body.value, 10) || -1;
+	const state =
+		req.method === 'DELETE' ? -1 : parseInt(req.body.value, 10) || -1;
 
 	await api.chats.watch(req, { state, ...req.params });
 	helpers.formatApiResponse(200, res);
@@ -153,7 +161,10 @@ Chats.messages.list = async (req, res) => {
 	const start = parseInt(req.query.start, 10) || 0;
 	const direction = parseInt(req.query.direction, 10) || null;
 	const { messages } = await api.chats.listMessages(req, {
-		uid, roomId, start, direction,
+		uid,
+		roomId,
+		start,
+		direction,
 	});
 
 	helpers.formatApiResponse(200, res, { messages });
@@ -162,21 +173,37 @@ Chats.messages.list = async (req, res) => {
 Chats.messages.getPinned = async (req, res) => {
 	const { start } = req.query;
 
-	helpers.formatApiResponse(200, res, await api.chats.getPinnedMessages(req, { start, ...req.params }));
+	helpers.formatApiResponse(
+		200,
+		res,
+		await api.chats.getPinnedMessages(req, { start, ...req.params })
+	);
 };
 
 Chats.messages.get = async (req, res) => {
 	const { mid, roomId } = req.params;
 
-	helpers.formatApiResponse(200, res, await api.chats.getMessage(req, { mid, roomId }));
+	helpers.formatApiResponse(
+		200,
+		res,
+		await api.chats.getMessage(req, { mid, roomId })
+	);
 };
 
 Chats.messages.getRaw = async (req, res) => {
-	helpers.formatApiResponse(200, res, await api.chats.getRawMessage(req, { ...req.params }));
+	helpers.formatApiResponse(
+		200,
+		res,
+		await api.chats.getRawMessage(req, { ...req.params })
+	);
 };
 
 Chats.messages.getIpAddress = async (req, res) => {
-	helpers.formatApiResponse(200, res, await api.chats.getIpAddress(req, { ...req.params }));
+	helpers.formatApiResponse(
+		200,
+		res,
+		await api.chats.getIpAddress(req, { ...req.params })
+	);
 };
 
 Chats.messages.edit = async (req, res) => {
@@ -184,7 +211,11 @@ Chats.messages.edit = async (req, res) => {
 	const { message } = req.body;
 	await api.chats.editMessage(req, { mid, roomId, message });
 
-	helpers.formatApiResponse(200, res, await api.chats.getMessage(req, { mid, roomId }));
+	helpers.formatApiResponse(
+		200,
+		res,
+		await api.chats.getMessage(req, { mid, roomId })
+	);
 };
 
 Chats.messages.delete = async (req, res) => {

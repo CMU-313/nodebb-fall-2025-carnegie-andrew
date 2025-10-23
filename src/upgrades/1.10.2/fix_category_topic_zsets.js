@@ -13,18 +13,30 @@ module.exports = {
 		const { progress } = this;
 
 		const topics = require('../../topics');
-		await batch.processSortedSet('topics:tid', async (tids) => {
-			for (const tid of tids) {
-				progress.incr();
-				const topicData = await db.getObjectFields(`topic:${tid}`, ['cid', 'pinned', 'postcount']);
-				if (parseInt(topicData.pinned, 10) !== 1) {
-					topicData.postcount = parseInt(topicData.postcount, 10) || 0;
-					await db.sortedSetAdd(`cid:${topicData.cid}:tids:posts`, topicData.postcount, tid);
+		await batch.processSortedSet(
+			'topics:tid',
+			async (tids) => {
+				for (const tid of tids) {
+					progress.incr();
+					const topicData = await db.getObjectFields(`topic:${tid}`, [
+						'cid',
+						'pinned',
+						'postcount',
+					]);
+					if (parseInt(topicData.pinned, 10) !== 1) {
+						topicData.postcount = parseInt(topicData.postcount, 10) || 0;
+						await db.sortedSetAdd(
+							`cid:${topicData.cid}:tids:posts`,
+							topicData.postcount,
+							tid
+						);
+					}
+					await topics.updateLastPostTimeFromLastPid(tid);
 				}
-				await topics.updateLastPostTimeFromLastPid(tid);
+			},
+			{
+				progress: progress,
 			}
-		}, {
-			progress: progress,
-		});
+		);
 	},
 };

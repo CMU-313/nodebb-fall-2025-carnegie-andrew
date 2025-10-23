@@ -6,7 +6,8 @@ module.exports = {
 	name: 'Add website and location as custom profile fields',
 	timestamp: Date.UTC(2024, 10, 25),
 	method: async function () {
-		const minRepWebsite = parseInt(await db.getObjectField('config', 'min:rep:website'), 10) || 0;
+		const minRepWebsite =
+			parseInt(await db.getObjectField('config', 'min:rep:website'), 10) || 0;
 
 		const website = {
 			icon: 'fa-solid fa-globe',

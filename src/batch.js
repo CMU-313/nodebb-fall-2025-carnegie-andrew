@@ -1,4 +1,3 @@
-
 'use strict';
 
 const util = require('util');
@@ -26,22 +25,33 @@ exports.processSortedSet = async function (setKey, process, options) {
 	options.reverse = options.reverse || false;
 
 	// use the fast path if possible
-	if (db.processSortedSet && typeof options.doneIf !== 'function' && !utils.isNumber(options.alwaysStartAt)) {
+	if (
+		db.processSortedSet &&
+		typeof options.doneIf !== 'function' &&
+		!utils.isNumber(options.alwaysStartAt)
+	) {
 		return await db.processSortedSet(setKey, process, options);
 	}
 
 	// custom done condition
-	options.doneIf = typeof options.doneIf === 'function' ? options.doneIf : function () {};
+	options.doneIf =
+		typeof options.doneIf === 'function' ? options.doneIf : function () {};
 
 	let start = 0;
 	let stop = options.batch - 1;
 
-	if (process && process.constructor && process.constructor.name !== 'AsyncFunction') {
+	if (
+		process &&
+		process.constructor &&
+		process.constructor.name !== 'AsyncFunction'
+	) {
 		process = util.promisify(process);
 	}
 
 	const method = options.reverse ? 'getSortedSetRevRange' : 'getSortedSetRange';
-	const isByScore = (options.min && options.min !== '-inf') || (options.max && options.max !== '+inf');
+	const isByScore =
+		(options.min && options.min !== '-inf') ||
+		(options.max && options.max !== '+inf');
 	const byScore = isByScore ? 'ByScore' : '';
 	const withScores = options.withScores ? 'WithScores' : '';
 	let iteration = 1;
@@ -53,7 +63,7 @@ exports.processSortedSet = async function (setKey, process, options) {
 			start,
 			isByScore ? stop - start + 1 : stop,
 			options.reverse ? options.max : options.min,
-			options.reverse ? options.min : options.max,
+			options.reverse ? options.min : options.max
 		);
 
 		if (!ids.length || options.doneIf(start, stop, ids)) {
@@ -64,7 +74,9 @@ exports.processSortedSet = async function (setKey, process, options) {
 		}
 		await process(ids);
 		iteration += 1;
-		start += utils.isNumber(options.alwaysStartAt) ? options.alwaysStartAt : options.batch;
+		start += utils.isNumber(options.alwaysStartAt)
+			? options.alwaysStartAt
+			: options.batch;
 		stop = start + options.batch - 1;
 	}
 };
@@ -81,7 +93,11 @@ exports.processArray = async function (array, process, options) {
 
 	const batch = options.batch || DEFAULT_BATCH_SIZE;
 	let start = 0;
-	if (process && process.constructor && process.constructor.name !== 'AsyncFunction') {
+	if (
+		process &&
+		process.constructor &&
+		process.constructor.name !== 'AsyncFunction'
+	) {
 		process = util.promisify(process);
 	}
 	let iteration = 1;

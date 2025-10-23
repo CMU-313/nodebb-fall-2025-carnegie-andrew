@@ -1,4 +1,3 @@
-
 'use strict';
 
 const db = require('../../database');
@@ -16,22 +15,26 @@ module.exports = {
 		for (let i = 1; i < nextId; i++) {
 			ids.push(i);
 		}
-		await batch.processArray(ids, async (eids) => {
-			const eventData = await db.getObjects(eids.map(eid => `topicEvent:${eid}`));
-			const bulkSet = [];
-			eventData.forEach((event, idx) => {
-				if (event && event.type) {
-					const id = eids[idx];
-					bulkSet.push(
-						[`topicEvent:${id}`, { id: id }]
-					);
-				}
-			});
-			await db.setObjectBulk(bulkSet);
-			progress.incr(eids.length);
-		}, {
-			batch: 500,
-			progress,
-		});
+		await batch.processArray(
+			ids,
+			async (eids) => {
+				const eventData = await db.getObjects(
+					eids.map((eid) => `topicEvent:${eid}`)
+				);
+				const bulkSet = [];
+				eventData.forEach((event, idx) => {
+					if (event && event.type) {
+						const id = eids[idx];
+						bulkSet.push([`topicEvent:${id}`, { id: id }]);
+					}
+				});
+				await db.setObjectBulk(bulkSet);
+				progress.incr(eids.length);
+			},
+			{
+				batch: 500,
+				progress,
+			}
+		);
 	},
 };

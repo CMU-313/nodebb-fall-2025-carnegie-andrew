@@ -10,7 +10,9 @@ module.exports = {
 	method: async function () {
 		let configJSON;
 		try {
-			configJSON = require('../../../config.json') || { [process.env.database]: true };
+			configJSON = require('../../../config.json') || {
+				[process.env.database]: true,
+			};
 		} catch (err) {
 			configJSON = { [process.env.database]: true };
 		}
@@ -24,16 +26,20 @@ module.exports = {
 			const sessionKeys = await client.keys('sess:*');
 			progress.total = sessionKeys.length;
 
-			await batch.processArray(sessionKeys, async (keys) => {
-				const multi = client.multi();
-				keys.forEach((key) => {
-					progress.incr();
-					multi.del(key);
-				});
-				await multi.exec();
-			}, {
-				batch: 1000,
-			});
+			await batch.processArray(
+				sessionKeys,
+				async (keys) => {
+					const multi = client.multi();
+					keys.forEach((key) => {
+						progress.incr();
+						multi.del(key);
+					});
+					await multi.exec();
+				},
+				{
+					batch: 1000,
+				}
+			);
 		} else if (db.client && db.client.collection) {
 			await db.client.collection('sessions').deleteMany({}, {});
 		}

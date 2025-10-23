@@ -1,7 +1,7 @@
 name: P1B Starter Task Issue
 description: Use this template to describe the Qlty smell that you will refactor for P1B.
-title: "P1B: Refactor (<full/path/to/file.js:line_number>): <smell>"
-labels: ["P1B"]
+title: 'P1B: Refactor (<full/path/to/file.js:line_number>): <smell>'
+labels: ['P1B']
 body:
   - type: markdown
     attributes:
@@ -16,7 +16,7 @@ body:
     attributes:
       label: Uniqueness check
       options:
-      - label: I have searched open issues and confirmed this **file + smell** is not already taken.
+        - label: I have searched open issues and confirmed this **file + smell** is not already taken.
     validations:
       required: true
 

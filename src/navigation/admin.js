@@ -28,31 +28,38 @@ admin.save = async function (data) {
 	cache = null;
 	pubsub.publish('admin:navigation:save');
 	const ids = await db.getSortedSetRange('navigation:enabled', 0, -1);
-	await db.deleteAll(ids.map(id => `navigation:enabled:${id}`));
+	await db.deleteAll(ids.map((id) => `navigation:enabled:${id}`));
 	await db.setObjectBulk(bulkSet);
 	await db.delete('navigation:enabled');
 	await db.sortedSetAdd('navigation:enabled', order, order);
 };
 
 admin.getAdmin = async function () {
-	const [enabled, available] = await Promise.all([
-		admin.get(),
-		getAvailable(),
-	]);
+	const [enabled, available] = await Promise.all([admin.get(), getAvailable()]);
 	return { enabled: enabled, available: available };
 };
 
-const fieldsToEscape = ['iconClass', 'class', 'route', 'id', 'text', 'textClass', 'title'];
+const fieldsToEscape = [
+	'iconClass',
+	'class',
+	'route',
+	'id',
+	'text',
+	'textClass',
+	'title',
+];
 
-admin.escapeFields = navItems => toggleEscape(navItems, true);
-admin.unescapeFields = navItems => toggleEscape(navItems, false);
+admin.escapeFields = (navItems) => toggleEscape(navItems, true);
+admin.unescapeFields = (navItems) => toggleEscape(navItems, false);
 
 function toggleEscape(navItems, flag) {
 	navItems.forEach((item) => {
 		if (item) {
 			fieldsToEscape.forEach((field) => {
 				if (item.hasOwnProperty(field)) {
-					item[field] = validator[flag ? 'escape' : 'unescape'](String(item[field]));
+					item[field] = validator[flag ? 'escape' : 'unescape'](
+						String(item[field])
+					);
 				}
 			});
 		}
@@ -61,10 +68,10 @@ function toggleEscape(navItems, flag) {
 
 admin.get = async function () {
 	if (cache) {
-		return cache.map(item => ({ ...item }));
+		return cache.map((item) => ({ ...item }));
 	}
 	const ids = await db.getSortedSetRange('navigation:enabled', 0, -1);
-	const data = await db.getObjects(ids.map(id => `navigation:enabled:${id}`));
+	const data = await db.getObjects(ids.map((id) => `navigation:enabled:${id}`));
 	cache = data.filter(Boolean).map((item) => {
 		if (item.hasOwnProperty('groups')) {
 			try {
@@ -82,16 +89,18 @@ admin.get = async function () {
 	});
 	admin.escapeFields(cache);
 
-	return cache.map(item => ({ ...item }));
+	return cache.map((item) => ({ ...item }));
 };
 
 admin.update = async function (route, data) {
 	const ids = await db.getSortedSetRange('navigation:enabled', 0, -1);
-	const navItems = await db.getObjects(ids.map(id => `navigation:enabled:${id}`));
-	const matchedRoutes = navItems.filter(item => item && item.route === route);
+	const navItems = await db.getObjects(
+		ids.map((id) => `navigation:enabled:${id}`)
+	);
+	const matchedRoutes = navItems.filter((item) => item && item.route === route);
 	if (matchedRoutes.length) {
 		await db.setObjectBulk(
-			matchedRoutes.map(item => [`navigation:enabled:${item.order}`, data])
+			matchedRoutes.map((item) => [`navigation:enabled:${item.order}`, data])
 		);
 		cache = null;
 		pubsub.publish('admin:navigation:save');
@@ -105,7 +114,10 @@ async function getAvailable() {
 		return item;
 	});
 
-	const navItems = await plugins.hooks.fire('filter:navigation.available', core);
+	const navItems = await plugins.hooks.fire(
+		'filter:navigation.available',
+		core
+	);
 	navItems.forEach((item) => {
 		if (item && !item.hasOwnProperty('enabled')) {
 			item.enabled = true;

@@ -29,7 +29,11 @@ const Mocks = module.exports;
  * Done so the output HTML is stripped of all non-essential items; mainly classes from plugins..
  */
 const sanitizeConfig = {
-	allowedTags: sanitize.defaults.allowedTags.concat(['img', 'picture', 'source']),
+	allowedTags: sanitize.defaults.allowedTags.concat([
+		'img',
+		'picture',
+		'source',
+	]),
 	allowedClasses: {
 		'*': [],
 	},
@@ -42,9 +46,21 @@ const sanitizeConfig = {
 
 Mocks._normalize = async (object) => {
 	// Normalized incoming AP objects into expected types for easier mocking
-	let { type, attributedTo, url, image, mediaType, content, source, attachment, cc } = object;
+	let {
+		type,
+		attributedTo,
+		url,
+		image,
+		mediaType,
+		content,
+		source,
+		attachment,
+		cc,
+	} = object;
 
-	switch (true) { // non-string attributedTo handling
+	switch (
+		true // non-string attributedTo handling
+	) {
 		case Array.isArray(attributedTo): {
 			attributedTo = attributedTo.reduce((valid, cur) => {
 				if (typeof cur === 'string') {
@@ -65,17 +81,25 @@ Mocks._normalize = async (object) => {
 			break;
 		}
 
-		case typeof attributedTo === 'object' && attributedTo.hasOwnProperty('id'): {
+		case typeof attributedTo === 'object' &&
+			attributedTo.hasOwnProperty('id'): {
 			attributedTo = attributedTo.id;
 		}
 	}
 
-	let sourceContent = source && source.mediaType === 'text/markdown' ? source.content : undefined;
+	let sourceContent =
+		source && source.mediaType === 'text/markdown' ? source.content : undefined;
 	if (sourceContent) {
 		content = null;
-		sourceContent = await activitypub.helpers.remoteAnchorToLocalProfile(sourceContent, true);
+		sourceContent = await activitypub.helpers.remoteAnchorToLocalProfile(
+			sourceContent,
+			true
+		);
 	} else if (mediaType === 'text/markdown') {
-		sourceContent = await activitypub.helpers.remoteAnchorToLocalProfile(content, true);
+		sourceContent = await activitypub.helpers.remoteAnchorToLocalProfile(
+			content,
+			true
+		);
 		content = null;
 	} else if (content && content.length) {
 		content = sanitize(content, sanitizeConfig);
@@ -102,25 +126,31 @@ Mocks._normalize = async (object) => {
 	if (image) {
 		const parsed = new URL(image);
 		if (!mime.getType(parsed.pathname).startsWith('image/')) {
-			activitypub.helpers.log(`[activitypub/mocks.post] Received image not identified as image due to MIME type: ${image}`);
+			activitypub.helpers.log(
+				`[activitypub/mocks.post] Received image not identified as image due to MIME type: ${image}`
+			);
 			image = null;
 		}
 	}
 
-	if (url) { // Handle url array
+	if (url) {
+		// Handle url array
 		if (Array.isArray(url)) {
 			// Special handling for Video type (from PeerTube specifically)
 			if (type === 'Video') {
 				const stream = url.reduce((memo, { type, mediaType, tag }) => {
 					if (!memo) {
 						if (type === 'Link' && mediaType === 'application/x-mpegURL') {
-							memo = tag.reduce((memo, { type, mediaType, href, width, height }) => {
-								if (!memo && (type === 'Link' && mediaType === 'video/mp4')) {
-									memo = { mediaType, href, width, height };
-								}
+							memo = tag.reduce(
+								(memo, { type, mediaType, href, width, height }) => {
+									if (!memo && type === 'Link' && mediaType === 'video/mp4') {
+										memo = { mediaType, href, width, height };
+									}
 
-								return memo;
-							}, null);
+									return memo;
+								},
+								null
+							);
 						}
 					}
 
@@ -138,7 +168,10 @@ Mocks._normalize = async (object) => {
 					valid.push(cur);
 				} else if (typeof cur === 'object') {
 					if (cur.type === 'Link' && cur.href) {
-						if (!cur.mediaType || (cur.mediaType && cur.mediaType === 'text/html')) {
+						if (
+							!cur.mediaType ||
+							(cur.mediaType && cur.mediaType === 'text/html')
+						) {
 							valid.push(cur.href);
 						}
 					}
@@ -164,180 +197,234 @@ Mocks._normalize = async (object) => {
 
 Mocks.profile = async (actors) => {
 	// Should only ever be called by activitypub.actors.assert
-	const profiles = await Promise.all(actors.map(async (actor) => {
-		if (!actor) {
-			return null;
-		}
+	const profiles = await Promise.all(
+		actors.map(async (actor) => {
+			if (!actor) {
+				return null;
+			}
 
-		const uid = actor.id;
-		let hostname;
-		let {
-			url, preferredUsername, published, icon, image,
-			name, summary, followers, inbox, endpoints, tag,
-		} = actor;
-		preferredUsername = slugify(preferredUsername || name);
-		const { followers: followerCount, following: followingCount } = await activitypub.actors.getLocalFollowCounts(uid);
+			const uid = actor.id;
+			let hostname;
+			let {
+				url,
+				preferredUsername,
+				published,
+				icon,
+				image,
+				name,
+				summary,
+				followers,
+				inbox,
+				endpoints,
+				tag,
+			} = actor;
+			preferredUsername = slugify(preferredUsername || name);
+			const { followers: followerCount, following: followingCount } =
+				await activitypub.actors.getLocalFollowCounts(uid);
 
-		try {
-			({ hostname } = new URL(actor.id));
-		} catch (e) {
-			return null;
-		}
+			try {
+				({ hostname } = new URL(actor.id));
+			} catch (e) {
+				return null;
+			}
 
-		let picture;
-		if (icon) {
-			picture = typeof icon === 'string' ? icon : icon.url;
-		}
-		const iconBackgrounds = await user.getIconBackgrounds();
-		let bgColor = Array.prototype.reduce.call(preferredUsername, (cur, next) => cur + next.charCodeAt(), 0);
-		bgColor = iconBackgrounds[bgColor % iconBackgrounds.length];
+			let picture;
+			if (icon) {
+				picture = typeof icon === 'string' ? icon : icon.url;
+			}
+			const iconBackgrounds = await user.getIconBackgrounds();
+			let bgColor = Array.prototype.reduce.call(
+				preferredUsername,
+				(cur, next) => cur + next.charCodeAt(),
+				0
+			);
+			bgColor = iconBackgrounds[bgColor % iconBackgrounds.length];
 
-		// Replace emoji in summary
-		if (tag && Array.isArray(tag)) {
-			tag
-				.filter(tag => tag.type === 'Emoji' &&
-					isEmojiShortcode.test(tag.name) &&
-					tag.icon && tag.icon.mediaType && tag.icon.mediaType.startsWith('image/'))
-				.forEach((tag) => {
-					summary = summary.replace(new RegExp(tag.name, 'g'), `<img class="not-responsive emoji" src="${tag.icon.url}" title="${tag.name}" />`);
-				});
-		}
+			// Replace emoji in summary
+			if (tag && Array.isArray(tag)) {
+				tag
+					.filter(
+						(tag) =>
+							tag.type === 'Emoji' &&
+							isEmojiShortcode.test(tag.name) &&
+							tag.icon &&
+							tag.icon.mediaType &&
+							tag.icon.mediaType.startsWith('image/')
+					)
+					.forEach((tag) => {
+						summary = summary.replace(
+							new RegExp(tag.name, 'g'),
+							`<img class="not-responsive emoji" src="${tag.icon.url}" title="${tag.name}" />`
+						);
+					});
+			}
 
-		// Add custom fields into user hash
-		const customFields = actor.attachment && Array.isArray(actor.attachment) && actor.attachment.length ?
-			actor.attachment
-				.filter(attachment => activitypub._constants.acceptable.customFields.has(attachment.type))
-				.reduce((map, { type, name, value, href, content }) => {
-					// Defer to new style (per FEP fb2a)
-					if (map.has(name) && type === 'PropertyValue') {
-						return map;
-					}
+			// Add custom fields into user hash
+			const customFields =
+				actor.attachment &&
+				Array.isArray(actor.attachment) &&
+				actor.attachment.length
+					? actor.attachment
+							.filter((attachment) =>
+								activitypub._constants.acceptable.customFields.has(
+									attachment.type
+								)
+							)
+							.reduce((map, { type, name, value, href, content }) => {
+								// Defer to new style (per FEP fb2a)
+								if (map.has(name) && type === 'PropertyValue') {
+									return map;
+								}
 
-					// Strip html from received values (for security)
-					switch (type) {
-						case 'Note': {
-							value = utils.stripHTMLTags(content);
-							break;
-						}
+								// Strip html from received values (for security)
+								switch (type) {
+									case 'Note': {
+										value = utils.stripHTMLTags(content);
+										break;
+									}
 
-						case 'Link': {
-							value = utils.stripHTMLTags(href);
-							break;
-						}
+									case 'Link': {
+										value = utils.stripHTMLTags(href);
+										break;
+									}
 
-						case 'PropertyValue': {
-							value = utils.stripHTMLTags(value);
-							break;
-						}
-					}
+									case 'PropertyValue': {
+										value = utils.stripHTMLTags(value);
+										break;
+									}
+								}
 
-					return map.set(name, value);
-				}, new Map()) :
-			undefined;
+								return map.set(name, value);
+							}, new Map())
+					: undefined;
 
-		const payload = {
-			uid,
-			username: `${preferredUsername}@${hostname}`,
-			userslug: `${preferredUsername}@${hostname}`,
-			displayname: name,
-			fullname: name,
-			joindate: new Date(published).getTime() || Date.now(),
-			picture,
-			status: 'offline',
-			'icon:text': (preferredUsername[0] || '').toUpperCase(),
-			'icon:bgColor': bgColor,
-			uploadedpicture: undefined,
-			'cover:url': !image || typeof image === 'string' ? image : image.url,
-			'cover:position': '50% 50%',
-			aboutme: posts.sanitize(summary),
-			followerCount,
-			followingCount,
+			const payload = {
+				uid,
+				username: `${preferredUsername}@${hostname}`,
+				userslug: `${preferredUsername}@${hostname}`,
+				displayname: name,
+				fullname: name,
+				joindate: new Date(published).getTime() || Date.now(),
+				picture,
+				status: 'offline',
+				'icon:text': (preferredUsername[0] || '').toUpperCase(),
+				'icon:bgColor': bgColor,
+				uploadedpicture: undefined,
+				'cover:url': !image || typeof image === 'string' ? image : image.url,
+				'cover:position': '50% 50%',
+				aboutme: posts.sanitize(summary),
+				followerCount,
+				followingCount,
 
-			url,
-			inbox,
-			sharedInbox: endpoints ? endpoints.sharedInbox : null,
-			followersUrl: followers,
-			customFields: customFields && new URLSearchParams(customFields).toString(),
-		};
+				url,
+				inbox,
+				sharedInbox: endpoints ? endpoints.sharedInbox : null,
+				followersUrl: followers,
+				customFields:
+					customFields && new URLSearchParams(customFields).toString(),
+			};
 
-		return payload;
-	}));
+			return payload;
+		})
+	);
 
 	return profiles;
 };
 
 Mocks.category = async (actors) => {
-	const categories = await Promise.all(actors.map(async (actor) => {
-		if (!actor) {
-			return null;
-		}
+	const categories = await Promise.all(
+		actors.map(async (actor) => {
+			if (!actor) {
+				return null;
+			}
 
-		const cid = actor.id;
-		let hostname;
-		let {
-			url, preferredUsername, icon, /* image, */
-			name, summary, followers, inbox, endpoints, tag,
-		} = actor;
-		preferredUsername = slugify(preferredUsername || name);
-		/*
+			const cid = actor.id;
+			let hostname;
+			let {
+				url,
+				preferredUsername,
+				icon /* image, */,
+				name,
+				summary,
+				followers,
+				inbox,
+				endpoints,
+				tag,
+			} = actor;
+			preferredUsername = slugify(preferredUsername || name);
+			/*
 		const {
 			followers: followerCount,
 			following: followingCount
 		} = await activitypub.actors.getLocalFollowCounts(uid);
 		*/
 
-		try {
-			({ hostname } = new URL(actor.id));
-		} catch (e) {
-			return null;
-		}
+			try {
+				({ hostname } = new URL(actor.id));
+			} catch (e) {
+				return null;
+			}
 
-		// No support for category avatars yet ;(
-		// let picture;
-		// if (image) {
-		// picture = typeof image === 'string' ? image : image.url;
-		// }
-		const iconBackgrounds = await user.getIconBackgrounds();
-		let bgColor = Array.prototype.reduce.call(preferredUsername, (cur, next) => cur + next.charCodeAt(), 0);
-		bgColor = iconBackgrounds[bgColor % iconBackgrounds.length];
+			// No support for category avatars yet ;(
+			// let picture;
+			// if (image) {
+			// picture = typeof image === 'string' ? image : image.url;
+			// }
+			const iconBackgrounds = await user.getIconBackgrounds();
+			let bgColor = Array.prototype.reduce.call(
+				preferredUsername,
+				(cur, next) => cur + next.charCodeAt(),
+				0
+			);
+			bgColor = iconBackgrounds[bgColor % iconBackgrounds.length];
 
-		const backgroundImage = !icon || typeof icon === 'string' ? icon : icon.url;
+			const backgroundImage =
+				!icon || typeof icon === 'string' ? icon : icon.url;
 
-		// Replace emoji in summary
-		if (tag && Array.isArray(tag)) {
-			tag
-				.filter(tag => tag.type === 'Emoji' &&
-					isEmojiShortcode.test(tag.name) &&
-					tag.icon && tag.icon.mediaType && tag.icon.mediaType.startsWith('image/'))
-				.forEach((tag) => {
-					summary = summary.replace(new RegExp(tag.name, 'g'), `<img class="not-responsive emoji" src="${tag.icon.url}" title="${tag.name}" />`);
-				});
-		}
+			// Replace emoji in summary
+			if (tag && Array.isArray(tag)) {
+				tag
+					.filter(
+						(tag) =>
+							tag.type === 'Emoji' &&
+							isEmojiShortcode.test(tag.name) &&
+							tag.icon &&
+							tag.icon.mediaType &&
+							tag.icon.mediaType.startsWith('image/')
+					)
+					.forEach((tag) => {
+						summary = summary.replace(
+							new RegExp(tag.name, 'g'),
+							`<img class="not-responsive emoji" src="${tag.icon.url}" title="${tag.name}" />`
+						);
+					});
+			}
 
-		const payload = {
-			cid,
-			name,
-			handle: preferredUsername,
-			slug: `${preferredUsername}@${hostname}`,
-			description: summary,
-			descriptionParsed: posts.sanitize(summary),
-			icon: backgroundImage ? 'fa-none' : 'fa-comments',
-			color: '#fff',
-			bgColor,
-			backgroundImage,
-			imageClass: 'cover',
-			numRecentReplies: 1,
-			// followerCount,
-			// followingCount,
+			const payload = {
+				cid,
+				name,
+				handle: preferredUsername,
+				slug: `${preferredUsername}@${hostname}`,
+				description: summary,
+				descriptionParsed: posts.sanitize(summary),
+				icon: backgroundImage ? 'fa-none' : 'fa-comments',
+				color: '#fff',
+				bgColor,
+				backgroundImage,
+				imageClass: 'cover',
+				numRecentReplies: 1,
+				// followerCount,
+				// followingCount,
 
-			url,
-			inbox,
-			sharedInbox: endpoints ? endpoints.sharedInbox : null,
-			followersUrl: followers,
-		};
+				url,
+				inbox,
+				sharedInbox: endpoints ? endpoints.sharedInbox : null,
+				followersUrl: followers,
+			};
 
-		return payload;
-	}));
+			return payload;
+		})
+	);
 
 	return categories;
 };
@@ -349,54 +436,65 @@ Mocks.post = async (objects) => {
 		objects = [objects];
 	}
 
-	const posts = await Promise.all(objects.map(async (object) => {
-		object = await Mocks._normalize(object);
+	const posts = await Promise.all(
+		objects.map(async (object) => {
+			object = await Mocks._normalize(object);
 
-		if (
-			!activitypub._constants.acceptedPostTypes.includes(object.type) ||
-			!activitypub.helpers.isUri(object.id) // sanity-check the id
-		) {
-			return null;
-		}
+			if (
+				!activitypub._constants.acceptedPostTypes.includes(object.type) ||
+				!activitypub.helpers.isUri(object.id) // sanity-check the id
+			) {
+				return null;
+			}
 
-		let {
-			id: pid,
-			url,
-			attributedTo: uid,
-			inReplyTo: toPid,
-			published, updated, name, content, sourceContent,
-			to, cc, audience, attachment, tag, image,
-		} = object;
+			let {
+				id: pid,
+				url,
+				attributedTo: uid,
+				inReplyTo: toPid,
+				published,
+				updated,
+				name,
+				content,
+				sourceContent,
+				to,
+				cc,
+				audience,
+				attachment,
+				tag,
+				image,
+			} = object;
 
-		await activitypub.actors.assert(uid);
+			await activitypub.actors.assert(uid);
 
-		const resolved = await activitypub.helpers.resolveLocalId(toPid);
-		if (resolved.type === 'post') {
-			toPid = resolved.id;
-		}
+			const resolved = await activitypub.helpers.resolveLocalId(toPid);
+			if (resolved.type === 'post') {
+				toPid = resolved.id;
+			}
 
-		const timestamp = new Date(published).getTime();
-		let edited = new Date(updated);
-		edited = Number.isNaN(edited.valueOf()) ? undefined : edited;
+			const timestamp = new Date(published).getTime();
+			let edited = new Date(updated);
+			edited = Number.isNaN(edited.valueOf()) ? undefined : edited;
 
-		const payload = {
-			uid,
-			pid,
-			// tid,  --> purposely omitted
-			content,
-			sourceContent,
-			timestamp,
-			toPid,
+			const payload = {
+				uid,
+				pid,
+				// tid,  --> purposely omitted
+				content,
+				sourceContent,
+				timestamp,
+				toPid,
 
-			title: name, // used in post.edit
+				title: name, // used in post.edit
 
-			edited,
-			editor: edited ? uid : undefined,
-			_activitypub: { to, cc, audience, attachment, tag, url, image },
-		};
+				edited,
+				editor: edited ? uid : undefined,
+				_activitypub: { to, cc, audience, attachment, tag, url, image },
+			};
 
-		return payload;
-	}));
+			return payload;
+		})
+	);
 
 	return single ? posts.pop() : posts;
 };
@@ -418,7 +516,16 @@ Mocks.actors = {};
 
 Mocks.actors.user = async (uid) => {
 	const userData = await user.getUserData(uid);
-	let { username, userslug, displayname, fullname, joindate, aboutme, picture, 'cover:url': cover } = userData;
+	let {
+		username,
+		userslug,
+		displayname,
+		fullname,
+		joindate,
+		aboutme,
+		picture,
+		'cover:url': cover,
+	} = userData;
 	let fields = await accountHelpers.getCustomUserFields(0, userData);
 	const publicKey = await activitypub.getPublicKey('uid', uid);
 
@@ -449,14 +556,16 @@ Mocks.actors.user = async (uid) => {
 
 	const attachment = [];
 	// Translate field names and values
-	fields = await Promise.all(fields.map(async (field) => {
-		const [name, value] = await Promise.all([
-			translator.translate(field.name),
-			translator.translate(field.value),
-		]);
-		field = { ...field, ...{ name, value } };
-		return field;
-	}));
+	fields = await Promise.all(
+		fields.map(async (field) => {
+			const [name, value] = await Promise.all([
+				translator.translate(field.name),
+				translator.translate(field.value),
+			]);
+			field = { ...field, ...{ name, value } };
+			return field;
+		})
+	);
 	fields.forEach(({ type, name, value }) => {
 		if (value) {
 			if (type === 'input-link') {
@@ -517,10 +626,21 @@ Mocks.actors.user = async (uid) => {
 
 Mocks.actors.category = async (cid) => {
 	let {
-		name, handle: preferredUsername, slug,
-		descriptionParsed: summary, federatedDescription, backgroundImage,
-	} = await categories.getCategoryFields(cid,
-		['name', 'handle', 'slug', 'description', 'descriptionParsed', 'federatedDescription', 'backgroundImage']);
+		name,
+		handle: preferredUsername,
+		slug,
+		descriptionParsed: summary,
+		federatedDescription,
+		backgroundImage,
+	} = await categories.getCategoryFields(cid, [
+		'name',
+		'handle',
+		'slug',
+		'description',
+		'descriptionParsed',
+		'federatedDescription',
+		'backgroundImage',
+	]);
 	const publicKey = await activitypub.getPublicKey('cid', cid);
 
 	let icon;
@@ -542,7 +662,9 @@ Mocks.actors.category = async (cid) => {
 	}
 
 	// Append federated desc.
-	const fallback = await translator.translate('[[admin/manage/categories:federatedDescription.default]]');
+	const fallback = await translator.translate(
+		'[[admin/manage/categories:federatedDescription.default]]'
+	);
 	summary += `<hr /><p dir="auto">${federatedDescription || fallback}</p>\n`;
 
 	return {
@@ -606,21 +728,36 @@ Mocks.notes.public = async (post) => {
 	let name = null;
 	({ titleRaw: name } = await topics.getTopicFields(post.tid, ['title']));
 
-	if (post.toPid) { // direct reply
-		inReplyTo = utils.isNumber(post.toPid) ? `${nconf.get('url')}/post/${post.toPid}` : post.toPid;
+	if (post.toPid) {
+		// direct reply
+		inReplyTo = utils.isNumber(post.toPid)
+			? `${nconf.get('url')}/post/${post.toPid}`
+			: post.toPid;
 		name = `Re: ${name}`;
 
 		const parentId = await posts.getPostField(post.toPid, 'uid');
 		followersUrl = await user.getUserField(parentId, 'followersUrl');
-		to.add(utils.isNumber(parentId) ? `${nconf.get('url')}/uid/${parentId}` : parentId);
-	} else if (!post.isMainPost) { // reply to OP
-		inReplyTo = utils.isNumber(post.topic.mainPid) ? `${nconf.get('url')}/post/${post.topic.mainPid}` : post.topic.mainPid;
+		to.add(
+			utils.isNumber(parentId)
+				? `${nconf.get('url')}/uid/${parentId}`
+				: parentId
+		);
+	} else if (!post.isMainPost) {
+		// reply to OP
+		inReplyTo = utils.isNumber(post.topic.mainPid)
+			? `${nconf.get('url')}/post/${post.topic.mainPid}`
+			: post.topic.mainPid;
 		name = `Re: ${name}`;
 
-		to.add(utils.isNumber(post.topic.uid) ? `${nconf.get('url')}/uid/${post.topic.uid}` : post.topic.uid);
+		to.add(
+			utils.isNumber(post.topic.uid)
+				? `${nconf.get('url')}/uid/${post.topic.uid}`
+				: post.topic.uid
+		);
 		followersUrl = await user.getUserField(post.topic.uid, 'followersUrl');
-	} else { // new topic
-		tag = post.topic.tags.map(tag => ({
+	} else {
+		// new topic
+		tag = post.topic.tags.map((tag) => ({
 			type: 'Hashtag',
 			href: `${nconf.get('url')}/tags/${tag.valueEncoded}`,
 			name: `#${tag.value}`,
@@ -661,19 +798,22 @@ Mocks.notes.public = async (post) => {
 
 		if (matches.size) {
 			tag = tag || [];
-			tag.push(...Array.from(matches).map(({ type, id: href, slug: name }) => {
-				if (utils.isNumber(href)) { // local ref
-					name = name.toLowerCase(); // local slugs are always lowercase
-					href = `${nconf.get('url')}/${type === 'uid' ? 'user' : `category/${href}`}/${name.slice(1)}`;
-					name = `${name}@${nconf.get('url_parsed').hostname}`;
-				}
+			tag.push(
+				...Array.from(matches).map(({ type, id: href, slug: name }) => {
+					if (utils.isNumber(href)) {
+						// local ref
+						name = name.toLowerCase(); // local slugs are always lowercase
+						href = `${nconf.get('url')}/${type === 'uid' ? 'user' : `category/${href}`}/${name.slice(1)}`;
+						name = `${name}@${nconf.get('url_parsed').hostname}`;
+					}
 
-				return {
-					type: 'Mention',
-					href,
-					name,
-				};
-			}));
+					return {
+						type: 'Mention',
+						href,
+						name,
+					};
+				})
+			);
 
 			Array.from(matches)
 				.reduce((ids, { id }) => {
@@ -683,40 +823,44 @@ Mocks.notes.public = async (post) => {
 
 					return ids;
 				}, [])
-				.forEach(id => cc.add(id));
+				.forEach((id) => cc.add(id));
 		}
 	}
 
-	let attachment = await posts.attachments.get(post.pid) || [];
-	const normalizeAttachment = attachment => attachment.map(({ mediaType, url, width, height }) => {
-		let type;
+	let attachment = (await posts.attachments.get(post.pid)) || [];
+	const normalizeAttachment = (attachment) =>
+		attachment.map(({ mediaType, url, width, height }) => {
+			let type;
 
-		switch (true) {
-			case mediaType && mediaType.startsWith('image'): {
-				type = 'Image';
-				break;
+			switch (true) {
+				case mediaType && mediaType.startsWith('image'): {
+					type = 'Image';
+					break;
+				}
+
+				default: {
+					type = 'Link';
+					break;
+				}
 			}
 
-			default: {
-				type = 'Link';
-				break;
+			const payload = { type, mediaType, url };
+
+			if (width || height) {
+				payload.width = width;
+				payload.height = height;
 			}
-		}
 
-		const payload = { type, mediaType, url };
-
-		if (width || height) {
-			payload.width = width;
-			payload.height = height;
-		}
-
-		return payload;
-	});
+			return payload;
+		});
 
 	// Special handling for main posts (as:Article w/ as:Note preview)
 	const noteAttachment = isMainPost ? [...attachment] : null;
 	const uploads = await posts.uploads.listWithSizes(post.pid);
-	const isThumb = await db.isSortedSetMembers(`topic:${post.tid}:thumbs`, uploads.map(u => u.name));
+	const isThumb = await db.isSortedSetMembers(
+		`topic:${post.tid}:thumbs`,
+		uploads.map((u) => u.name)
+	);
 	uploads.forEach(({ name, width, height }, idx) => {
 		const mediaType = mime.getType(name);
 		const url = `${nconf.get('url') + nconf.get('upload_url')}/${name}`;
@@ -761,8 +905,9 @@ Mocks.notes.public = async (post) => {
 	 * audience is exposed as part of 1b12 but is now ignored by Lemmy.
 	 * Remove this and most references to audience in 2026.
 	 */
-	let audience = utils.isNumber(post.category.cid) ? // default
-		`${nconf.get('url')}/category/${post.category.cid}` : post.category.cid;
+	let audience = utils.isNumber(post.category.cid) // default
+		? `${nconf.get('url')}/category/${post.category.cid}`
+		: post.category.cid;
 	if (inReplyTo) {
 		const chain = await activitypub.notes.getParentChain(post.uid, inReplyTo);
 		chain.forEach((post) => {
@@ -794,7 +939,11 @@ Mocks.notes.public = async (post) => {
 		replies: `${id}/replies`,
 	};
 
-	({ object } = await plugins.hooks.fire('filter:activitypub.mocks.note', { object, post, private: false }));
+	({ object } = await plugins.hooks.fire('filter:activitypub.mocks.note', {
+		object,
+		post,
+		private: false,
+	}));
 	return object;
 };
 
@@ -812,8 +961,12 @@ Mocks.notes.private = async ({ messageObj }) => {
 	}
 
 	let uids = await messaging.getUidsInRoom(messageObj.roomId, 0, -1);
-	uids = uids.filter(uid => String(uid) !== String(messageObj.fromuid)); // no author
-	const to = new Set(uids.map(uid => (utils.isNumber(uid) ? `${nconf.get('url')}/uid/${uid}` : uid)));
+	uids = uids.filter((uid) => String(uid) !== String(messageObj.fromuid)); // no author
+	const to = new Set(
+		uids.map((uid) =>
+			utils.isNumber(uid) ? `${nconf.get('url')}/uid/${uid}` : uid
+		)
+	);
 	const published = messageObj.timestampISO;
 	const updated = messageObj.edited ? messageObj.editedISO : undefined;
 
@@ -831,27 +984,43 @@ Mocks.notes.private = async ({ messageObj }) => {
 
 	const mentions = await user.getUsersFields(uids, ['uid', 'userslug']);
 	const tag = [];
-	tag.push(...mentions.map(({ uid, userslug }) => ({
-		type: 'Mention',
-		href: utils.isNumber(uid) ? `${nconf.get('url')}/uid/${uid}` : uid,
-		name: utils.isNumber(uid) ? `${userslug}@${nconf.get('url_parsed').hostname}` : userslug,
-	})));
+	tag.push(
+		...mentions.map(({ uid, userslug }) => ({
+			type: 'Mention',
+			href: utils.isNumber(uid) ? `${nconf.get('url')}/uid/${uid}` : uid,
+			name: utils.isNumber(uid)
+				? `${userslug}@${nconf.get('url_parsed').hostname}`
+				: userslug,
+		}))
+	);
 
 	let inReplyTo;
 	if (messageObj.toMid) {
-		inReplyTo = utils.isNumber(messageObj.toMid) ?
-			`${nconf.get('url')}/message/${messageObj.toMid}` :
-			messageObj.toMid;
+		inReplyTo = utils.isNumber(messageObj.toMid)
+			? `${nconf.get('url')}/message/${messageObj.toMid}`
+			: messageObj.toMid;
 	}
 	if (!inReplyTo) {
 		// Get immediately preceding message
-		const index = await db.sortedSetRank(`chat:room:${messageObj.roomId}:mids`, messageObj.mid);
+		const index = await db.sortedSetRank(
+			`chat:room:${messageObj.roomId}:mids`,
+			messageObj.mid
+		);
 		if (index > 0) {
-			const mids = await db.getSortedSetRevRange(`chat:room:${messageObj.roomId}:mids`, 1, -1);
+			const mids = await db.getSortedSetRevRange(
+				`chat:room:${messageObj.roomId}:mids`,
+				1,
+				-1
+			);
 			let isSystem = await messaging.getMessagesFields(mids, ['system']);
-			isSystem = isSystem.map(o => o.system);
-			inReplyTo = mids.reduce((memo, mid, idx) => (memo || (!isSystem[idx] ? mid : undefined)), undefined);
-			inReplyTo = utils.isNumber(inReplyTo) ? `${nconf.get('url')}/message/${inReplyTo}` : inReplyTo;
+			isSystem = isSystem.map((o) => o.system);
+			inReplyTo = mids.reduce(
+				(memo, mid, idx) => memo || (!isSystem[idx] ? mid : undefined),
+				undefined
+			);
+			inReplyTo = utils.isNumber(inReplyTo)
+				? `${nconf.get('url')}/message/${inReplyTo}`
+				: inReplyTo;
 		}
 	}
 
@@ -877,7 +1046,11 @@ Mocks.notes.private = async ({ messageObj }) => {
 		// replies: `${id}/replies`, // todo
 	};
 
-	({ object } = await plugins.hooks.fire('filter:activitypub.mocks.note', { object, post: messageObj, private: false }));
+	({ object } = await plugins.hooks.fire('filter:activitypub.mocks.note', {
+		object,
+		post: messageObj,
+		private: false,
+	}));
 	return object;
 };
 
@@ -890,14 +1063,19 @@ Mocks.activities.create = async (pid, uid, post) => {
 	}
 
 	if (!post) {
-		post = (await posts.getPostSummaryByPids([pid], uid, { stripTags: false })).pop();
+		post = (
+			await posts.getPostSummaryByPids([pid], uid, { stripTags: false })
+		).pop();
 		if (!post) {
 			throw new Error('[[error:invalid-pid]]');
 		}
 	}
 
 	const object = await activitypub.mocks.notes.public(post);
-	const { to, cc, targets } = await activitypub.buildRecipients(object, { pid, uid: post.user.uid });
+	const { to, cc, targets } = await activitypub.buildRecipients(object, {
+		pid,
+		uid: post.user.uid,
+	});
 	object.to = to;
 	object.cc = cc;
 
@@ -913,7 +1091,7 @@ Mocks.activities.create = async (pid, uid, post) => {
 	return { activity, targets };
 };
 
-Mocks.tombstone = async properties => ({
+Mocks.tombstone = async (properties) => ({
 	'@context': 'https://www.w3.org/ns/activitystreams',
 	type: 'Tombstone',
 	...properties,

@@ -52,12 +52,14 @@ UserReset.send = async function (email) {
 		await canGenerate(uid);
 		await db.sortedSetAdd('reset:issueDate:uid', Date.now(), uid);
 		const code = await UserReset.generate(uid);
-		await emailer.send('reset', uid, {
-			reset_link: `${nconf.get('url')}/reset/${code}`,
-			subject: '[[email:password-reset-requested]]',
-			template: 'reset',
-			uid: uid,
-		}).catch(err => winston.error(`[emailer.send] ${err.stack}`));
+		await emailer
+			.send('reset', uid, {
+				reset_link: `${nconf.get('url')}/reset/${code}`,
+				subject: '[[email:password-reset-requested]]',
+				template: 'reset',
+				uid: uid,
+			})
+			.catch((err) => winston.error(`[emailer.send] ${err.stack}`));
 
 		return code;
 	} finally {
@@ -76,7 +78,7 @@ async function lockReset(uid, error) {
 
 async function canGenerate(uid) {
 	const score = await db.sortedSetScore('reset:issueDate:uid', uid);
-	if (score > Date.now() - (UserReset.minSecondsBetweenEmails * 1000)) {
+	if (score > Date.now() - UserReset.minSecondsBetweenEmails * 1000) {
 		throw new Error('[[error:reset-rate-limited]]');
 	}
 }
@@ -91,14 +93,23 @@ UserReset.commit = async function (code, password) {
 	if (!uid) {
 		throw new Error('[[error:reset-code-not-valid]]');
 	}
-	const userData = await db.getObjectFields(
-		`user:${uid}`,
-		['password', 'passwordExpiry', 'password:shaWrapped', 'username']
+	const userData = await db.getObjectFields(`user:${uid}`, [
+		'password',
+		'passwordExpiry',
+		'password:shaWrapped',
+		'username',
+	]);
+
+	await plugins.hooks.fire('filter:password.check', {
+		password: password,
+		uid,
+	});
+
+	const ok = await Password.compare(
+		password,
+		userData.password,
+		!!parseInt(userData['password:shaWrapped'], 10)
 	);
-
-	await plugins.hooks.fire('filter:password.check', { password: password, uid });
-
-	const ok = await Password.compare(password, userData.password, !!parseInt(userData['password:shaWrapped'], 10));
 	if (ok) {
 		throw new Error('[[error:reset-same-password]]');
 	}
@@ -108,7 +119,8 @@ UserReset.commit = async function (code, password) {
 		'password:shaWrapped': 1,
 	};
 
-	const isPasswordExpired = userData.passwordExpiry && userData.passwordExpiry < Date.now();
+	const isPasswordExpired =
+		userData.passwordExpiry && userData.passwordExpiry < Date.now();
 	if (!isPasswordExpired) {
 		data['email:confirmed'] = 1;
 		await groups.join('verified-users', uid);
@@ -133,7 +145,7 @@ UserReset.updateExpiry = async function (uid) {
 	const expireDays = meta.config.passwordExpiryDays;
 	if (expireDays > 0) {
 		const oneDay = 1000 * 60 * 60 * 24;
-		const expiry = Date.now() + (oneDay * expireDays);
+		const expiry = Date.now() + oneDay * expireDays;
 		await user.setUserField(uid, 'passwordExpiry', expiry);
 	} else {
 		await db.deleteObjectField(`user:${uid}`, 'passwordExpiry');
@@ -141,12 +153,20 @@ UserReset.updateExpiry = async function (uid) {
 };
 
 UserReset.clean = async function () {
-	const tokens = await db.getSortedSetRangeByScore('reset:issueDate', 0, -1, '-inf', Date.now() - twoHours);
+	const tokens = await db.getSortedSetRangeByScore(
+		'reset:issueDate',
+		0,
+		-1,
+		'-inf',
+		Date.now() - twoHours
+	);
 	if (!tokens.length) {
 		return;
 	}
 
-	winston.verbose(`[UserReset.clean] Removing ${tokens.length} reset tokens from database`);
+	winston.verbose(
+		`[UserReset.clean] Removing ${tokens.length} reset tokens from database`
+	);
 	await cleanTokens(tokens);
 };
 
@@ -157,21 +177,27 @@ UserReset.cleanByUid = async function (uid) {
 		return;
 	}
 
-	await batch.processSortedSet('reset:issueDate', async (tokens) => {
-		const results = await db.getObjectFields('reset:uid', tokens);
-		for (const [code, result] of Object.entries(results)) {
-			if (parseInt(result, 10) === uid) {
-				tokensToClean.push(code);
+	await batch.processSortedSet(
+		'reset:issueDate',
+		async (tokens) => {
+			const results = await db.getObjectFields('reset:uid', tokens);
+			for (const [code, result] of Object.entries(results)) {
+				if (parseInt(result, 10) === uid) {
+					tokensToClean.push(code);
+				}
 			}
-		}
-	}, { batch: 500 });
+		},
+		{ batch: 500 }
+	);
 
 	if (!tokensToClean.length) {
 		winston.verbose(`[UserReset.cleanByUid] No tokens found for uid (${uid}).`);
 		return;
 	}
 
-	winston.verbose(`[UserReset.cleanByUid] Found ${tokensToClean.length} token(s), removing...`);
+	winston.verbose(
+		`[UserReset.cleanByUid] Found ${tokensToClean.length} token(s), removing...`
+	);
 	await Promise.all([
 		cleanTokens(tokensToClean),
 		db.deleteObjectField('locks', `reset${uid}`),

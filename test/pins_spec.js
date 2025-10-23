@@ -109,19 +109,19 @@ describe('Pins data model (isolated)', () => {
 		const after = await pins.addPinnedTid(101, 42);
 		assert.deepStrictEqual(after, before);
 	});
-  
+
 	it('admin can pin (without instructor group)', async () => {
 		privilegesStub.users.isAdministrator.resolves(true);
 		groupsStub.isMember.resolves(false);
 		const out = await pins.addPinnedTid(101, 11);
 		assert.deepStrictEqual(out, [11]);
 	});
-  
+
 	it('uid <= 0 cannot pin/unpin', async () => {
 		await assert.rejects(pins.addPinnedTid(0, 1), /Not authorized/);
 		await assert.rejects(pins.removePinnedTid(0, 1), /Not authorized/);
 	});
-  
+
 	it('getPinnedTids filters non-numeric values', async () => {
 		// simulate DB pollution
 		await dbStub.setAdd(pins.keyFor(101), '5');

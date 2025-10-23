@@ -36,13 +36,18 @@ module.exports = function (User) {
 		}
 
 		// Leaving all other system groups to have privileges constrained to the "banned-users" group
-		const systemGroups = groups.systemGroups.filter(group => group !== groups.BANNED_USERS);
+		const systemGroups = groups.systemGroups.filter(
+			(group) => group !== groups.BANNED_USERS
+		);
 		await groups.leave(systemGroups, uid);
 		await groups.join(groups.BANNED_USERS, uid);
 		await db.sortedSetAdd('users:banned', now, uid);
 		await db.sortedSetAdd(`uid:${uid}:bans:timestamp`, now, banKey);
 		await db.setObject(banKey, banData);
-		await User.setUserFields(uid, { banned: 1, 'banned:expire': banData.expire });
+		await User.setUserFields(uid, {
+			banned: 1,
+			'banned:expire': banData.expire,
+		});
 		if (until > now) {
 			await db.sortedSetAdd('users:banned:expire', until, uid);
 		} else {
@@ -56,10 +61,12 @@ module.exports = function (User) {
 		const data = {
 			subject: `[[email:banned.subject, ${siteTitle}]]`,
 			username: username,
-			until: until ? (new Date(until)).toUTCString().replace(/,/g, '\\,') : false,
+			until: until ? new Date(until).toUTCString().replace(/,/g, '\\,') : false,
 			reason: reason,
 		};
-		await emailer.send('banned', uid, data).catch(err => winston.error(`[emailer.send] ${err.stack}`));
+		await emailer
+			.send('banned', uid, data)
+			.catch((err) => winston.error(`[emailer.send] ${err.stack}`));
 
 		return banData;
 	};
@@ -69,14 +76,19 @@ module.exports = function (User) {
 		uids = isArray ? uids : [uids];
 		const userData = await User.getUsersFields(uids, ['email:confirmed']);
 
-		await db.setObject(uids.map(uid => `user:${uid}`), { banned: 0, 'banned:expire': 0 });
+		await db.setObject(
+			uids.map((uid) => `user:${uid}`),
+			{ banned: 0, 'banned:expire': 0 }
+		);
 		const now = Date.now();
 		const unbanDataArray = [];
 		/* eslint-disable no-await-in-loop */
 		for (const user of userData) {
 			const systemGroupsToJoin = [
 				'registered-users',
-				(parseInt(user['email:confirmed'], 10) === 1 ? 'verified-users' : 'unverified-users'),
+				parseInt(user['email:confirmed'], 10) === 1
+					? 'verified-users'
+					: 'unverified-users',
 			];
 			const unbanKey = `uid:${user.uid}:unban:${now}`;
 			const unbanData = {
@@ -103,7 +115,7 @@ module.exports = function (User) {
 		const isArray = Array.isArray(uids);
 		uids = isArray ? uids : [uids];
 		const result = await User.bans.unbanIfExpired(uids);
-		return isArray ? result.map(r => r.banned) : result[0].banned;
+		return isArray ? result.map((r) => r.banned) : result[0].banned;
 	};
 
 	User.bans.canLoginIfBanned = async function (uid) {
@@ -112,7 +124,10 @@ module.exports = function (User) {
 		const { banned } = (await User.bans.unbanIfExpired([uid]))[0];
 		// Group privilege overshadows individual one
 		if (banned) {
-			canLogin = await privileges.global.canGroup('local:login', groups.BANNED_USERS);
+			canLogin = await privileges.global.canGroup(
+				'local:login',
+				groups.BANNED_USERS
+			);
 		}
 		if (banned && !canLogin) {
 			// Checking a single privilege of user
@@ -124,17 +139,23 @@ module.exports = function (User) {
 
 	User.bans.unbanIfExpired = async function (uids) {
 		// loading user data will unban if it has expired -barisu
-		const userData = await User.getUsersFields(uids, ['banned', 'banned:expire']);
+		const userData = await User.getUsersFields(uids, [
+			'banned',
+			'banned:expire',
+		]);
 		return User.bans.calcExpiredFromUserData(userData);
 	};
 
 	User.bans.calcExpiredFromUserData = function (userData) {
 		const isArray = Array.isArray(userData);
 		userData = isArray ? userData : [userData];
-		userData = userData.map(userData => ({
+		userData = userData.map((userData) => ({
 			banned: !!(userData && userData.banned),
 			'banned:expire': userData && userData['banned:expire'],
-			banExpired: userData && userData['banned:expire'] <= Date.now() && userData['banned:expire'] !== 0,
+			banExpired:
+				userData &&
+				userData['banned:expire'] <= Date.now() &&
+				userData['banned:expire'] !== 0,
 		}));
 		return isArray ? userData : userData[0];
 	};
@@ -148,7 +169,11 @@ module.exports = function (User) {
 		if (parseInt(uid, 10) <= 0) {
 			return '';
 		}
-		const keys = await db.getSortedSetRevRange(`uid:${uid}:bans:timestamp`, 0, 0);
+		const keys = await db.getSortedSetRevRange(
+			`uid:${uid}:bans:timestamp`,
+			0,
+			0
+		);
 		if (!keys.length) {
 			return '';
 		}

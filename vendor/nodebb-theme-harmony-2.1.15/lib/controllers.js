@@ -2,7 +2,9 @@
 
 const Controllers = module.exports;
 
-const accountHelpers = require.main.require('./src/controllers/accounts/helpers');
+const accountHelpers = require.main.require(
+	'./src/controllers/accounts/helpers'
+);
 const helpers = require.main.require('./src/controllers/helpers');
 
 Controllers.renderAdminPage = (req, res) => {
@@ -12,7 +14,11 @@ Controllers.renderAdminPage = (req, res) => {
 };
 
 Controllers.renderThemeSettings = async (req, res, next) => {
-	const userData = await accountHelpers.getUserDataByUserSlug(req.params.userslug, req.uid, req.query);
+	const userData = await accountHelpers.getUserDataByUserSlug(
+		req.params.userslug,
+		req.uid,
+		req.query
+	);
 	if (!userData) {
 		return next();
 	}

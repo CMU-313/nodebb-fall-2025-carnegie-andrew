@@ -17,26 +17,37 @@ module.exports = {
 		const timestamp = users.length ? users[0].score : Date.now();
 		progress.total = allRoomIds.length;
 
-		await batch.processArray(allRoomIds, async (roomIds) => {
-			progress.incr(roomIds.length);
-			const keys = roomIds.map(id => `chat:room:${id}`);
-			const exists = await db.exists(keys);
-			roomIds = roomIds.filter((_, idx) => exists[idx]);
-			// get timestamp from uids, if no users use the timestamp of first user
-			const arrayOfUids = await Promise.all(
-				roomIds.map(roomId => db.getSortedSetRangeWithScores(`chat:room:${roomId}:uids`, 0, 0))
-			);
+		await batch.processArray(
+			allRoomIds,
+			async (roomIds) => {
+				progress.incr(roomIds.length);
+				const keys = roomIds.map((id) => `chat:room:${id}`);
+				const exists = await db.exists(keys);
+				roomIds = roomIds.filter((_, idx) => exists[idx]);
+				// get timestamp from uids, if no users use the timestamp of first user
+				const arrayOfUids = await Promise.all(
+					roomIds.map((roomId) =>
+						db.getSortedSetRangeWithScores(`chat:room:${roomId}:uids`, 0, 0)
+					)
+				);
 
-			const timestamps = roomIds.map(
-				(id, idx) => (arrayOfUids[idx].length ? (arrayOfUids[idx][0].score || timestamp) : timestamp)
-			);
+				const timestamps = roomIds.map((id, idx) =>
+					arrayOfUids[idx].length
+						? arrayOfUids[idx][0].score || timestamp
+						: timestamp
+				);
 
-			await db.sortedSetAdd('chat:rooms', timestamps, roomIds);
-			await db.setObjectBulk(
-				roomIds.map((id, idx) => ([`chat:room:${id}`, { timestamp: timestamps[idx] }]))
-			);
-		}, {
-			batch: 500,
-		});
+				await db.sortedSetAdd('chat:rooms', timestamps, roomIds);
+				await db.setObjectBulk(
+					roomIds.map((id, idx) => [
+						`chat:room:${id}`,
+						{ timestamp: timestamps[idx] },
+					])
+				);
+			},
+			{
+				batch: 500,
+			}
+		);
 	},
 };

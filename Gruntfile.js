@@ -14,7 +14,10 @@ let worker;
 
 env.NODE_ENV = env.NODE_ENV || 'development';
 
-const configFile = path.resolve(__dirname, nconf.any(['config', 'CONFIG']) || 'config.json');
+const configFile = path.resolve(
+	__dirname,
+	nconf.any(['config', 'CONFIG']) || 'config.json'
+);
 const prestart = require('./src/prestart');
 
 prestart.loadConfig(configFile);
@@ -54,24 +57,35 @@ module.exports = function (grunt) {
 			}
 		}
 
-		const styleUpdated_Client = pluginList.map(p => `node_modules/${p}/*.scss`)
-			.concat(pluginList.map(p => `node_modules/${p}/*.css`))
-			.concat(pluginList.map(p => `node_modules/${p}/+(public|static|scss)/**/*.scss`))
-			.concat(pluginList.map(p => `node_modules/${p}/+(public|static)/**/*.css`));
+		const styleUpdated_Client = pluginList
+			.map((p) => `node_modules/${p}/*.scss`)
+			.concat(pluginList.map((p) => `node_modules/${p}/*.css`))
+			.concat(
+				pluginList.map(
+					(p) => `node_modules/${p}/+(public|static|scss)/**/*.scss`
+				)
+			)
+			.concat(
+				pluginList.map((p) => `node_modules/${p}/+(public|static)/**/*.css`)
+			);
 
-		const clientUpdated = pluginList.map(p => `node_modules/${p}/+(public|static)/**/*.js`);
-		const serverUpdated = pluginList.map(p => `node_modules/${p}/*.js`)
-			.concat(pluginList.map(p => `node_modules/${p}/+(lib|src)/**/*.js`));
+		const clientUpdated = pluginList.map(
+			(p) => `node_modules/${p}/+(public|static)/**/*.js`
+		);
+		const serverUpdated = pluginList
+			.map((p) => `node_modules/${p}/*.js`)
+			.concat(pluginList.map((p) => `node_modules/${p}/+(lib|src)/**/*.js`));
 
-		const templatesUpdated = pluginList.map(p => `node_modules/${p}/+(public|static|templates)/**/*.tpl`);
-		const langUpdated = pluginList.map(p => `node_modules/${p}/+(public|static|languages)/**/*.json`);
+		const templatesUpdated = pluginList.map(
+			(p) => `node_modules/${p}/+(public|static|templates)/**/*.tpl`
+		);
+		const langUpdated = pluginList.map(
+			(p) => `node_modules/${p}/+(public|static|languages)/**/*.json`
+		);
 		const interval = 100;
 		grunt.config(['watch'], {
 			styleUpdated: {
-				files: [
-					'public/scss/**/*.scss',
-					...styleUpdated_Client,
-				],
+				files: ['public/scss/**/*.scss', ...styleUpdated_Client],
 				options: {
 					interval: interval,
 				},
@@ -103,10 +117,7 @@ module.exports = function (grunt) {
 				},
 			},
 			templatesUpdated: {
-				files: [
-					'src/views/**/*.tpl',
-					...templatesUpdated,
-				],
+				files: ['src/views/**/*.tpl', ...templatesUpdated],
 				options: {
 					interval: interval,
 				},
@@ -136,7 +147,7 @@ module.exports = function (grunt) {
 		}
 
 		const execArgv = [];
-		const inspect = process.argv.find(a => a.startsWith('--inspect'));
+		const inspect = process.argv.find((a) => a.startsWith('--inspect'));
 
 		if (inspect) {
 			execArgv.push(inspect);
@@ -164,7 +175,7 @@ module.exports = function (grunt) {
 		} else if (target === 'serverUpdated') {
 			// empty require cache
 			const paths = ['./src/meta/build.js', './src/meta/index.js'];
-			paths.forEach(p => delete require.cache[require.resolve(p)]);
+			paths.forEach((p) => delete require.cache[require.resolve(p)]);
 			return run();
 		}
 
@@ -183,7 +194,7 @@ module.exports = function (grunt) {
 };
 
 function addBaseThemes(pluginList) {
-	let themeId = pluginList.find(p => p.includes('nodebb-theme-'));
+	let themeId = pluginList.find((p) => p.includes('nodebb-theme-'));
 	if (!themeId) {
 		return pluginList;
 	}

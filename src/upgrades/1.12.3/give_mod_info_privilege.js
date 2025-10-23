@@ -15,10 +15,17 @@ module.exports = {
 			await givePrivsToModerators(cid, '');
 			await givePrivsToModerators(cid, 'groups:');
 		}
-		await privileges.global.give(['groups:view:users:info'], 'Global Moderators');
+		await privileges.global.give(
+			['groups:view:users:info'],
+			'Global Moderators'
+		);
 
 		async function givePrivsToModerators(cid, groupPrefix) {
-			const members = await db.getSortedSetRevRange(`group:cid:${cid}:privileges:${groupPrefix}moderate:members`, 0, -1);
+			const members = await db.getSortedSetRevRange(
+				`group:cid:${cid}:privileges:${groupPrefix}moderate:members`,
+				0,
+				-1
+			);
 			for (const member of members) {
 				await groups.join(['cid:0:privileges:view:users:info'], member);
 			}

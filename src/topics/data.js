@@ -9,11 +9,23 @@ const translator = require('../translator');
 const plugins = require('../plugins');
 
 const intFields = [
-	'tid', 'cid', 'uid', 'mainPid', 'postcount',
-	'viewcount', 'postercount', 'followercount',
-	'deleted', 'locked', 'pinned', 'pinExpiry',
-	'timestamp', 'upvotes', 'downvotes',
-	'lastposttime', 'deleterUid',
+	'tid',
+	'cid',
+	'uid',
+	'mainPid',
+	'postcount',
+	'viewcount',
+	'postercount',
+	'followercount',
+	'deleted',
+	'locked',
+	'pinned',
+	'pinExpiry',
+	'timestamp',
+	'upvotes',
+	'downvotes',
+	'lastposttime',
+	'deleterUid',
 ];
 
 module.exports = function (Topics) {
@@ -27,7 +39,7 @@ module.exports = function (Topics) {
 			fields.push('timestamp');
 		}
 
-		const keys = tids.map(tid => `topic:${tid}`);
+		const keys = tids.map((tid) => `topic:${tid}`);
 		const topics = await db.getObjects(keys, fields);
 		const result = await plugins.hooks.fire('filter:topic.getFields', {
 			tids: tids,
@@ -35,7 +47,7 @@ module.exports = function (Topics) {
 			fields: fields,
 			keys: keys,
 		});
-		result.topics.forEach(topic => modifyTopic(topic, fields));
+		result.topics.forEach((topic) => modifyTopic(topic, fields));
 		return result.topics;
 	};
 
@@ -130,14 +142,17 @@ function modifyTopic(topic, fields) {
 
 	if (fields.includes('tags') || !fields.length) {
 		const tags = String(topic.tags || '');
-		topic.tags = tags.split(',').filter(Boolean).map((tag) => {
-			const escaped = validator.escape(String(tag));
-			return {
-				value: tag,
-				valueEscaped: escaped,
-				valueEncoded: encodeURIComponent(tag),
-				class: escaped.replace(/\s/g, '-'),
-			};
-		});
+		topic.tags = tags
+			.split(',')
+			.filter(Boolean)
+			.map((tag) => {
+				const escaped = validator.escape(String(tag));
+				return {
+					value: tag,
+					valueEscaped: escaped,
+					valueEncoded: encodeURIComponent(tag),
+					class: escaped.replace(/\s/g, '-'),
+				};
+			});
 	}
 }

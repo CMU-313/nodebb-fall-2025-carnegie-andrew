@@ -23,9 +23,9 @@ module.exports = function (module) {
 
 		async function checkIfzSetsExist(keys) {
 			const members = await Promise.all(
-				keys.map(key => module.getSortedSetRange(key, 0, 0))
+				keys.map((key) => module.getSortedSetRange(key, 0, 0))
 			);
-			return members.map(member => member.length > 0);
+			return members.map((member) => member.length > 0);
 		}
 
 		async function checkIfKeysExist(keys) {
@@ -37,7 +37,7 @@ module.exports = function (module) {
  				WHERE o."_key" = ANY($1::TEXT[])`,
 				values: [keys],
 			});
-			return keys.map(k => res.rows.some(r => r.k === k));
+			return keys.map((k) => res.rows.some((r) => r.k === k));
 		}
 
 		// Redis/Mongo consider empty zsets as non-existent, match that behaviour
@@ -50,9 +50,13 @@ module.exports = function (module) {
 				checkIfKeysExist(otherKeys),
 			]);
 			const existsMap = Object.create(null);
-			zsetKeys.forEach((k, i) => { existsMap[k] = zsetExits[i]; });
-			otherKeys.forEach((k, i) => { existsMap[k] = otherExists[i]; });
-			return key.map(k => existsMap[k]);
+			zsetKeys.forEach((k, i) => {
+				existsMap[k] = zsetExits[i];
+			});
+			otherKeys.forEach((k, i) => {
+				existsMap[k] = otherExists[i];
+			});
+			return key.map((k) => existsMap[k]);
 		}
 		const type = await module.type(key);
 		if (type === 'zset') {
@@ -88,7 +92,7 @@ module.exports = function (module) {
 		WHERE o."_key" LIKE '${match}'`,
 		});
 
-		return res.rows.map(r => r._key);
+		return res.rows.map((r) => r._key);
 	};
 
 	module.delete = async function (key) {
@@ -161,9 +165,8 @@ SELECT s."data", s."_key"
 		res.rows.forEach((d) => {
 			map[d._key] = d.data;
 		});
-		return keys.map(k => (map.hasOwnProperty(k) ? map[k] : null));
+		return keys.map((k) => (map.hasOwnProperty(k) ? map[k] : null));
 	};
-
 
 	module.set = async function (key, value) {
 		if (!key) {
@@ -251,7 +254,7 @@ UPDATE "legacy_object"
 	}
 
 	module.expire = async function (key, seconds) {
-		await doExpire(key, new Date(((Date.now() / 1000) + seconds) * 1000));
+		await doExpire(key, new Date((Date.now() / 1000 + seconds) * 1000));
 	};
 
 	module.expireAt = async function (key, timestamp) {
@@ -281,10 +284,10 @@ SELECT "expireAt"::TEXT
 	}
 
 	module.ttl = async function (key) {
-		return Math.round((await getExpire(key) - Date.now()) / 1000);
+		return Math.round(((await getExpire(key)) - Date.now()) / 1000);
 	};
 
 	module.pttl = async function (key) {
-		return await getExpire(key) - Date.now();
+		return (await getExpire(key)) - Date.now();
 	};
 };

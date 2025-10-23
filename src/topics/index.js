@@ -38,7 +38,7 @@ Topics.events = require('./events');
 
 Topics.exists = async function (tids) {
 	return await db.exists(
-		Array.isArray(tids) ? tids.map(tid => `topic:${tid}`) : `topic:${tids}`
+		Array.isArray(tids) ? tids.map((tid) => `topic:${tid}`) : `topic:${tids}`
 	);
 };
 
@@ -70,38 +70,64 @@ Topics.getTopicsByTids = async function (tids, options) {
 
 	async function loadTopics() {
 		const topics = await Topics.getTopicsData(tids);
-		const uids = _.uniq(topics
-			.map(t => t && t.uid && t.uid.toString())
-			.filter(v => utils.isNumber(v) || activitypub.helpers.isUri(v)));
-		const cids = _.uniq(topics
-			.map(t => t && t.cid && t.cid.toString()));
-		const guestTopics = topics.filter(t => t && t.uid === 0);
+		const uids = _.uniq(
+			topics
+				.map((t) => t && t.uid && t.uid.toString())
+				.filter((v) => utils.isNumber(v) || activitypub.helpers.isUri(v))
+		);
+		const cids = _.uniq(topics.map((t) => t && t.cid && t.cid.toString()));
+		const guestTopics = topics.filter((t) => t && t.uid === 0);
 
 		async function loadGuestHandles() {
-			const mainPids = guestTopics.map(t => t.mainPid);
+			const mainPids = guestTopics.map((t) => t.mainPid);
 			const postData = await posts.getPostsFields(mainPids, ['handle']);
-			return postData.map(p => p.handle);
+			return postData.map((p) => p.handle);
 		}
 
 		async function loadShowfullnameSettings() {
 			if (meta.config.hideFullname) {
 				return uids.map(() => ({ showfullname: false }));
 			}
-			const data = await db.getObjectsFields(uids.map(uid => `user:${uid}:settings`), ['showfullname']);
+			const data = await db.getObjectsFields(
+				uids.map((uid) => `user:${uid}:settings`),
+				['showfullname']
+			);
 			data.forEach((settings) => {
 				settings.showfullname = parseInt(settings.showfullname, 10) === 1;
 			});
 			return data;
 		}
 
-		const [teasers, users, userSettings, categoriesData, guestHandles, thumbs] = await Promise.all([
-			Topics.getTeasers(topics, options),
-			user.getUsersFields(uids, ['uid', 'username', 'fullname', 'userslug', 'reputation', 'postcount', 'picture', 'signature', 'banned', 'status']),
-			loadShowfullnameSettings(),
-			categories.getCategoriesFields(cids, ['cid', 'name', 'slug', 'icon', 'backgroundImage', 'imageClass', 'bgColor', 'color', 'disabled']),
-			loadGuestHandles(),
-			Topics.thumbs.load(topics),
-		]);
+		const [teasers, users, userSettings, categoriesData, guestHandles, thumbs] =
+			await Promise.all([
+				Topics.getTeasers(topics, options),
+				user.getUsersFields(uids, [
+					'uid',
+					'username',
+					'fullname',
+					'userslug',
+					'reputation',
+					'postcount',
+					'picture',
+					'signature',
+					'banned',
+					'status',
+				]),
+				loadShowfullnameSettings(),
+				categories.getCategoriesFields(cids, [
+					'cid',
+					'name',
+					'slug',
+					'icon',
+					'backgroundImage',
+					'imageClass',
+					'bgColor',
+					'color',
+					'disabled',
+				]),
+				loadGuestHandles(),
+				Topics.thumbs.load(topics),
+			]);
 
 		users.forEach((userObj, idx) => {
 			// Hide fullname if needed
@@ -115,27 +141,35 @@ Topics.getTopicsByTids = async function (tids, options) {
 			teasers,
 			usersMap: _.zipObject(uids, users),
 			categoriesMap: _.zipObject(cids, categoriesData),
-			tidToGuestHandle: _.zipObject(guestTopics.map(t => t.tid), guestHandles),
+			tidToGuestHandle: _.zipObject(
+				guestTopics.map((t) => t.tid),
+				guestHandles
+			),
 			thumbs,
 		};
 	}
 
-	const [result, hasRead, followData, bookmarks, callerSettings] = await Promise.all([
-		loadTopics(),
-		Topics.hasReadTopics(tids, uid),
-		Topics.getFollowData(tids, uid),
-		Topics.getUserBookmarks(tids, uid),
-		user.getSettings(uid),
-	]);
+	const [result, hasRead, followData, bookmarks, callerSettings] =
+		await Promise.all([
+			loadTopics(),
+			Topics.hasReadTopics(tids, uid),
+			Topics.getFollowData(tids, uid),
+			Topics.getUserBookmarks(tids, uid),
+			user.getSettings(uid),
+		]);
 
 	const sortNewToOld = callerSettings.topicPostSort === 'newest_to_oldest';
 	result.topics.forEach((topic, i) => {
 		if (topic) {
 			topic.thumbs = result.thumbs[i];
 			topic.category = result.categoriesMap[topic.cid];
-			topic.user = topic.uid ? result.usersMap[topic.uid] : { ...result.usersMap[topic.uid] };
+			topic.user = topic.uid
+				? result.usersMap[topic.uid]
+				: { ...result.usersMap[topic.uid] };
 			if (result.tidToGuestHandle[topic.tid]) {
-				topic.user.username = validator.escape(result.tidToGuestHandle[topic.tid]);
+				topic.user.username = validator.escape(
+					result.tidToGuestHandle[topic.tid]
+				);
 				topic.user.displayname = topic.user.username;
 			}
 			topic.teaser = result.teasers[i] || null;
@@ -143,22 +177,36 @@ Topics.getTopicsByTids = async function (tids, options) {
 			topic.ignored = followData[i].ignoring;
 			topic.followed = followData[i].following;
 			topic.unread = parseInt(uid, 10) <= 0 || (!hasRead[i] && !topic.ignored);
-			topic.bookmark = bookmarks[i] && (sortNewToOld ?
-				Math.max(1, topic.postcount + 2 - bookmarks[i]) :
-				Math.min(topic.postcount, bookmarks[i] + 1));
+			topic.bookmark =
+				bookmarks[i] &&
+				(sortNewToOld
+					? Math.max(1, topic.postcount + 2 - bookmarks[i])
+					: Math.min(topic.postcount, bookmarks[i] + 1));
 			topic.unreplied = !topic.teaser;
 
 			topic.icons = [];
 		}
 	});
 
-	const filteredTopics = result.topics.filter(topic => topic && topic.category && !topic.category.disabled);
+	const filteredTopics = result.topics.filter(
+		(topic) => topic && topic.category && !topic.category.disabled
+	);
 
-	const hookResult = await plugins.hooks.fire('filter:topics.get', { topics: filteredTopics, uid: uid });
+	const hookResult = await plugins.hooks.fire('filter:topics.get', {
+		topics: filteredTopics,
+		uid: uid,
+	});
 	return hookResult.topics;
 };
 
-Topics.getTopicWithPosts = async function (topicData, set, uid, start, stop, reverse) {
+Topics.getTopicWithPosts = async function (
+	topicData,
+	set,
+	uid,
+	start,
+	stop,
+	reverse
+) {
 	const [
 		posts,
 		category,
@@ -177,7 +225,11 @@ Topics.getTopicWithPosts = async function (topicData, set, uid, start, stop, rev
 		Topics.getTopicPosts(topicData, set, start, stop, uid, reverse),
 		categories.getCategoryData(topicData.cid),
 		categories.getTagWhitelist([topicData.cid]),
-		plugins.hooks.fire('filter:topic.thread_tools', { topic: topicData, uid: uid, tools: [] }),
+		plugins.hooks.fire('filter:topic.thread_tools', {
+			topic: topicData,
+			uid: uid,
+			tools: [],
+		}),
 		Topics.getFollowData([topicData.tid], uid),
 		Topics.getUserBookmark(topicData.tid, uid),
 		social.getActivePostSharing(),
@@ -193,7 +245,7 @@ Topics.getTopicWithPosts = async function (topicData, set, uid, start, stop, rev
 	topicData.posts = posts;
 	topicData.posts.forEach((p) => {
 		p.events = events.filter(
-			event => event.timestamp >= p.eventStart && event.timestamp < p.eventEnd
+			(event) => event.timestamp >= p.eventStart && event.timestamp < p.eventEnd
 		);
 		p.eventStart = undefined;
 		p.eventEnd = undefined;
@@ -206,13 +258,16 @@ Topics.getTopicWithPosts = async function (topicData, set, uid, start, stop, rev
 	topicData.maxTags = category.maxTags;
 	topicData.thread_tools = threadTools.tools;
 	topicData.isFollowing = followData[0].following;
-	topicData.isNotFollowing = !followData[0].following && !followData[0].ignoring;
+	topicData.isNotFollowing =
+		!followData[0].following && !followData[0].ignoring;
 	topicData.isIgnoring = followData[0].ignoring;
 	topicData.bookmark = bookmark;
 	topicData.postSharing = postSharing;
 	topicData.deleter = deleter;
 	if (deleter) {
-		topicData.deletedTimestampISO = utils.toISOString(topicData.deletedTimestamp);
+		topicData.deletedTimestampISO = utils.toISOString(
+			topicData.deletedTimestamp
+		);
 	}
 	topicData.merger = merger;
 	if (merger) {
@@ -226,7 +281,10 @@ Topics.getTopicWithPosts = async function (topicData, set, uid, start, stop, rev
 	topicData.unreplied = topicData.postcount === 1;
 	topicData.icons = [];
 
-	const result = await plugins.hooks.fire('filter:topic.get', { topic: topicData, uid: uid });
+	const result = await plugins.hooks.fire('filter:topic.get', {
+		topic: topicData,
+		uid: uid,
+	});
 	return result.topic;
 };
 
@@ -236,7 +294,9 @@ function mergeConsecutiveShareEvents(arr) {
 		if (last && last.type === curr.type && last.type === 'share') {
 			if (!last.items) {
 				last.items = [{ ...last }];
-				['user', 'text', 'timestamp', 'timestampISO'].forEach(field => delete last[field]);
+				['user', 'text', 'timestamp', 'timestampISO'].forEach(
+					(field) => delete last[field]
+				);
 			}
 			last.items.push(curr);
 		} else {
@@ -246,23 +306,27 @@ function mergeConsecutiveShareEvents(arr) {
 	}, []);
 }
 
-
 async function getDeleter(topicData) {
 	if (!parseInt(topicData.deleterUid, 10)) {
 		return null;
 	}
-	return await user.getUserFields(topicData.deleterUid, ['username', 'userslug', 'picture']);
+	return await user.getUserFields(topicData.deleterUid, [
+		'username',
+		'userslug',
+		'picture',
+	]);
 }
 
 async function getMerger(topicData) {
 	if (!parseInt(topicData.mergerUid, 10)) {
 		return null;
 	}
-	const [
-		merger,
-		mergedIntoTitle,
-	] = await Promise.all([
-		user.getUserFields(topicData.mergerUid, ['username', 'userslug', 'picture']),
+	const [merger, mergedIntoTitle] = await Promise.all([
+		user.getUserFields(topicData.mergerUid, [
+			'username',
+			'userslug',
+			'picture',
+		]),
 		Topics.getTopicField(topicData.mergeIntoTid, 'title'),
 	]);
 	merger.mergedIntoTitle = mergedIntoTitle;
@@ -273,11 +337,12 @@ async function getForker(topicData) {
 	if (!parseInt(topicData.forkerUid, 10)) {
 		return null;
 	}
-	const [
-		forker,
-		forkedFromTitle,
-	] = await Promise.all([
-		user.getUserFields(topicData.forkerUid, ['username', 'userslug', 'picture']),
+	const [forker, forkedFromTitle] = await Promise.all([
+		user.getUserFields(topicData.forkerUid, [
+			'username',
+			'userslug',
+			'picture',
+		]),
 		Topics.getTopicField(topicData.forkedFromTid, 'title'),
 	]);
 	forker.forkedFromTitle = forkedFromTitle;
@@ -294,7 +359,7 @@ Topics.getMainPids = async function (tids) {
 		return [];
 	}
 	const topicData = await Topics.getTopicsFields(tids, ['mainPid']);
-	return topicData.map(topic => topic && topic.mainPid);
+	return topicData.map((topic) => topic && topic.mainPid);
 };
 
 Topics.getMainPosts = async function (tids, uid) {

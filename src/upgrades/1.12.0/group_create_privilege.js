@@ -8,7 +8,11 @@ module.exports = {
 	method: function (callback) {
 		const meta = require('../../meta');
 		if (parseInt(meta.config.allowGroupCreation, 10) === 1) {
-			privileges.global.give(['groups:group:create'], 'registered-users', callback);
+			privileges.global.give(
+				['groups:group:create'],
+				'registered-users',
+				callback
+			);
 		} else {
 			setImmediate(callback);
 		}

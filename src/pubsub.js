@@ -39,7 +39,11 @@ function get() {
 				});
 			};
 			process.on('message', (message) => {
-				if (message && typeof message === 'object' && message.action === 'pubsub') {
+				if (
+					message &&
+					typeof message === 'object' &&
+					message.action === 'pubsub'
+				) {
 					singleHost.emit(message.event, message.data);
 				}
 			});

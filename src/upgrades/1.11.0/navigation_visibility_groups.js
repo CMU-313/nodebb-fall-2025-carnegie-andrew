@@ -45,7 +45,11 @@ async function navigationAdminSave(data) {
 	const order = Object.keys(data);
 	const items = data.map((item, index) => {
 		Object.keys(item).forEach((key) => {
-			if (item.hasOwnProperty(key) && typeof item[key] === 'string' && (key === 'title' || key === 'text')) {
+			if (
+				item.hasOwnProperty(key) &&
+				typeof item[key] === 'string' &&
+				(key === 'title' || key === 'text')
+			) {
 				item[key] = translator.escape(item[key]);
 			}
 		});

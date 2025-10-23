@@ -26,7 +26,9 @@ describe.skip('Notes', () => {
 		describe('Public objects', () => {
 			it('should pull a remote root-level object by its id and create a new topic', async () => {
 				const { id } = helpers.mocks.note();
-				const assertion = await activitypub.notes.assert(0, id, { skipChecks: true });
+				const assertion = await activitypub.notes.assert(0, id, {
+					skipChecks: true,
+				});
 				assert(assertion);
 
 				const { tid, count } = assertion;
@@ -39,7 +41,9 @@ describe.skip('Notes', () => {
 
 			it('should assert if the cc property is missing', async () => {
 				const { id } = helpers.mocks.note({ cc: 'remove' });
-				const assertion = await activitypub.notes.assert(0, id, { skipChecks: true });
+				const assertion = await activitypub.notes.assert(0, id, {
+					skipChecks: true,
+				});
 				assert(assertion);
 
 				const { tid, count } = assertion;
@@ -54,7 +58,9 @@ describe.skip('Notes', () => {
 				const { id } = helpers.mocks.note({
 					type: 'Video',
 				});
-				const assertion = await activitypub.notes.assert(0, id, { skipChecks: true });
+				const assertion = await activitypub.notes.assert(0, id, {
+					skipChecks: true,
+				});
 				assert(assertion);
 
 				const { tid, count } = assertion;
@@ -67,7 +73,9 @@ describe.skip('Notes', () => {
 
 			describe('Category-specific behaviours', () => {
 				it('should slot newly created topic in local category if addressed', async () => {
-					const { cid } = await categories.create({ name: utils.generateUUID() });
+					const { cid } = await categories.create({
+						name: utils.generateUUID(),
+					});
 					const { id } = helpers.mocks.note({
 						cc: [`${nconf.get('url')}/category/${cid}`],
 					});
@@ -83,12 +91,15 @@ describe.skip('Notes', () => {
 					assert.strictEqual(topic.cid, cid);
 				});
 
-				it('should add a remote category topic to a user\'s inbox if they are following the category', async () => {
+				it("should add a remote category topic to a user's inbox if they are following the category", async () => {
 					const { id: cid, actor } = helpers.mocks.group();
 					await activitypub.actors.assertGroup([cid]);
 
 					const uid = await user.create({ username: utils.generateUUID() });
-					await api.categories.setWatchState({ uid }, { cid, state: categories.watchStates.tracking });
+					await api.categories.setWatchState(
+						{ uid },
+						{ cid, state: categories.watchStates.tracking }
+					);
 
 					const { id } = helpers.mocks.note({
 						cc: [cid],
@@ -117,7 +128,9 @@ describe.skip('Notes', () => {
 
 				it('should not show up in my unread if it is in cid -1', async () => {
 					const { id } = helpers.mocks.note();
-					const assertion = await activitypub.notes.assert(0, id, { skipChecks: 1 });
+					const assertion = await activitypub.notes.assert(0, id, {
+						skipChecks: 1,
+					});
 					assert(assertion);
 
 					const unread = await topics.getTotalUnread(uid);
@@ -125,16 +138,21 @@ describe.skip('Notes', () => {
 				});
 
 				it('should show up in my recent/unread if I am tracking the remote category', async () => {
-					await api.categories.setWatchState({ uid }, {
-						cid: remoteCid,
-						state: categories.watchStates.tracking,
-						uid,
-					});
+					await api.categories.setWatchState(
+						{ uid },
+						{
+							cid: remoteCid,
+							state: categories.watchStates.tracking,
+							uid,
+						}
+					);
 
 					const { id } = helpers.mocks.note({
 						cc: [remoteCid],
 					});
-					const assertion = await activitypub.notes.assert(0, id, { cid: remoteCid });
+					const assertion = await activitypub.notes.assert(0, id, {
+						cid: remoteCid,
+					});
 					assert(assertion);
 
 					const unread = await topics.getTotalUnread(uid);
@@ -144,39 +162,51 @@ describe.skip('Notes', () => {
 				});
 
 				it('should show up in recent/unread and notify me if I am watching the remote category', async () => {
-					await api.categories.setWatchState({ uid }, {
-						cid: remoteCid,
-						state: categories.watchStates.watching,
-						uid,
-					});
+					await api.categories.setWatchState(
+						{ uid },
+						{
+							cid: remoteCid,
+							state: categories.watchStates.watching,
+							uid,
+						}
+					);
 
 					const { id, note } = helpers.mocks.note({
 						cc: [remoteCid],
 					});
-					const assertion = await activitypub.notes.assert(0, id, { cid: remoteCid });
+					const assertion = await activitypub.notes.assert(0, id, {
+						cid: remoteCid,
+					});
 					assert(assertion);
 
 					const unread = await topics.getTotalUnread(uid);
 					assert.strictEqual(unread, 1);
 
 					// Notification inbox delivery is async so can't test directly
-					const exists = await db.exists(`notifications:new_topic:tid:${assertion.tid}:uid:${note.attributedTo}`);
+					const exists = await db.exists(
+						`notifications:new_topic:tid:${assertion.tid}:uid:${note.attributedTo}`
+					);
 					assert(exists);
 
 					await topics.markAllRead(uid);
 				});
 
 				it('should not show up in recent/unread if I am ignoring the remote category', async () => {
-					await api.categories.setWatchState({ uid }, {
-						cid: remoteCid,
-						state: categories.watchStates.ignoring,
-						uid,
-					});
+					await api.categories.setWatchState(
+						{ uid },
+						{
+							cid: remoteCid,
+							state: categories.watchStates.ignoring,
+							uid,
+						}
+					);
 
 					const { id, note } = helpers.mocks.note({
 						cc: [remoteCid],
 					});
-					const assertion = await activitypub.notes.assert(0, id, { cid: remoteCid });
+					const assertion = await activitypub.notes.assert(0, id, {
+						cid: remoteCid,
+					});
 					assert(assertion);
 
 					const unread = await topics.getTotalUnread(uid);
@@ -189,7 +219,9 @@ describe.skip('Notes', () => {
 			let recipientUid;
 
 			before(async () => {
-				recipientUid = await user.create({ username: utils.generateUUID().slice(0, 8) });
+				recipientUid = await user.create({
+					username: utils.generateUUID().slice(0, 8),
+				});
 			});
 
 			it('should NOT create a new topic or post when asserting a private note', async () => {
@@ -242,11 +274,14 @@ describe.skip('Notes', () => {
 				let activity;
 
 				before(async () => {
-					const { tid } = await api.topics.create({ uid }, {
-						cid,
-						title: utils.generateUUID(),
-						content: utils.generateUUID(),
-					});
+					const { tid } = await api.topics.create(
+						{ uid },
+						{
+							cid,
+							title: utils.generateUUID(),
+							content: utils.generateUUID(),
+						}
+					);
 
 					assert(tid);
 					assert.strictEqual(activitypub._sent.size, 1);
@@ -282,17 +317,23 @@ describe.skip('Notes', () => {
 				let activity;
 
 				before(async () => {
-					const { tid } = await api.topics.create({ uid }, {
-						cid,
-						title: utils.generateUUID(),
-						content: utils.generateUUID(),
-					});
+					const { tid } = await api.topics.create(
+						{ uid },
+						{
+							cid,
+							title: utils.generateUUID(),
+							content: utils.generateUUID(),
+						}
+					);
 					activitypub._sent.clear();
 
-					const { pid } = await api.topics.reply({ uid }, {
-						tid,
-						content: utils.generateUUID(),
-					});
+					const { pid } = await api.topics.reply(
+						{ uid },
+						{
+							tid,
+							content: utils.generateUUID(),
+						}
+					);
 
 					const key = Array.from(activitypub._sent.keys())[0];
 					activity = activitypub._sent.get(key);
@@ -319,11 +360,14 @@ describe.skip('Notes', () => {
 
 			describe('new topics', () => {
 				it('should federate out a Create activity with the remote community addressed', async () => {
-					const { tid } = await api.topics.create({ uid }, {
-						cid,
-						title: utils.generateUUID(),
-						content: utils.generateUUID(),
-					});
+					const { tid } = await api.topics.create(
+						{ uid },
+						{
+							cid,
+							title: utils.generateUUID(),
+							content: utils.generateUUID(),
+						}
+					);
 
 					assert(tid);
 					assert.strictEqual(activitypub._sent.size, 1);
@@ -348,18 +392,24 @@ describe.skip('Notes', () => {
 
 			describe('replies', () => {
 				it('should federate out a Create activity with the remote community addressed', async () => {
-					const { tid } = await api.topics.create({ uid }, {
-						cid,
-						title: utils.generateUUID(),
-						content: utils.generateUUID(),
-					});
+					const { tid } = await api.topics.create(
+						{ uid },
+						{
+							cid,
+							title: utils.generateUUID(),
+							content: utils.generateUUID(),
+						}
+					);
 
 					activitypub._sent.clear();
 
-					const postData = await api.topics.reply({ uid }, {
-						tid,
-						content: utils.generateUUID(),
-					});
+					const postData = await api.topics.reply(
+						{ uid },
+						{
+							tid,
+							content: utils.generateUUID(),
+						}
+					);
 
 					assert(postData);
 					assert.strictEqual(activitypub._sent.size, 1);
@@ -420,10 +470,8 @@ describe.skip('Notes', () => {
 					'@context': 'https://www.w3.org/ns/activitystreams',
 					id: `${helpers.mocks._baseUrl}/announce/${encodeURIComponent(like.id)}`,
 					type: 'Announce',
-					to: [ 'https://www.w3.org/ns/activitystreams#Public' ],
-					cc: [
-						`${gActor}/followers`,
-					],
+					to: ['https://www.w3.org/ns/activitystreams#Public'],
+					cc: [`${gActor}/followers`],
 					actor: gActor,
 					object: like,
 				});
@@ -442,7 +490,11 @@ describe.skip('Notes', () => {
 					const { note, id } = helpers.mocks.note();
 					const { activity } = helpers.mocks.create(note);
 
-					await db.sortedSetAdd(`followersRemote:${note.attributedTo}`, Date.now(), uid);
+					await db.sortedSetAdd(
+						`followersRemote:${note.attributedTo}`,
+						Date.now(),
+						uid
+					);
 					await activitypub.inbox.create({ body: activity });
 
 					assert(await posts.exists(id));
@@ -490,7 +542,9 @@ describe.skip('Notes', () => {
 			let cid;
 
 			before(async () => {
-				({ cid } = await categories.create({ name: utils.generateUUID().slice(0, 8) }));
+				({ cid } = await categories.create({
+					name: utils.generateUUID().slice(0, 8),
+				}));
 			});
 
 			describe('(Create)', () => {
@@ -500,7 +554,10 @@ describe.skip('Notes', () => {
 						audience: [remoteCid],
 					});
 					let { activity } = helpers.mocks.create(note);
-					({ activity } = helpers.mocks.announce({ actor: remoteCid, object: activity }));
+					({ activity } = helpers.mocks.announce({
+						actor: remoteCid,
+						object: activity,
+					}));
 
 					await activitypub.inbox.announce({ body: activity });
 
@@ -519,7 +576,9 @@ describe.skip('Notes', () => {
 				let announces = 0;
 
 				before(async () => {
-					uid = await user.create({ username: utils.generateUUID().slice(0, 10) });
+					uid = await user.create({
+						username: utils.generateUUID().slice(0, 10),
+					});
 					({ topicData, postData } = await topics.post({
 						cid,
 						uid,
@@ -540,7 +599,10 @@ describe.skip('Notes', () => {
 					await activitypub.inbox.announce({ body: activity });
 					announces += 1;
 
-					const count = await posts.getPostField(topicData.mainPid, 'announces');
+					const count = await posts.getPostField(
+						topicData.mainPid,
+						'announces'
+					);
 					assert.strictEqual(count, announces);
 				});
 
@@ -555,7 +617,10 @@ describe.skip('Notes', () => {
 					await activitypub.inbox.announce({ body: activity });
 					announces += 1;
 
-					const exists = await db.isSortedSetMember(`pid:${topicData.mainPid}:announces`, id);
+					const exists = await db.isSortedSetMember(
+						`pid:${topicData.mainPid}:announces`,
+						id
+					);
 					assert(exists);
 				});
 
@@ -569,7 +634,10 @@ describe.skip('Notes', () => {
 
 					await activitypub.inbox.announce({ body: activity });
 
-					const count = await posts.getPostField(topicData.mainPid, 'announces');
+					const count = await posts.getPostField(
+						topicData.mainPid,
+						'announces'
+					);
 					assert.strictEqual(count, announces);
 				});
 
@@ -583,7 +651,10 @@ describe.skip('Notes', () => {
 
 					await activitypub.inbox.announce({ body: activity });
 
-					const exists = await db.isSortedSetMember(`pid:${topicData.mainPid}:announces`, id);
+					const exists = await db.isSortedSetMember(
+						`pid:${topicData.mainPid}:announces`,
+						id
+					);
 					assert(!exists);
 				});
 			});
@@ -595,8 +666,14 @@ describe.skip('Notes', () => {
 					const { activity } = helpers.mocks.announce({
 						object: note,
 					});
-					const uid = await user.create({ username: utils.generateUUID().slice(0, 10) });
-					await db.sortedSetAdd(`followersRemote:${activity.actor}`, Date.now(), uid);
+					const uid = await user.create({
+						username: utils.generateUUID().slice(0, 10),
+					});
+					await db.sortedSetAdd(
+						`followersRemote:${activity.actor}`,
+						Date.now(),
+						uid
+					);
 
 					const beforeCount = await db.sortedSetCard(`cid:-1:tids`);
 					await activitypub.inbox.announce({ body: activity });
@@ -613,8 +690,14 @@ describe.skip('Notes', () => {
 					const { activity } = helpers.mocks.announce({
 						object: note,
 					});
-					const uid = await user.create({ username: utils.generateUUID().slice(0, 10) });
-					await db.sortedSetAdd(`followersRemote:${activity.actor}`, Date.now(), uid);
+					const uid = await user.create({
+						username: utils.generateUUID().slice(0, 10),
+					});
+					await db.sortedSetAdd(
+						`followersRemote:${activity.actor}`,
+						Date.now(),
+						uid
+					);
 
 					const beforeCount = await db.sortedSetCard(`cid:${cid}:tids`);
 					await activitypub.inbox.announce({ body: activity });
@@ -626,7 +709,9 @@ describe.skip('Notes', () => {
 
 			describe('(Like)', () => {
 				it('should upvote a local post', async () => {
-					const uid = await user.create({ username: utils.generateUUID().slice(0, 10) });
+					const uid = await user.create({
+						username: utils.generateUUID().slice(0, 10),
+					});
 					const { postData } = await topics.post({
 						cid,
 						uid,
@@ -670,7 +755,7 @@ describe.skip('Notes', () => {
 			});
 
 			describe('(Update)', () => {
-				it('should update a note\'s content', async () => {
+				it("should update a note's content", async () => {
 					const { id: actor } = helpers.mocks.person();
 					const { id, note } = helpers.mocks.note({ attributedTo: actor });
 					await activitypub.notes.assert(0, [id], { skipChecks: true });
@@ -693,7 +778,9 @@ describe.skip('Notes', () => {
 		let topicData;
 
 		before(async () => {
-			({ cid } = await categories.create({ name: utils.generateUUID().slice(0, 8) }));
+			({ cid } = await categories.create({
+				name: utils.generateUUID().slice(0, 8),
+			}));
 		});
 
 		beforeEach(async () => {
@@ -706,16 +793,21 @@ describe.skip('Notes', () => {
 			}));
 		});
 
-		it('should add a topic to a user\'s inbox if user is a recipient in OP', async () => {
+		it("should add a topic to a user's inbox if user is a recipient in OP", async () => {
 			await db.setAdd(`post:${topicData.mainPid}:recipients`, [uid]);
 			await activitypub.notes.syncUserInboxes(topicData.tid);
-			const inboxed = await db.isSortedSetMember(`uid:${uid}:inbox`, topicData.tid);
+			const inboxed = await db.isSortedSetMember(
+				`uid:${uid}:inbox`,
+				topicData.tid
+			);
 
 			assert.strictEqual(inboxed, true);
 		});
 
-		it('should add a topic to a user\'s inbox if a user is a recipient in a reply', async () => {
-			const uid = await user.create({ username: utils.generateUUID().slice(0, 10) });
+		it("should add a topic to a user's inbox if a user is a recipient in a reply", async () => {
+			const uid = await user.create({
+				username: utils.generateUUID().slice(0, 10),
+			});
 			const { pid } = await topics.reply({
 				tid: topicData.tid,
 				uid,
@@ -723,7 +815,10 @@ describe.skip('Notes', () => {
 			});
 			await db.setAdd(`post:${pid}:recipients`, [uid]);
 			await activitypub.notes.syncUserInboxes(topicData.tid);
-			const inboxed = await db.isSortedSetMember(`uid:${uid}:inbox`, topicData.tid);
+			const inboxed = await db.isSortedSetMember(
+				`uid:${uid}:inbox`,
+				topicData.tid
+			);
 
 			assert.strictEqual(inboxed, true);
 		});
@@ -740,17 +835,23 @@ describe.skip('Notes', () => {
 			assert.strictEqual(count, 1);
 		});
 
-		it('should add topic to a user\'s inbox if it is explicitly passed in as an argument', async () => {
+		it("should add topic to a user's inbox if it is explicitly passed in as an argument", async () => {
 			await activitypub.notes.syncUserInboxes(topicData.tid, uid);
-			const inboxed = await db.isSortedSetMember(`uid:${uid}:inbox`, topicData.tid);
+			const inboxed = await db.isSortedSetMember(
+				`uid:${uid}:inbox`,
+				topicData.tid
+			);
 
 			assert.strictEqual(inboxed, true);
 		});
 
-		it('should remove a topic from a user\'s inbox if that user is no longer a recipient in any contained posts', async () => {
+		it("should remove a topic from a user's inbox if that user is no longer a recipient in any contained posts", async () => {
 			await activitypub.notes.syncUserInboxes(topicData.tid, uid);
 			await activitypub.notes.syncUserInboxes(topicData.tid);
-			const inboxed = await db.isSortedSetMember(`uid:${uid}:inbox`, topicData.tid);
+			const inboxed = await db.isSortedSetMember(
+				`uid:${uid}:inbox`,
+				topicData.tid
+			);
 
 			assert.strictEqual(inboxed, false);
 		});
@@ -762,7 +863,9 @@ describe.skip('Notes', () => {
 		let topicData;
 
 		before(async () => {
-			({ cid } = await categories.create({ name: utils.generateUUID().slice(0, 8) }));
+			({ cid } = await categories.create({
+				name: utils.generateUUID().slice(0, 8),
+			}));
 		});
 
 		beforeEach(async () => {

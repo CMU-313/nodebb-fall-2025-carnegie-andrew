@@ -13,20 +13,58 @@ const utils = require('../utils');
 const relative_path = nconf.get('relative_path');
 
 const intFields = [
-	'uid', 'postcount', 'topiccount', 'reputation', 'profileviews',
-	'banned', 'banned:expire', 'email:confirmed', 'joindate', 'lastonline',
-	'lastqueuetime', 'lastposttime', 'followingCount', 'followerCount',
-	'blocksCount', 'passwordExpiry', 'mutedUntil',
+	'uid',
+	'postcount',
+	'topiccount',
+	'reputation',
+	'profileviews',
+	'banned',
+	'banned:expire',
+	'email:confirmed',
+	'joindate',
+	'lastonline',
+	'lastqueuetime',
+	'lastposttime',
+	'followingCount',
+	'followerCount',
+	'blocksCount',
+	'passwordExpiry',
+	'mutedUntil',
 ];
 
 module.exports = function (User) {
 	const fieldWhitelist = [
-		'uid', 'username', 'userslug', 'url', 'email', 'email:confirmed', 'joindate',
-		'lastonline', 'picture', 'icon:bgColor', 'fullname', 'birthday',
-		'aboutme', 'signature', 'uploadedpicture', 'profileviews', 'reputation',
-		'postcount', 'topiccount', 'lastposttime', 'banned', 'banned:expire',
-		'status', 'flags', 'followerCount', 'followingCount', 'cover:url',
-		'cover:position', 'groupTitle', 'mutedUntil', 'mutedReason',
+		'uid',
+		'username',
+		'userslug',
+		'url',
+		'email',
+		'email:confirmed',
+		'joindate',
+		'lastonline',
+		'picture',
+		'icon:bgColor',
+		'fullname',
+		'birthday',
+		'aboutme',
+		'signature',
+		'uploadedpicture',
+		'profileviews',
+		'reputation',
+		'postcount',
+		'topiccount',
+		'lastposttime',
+		'banned',
+		'banned:expire',
+		'status',
+		'flags',
+		'followerCount',
+		'followingCount',
+		'cover:url',
+		'cover:position',
+		'groupTitle',
+		'mutedUntil',
+		'mutedReason',
 	];
 
 	let customFieldWhiteList = null;
@@ -50,14 +88,21 @@ module.exports = function (User) {
 	let iconBackgrounds;
 
 	User.reloadCustomFieldWhitelist = async () => {
-		customFieldWhiteList = await db.getSortedSetRange('user-custom-fields', 0, -1);
+		customFieldWhiteList = await db.getSortedSetRange(
+			'user-custom-fields',
+			0,
+			-1
+		);
 	};
 
 	User.getUserFieldWhitelist = async function () {
-		const { whitelist } = await plugins.hooks.fire('filter:user.whitelistFields', {
-			uids: [],
-			whitelist: fieldWhitelist.slice(),
-		});
+		const { whitelist } = await plugins.hooks.fire(
+			'filter:user.whitelistFields',
+			{
+				uids: [],
+				whitelist: fieldWhitelist.slice(),
+			}
+		);
 		return whitelist;
 	};
 
@@ -80,8 +125,8 @@ module.exports = function (User) {
 		fields = fields.slice();
 		ensureRequiredFields(fields, fieldsToRemove);
 
-		const uniqueUids = _.uniq(uids).filter(uid => isFinite(uid) && uid > 0);
-		const remoteIds = _.uniq(uids).filter(uid => !isFinite(uid));
+		const uniqueUids = _.uniq(uids).filter((uid) => isFinite(uid) && uid > 0);
+		const remoteIds = _.uniq(uids).filter((uid) => !isFinite(uid));
 		if (!customFieldWhiteList) {
 			await User.reloadCustomFieldWhitelist();
 		}
@@ -93,11 +138,13 @@ module.exports = function (User) {
 		if (!fields.length) {
 			fields = results.whitelist;
 		} else {
-			fields = fields.filter(value => value !== 'password');
+			fields = fields.filter((value) => value !== 'password');
 		}
 
 		const users = await db.getObjectsFields(
-			uniqueUids.map(uid => `user:${uid}`).concat(remoteIds.map(id => `userRemote:${id}`)),
+			uniqueUids
+				.map((uid) => `user:${uid}`)
+				.concat(remoteIds.map((id) => `userRemote:${id}`)),
 			fields
 		);
 		const result = await plugins.hooks.fire('filter:user.getFields', {
@@ -148,10 +195,14 @@ module.exports = function (User) {
 		const users = uids.map((uid) => {
 			const user = uidToUser[uid] || { ...User.guestData };
 			if (!parseInt(user.uid, 10) && !activitypub.helpers.isUri(user.uid)) {
-				user.username = (user.hasOwnProperty('oldUid') && parseInt(user.oldUid, 10)) ? '[[global:former-user]]' : '[[global:guest]]';
+				user.username =
+					user.hasOwnProperty('oldUid') && parseInt(user.oldUid, 10)
+						? '[[global:former-user]]'
+						: '[[global:guest]]';
 				user.displayname = user.username;
 			}
-			if (uid === -1) { // if loading spider set uid to -1 otherwise spiders have uid = 0 like guests
+			if (uid === -1) {
+				// if loading spider set uid to -1 otherwise spiders have uid = 0 like guests
 				user.uid = -1;
 			}
 			return user;
@@ -186,25 +237,33 @@ module.exports = function (User) {
 		}
 
 		const [userSettings, isAdmin, isGlobalModerator] = await Promise.all([
-			User.getMultipleUserSettings(users.map(user => user.uid)),
+			User.getMultipleUserSettings(users.map((user) => user.uid)),
 			User.isAdministrator(callerUID),
 			User.isGlobalModerator(callerUID),
 		]);
 
-		users = await Promise.all(users.map(async (userData, idx) => {
-			const _userData = { ...userData };
+		users = await Promise.all(
+			users.map(async (userData, idx) => {
+				const _userData = { ...userData };
 
-			const isSelf = parseInt(callerUID, 10) === parseInt(_userData.uid, 10);
-			const privilegedOrSelf = isAdmin || isGlobalModerator || isSelf;
+				const isSelf = parseInt(callerUID, 10) === parseInt(_userData.uid, 10);
+				const privilegedOrSelf = isAdmin || isGlobalModerator || isSelf;
 
-			if (!privilegedOrSelf && (!userSettings[idx].showemail || meta.config.hideEmail)) {
-				_userData.email = '';
-			}
-			if (!privilegedOrSelf && (!userSettings[idx].showfullname || meta.config.hideFullname)) {
-				_userData.fullname = '';
-			}
-			return _userData;
-		}));
+				if (
+					!privilegedOrSelf &&
+					(!userSettings[idx].showemail || meta.config.hideEmail)
+				) {
+					_userData.email = '';
+				}
+				if (
+					!privilegedOrSelf &&
+					(!userSettings[idx].showfullname || meta.config.hideFullname)
+				) {
+					_userData.fullname = '';
+				}
+				return _userData;
+			})
+		);
 
 		return single ? users.pop() : users;
 	};
@@ -212,11 +271,14 @@ module.exports = function (User) {
 	async function modifyUserData(users, requestedFields, fieldsToRemove) {
 		let uidToSettings = {};
 		if (meta.config.showFullnameAsDisplayName) {
-			const uids = users.map(user => user.uid);
-			uidToSettings = _.zipObject(uids, await db.getObjectsFields(
-				uids.map(uid => `user:${uid}:settings`),
-				['showfullname']
-			));
+			const uids = users.map((user) => user.uid);
+			uidToSettings = _.zipObject(
+				uids,
+				await db.getObjectsFields(
+					uids.map((uid) => `user:${uid}:settings`),
+					['showfullname']
+				)
+			);
 		}
 		if (!iconBackgrounds) {
 			iconBackgrounds = await User.getIconBackgrounds();
@@ -232,7 +294,9 @@ module.exports = function (User) {
 
 			if (user.hasOwnProperty('username')) {
 				parseDisplayName(user, uidToSettings);
-				user.username = validator.escape(user.username ? user.username.toString() : '');
+				user.username = validator.escape(
+					user.username ? user.username.toString() : ''
+				);
 			}
 
 			// works around renderOverride supplying `url` to templates
@@ -258,10 +322,14 @@ module.exports = function (User) {
 			}
 
 			if (user.picture && user.picture === user.uploadedpicture) {
-				user.uploadedpicture = user.picture.startsWith('http') ? user.picture : relative_path + user.picture;
+				user.uploadedpicture = user.picture.startsWith('http')
+					? user.picture
+					: relative_path + user.picture;
 				user.picture = user.uploadedpicture;
 			} else if (user.uploadedpicture) {
-				user.uploadedpicture = user.uploadedpicture.startsWith('http') ? user.uploadedpicture : relative_path + user.uploadedpicture;
+				user.uploadedpicture = user.uploadedpicture.startsWith('http')
+					? user.uploadedpicture
+					: relative_path + user.uploadedpicture;
 			}
 			if (meta.config.defaultAvatar && !user.picture) {
 				user.picture = User.getDefaultAvatar();
@@ -276,10 +344,19 @@ module.exports = function (User) {
 			}
 
 			// User Icons
-			if (requestedFields.includes('picture') && user.username && user.uid !== 0 && !meta.config.defaultAvatar) {
+			if (
+				requestedFields.includes('picture') &&
+				user.username &&
+				user.uid !== 0 &&
+				!meta.config.defaultAvatar
+			) {
 				if (!iconBackgrounds.includes(user['icon:bgColor'])) {
-					const nameAsIndex = Array.from(user.username).reduce((cur, next) => cur + next.charCodeAt(), 0);
-					user['icon:bgColor'] = iconBackgrounds[nameAsIndex % iconBackgrounds.length];
+					const nameAsIndex = Array.from(user.username).reduce(
+						(cur, next) => cur + next.charCodeAt(),
+						0
+					);
+					user['icon:bgColor'] =
+						iconBackgrounds[nameAsIndex % iconBackgrounds.length];
 				}
 				user['icon:text'] = (user.username[0] || '').toUpperCase();
 			}
@@ -289,19 +366,26 @@ module.exports = function (User) {
 			}
 
 			if (user.hasOwnProperty('lastonline')) {
-				user.lastonlineISO = utils.toISOString(user.lastonline) || user.joindateISO;
+				user.lastonlineISO =
+					utils.toISOString(user.lastonline) || user.joindateISO;
 			}
 
 			if (user.hasOwnProperty('mutedUntil')) {
 				user.muted = user.mutedUntil > Date.now();
 			}
 
-			if (user.hasOwnProperty('banned') || user.hasOwnProperty('banned:expire')) {
+			if (
+				user.hasOwnProperty('banned') ||
+				user.hasOwnProperty('banned:expire')
+			) {
 				const result = User.bans.calcExpiredFromUserData(user);
 				user.banned = result.banned;
 				const unban = result.banned && result.banExpired;
 				user.banned_until = unban ? 0 : user['banned:expire'];
-				user.banned_until_readable = user.banned_until && !unban ? utils.toISOString(user.banned_until) : 'Not Banned';
+				user.banned_until_readable =
+					user.banned_until && !unban
+						? utils.toISOString(user.banned_until)
+						: 'Not Banned';
 				if (unban) {
 					unbanUids.push(user.uid);
 					user.banned = false;
@@ -331,11 +415,13 @@ module.exports = function (User) {
 			showfullname = true;
 		}
 
-		user.displayname = validator.escape(String(
-			meta.config.showFullnameAsDisplayName && showfullname && user.fullname ?
-				user.fullname :
-				user.username
-		));
+		user.displayname = validator.escape(
+			String(
+				meta.config.showFullnameAsDisplayName && showfullname && user.fullname
+					? user.fullname
+					: user.username
+			)
+		);
 	}
 
 	function parseGroupTitle(user) {
@@ -361,19 +447,31 @@ module.exports = function (User) {
 		}
 	}
 
-
 	User.getIconBackgrounds = async () => {
 		if (iconBackgrounds) {
 			return iconBackgrounds;
 		}
 
 		const _iconBackgrounds = [
-			'#f44336', '#e91e63', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3',
-			'#009688', '#1b5e20', '#33691e', '#827717', '#e65100', '#ff5722',
-			'#795548', '#607d8b',
+			'#f44336',
+			'#e91e63',
+			'#9c27b0',
+			'#673ab7',
+			'#3f51b5',
+			'#2196f3',
+			'#009688',
+			'#1b5e20',
+			'#33691e',
+			'#827717',
+			'#e65100',
+			'#ff5722',
+			'#795548',
+			'#607d8b',
 		];
 
-		const data = await plugins.hooks.fire('filter:user.iconBackgrounds', { iconBackgrounds: _iconBackgrounds });
+		const data = await plugins.hooks.fire('filter:user.iconBackgrounds', {
+			iconBackgrounds: _iconBackgrounds,
+		});
 		iconBackgrounds = data.iconBackgrounds;
 		return iconBackgrounds;
 	};
@@ -382,7 +480,9 @@ module.exports = function (User) {
 		if (!meta.config.defaultAvatar) {
 			return '';
 		}
-		return meta.config.defaultAvatar.startsWith('http') ? meta.config.defaultAvatar : relative_path + meta.config.defaultAvatar;
+		return meta.config.defaultAvatar.startsWith('http')
+			? meta.config.defaultAvatar
+			: relative_path + meta.config.defaultAvatar;
 	};
 
 	User.setUserField = async function (uid, field, value) {
@@ -407,8 +507,17 @@ module.exports = function (User) {
 
 	async function incrDecrUserFieldBy(uid, field, value, type) {
 		const prefix = `user${activitypub.helpers.isUri(uid) ? 'Remote' : ''}`;
-		const newValue = await db.incrObjectFieldBy(`${prefix}:${uid}`, field, value);
-		plugins.hooks.fire('action:user.set', { uid: uid, field: field, value: newValue, type: type });
+		const newValue = await db.incrObjectFieldBy(
+			`${prefix}:${uid}`,
+			field,
+			value
+		);
+		plugins.hooks.fire('action:user.set', {
+			uid: uid,
+			field: field,
+			value: newValue,
+			type: type,
+		});
 		return newValue;
 	}
 };

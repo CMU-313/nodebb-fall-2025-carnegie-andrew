@@ -1,6 +1,5 @@
 'use strict';
 
-
 const groups = require('../../groups');
 
 module.exports = {

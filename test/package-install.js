@@ -16,17 +16,29 @@ describe('Package install lib', () => {
 	describe('updatePackageFile()', () => {
 		let source;
 		let current;
-		const sourcePackagePath = path.resolve(__dirname, '../install/package.json');
+		const sourcePackagePath = path.resolve(
+			__dirname,
+			'../install/package.json'
+		);
 		const packageFilePath = path.resolve(__dirname, '../package.json');
 
 		before(async () => {
 			// Move `install/package.json` and `package.json` out of the way for now
-			await fs.copyFile(sourcePackagePath, path.resolve(__dirname, '../install/package.json.bak')); // safekeeping
-			await fs.copyFile(packageFilePath, path.resolve(__dirname, '../package.json.bak')); // safekeeping
+			await fs.copyFile(
+				sourcePackagePath,
+				path.resolve(__dirname, '../install/package.json.bak')
+			); // safekeeping
+			await fs.copyFile(
+				packageFilePath,
+				path.resolve(__dirname, '../package.json.bak')
+			); // safekeeping
 		});
 
 		beforeEach(async () => {
-			await fs.copyFile(path.resolve(__dirname, '../install/package.json.bak'), sourcePackagePath);
+			await fs.copyFile(
+				path.resolve(__dirname, '../install/package.json.bak'),
+				sourcePackagePath
+			);
 			await fs.copyFile(sourcePackagePath, packageFilePath); // match files for testing
 			source = JSON.parse(await fs.readFile(sourcePackagePath));
 			current = JSON.parse(await fs.readFile(packageFilePath));
@@ -40,7 +52,9 @@ describe('Package install lib', () => {
 			pkgInstall.updatePackageFile();
 
 			// assert it removed the extra package
-			const packageCleaned = JSON.parse(await fs.readFile(packageFilePath, 'utf8'));
+			const packageCleaned = JSON.parse(
+				await fs.readFile(packageFilePath, 'utf8')
+			);
 			assert(!packageCleaned.dependencies.dotenv, 'dependency was not removed');
 		});
 
@@ -81,7 +95,10 @@ describe('Package install lib', () => {
 			pkgInstall.updatePackageFile();
 			const updated = JSON.parse(await fs.readFile(packageFilePath, 'utf8'));
 			assert.deepStrictEqual(updated, source);
-			assert.strictEqual(updated.scripts.postinstall, 'echo "I am a silly bean";');
+			assert.strictEqual(
+				updated.scripts.postinstall,
+				'echo "I am a silly bean";'
+			);
 			assert.strictEqual(updated.scripts.preinstall, 'echo "What are you?";');
 		});
 
@@ -91,7 +108,10 @@ describe('Package install lib', () => {
 
 			pkgInstall.updatePackageFile();
 			const updated = JSON.parse(await fs.readFile(packageFilePath, 'utf8'));
-			assert.strictEqual(updated.devDependencies.hasOwnProperty('expect'), false);
+			assert.strictEqual(
+				updated.devDependencies.hasOwnProperty('expect'),
+				false
+			);
 		});
 
 		it('should handle if there is no package.json', async () => {
@@ -104,8 +124,14 @@ describe('Package install lib', () => {
 
 		after(async () => {
 			// Clean up
-			await fs.rename(path.resolve(__dirname, '../install/package.json.bak'), sourcePackagePath);
-			await fs.rename(path.resolve(__dirname, '../package.json.bak'), packageFilePath);
+			await fs.rename(
+				path.resolve(__dirname, '../install/package.json.bak'),
+				sourcePackagePath
+			);
+			await fs.rename(
+				path.resolve(__dirname, '../package.json.bak'),
+				packageFilePath
+			);
 		});
 	});
 });

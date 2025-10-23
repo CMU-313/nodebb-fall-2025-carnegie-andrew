@@ -13,13 +13,16 @@ const request = require('../src/request');
 describe('Plugins', () => {
 	it('should load plugin data', (done) => {
 		const pluginId = 'nodebb-plugin-markdown';
-		plugins.loadPlugin(path.join(nconf.get('base_dir'), `node_modules/${pluginId}`), (err) => {
-			assert.ifError(err);
-			assert(plugins.libraries[pluginId]);
-			assert(plugins.loadedHooks['static:app.load']);
+		plugins.loadPlugin(
+			path.join(nconf.get('base_dir'), `node_modules/${pluginId}`),
+			(err) => {
+				assert.ifError(err);
+				assert(plugins.libraries[pluginId]);
+				assert(plugins.loadedHooks['static:app.load']);
 
-			done();
-		});
+				done();
+			}
+		);
 	});
 
 	it('should return true if hook has listeners', (done) => {
@@ -37,8 +40,14 @@ describe('Plugins', () => {
 			callback(null, data);
 		}
 
-		plugins.hooks.register('test-plugin', { hook: 'filter:test.hook', method: filterMethod1 });
-		plugins.hooks.register('test-plugin', { hook: 'filter:test.hook', method: filterMethod2 });
+		plugins.hooks.register('test-plugin', {
+			hook: 'filter:test.hook',
+			method: filterMethod1,
+		});
+		plugins.hooks.register('test-plugin', {
+			hook: 'filter:test.hook',
+			method: filterMethod2,
+		});
 
 		plugins.hooks.fire('filter:test.hook', { foo: 1 }, (err, data) => {
 			assert.ifError(err);
@@ -63,9 +72,18 @@ describe('Plugins', () => {
 			return data;
 		}
 
-		plugins.hooks.register('test-plugin', { hook: 'filter:test.hook2', method: method1 });
-		plugins.hooks.register('test-plugin', { hook: 'filter:test.hook2', method: method2 });
-		plugins.hooks.register('test-plugin', { hook: 'filter:test.hook2', method: method3 });
+		plugins.hooks.register('test-plugin', {
+			hook: 'filter:test.hook2',
+			method: method1,
+		});
+		plugins.hooks.register('test-plugin', {
+			hook: 'filter:test.hook2',
+			method: method2,
+		});
+		plugins.hooks.register('test-plugin', {
+			hook: 'filter:test.hook2',
+			method: method3,
+		});
 
 		const data = await plugins.hooks.fire('filter:test.hook2', { foo: 1 });
 		assert.strictEqual(data.foo, 8);
@@ -83,8 +101,14 @@ describe('Plugins', () => {
 			return data;
 		}
 
-		plugins.hooks.register('test-plugin', { hook: 'filter:test.hook3', method: method1 });
-		plugins.hooks.register('test-plugin', { hook: 'filter:test.hook3', method: method2 });
+		plugins.hooks.register('test-plugin', {
+			hook: 'filter:test.hook3',
+			method: method1,
+		});
+		plugins.hooks.register('test-plugin', {
+			hook: 'filter:test.hook3',
+			method: method2,
+		});
 
 		const data = await plugins.hooks.fire('filter:test.hook3', { foo: 1 });
 		assert.strictEqual(data.foo, 4);
@@ -97,7 +121,10 @@ describe('Plugins', () => {
 				reject(new Error('nope'));
 			});
 		}
-		plugins.hooks.register('test-plugin', { hook: 'filter:test.hook4', method: method });
+		plugins.hooks.register('test-plugin', {
+			hook: 'filter:test.hook4',
+			method: method,
+		});
 		plugins.hooks.fire('filter:test.hook4', { foo: 1 }, (err) => {
 			assert(err);
 			done();
@@ -110,7 +137,10 @@ describe('Plugins', () => {
 			done();
 		}
 
-		plugins.hooks.register('test-plugin', { hook: 'action:test.hook', method: actionMethod });
+		plugins.hooks.register('test-plugin', {
+			hook: 'action:test.hook',
+			method: actionMethod,
+		});
 		plugins.hooks.fire('action:test.hook', { bar: 'test' });
 	});
 
@@ -120,7 +150,10 @@ describe('Plugins', () => {
 			callback();
 		}
 
-		plugins.hooks.register('test-plugin', { hook: 'static:test.hook', method: actionMethod });
+		plugins.hooks.register('test-plugin', {
+			hook: 'static:test.hook',
+			method: actionMethod,
+		});
 		plugins.hooks.fire('static:test.hook', { bar: 'test' }, (err) => {
 			assert.ifError(err);
 			done();
@@ -134,7 +167,10 @@ describe('Plugins', () => {
 				resolve();
 			});
 		}
-		plugins.hooks.register('test-plugin', { hook: 'static:test.hook', method: method });
+		plugins.hooks.register('test-plugin', {
+			hook: 'static:test.hook',
+			method: method,
+		});
 		plugins.hooks.fire('static:test.hook', { bar: 'test' }, (err) => {
 			assert.ifError(err);
 			done();
@@ -148,7 +184,10 @@ describe('Plugins', () => {
 				reject(new Error('just because'));
 			});
 		}
-		plugins.hooks.register('test-plugin', { hook: 'static:test.hook', method: method });
+		plugins.hooks.register('test-plugin', {
+			hook: 'static:test.hook',
+			method: method,
+		});
 		plugins.hooks.fire('static:test.hook', { bar: 'test' }, (err) => {
 			assert.strictEqual(err.message, 'just because');
 			plugins.hooks.unregister('test-plugin', 'static:test.hook', method);
@@ -163,7 +202,10 @@ describe('Plugins', () => {
 				setTimeout(resolve, 6000);
 			});
 		}
-		plugins.hooks.register('test-plugin', { hook: 'static:test.hook', method: method });
+		plugins.hooks.register('test-plugin', {
+			hook: 'static:test.hook',
+			method: method,
+		});
 		plugins.hooks.fire('static:test.hook', { bar: 'test' }, (err) => {
 			assert.ifError(err);
 			plugins.hooks.unregister('test-plugin', 'static:test.hook', method);
@@ -174,7 +216,16 @@ describe('Plugins', () => {
 	it('should get plugin data from nbbpm', (done) => {
 		plugins.get('nodebb-plugin-markdown', (err, data) => {
 			assert.ifError(err);
-			const keys = ['id', 'name', 'url', 'description', 'latest', 'installed', 'active', 'latest'];
+			const keys = [
+				'id',
+				'name',
+				'url',
+				'description',
+				'latest',
+				'installed',
+				'active',
+				'latest',
+			];
 			assert.equal(data.name, 'nodebb-plugin-markdown');
 			assert.equal(data.id, 'nodebb-plugin-markdown');
 			keys.forEach((key) => {
@@ -187,7 +238,16 @@ describe('Plugins', () => {
 	it('should get a list of plugins', (done) => {
 		plugins.list((err, data) => {
 			assert.ifError(err);
-			const keys = ['id', 'name', 'url', 'description', 'latest', 'installed', 'active', 'latest'];
+			const keys = [
+				'id',
+				'name',
+				'url',
+				'description',
+				'latest',
+				'installed',
+				'active',
+				'latest',
+			];
 			assert(Array.isArray(data));
 			keys.forEach((key) => {
 				assert(data[0].hasOwnProperty(key));
@@ -202,7 +262,9 @@ describe('Plugins', () => {
 
 		plugins.showInstalled((err, pluginsData) => {
 			assert.ifError(err);
-			const paths = pluginsData.map(plugin => path.relative(plugins.nodeModulesPath, plugin.path).replace(/\\/g, '/'));
+			const paths = pluginsData.map((plugin) =>
+				path.relative(plugins.nodeModulesPath, plugin.path).replace(/\\/g, '/')
+			);
 			assert(paths.indexOf('nodebb-plugin-xyz') > -1);
 			assert(paths.indexOf('@nodebb/nodebb-plugin-abc') > -1);
 
@@ -239,12 +301,20 @@ describe('Plugins', () => {
 
 				assert.equal(pluginData.name, pluginName);
 				assert.equal(pluginData.id, pluginName);
-				assert.equal(pluginData.url, 'https://github.com/barisusakli/nodebb-plugin-imgur#readme');
-				assert.equal(pluginData.description, 'A Plugin that uploads images to imgur');
+				assert.equal(
+					pluginData.url,
+					'https://github.com/barisusakli/nodebb-plugin-imgur#readme'
+				);
+				assert.equal(
+					pluginData.description,
+					'A Plugin that uploads images to imgur'
+				);
 				assert.equal(pluginData.active, false);
 				assert.equal(pluginData.installed, true);
 
-				const packageFile = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
+				const packageFile = JSON.parse(
+					fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8')
+				);
 				assert(packageFile.dependencies[pluginName]);
 
 				done();
@@ -263,15 +333,13 @@ describe('Plugins', () => {
 		});
 
 		it('should error if plugin id is invalid', async () => {
-			await assert.rejects(
-				plugins.toggleActive('\t\nnodebb-plugin'),
-				{ message: '[[error:invalid-plugin-id]]' }
-			);
+			await assert.rejects(plugins.toggleActive('\t\nnodebb-plugin'), {
+				message: '[[error:invalid-plugin-id]]',
+			});
 
-			await assert.rejects(
-				plugins.toggleActive('notaplugin'),
-				{ message: '[[error:invalid-plugin-id]]' }
-			);
+			await assert.rejects(plugins.toggleActive('notaplugin'), {
+				message: '[[error:invalid-plugin-id]]',
+			});
 		});
 
 		it('should upgrade plugin', function (done) {
@@ -279,11 +347,14 @@ describe('Plugins', () => {
 			plugins.upgrade(pluginName, 'latest', (err, isActive) => {
 				assert.ifError(err);
 				assert(isActive);
-				plugins.loadPluginInfo(path.join(nconf.get('base_dir'), 'node_modules', pluginName), (err, pluginInfo) => {
-					assert.ifError(err);
-					assert.equal(pluginInfo.version, latest);
-					done();
-				});
+				plugins.loadPluginInfo(
+					path.join(nconf.get('base_dir'), 'node_modules', pluginName),
+					(err, pluginInfo) => {
+						assert.ifError(err);
+						assert.equal(pluginInfo.version, latest);
+						done();
+					}
+				);
 			});
 		});
 
@@ -294,7 +365,9 @@ describe('Plugins', () => {
 				assert.equal(pluginData.installed, false);
 				assert.equal(pluginData.active, false);
 
-				const packageFile = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
+				const packageFile = JSON.parse(
+					fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8')
+				);
 				assert(!packageFile.dependencies[pluginName]);
 
 				done();
@@ -304,7 +377,9 @@ describe('Plugins', () => {
 
 	describe('static assets', () => {
 		it('should 404 if resource does not exist', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/plugins/doesnotexist/should404.tpl`);
+			const { response, body } = await request.get(
+				`${nconf.get('url')}/plugins/doesnotexist/should404.tpl`
+			);
 			assert.equal(response.statusCode, 404);
 			assert(body);
 		});
@@ -325,10 +400,7 @@ describe('Plugins', () => {
 	});
 
 	describe('plugin state set in configuration', () => {
-		const activePlugins = [
-			'nodebb-plugin-markdown',
-			'nodebb-plugin-mentions',
-		];
+		const activePlugins = ['nodebb-plugin-markdown', 'nodebb-plugin-mentions'];
 		const inactivePlugin = 'nodebb-plugin-emoji';
 		beforeEach((done) => {
 			nconf.set('plugins:active', activePlugins);
@@ -358,13 +430,25 @@ describe('Plugins', () => {
 		it('should get a list of plugins from configuration', (done) => {
 			plugins.list((err, data) => {
 				assert.ifError(err);
-				const keys = ['id', 'name', 'url', 'description', 'latest', 'installed', 'active', 'latest'];
+				const keys = [
+					'id',
+					'name',
+					'url',
+					'description',
+					'latest',
+					'installed',
+					'active',
+					'latest',
+				];
 				assert(Array.isArray(data));
 				keys.forEach((key) => {
 					assert(data[0].hasOwnProperty(key));
 				});
 				data.forEach((pluginData) => {
-					assert.equal(pluginData.active, activePlugins.includes(pluginData.id));
+					assert.equal(
+						pluginData.active,
+						activePlugins.includes(pluginData.id)
+					);
 				});
 				done();
 			});
@@ -402,5 +486,3 @@ describe('Plugins', () => {
 		});
 	});
 });
-
-

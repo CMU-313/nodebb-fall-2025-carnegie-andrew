@@ -26,11 +26,13 @@ editController.get = async function (req, res, next) {
 		allowMultipleBadges,
 	} = userData;
 
-	const [canUseSignature, canManageUsers, customUserFields] = await Promise.all([
-		privileges.global.can('signature', req.uid),
-		privileges.admin.can('admin:users', req.uid),
-		accountHelpers.getCustomUserFields(req.uid, userData),
-	]);
+	const [canUseSignature, canManageUsers, customUserFields] = await Promise.all(
+		[
+			privileges.global.can('signature', req.uid),
+			privileges.admin.can('admin:users', req.uid),
+			accountHelpers.getCustomUserFields(req.uid, userData),
+		]
+	);
 
 	userData.customUserFields = customUserFields;
 	userData.maximumSignatureLength = meta.config.maximumSignatureLength;
@@ -38,15 +40,31 @@ editController.get = async function (req, res, next) {
 	userData.maximumProfileImageSize = meta.config.maximumProfileImageSize;
 	userData.allowMultipleBadges = meta.config.allowMultipleBadges === 1;
 	userData.allowAccountDelete = meta.config.allowAccountDelete === 1;
-	userData.allowAboutMe = !isSelf || !!meta.config['reputation:disabled'] || reputation >= meta.config['min:rep:aboutme'];
-	userData.allowSignature = canUseSignature && (!isSelf || !!meta.config['reputation:disabled'] || reputation >= meta.config['min:rep:signature']);
+	userData.allowAboutMe =
+		!isSelf ||
+		!!meta.config['reputation:disabled'] ||
+		reputation >= meta.config['min:rep:aboutme'];
+	userData.allowSignature =
+		canUseSignature &&
+		(!isSelf ||
+			!!meta.config['reputation:disabled'] ||
+			reputation >= meta.config['min:rep:signature']);
 	userData.profileImageDimension = meta.config.profileImageDimension;
 	userData.defaultAvatar = user.getDefaultAvatar();
 
-	userData.groups = _groups.filter(g => g && g.userTitleEnabled && !groups.isPrivilegeGroup(g.name) && g.name !== 'registered-users');
+	userData.groups = _groups.filter(
+		(g) =>
+			g &&
+			g.userTitleEnabled &&
+			!groups.isPrivilegeGroup(g.name) &&
+			g.name !== 'registered-users'
+	);
 
 	if (req.uid === res.locals.uid || canManageUsers) {
-		const { associations } = await plugins.hooks.fire('filter:auth.list', { uid: res.locals.uid, associations: [] });
+		const { associations } = await plugins.hooks.fire('filter:auth.list', {
+			uid: res.locals.uid,
+			associations: [],
+		});
 		userData.sso = associations;
 	}
 
@@ -68,7 +86,10 @@ editController.get = async function (req, res, next) {
 		group.userTitle = group.userTitle || group.displayName;
 		group.selected = groupTitleArray.includes(group.name);
 	});
-	userData.groupSelectSize = Math.min(10, Math.max(5, userData.groups.length + 1));
+	userData.groupSelectSize = Math.min(
+		10,
+		Math.max(5, userData.groups.length + 1)
+	);
 
 	userData.title = `[[pages:account/edit, ${username}]]`;
 	userData.breadcrumbs = helpers.buildBreadcrumbs([
@@ -150,7 +171,11 @@ editController.uploadPicture = async function (req, res, next) {
 		if (!isAllowed) {
 			return helpers.notAllowed(req, res);
 		}
-		await user.checkMinReputation(req.uid, updateUid, 'min:rep:profile-picture');
+		await user.checkMinReputation(
+			req.uid,
+			updateUid,
+			'min:rep:profile-picture'
+		);
 
 		const image = await user.uploadCroppedPictureFile({
 			callerUid: req.uid,
@@ -158,10 +183,12 @@ editController.uploadPicture = async function (req, res, next) {
 			file: userPhoto,
 		});
 
-		res.json([{
-			name: userPhoto.name,
-			url: image.url,
-		}]);
+		res.json([
+			{
+				name: userPhoto.name,
+				url: image.url,
+			},
+		]);
 	} catch (err) {
 		next(err);
 	} finally {

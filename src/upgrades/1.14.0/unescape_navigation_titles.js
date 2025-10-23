@@ -6,7 +6,11 @@ module.exports = {
 	name: 'Unescape navigation titles',
 	timestamp: Date.UTC(2020, 5, 26),
 	method: async function () {
-		const data = await db.getSortedSetRangeWithScores('navigation:enabled', 0, -1);
+		const data = await db.getSortedSetRangeWithScores(
+			'navigation:enabled',
+			0,
+			-1
+		);
 		const translator = require('../../translator');
 		const order = [];
 		const items = [];

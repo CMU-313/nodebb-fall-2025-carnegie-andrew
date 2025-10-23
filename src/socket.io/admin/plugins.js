@@ -30,7 +30,10 @@ Plugins.toggleInstall = async function (socket, data) {
 	}
 	const isInstalled = await plugins.isInstalled(data.id);
 	const isStarterPlan = nconf.get('saas_plan') === 'starter';
-	if ((isStarterPlan || nconf.get('acpPluginInstallDisabled')) && !isInstalled) {
+	if (
+		(isStarterPlan || nconf.get('acpPluginInstallDisabled')) &&
+		!isInstalled
+	) {
 		throw new Error('[[error:plugin-installation-via-acp-disabled]]');
 	}
 	postsCache.reset();
@@ -53,7 +56,7 @@ Plugins.orderActivePlugins = async function (socket, data) {
 	if (nconf.get('plugins:active')) {
 		throw new Error('[[error:plugins-set-in-configuration]]');
 	}
-	data = data.filter(plugin => plugin && plugin.name);
+	data = data.filter((plugin) => plugin && plugin.name);
 
 	data.forEach((plugin) => {
 		if (!pluginNamePattern.test(plugin.name)) {
@@ -61,7 +64,11 @@ Plugins.orderActivePlugins = async function (socket, data) {
 		}
 	});
 
-	await db.sortedSetAdd('plugins:active', data.map(p => p.order || 0), data.map(p => p.name));
+	await db.sortedSetAdd(
+		'plugins:active',
+		data.map((p) => p.order || 0),
+		data.map((p) => p.name)
+	);
 };
 
 Plugins.upgrade = async function (socket, data) {

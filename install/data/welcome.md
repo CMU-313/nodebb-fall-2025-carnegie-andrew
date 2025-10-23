@@ -5,6 +5,6 @@ To customise your forum, go to the [Administrator Control Panel](../../admin). Y
 
 #### Additional Resources
 
-* [NodeBB Documentation](https://docs.nodebb.org)
-* [Community Support Forum](https://community.nodebb.org)
-* [Project repository](https://github.com/nodebb/nodebb)
+- [NodeBB Documentation](https://docs.nodebb.org)
+- [Community Support Forum](https://community.nodebb.org)
+- [Project repository](https://github.com/nodebb/nodebb)

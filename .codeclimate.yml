@@ -1,5 +1,5 @@
 # Save as .codeclimate.yml (note leading .) in project root directory
-version: "2"
+version: '2'
 languages:
   Ruby: false
   JavaScript: true
@@ -26,5 +26,5 @@ plugins:
           mass_threshold: 110
           count_threshold: 3
 exclude_paths:
-- "public/vendor/*"
-- "test/*"
+  - 'public/vendor/*'
+  - 'test/*'

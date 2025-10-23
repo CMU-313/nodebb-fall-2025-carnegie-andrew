@@ -13,7 +13,9 @@ const { secureRandom } = require('../utils');
 
 exports.handle404 = helpers.try(async (req, res) => {
 	const relativePath = nconf.get('relative_path');
-	const isClientScript = new RegExp(`^${relativePath}\\/assets\\/src\\/.+\\.js(\\?v=\\w+)?$`);
+	const isClientScript = new RegExp(
+		`^${relativePath}\\/assets\\/src\\/.+\\.js(\\?v=\\w+)?$`
+	);
 
 	if (plugins.hooks.hasListeners('action:meta.override404')) {
 		return plugins.hooks.fire('action:meta.override404', {
@@ -27,16 +29,18 @@ exports.handle404 = helpers.try(async (req, res) => {
 		res.type('text/javascript').status(404).send('Not Found');
 	} else if (
 		activitypub.helpers.assertAccept(req.headers.accept) ||
-		(req.headers['Content-Type'] && activitypub._constants.acceptableTypes.includes(req.headers['Content-Type']))
+		(req.headers['Content-Type'] &&
+			activitypub._constants.acceptableTypes.includes(
+				req.headers['Content-Type']
+			))
 	) {
 		// todo: separate logging of AP 404s
 		res.sendStatus(404);
 	} else if (
-		!res.locals.isAPI && (
-			req.path.startsWith(`${relativePath}/assets/uploads`) ||
+		!res.locals.isAPI &&
+		(req.path.startsWith(`${relativePath}/assets/uploads`) ||
 			(req.get('accept') && !req.get('accept').includes('text/html')) ||
-			req.path === '/favicon.ico'
-		)
+			req.path === '/favicon.ico')
 	) {
 		meta.errors.log404(req.path || '');
 		res.sendStatus(404);
@@ -63,9 +67,15 @@ exports.send404 = helpers.try(async (req, res) => {
 		});
 	}
 	const icons = [
-		'fa-hippo', 'fa-cat', 'fa-otter',
-		'fa-dog', 'fa-cow', 'fa-fish',
-		'fa-dragon', 'fa-horse', 'fa-dove',
+		'fa-hippo',
+		'fa-cat',
+		'fa-otter',
+		'fa-dog',
+		'fa-cow',
+		'fa-fish',
+		'fa-dragon',
+		'fa-horse',
+		'fa-dove',
 	];
 	await middleware.buildHeaderAsync(req, res);
 	res.render('404', {

@@ -17,9 +17,6 @@ module.exports = {
 	},
 	resolve: {
 		symlinks: false,
-		modules: [
-			'public/src',
-			'node_modules',
-		],
+		modules: ['public/src', 'node_modules'],
 	},
 };

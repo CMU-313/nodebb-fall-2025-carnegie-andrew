@@ -15,7 +15,9 @@ module.exports = function (User) {
 			return;
 		}
 
-		const isStateValid = Object.values(categories.watchStates).includes(parseInt(state, 10));
+		const isStateValid = Object.values(categories.watchStates).includes(
+			parseInt(state, 10)
+		);
 		if (!isStateValid) {
 			throw new Error('[[error:invalid-watch-state]]');
 		}
@@ -30,15 +32,27 @@ module.exports = function (User) {
 			throw new Error('[[error:no-category]]');
 		}
 
-		const apiMethod = state >= categories.watchStates.tracking ? 'follow' : 'unfollow';
-		const follows = cids.filter(cid => !utils.isNumber(cid)).map(cid => api.activitypub[apiMethod]({ uid }, {
-			type: 'uid',
-			id: uid,
-			actor: cid,
-		})); // returns promises
+		const apiMethod =
+			state >= categories.watchStates.tracking ? 'follow' : 'unfollow';
+		const follows = cids
+			.filter((cid) => !utils.isNumber(cid))
+			.map((cid) =>
+				api.activitypub[apiMethod](
+					{ uid },
+					{
+						type: 'uid',
+						id: uid,
+						actor: cid,
+					}
+				)
+			); // returns promises
 
 		await Promise.all([
-			db.sortedSetsAdd(cids.map(cid => `cid:${cid}:uid:watch:state`), state, uid),
+			db.sortedSetsAdd(
+				cids.map((cid) => `cid:${cid}:uid:watch:state`),
+				state,
+				uid
+			),
 			...follows,
 		]);
 	};
@@ -57,11 +71,16 @@ module.exports = function (User) {
 		if (!(parseInt(uid, 10) > 0)) {
 			return [];
 		}
-		const cids = await User.getCategoriesByStates(uid, [categories.watchStates.ignoring]);
-		const result = await plugins.hooks.fire('filter:user.getIgnoredCategories', {
-			uid: uid,
-			cids: cids,
-		});
+		const cids = await User.getCategoriesByStates(uid, [
+			categories.watchStates.ignoring,
+		]);
+		const result = await plugins.hooks.fire(
+			'filter:user.getIgnoredCategories',
+			{
+				uid: uid,
+				cids: cids,
+			}
+		);
 		return result.cids;
 	};
 
@@ -69,13 +88,22 @@ module.exports = function (User) {
 		if (!(parseInt(uid, 10) > 0)) {
 			return [];
 		}
-		let cids = await User.getCategoriesByStates(uid, [categories.watchStates.watching]);
-		const categoryData = await categories.getCategoriesFields(cids, ['disabled']);
-		cids = cids.filter((cid, index) => categoryData[index] && !categoryData[index].disabled);
-		const result = await plugins.hooks.fire('filter:user.getWatchedCategories', {
-			uid: uid,
-			cids: cids,
-		});
+		let cids = await User.getCategoriesByStates(uid, [
+			categories.watchStates.watching,
+		]);
+		const categoryData = await categories.getCategoriesFields(cids, [
+			'disabled',
+		]);
+		cids = cids.filter(
+			(cid, index) => categoryData[index] && !categoryData[index].disabled
+		);
+		const result = await plugins.hooks.fire(
+			'filter:user.getWatchedCategories',
+			{
+				uid: uid,
+				cids: cids,
+			}
+		);
 		return result.cids;
 	};
 

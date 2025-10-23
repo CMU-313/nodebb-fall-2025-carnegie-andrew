@@ -19,24 +19,28 @@ async function doTopicAction(action, caller, data) {
 	if (!canEdit.flag) {
 		throw new Error('[[error:no-privileges]]');
 	}
-	
+
 	const result = await topics[action](data.tid, caller.uid);
 	return result;
 }
 
 async function postCommand(caller, command, eventName, notificationText, data) {
-	const canRead = await privileges.posts.can('topics:read', data.pid, caller.uid);
+	const canRead = await privileges.posts.can(
+		'topics:read',
+		data.pid,
+		caller.uid
+	);
 	if (!canRead) {
 		throw new Error('[[error:no-privileges]]');
 	}
 
 	const result = await posts[command](data.pid, caller.uid);
-	
+
 	// Emit socket event if needed
 	if (eventName && result) {
 		// This would normally emit to socket.io, simplified for testing
 	}
-	
+
 	return result;
 }
 

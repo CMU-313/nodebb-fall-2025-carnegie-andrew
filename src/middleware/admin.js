@@ -1,6 +1,5 @@
 'use strict';
 
-
 const nconf = require('nconf');
 
 const user = require('../user');
@@ -36,7 +35,7 @@ middleware.checkPrivileges = helpers.try(async (req, res, next) => {
 	const path = req.path.replace(/^(\/api)?(\/v3)?\/admin\/?/g, '');
 	if (path) {
 		const privilege = privileges.admin.resolve(path);
-		if (!await privileges.admin.can(privilege, req.uid)) {
+		if (!(await privileges.admin.can(privilege, req.uid))) {
 			return controllers.helpers.notAllowed(req, res);
 		}
 	} else {
@@ -56,8 +55,12 @@ middleware.checkPrivileges = helpers.try(async (req, res, next) => {
 	const loginTime = req.session.meta ? req.session.meta.datetime : 0;
 	const adminReloginDuration = meta.config.adminReloginDuration * 60000;
 	const disabled = meta.config.adminReloginDuration === 0;
-	if (disabled || (loginTime && parseInt(loginTime, 10) > Date.now() - adminReloginDuration)) {
-		const timeLeft = parseInt(loginTime, 10) - (Date.now() - adminReloginDuration);
+	if (
+		disabled ||
+		(loginTime && parseInt(loginTime, 10) > Date.now() - adminReloginDuration)
+	) {
+		const timeLeft =
+			parseInt(loginTime, 10) - (Date.now() - adminReloginDuration);
 		if (req.session.meta && timeLeft < Math.min(60000, adminReloginDuration)) {
 			req.session.meta.datetime += Math.min(60000, adminReloginDuration);
 		}
@@ -67,7 +70,10 @@ middleware.checkPrivileges = helpers.try(async (req, res, next) => {
 
 	let returnTo = req.path;
 	if (nconf.get('relative_path')) {
-		returnTo = req.path.replace(new RegExp(`^${nconf.get('relative_path')}`), '');
+		returnTo = req.path.replace(
+			new RegExp(`^${nconf.get('relative_path')}`),
+			''
+		);
 	}
 	returnTo = returnTo.replace(/^\/api/, '');
 

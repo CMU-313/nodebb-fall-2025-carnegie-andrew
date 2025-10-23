@@ -23,7 +23,7 @@ uploadsController.get = async function (req, res) {
 		db.getSortedSetRevRange(`uid:${res.locals.uid}:uploads`, start, stop),
 	]);
 
-	payload.uploads = uploadNames.map(uploadName => ({
+	payload.uploads = uploadNames.map((uploadName) => ({
 		name: uploadName,
 		url: path.posix.join(nconf.get('upload_url'), uploadName),
 	}));
@@ -31,7 +31,10 @@ uploadsController.get = async function (req, res) {
 	payload.pagination = pagination.create(page, pageCount, req.query);
 	payload.privateUploads = meta.config.privateUploads === 1;
 	payload.title = `[[pages:account/uploads, ${username}]]`;
-	payload.breadcrumbs = helpers.buildBreadcrumbs([{ text: username, url: `/user/${userslug}` }, { text: '[[global:uploads]]' }]);
+	payload.breadcrumbs = helpers.buildBreadcrumbs([
+		{ text: username, url: `/user/${userslug}` },
+		{ text: '[[global:uploads]]' },
+	]);
 
 	res.render('account/uploads', payload);
 };

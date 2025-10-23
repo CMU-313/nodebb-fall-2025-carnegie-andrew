@@ -25,6 +25,9 @@ async function doBuildHeader(req, res) {
 		await require('./index').applyCSRFasync(req, res);
 	}
 
-	await plugins.hooks.fire('filter:middleware.buildHeader', { req: req, locals: res.locals });
+	await plugins.hooks.fire('filter:middleware.buildHeader', {
+		req: req,
+		locals: res.locals,
+	});
 	res.locals.config = await controllers.api.loadConfig(req);
 }

@@ -57,7 +57,9 @@ module.exports = function (Plugins) {
 
 	Plugins.toggleActive = async function (id) {
 		if (nconf.get('plugins:active')) {
-			winston.error('Cannot activate plugins while plugin state is set in the configuration (config.json, environmental variables or terminal arguments), please modify the configuration instead');
+			winston.error(
+				'Cannot activate plugins while plugin state is set in the configuration (config.json, environmental variables or terminal arguments), please modify the configuration instead'
+			);
 			throw new Error('[[error:plugins-set-in-configuration]]');
 		}
 		if (!pluginNamePattern.test(id)) {
@@ -77,11 +79,17 @@ module.exports = function (Plugins) {
 	};
 
 	Plugins.checkWhitelist = async function (id, version) {
-		const { response, body } = await request.get(`https://packages.nodebb.org/api/v1/plugins/${encodeURIComponent(id)}`);
+		const { response, body } = await request.get(
+			`https://packages.nodebb.org/api/v1/plugins/${encodeURIComponent(id)}`
+		);
 		if (!response.ok) {
 			throw new Error(`[[error:cant-connect-to-nbbpm]]`);
 		}
-		if (body && body.code === 'ok' && (version === 'latest' || body.payload.valid.includes(version))) {
+		if (
+			body &&
+			body.code === 'ok' &&
+			(version === 'latest' || body.payload.valid.includes(version))
+		) {
 			return;
 		}
 
@@ -89,7 +97,9 @@ module.exports = function (Plugins) {
 	};
 
 	Plugins.suggest = async function (pluginId, nbbVersion) {
-		const { response, body } = await request.get(`https://packages.nodebb.org/api/v1/suggest?package=${encodeURIComponent(pluginId)}&version=${encodeURIComponent(nbbVersion)}`);
+		const { response, body } = await request.get(
+			`https://packages.nodebb.org/api/v1/suggest?package=${encodeURIComponent(pluginId)}&version=${encodeURIComponent(nbbVersion)}`
+		);
 		if (!response.ok) {
 			throw new Error(`[[error:cant-connect-to-nbbpm]]`);
 		}
@@ -97,11 +107,17 @@ module.exports = function (Plugins) {
 	};
 
 	Plugins.toggleInstall = async function (id, version) {
-		pubsub.publish('plugins:toggleInstall', { hostname: os.hostname(), id: id, version: version });
+		pubsub.publish('plugins:toggleInstall', {
+			hostname: os.hostname(),
+			id: id,
+			version: version,
+		});
 		return await toggleInstall(id, version);
 	};
 
-	const runPackageManagerCommandAsync = util.promisify(runPackageManagerCommand);
+	const runPackageManagerCommandAsync = util.promisify(
+		runPackageManagerCommand
+	);
 
 	async function toggleInstall(id, version) {
 		const [installed, active] = await Promise.all([
@@ -119,23 +135,30 @@ module.exports = function (Plugins) {
 	}
 
 	function runPackageManagerCommand(command, pkgName, version, callback) {
-		cproc.execFile(packageManagerExecutable, [
-			packageManagerCommands[packageManager][command],
-			pkgName + (command === 'install' && version ? `@${version}` : ''),
-			'--save',
-		], (err, stdout) => {
-			if (err) {
-				return callback(err);
-			}
+		cproc.execFile(
+			packageManagerExecutable,
+			[
+				packageManagerCommands[packageManager][command],
+				pkgName + (command === 'install' && version ? `@${version}` : ''),
+				'--save',
+			],
+			(err, stdout) => {
+				if (err) {
+					return callback(err);
+				}
 
-			winston.verbose(`[plugins/${command}] ${stdout}`);
-			callback();
-		});
+				winston.verbose(`[plugins/${command}] ${stdout}`);
+				callback();
+			}
+		);
 	}
 
-
 	Plugins.upgrade = async function (id, version) {
-		pubsub.publish('plugins:upgrade', { hostname: os.hostname(), id: id, version: version });
+		pubsub.publish('plugins:upgrade', {
+			hostname: os.hostname(),
+			id: id,
+			version: version,
+		});
 		return await upgrade(id, version);
 	};
 
@@ -182,7 +205,9 @@ module.exports = function (Plugins) {
 
 	Plugins.autocomplete = async (fragment) => {
 		const pluginDir = paths.nodeModules;
-		const plugins = (await fs.readdir(pluginDir)).filter(filename => filename.startsWith(fragment));
+		const plugins = (await fs.readdir(pluginDir)).filter((filename) =>
+			filename.startsWith(fragment)
+		);
 
 		// Autocomplete only if single match
 		return plugins.length === 1 ? plugins.pop() : fragment;

@@ -27,7 +27,7 @@ module.exports = function (Posts) {
 			await checkToPid(data.toPid, uid);
 		}
 
-		const pid = data.pid || await db.incrObjectField('global', 'nextPid');
+		const pid = data.pid || (await db.incrObjectField('global', 'nextPid'));
 		let postData = { pid, uid, tid, content, sourceContent, timestamp };
 
 		if (data.toPid) {
@@ -51,8 +51,9 @@ module.exports = function (Posts) {
 		// Rewrite emoji references to inline image assets
 		if (_activitypub && _activitypub.tag && Array.isArray(_activitypub.tag)) {
 			_activitypub.tag
-				.filter(tag => tag.type === 'Emoji' &&
-					tag.icon && tag.icon.type === 'Image')
+				.filter(
+					(tag) => tag.type === 'Emoji' && tag.icon && tag.icon.type === 'Image'
+				)
 				.forEach((tag) => {
 					if (!tag.name.startsWith(':')) {
 						tag.name = `:${tag.name}`;
@@ -61,11 +62,17 @@ module.exports = function (Posts) {
 						tag.name = `${tag.name}:`;
 					}
 
-					postData.content = postData.content.replace(new RegExp(tag.name, 'g'), `<img class="not-responsive emoji" src="${tag.icon.url}" title="${tag.name}" />`);
+					postData.content = postData.content.replace(
+						new RegExp(tag.name, 'g'),
+						`<img class="not-responsive emoji" src="${tag.icon.url}" title="${tag.name}" />`
+					);
 				});
 		}
 
-		({ post: postData } = await plugins.hooks.fire('filter:post.create', { post: postData, data: data }));
+		({ post: postData } = await plugins.hooks.fire('filter:post.create', {
+			post: postData,
+			data: data,
+		}));
 		await db.setObject(`post:${postData.pid}`, postData);
 
 		const topicData = await topics.getTopicFields(tid, ['cid', 'pinned']);
@@ -82,9 +89,14 @@ module.exports = function (Posts) {
 			Posts.uploads.sync(postData.pid),
 		]);
 
-		const result = await plugins.hooks.fire('filter:post.get', { post: postData, uid: data.uid });
+		const result = await plugins.hooks.fire('filter:post.get', {
+			post: postData,
+			uid: data.uid,
+		});
 		result.post.isMain = isMain;
-		plugins.hooks.fire('action:post.save', { post: { ...result.post, _activitypub } });
+		plugins.hooks.fire('action:post.save', {
+			post: { ...result.post, _activitypub },
+		});
 		return result.post;
 	};
 

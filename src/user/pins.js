@@ -2,7 +2,7 @@
 
 /**
  * User pinning functionality - handles both topics and posts
- * 
+ *
  * Topic pins: users can bookmark important topics (stored in sets)
  * Post pins: mods can highlight key comments in discussions (stored as flags)
  */
@@ -32,9 +32,7 @@ async function canPin(uid) {
 
 async function getPinnedTids(uid) {
 	const tids = await db.getSetMembers(keyFor(uid));
-	return (tids || [])
-		.map(t => Number(t))
-		.filter(n => Number.isFinite(n));
+	return (tids || []).map((t) => Number(t)).filter((n) => Number.isFinite(n));
 }
 
 async function addPinnedTid(uid, tid) {
@@ -99,7 +97,10 @@ async function canPinPosts(pid, uid) {
 	}
 
 	if (isModerator && postData) {
-		const canModerate = await privileges.topics.isModeratorOfTopic(uid, postData);
+		const canModerate = await privileges.topics.isModeratorOfTopic(
+			uid,
+			postData
+		);
 		return canModerate;
 	}
 
@@ -166,8 +167,8 @@ async function getPinnedPosts(tid, uid) {
 
 	const postsData = await getPostsFields(pids, ['pid', 'pinned']);
 	const pinnedPids = postsData
-		.filter(post => parseInt(post.pinned, 10) === 1)
-		.map(post => post.pid);
+		.filter((post) => parseInt(post.pinned, 10) === 1)
+		.map((post) => post.pid);
 
 	if (!pinnedPids.length) {
 		return [];
@@ -215,7 +216,7 @@ module.exports = {
 	getPinnedTids,
 	addPinnedTid,
 	removePinnedTid,
-	
+
 	// post stuff
 	canPinPosts,
 	pinPost,

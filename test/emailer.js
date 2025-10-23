@@ -13,8 +13,12 @@ const meta = require('../src/meta');
 const Meta = require('../src/meta');
 
 describe('emailer', () => {
-	let onMail = function (address, session, callback) { callback(); };
-	let onTo = function (address, session, callback) { callback(); };
+	let onMail = function (address, session, callback) {
+		callback();
+	};
+	let onTo = function (address, session, callback) {
+		callback();
+	};
 
 	const template = 'test';
 	const email = 'test@example.org';
@@ -113,42 +117,53 @@ describe('emailer', () => {
 			done();
 		};
 
-		Meta.configs.setMultiple({
-			'email:smtpTransport:enabled': '1',
-			'email:smtpTransport:user': username,
-			'email:smtpTransport:pass': 'anything',
-			'email:smtpTransport:service': 'nodebb-custom-smtp',
-			'email:smtpTransport:port': 4000,
-			'email:smtpTransport:host': 'localhost',
-			'email:smtpTransport:security': 'NONE',
-			'email:from': from,
-		}, (err) => {
-			assert.ifError(err);
+		Meta.configs.setMultiple(
+			{
+				'email:smtpTransport:enabled': '1',
+				'email:smtpTransport:user': username,
+				'email:smtpTransport:pass': 'anything',
+				'email:smtpTransport:service': 'nodebb-custom-smtp',
+				'email:smtpTransport:port': 4000,
+				'email:smtpTransport:host': 'localhost',
+				'email:smtpTransport:security': 'NONE',
+				'email:from': from,
+			},
+			(err) => {
+				assert.ifError(err);
 
-			// delay so emailer has a chance to update after config changes
-			setTimeout(() => {
-				assert.equal(Emailer.fallbackTransport, Emailer.transports.smtp);
+				// delay so emailer has a chance to update after config changes
+				setTimeout(() => {
+					assert.equal(Emailer.fallbackTransport, Emailer.transports.smtp);
 
-				Emailer.sendToEmail(template, email, language, params, (err) => {
-					assert.ifError(err);
-				});
-			}, 200);
-		});
+					Emailer.sendToEmail(template, email, language, params, (err) => {
+						assert.ifError(err);
+					});
+				}, 200);
+			}
+		);
 	});
 
 	after((done) => {
-		fs.unlinkSync(path.join(__dirname, '../build/public/templates/emails/test.js'));
-		Meta.configs.setMultiple({
-			'email:smtpTransport:enabled': '0',
-			'email:custom:test': '',
-		}, done);
+		fs.unlinkSync(
+			path.join(__dirname, '../build/public/templates/emails/test.js')
+		);
+		Meta.configs.setMultiple(
+			{
+				'email:smtpTransport:enabled': '0',
+				'email:custom:test': '',
+			},
+			done
+		);
 	});
 
 	describe('emailer.send()', () => {
 		let recipientUid;
 
 		before(async () => {
-			recipientUid = await user.create({ username: 'recipient', email: 'test@example.org' });
+			recipientUid = await user.create({
+				username: 'recipient',
+				email: 'test@example.org',
+			});
 			await user.email.confirmByUid(recipientUid);
 		});
 

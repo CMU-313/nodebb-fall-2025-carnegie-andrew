@@ -1,6 +1,5 @@
 'use strict';
 
-
 const db = require('../../database');
 
 module.exports = {
@@ -10,15 +9,26 @@ module.exports = {
 		const batch = require('../../batch');
 		const css = require('../../meta/css');
 
-		batch.processSortedSet('users:joindate', async (uids) => {
-			let settings = await db.getObjects(uids.map(uid => `user:${uid}:settings`));
-			settings = settings.filter(
-				s => s && s.bootswatchSkin && !css.supportedSkins.includes(s.bootswatchSkin)
-			);
+		batch.processSortedSet(
+			'users:joindate',
+			async (uids) => {
+				let settings = await db.getObjects(
+					uids.map((uid) => `user:${uid}:settings`)
+				);
+				settings = settings.filter(
+					(s) =>
+						s &&
+						s.bootswatchSkin &&
+						!css.supportedSkins.includes(s.bootswatchSkin)
+				);
 
-			await db.setObjectBulk(settings.map(s => ([`user:${s.uid}`, { bootswatchSkin: '' }])));
-		}, {
-			batch: 500,
-		});
+				await db.setObjectBulk(
+					settings.map((s) => [`user:${s.uid}`, { bootswatchSkin: '' }])
+				);
+			},
+			{
+				batch: 500,
+			}
+		);
 	},
 };

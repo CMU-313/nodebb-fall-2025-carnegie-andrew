@@ -1,6 +1,5 @@
 'use strict';
 
-
 const async = require('async');
 const crypto = require('crypto');
 const nconf = require('nconf');
@@ -15,27 +14,42 @@ module.exports = {
 		const hashed = /[a-f0-9]{32}/;
 		let hash;
 
-		batch.processSortedSet('ip:recent', (ips, next) => {
-			async.each(ips, (set, next) => {
-				// Short circuit if already processed
-				if (hashed.test(set.value)) {
-					progress.incr();
-					return setImmediate(next);
-				}
+		batch.processSortedSet(
+			'ip:recent',
+			(ips, next) => {
+				async.each(
+					ips,
+					(set, next) => {
+						// Short circuit if already processed
+						if (hashed.test(set.value)) {
+							progress.incr();
+							return setImmediate(next);
+						}
 
-				hash = crypto.createHash('sha1').update(set.value + nconf.get('secret')).digest('hex');
+						hash = crypto
+							.createHash('sha1')
+							.update(set.value + nconf.get('secret'))
+							.digest('hex');
 
-				async.series([
-					async.apply(db.sortedSetAdd, 'ip:recent', set.score, hash),
-					async.apply(db.sortedSetRemove, 'ip:recent', set.value),
-				], (err) => {
-					progress.incr();
-					next(err);
-				});
-			}, next);
-		}, {
-			withScores: 1,
-			progress: this.progress,
-		}, callback);
+						async.series(
+							[
+								async.apply(db.sortedSetAdd, 'ip:recent', set.score, hash),
+								async.apply(db.sortedSetRemove, 'ip:recent', set.value),
+							],
+							(err) => {
+								progress.incr();
+								next(err);
+							}
+						);
+					},
+					next
+				);
+			},
+			{
+				withScores: 1,
+				progress: this.progress,
+			},
+			callback
+		);
 	},
 };

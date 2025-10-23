@@ -1,4 +1,3 @@
-
 'use strict';
 
 module.exports = function (module) {
@@ -18,7 +17,7 @@ module.exports = function (module) {
 
 		if (Array.isArray(key)) {
 			const batch = module.client.batch();
-			key.forEach(k => batch.zrem(k, value));
+			key.forEach((k) => batch.zrem(k, value));
 			await helpers.execBatch(batch);
 		} else {
 			await module.client.zrem(key, value);
@@ -31,7 +30,7 @@ module.exports = function (module) {
 
 	module.sortedSetsRemoveRangeByScore = async function (keys, min, max) {
 		const batch = module.client.batch();
-		keys.forEach(k => batch.zremrangebyscore(k, min, max));
+		keys.forEach((k) => batch.zremrangebyscore(k, min, max));
 		await helpers.execBatch(batch);
 	};
 
@@ -40,7 +39,7 @@ module.exports = function (module) {
 			return;
 		}
 		const batch = module.client.batch();
-		data.forEach(item => batch.zrem(item[0], item[1]));
+		data.forEach((item) => batch.zrem(item[0], item[1]));
 		await helpers.execBatch(batch);
 	};
 };

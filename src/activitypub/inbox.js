@@ -21,22 +21,26 @@ const helpers = require('./helpers');
 const inbox = module.exports;
 
 function reject(type, object, target, senderType = 'uid', id = 0) {
-	activitypub.send(senderType, id, target, {
-		id: `${helpers.resolveActor(senderType, id)}#/activity/reject/${encodeURIComponent(object.id)}`,
-		type: 'Reject',
-		object: {
-			type,
-			target,
-			object,
-		},
-	}).catch(err => winston.error(err.stack));
+	activitypub
+		.send(senderType, id, target, {
+			id: `${helpers.resolveActor(senderType, id)}#/activity/reject/${encodeURIComponent(object.id)}`,
+			type: 'Reject',
+			object: {
+				type,
+				target,
+				object,
+			},
+		})
+		.catch((err) => winston.error(err.stack));
 }
 
 inbox.create = async (req) => {
 	const { object, actor } = req.body;
 
 	// Alternative logic for non-public objects
-	const isPublic = [...(object.to || []), ...(object.cc || [])].includes(activitypub._constants.publicAddress);
+	const isPublic = [...(object.to || []), ...(object.cc || [])].includes(
+		activitypub._constants.publicAddress
+	);
 	if (!isPublic) {
 		return await activitypub.notes.assertPrivate(object);
 	}
@@ -67,7 +71,9 @@ inbox.add = async (req) => {
 		if (context) {
 			const { attributedTo } = await activitypub.get('uid', 0, context);
 			if (context === target && attributedTo === actor) {
-				activitypub.helpers.log(`[activitypub/inbox/add] Associating pid ${pid} with new context ${target}`);
+				activitypub.helpers.log(
+					`[activitypub/inbox/add] Associating pid ${pid} with new context ${target}`
+				);
 				await posts.setPostField(pid, 'context', target);
 			}
 		}
@@ -76,7 +82,9 @@ inbox.add = async (req) => {
 
 inbox.update = async (req) => {
 	const { actor, object } = req.body;
-	const isPublic = [...(object.to || []), ...(object.cc || [])].includes(activitypub._constants.publicAddress);
+	const isPublic = [...(object.to || []), ...(object.cc || [])].includes(
+		activitypub._constants.publicAddress
+	);
 
 	// Origin checking
 	const actorHostname = new URL(actor).hostname;
@@ -96,13 +104,20 @@ inbox.update = async (req) => {
 				switch (true) {
 					case isNote: {
 						const cid = await posts.getCidByPid(object.id);
-						const allowed = await privileges.categories.can('posts:edit', cid, activitypub._constants.uid);
+						const allowed = await privileges.categories.can(
+							'posts:edit',
+							cid,
+							activitypub._constants.uid
+						);
 						if (!allowed) {
 							throw new Error('[[error:no-privileges]]');
 						}
 
 						const postData = await activitypub.mocks.post(object);
-						postData.tags = await activitypub.notes._normalizeTags(postData._activitypub.tag, postData.cid);
+						postData.tags = await activitypub.notes._normalizeTags(
+							postData._activitypub.tag,
+							postData.cid
+						);
 						await posts.edit(postData);
 						const isDeleted = await posts.getPostField(object.id, 'deleted');
 						if (isDeleted) {
@@ -112,10 +127,21 @@ inbox.update = async (req) => {
 					}
 
 					case isMessage: {
-						const { roomId, deleted } = await messaging.getMessageFields(object.id, ['roomId', 'deleted']);
-						await messaging.editMessage(actor, object.id, roomId, object.content);
+						const { roomId, deleted } = await messaging.getMessageFields(
+							object.id,
+							['roomId', 'deleted']
+						);
+						await messaging.editMessage(
+							actor,
+							object.id,
+							roomId,
+							object.content
+						);
 						if (deleted) {
-							await api.chats.restoreMessage({ uid: actor }, { mid: object.id });
+							await api.chats.restoreMessage(
+								{ uid: actor },
+								{ mid: object.id }
+							);
 						}
 						break;
 					}
@@ -131,7 +157,9 @@ inbox.update = async (req) => {
 							cid = Array.from(cids)[0];
 						}
 
-						const asserted = await activitypub.notes.assert(0, object.id, { cid });
+						const asserted = await activitypub.notes.assert(0, object.id, {
+							cid,
+						});
 						if (asserted) {
 							activitypub.feps.announce(object.id, req.body);
 						}
@@ -150,7 +178,7 @@ inbox.update = async (req) => {
 		}
 
 		case object.type === 'Tombstone': {
-			const [isNote, isMessage/* , isActor */] = await Promise.all([
+			const [isNote, isMessage /* , isActor */] = await Promise.all([
 				posts.exists(object.id),
 				messaging.messageExists(object.id),
 				// db.isSortedSetMember('usersRemote:lastCrawled', object.id),
@@ -209,7 +237,7 @@ inbox.delete = async (req) => {
 		return reject('Delete', object, actor);
 	}
 
-	const [isNote/* , isActor */] = await Promise.all([
+	const [isNote /* , isActor */] = await Promise.all([
 		posts.exists(pid),
 		// db.isSortedSetMember('usersRemote:lastCrawled', object.id),
 	]);
@@ -217,7 +245,11 @@ inbox.delete = async (req) => {
 	switch (true) {
 		case isNote: {
 			const cid = await posts.getCidByPid(pid);
-			const allowed = await privileges.categories.can('posts:edit', cid, activitypub._constants.uid);
+			const allowed = await privileges.categories.can(
+				'posts:edit',
+				cid,
+				activitypub._constants.uid
+			);
 			if (!allowed) {
 				return reject('Delete', object, actor);
 			}
@@ -234,7 +266,9 @@ inbox.delete = async (req) => {
 		// }
 
 		default: {
-			activitypub.helpers.log(`[activitypub/inbox.delete] Object (${pid}) does not exist locally. Doing nothing.`);
+			activitypub.helpers.log(
+				`[activitypub/inbox.delete] Object (${pid}) does not exist locally. Doing nothing.`
+			);
 			break;
 		}
 	}
@@ -248,9 +282,15 @@ inbox.like = async (req) => {
 		return reject('Like', object, actor);
 	}
 
-	const allowed = await privileges.posts.can('posts:upvote', id, activitypub._constants.uid);
+	const allowed = await privileges.posts.can(
+		'posts:upvote',
+		id,
+		activitypub._constants.uid
+	);
 	if (!allowed) {
-		activitypub.helpers.log(`[activitypub/inbox.like] ${id} not allowed to be upvoted.`);
+		activitypub.helpers.log(
+			`[activitypub/inbox.like] ${id} not allowed to be upvoted.`
+		);
 		return reject('Like', object, actor);
 	}
 
@@ -263,9 +303,12 @@ inbox.like = async (req) => {
 
 inbox.announce = async (req) => {
 	let { actor, object, published, to, cc } = req.body;
-	activitypub.helpers.log(`[activitypub/inbox/announce] Parsing Announce(${object.type}) from ${actor}`);
+	activitypub.helpers.log(
+		`[activitypub/inbox/announce] Parsing Announce(${object.type}) from ${actor}`
+	);
 	let timestamp = new Date(published);
-	timestamp = timestamp.toString() !== 'Invalid Date' ? timestamp.getTime() : Date.now();
+	timestamp =
+		timestamp.toString() !== 'Invalid Date' ? timestamp.getTime() : Date.now();
 
 	const assertion = await activitypub.actors.assert(actor);
 	if (!assertion) {
@@ -288,7 +331,7 @@ inbox.announce = async (req) => {
 		cid = actor;
 	}
 
-	switch(true) {
+	switch (true) {
 		case object.type === 'Like': {
 			const id = object.object.id || object.object;
 			const { id: localId } = await activitypub.helpers.resolveLocalId(id);
@@ -320,8 +363,11 @@ inbox.announce = async (req) => {
 
 		// Announce(Object)
 		case activitypub._constants.acceptedPostTypes.includes(object.type): {
-			if (String(object.id).startsWith(nconf.get('url'))) { // Local object
-				const { type, id } = await activitypub.helpers.resolveLocalId(object.id);
+			if (String(object.id).startsWith(nconf.get('url'))) {
+				// Local object
+				const { type, id } = await activitypub.helpers.resolveLocalId(
+					object.id
+				);
 				if (type !== 'post' || !(await posts.exists(id))) {
 					reject('Announce', object, actor);
 					return;
@@ -330,13 +376,22 @@ inbox.announce = async (req) => {
 				pid = id;
 				tid = await posts.getPostField(id, 'tid');
 
-				socketHelpers.sendNotificationToPostOwner(pid, actor, 'announce', 'notifications:activitypub.announce');
-			} else { // Remote object
+				socketHelpers.sendNotificationToPostOwner(
+					pid,
+					actor,
+					'announce',
+					'notifications:activitypub.announce'
+				);
+			} else {
+				// Remote object
 				// Follower check
 				if (!cid) {
-					const { followers } = await activitypub.actors.getLocalFollowCounts(actor);
+					const { followers } =
+						await activitypub.actors.getLocalFollowCounts(actor);
 					if (!followers) {
-						winston.verbose(`[activitypub/inbox.announce] Rejecting ${object.id} via ${actor} due to no followers`);
+						winston.verbose(
+							`[activitypub/inbox.announce] Rejecting ${object.id} via ${actor} due to no followers`
+						);
 						reject('Announce', object, actor);
 						return;
 					}
@@ -348,7 +403,10 @@ inbox.announce = async (req) => {
 					return;
 				}
 
-				const assertion = await activitypub.notes.assert(0, pid, { cid, skipChecks: true });
+				const assertion = await activitypub.notes.assert(0, pid, {
+					cid,
+					skipChecks: true,
+				});
 				if (!assertion) {
 					return;
 				}
@@ -358,7 +416,8 @@ inbox.announce = async (req) => {
 				await activitypub.notes.syncUserInboxes(tid);
 			}
 
-			if (!cid) { // Topic events from actors followed by users only
+			if (!cid) {
+				// Topic events from actors followed by users only
 				await activitypub.notes.announce.add(pid, actor, timestamp);
 			}
 		}
@@ -402,16 +461,18 @@ inbox.follow = async (req) => {
 		await user.setUserField(id, 'followerRemoteCount', followerRemoteCount);
 
 		await user.onFollow(actor, id);
-		activitypub.send('uid', id, actor, {
-			id: `${nconf.get('url')}/${type}/${id}#activity/accept:follow/${handle}/${Date.now()}`,
-			type: 'Accept',
-			object: {
-				id: followId,
-				type: 'Follow',
-				actor,
-				object: object.id,
-			},
-		}).catch(err => winston.error(err.stack));
+		activitypub
+			.send('uid', id, actor, {
+				id: `${nconf.get('url')}/${type}/${id}#activity/accept:follow/${handle}/${Date.now()}`,
+				type: 'Accept',
+				object: {
+					id: followId,
+					type: 'Follow',
+					actor,
+					object: object.id,
+				},
+			})
+			.catch((err) => winston.error(err.stack));
 	} else if (type === 'category') {
 		const [exists, allowed] = await Promise.all([
 			categories.exists(id),
@@ -426,19 +487,25 @@ inbox.follow = async (req) => {
 
 		const watchState = await categories.getWatchState([id], actor);
 		if (watchState[0] !== categories.watchStates.tracking) {
-			await user.setCategoryWatchState(actor, id, categories.watchStates.tracking);
+			await user.setCategoryWatchState(
+				actor,
+				id,
+				categories.watchStates.tracking
+			);
 		}
 
-		activitypub.send('cid', id, actor, {
-			id: `${nconf.get('url')}/${type}/${id}#activity/accept:follow/${handle}/${Date.now()}`,
-			type: 'Accept',
-			object: {
-				id: followId,
-				type: 'Follow',
-				actor,
-				object: object.id,
-			},
-		}).catch(err => winston.error(err.stack));
+		activitypub
+			.send('cid', id, actor, {
+				id: `${nconf.get('url')}/${type}/${id}#activity/accept:follow/${handle}/${Date.now()}`,
+				type: 'Accept',
+				object: {
+					id: followId,
+					type: 'Follow',
+					actor,
+					object: object.id,
+				},
+			})
+			.catch((err) => winston.error(err.stack));
 	}
 };
 
@@ -465,24 +532,32 @@ inbox.accept = async (req) => {
 
 	if (type === 'Follow') {
 		if (localType === 'user') {
-			if (!await db.isSortedSetMember(`followRequests:uid.${id}`, actor)) {
+			if (!(await db.isSortedSetMember(`followRequests:uid.${id}`, actor))) {
 				if (await db.isSortedSetMember(`followingRemote:${id}`, actor)) return; // already following
 				return reject('Accept', req.body, actor); // not following, not requested, so reject to hopefully stop retries
 			}
-			const timestamp = await db.sortedSetScore(`followRequests:uid.${id}`, actor);
+			const timestamp = await db.sortedSetScore(
+				`followRequests:uid.${id}`,
+				actor
+			);
 			await Promise.all([
 				db.sortedSetRemove(`followRequests:uid.${id}`, actor),
 				db.sortedSetAdd(`followingRemote:${id}`, timestamp, actor),
 				db.sortedSetAdd(`followersRemote:${actor}`, timestamp, id), // for followers backreference and notes assertion checking
 			]);
-			const followingRemoteCount = await db.sortedSetCard(`followingRemote:${id}`);
+			const followingRemoteCount = await db.sortedSetCard(
+				`followingRemote:${id}`
+			);
 			await user.setUserField(id, 'followingRemoteCount', followingRemoteCount);
 		} else if (localType === 'category') {
-			if (!await db.isSortedSetMember(`followRequests:cid.${id}`, actor)) {
+			if (!(await db.isSortedSetMember(`followRequests:cid.${id}`, actor))) {
 				if (await db.isSortedSetMember(`cid:${id}:following`, actor)) return; // already following
 				return reject('Accept', req.body, actor); // not following, not requested, so reject to hopefully stop retries
 			}
-			const timestamp = await db.sortedSetScore(`followRequests:cid.${id}`, actor);
+			const timestamp = await db.sortedSetScore(
+				`followRequests:cid.${id}`,
+				actor
+			);
 			await Promise.all([
 				db.sortedSetRemove(`followRequests:cid.${id}`, actor),
 				db.sortedSetAdd(`cid:${id}:following`, timestamp, actor),
@@ -508,7 +583,9 @@ inbox.undo = async (req) => {
 
 	let { type: localType, id } = await helpers.resolveLocalId(object.object);
 
-	winston.verbose(`[activitypub/inbox/undo] ${type} ${localType && id ? `${localType} ${id}` : object.object} via ${actor}`);
+	winston.verbose(
+		`[activitypub/inbox/undo] ${type} ${localType && id ? `${localType} ${id}` : object.object} via ${actor}`
+	);
 
 	switch (type) {
 		case 'Follow': {
@@ -523,8 +600,14 @@ inbox.undo = async (req) => {
 						db.sortedSetRemove(`followersRemote:${id}`, actor),
 						db.sortedSetRemove(`followingRemote:${actor}`, id),
 					]);
-					const followerRemoteCount = await db.sortedSetCard(`followerRemote:${id}`);
-					await user.setUserField(id, 'followerRemoteCount', followerRemoteCount);
+					const followerRemoteCount = await db.sortedSetCard(
+						`followerRemote:${id}`
+					);
+					await user.setUserField(
+						id,
+						'followerRemoteCount',
+						followerRemoteCount
+					);
 					notifications.rescind(`follow:${id}:uid:${actor}`);
 					break;
 				}
@@ -535,7 +618,11 @@ inbox.undo = async (req) => {
 						throw new Error('[[error:invalid-cid]]');
 					}
 
-					await user.setCategoryWatchState(actor, id, categories.watchStates.notwatching);
+					await user.setCategoryWatchState(
+						actor,
+						id,
+						categories.watchStates.notwatching
+					);
 					break;
 				}
 			}
@@ -550,9 +637,15 @@ inbox.undo = async (req) => {
 				break;
 			}
 
-			const allowed = await privileges.posts.can('posts:upvote', id, activitypub._constants.uid);
+			const allowed = await privileges.posts.can(
+				'posts:upvote',
+				id,
+				activitypub._constants.uid
+			);
 			if (!allowed) {
-				winston.verbose(`[activitypub/inbox.like] ${id} not allowed to be upvoted.`);
+				winston.verbose(
+					`[activitypub/inbox.like] ${id} not allowed to be upvoted.`
+				);
 				reject('Like', object, actor);
 				break;
 			}
@@ -567,7 +660,9 @@ inbox.undo = async (req) => {
 			id = id || object.object; // remote announces
 			const exists = await posts.exists(id);
 			if (!exists) {
-				activitypub.helpers.log(`[activitypub/inbox/undo] Attempted to undo announce of ${id} but couldn't find it, so doing nothing.`);
+				activitypub.helpers.log(
+					`[activitypub/inbox/undo] Attempted to undo announce of ${id} but couldn't find it, so doing nothing.`
+				);
 				break;
 			}
 
@@ -579,14 +674,18 @@ inbox.undo = async (req) => {
 			if (!Array.isArray(object.object)) {
 				object.object = [object.object];
 			}
-			await Promise.all(object.object.map(async (subject) => {
-				const { type, id } = await activitypub.helpers.resolveLocalId(subject.id);
-				try {
-					await flags.rescindReport(type, id, actor);
-				} catch (e) {
-					reject('Undo', { type: 'Flag', object: [subject] }, actor);
-				}
-			}));
+			await Promise.all(
+				object.object.map(async (subject) => {
+					const { type, id } = await activitypub.helpers.resolveLocalId(
+						subject.id
+					);
+					try {
+						await flags.rescindReport(type, id, actor);
+					} catch (e) {
+						reject('Undo', { type: 'Flag', object: [subject] }, actor);
+					}
+				})
+			);
 			break;
 		}
 	}
@@ -596,18 +695,25 @@ inbox.flag = async (req) => {
 	const objects = Array.isArray(object) ? object : [object];
 
 	// Check if the actor is valid
-	if (!await activitypub.actors.assert(actor)) {
+	if (!(await activitypub.actors.assert(actor))) {
 		return reject('Flag', objects, actor);
 	}
 
-	await Promise.all(objects.map(async (subject, index) => {
-		const { type, id } = await activitypub.helpers.resolveObjects(subject.id);
-		try {
-			await flags.create(activitypub.helpers.mapToLocalType(type), id, actor, content);
-		} catch (e) {
-			reject('Flag', objects[index], actor);
-		}
-	}));
+	await Promise.all(
+		objects.map(async (subject, index) => {
+			const { type, id } = await activitypub.helpers.resolveObjects(subject.id);
+			try {
+				await flags.create(
+					activitypub.helpers.mapToLocalType(type),
+					id,
+					actor,
+					content
+				);
+			} catch (e) {
+				reject('Flag', objects[index], actor);
+			}
+		})
+	);
 };
 
 inbox.reject = async (req) => {

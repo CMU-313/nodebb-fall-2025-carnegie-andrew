@@ -30,7 +30,7 @@ const PubSub = function () {
 
 	connection.connect().then((client) => {
 		self.pubClient = client;
-		self.queue.forEach(payload => client.publish(channelName, payload));
+		self.queue.forEach((payload) => client.publish(channelName, payload));
 		self.queue.length = 0;
 	});
 };

@@ -16,28 +16,35 @@ module.exports = {
 		progress.total = allRoomIds.length;
 
 		for (const roomId of allRoomIds) {
-			await batch.processSortedSet(`chat:room:${roomId}:mids`, async (mids) => {
-				let messageData = await db.getObjects(mids.map(mid => `message:${mid}`));
-				messageData.forEach((m, idx) => {
-					if (m) {
-						m.mid = parseInt(mids[idx], 10);
-					}
-				});
-				messageData = messageData.filter(Boolean);
+			await batch.processSortedSet(
+				`chat:room:${roomId}:mids`,
+				async (mids) => {
+					let messageData = await db.getObjects(
+						mids.map((mid) => `message:${mid}`)
+					);
+					messageData.forEach((m, idx) => {
+						if (m) {
+							m.mid = parseInt(mids[idx], 10);
+						}
+					});
+					messageData = messageData.filter(Boolean);
 
-				const bulkSet = messageData.map(
-					msg => [`message:${msg.mid}`, { mid: msg.mid }]
-				);
+					const bulkSet = messageData.map((msg) => [
+						`message:${msg.mid}`,
+						{ mid: msg.mid },
+					]);
 
-				await db.setObjectBulk(bulkSet);
-				await db.sortedSetAdd(
-					'messages:mid',
-					messageData.map(msg => msg.timestamp),
-					messageData.map(msg => msg.mid)
-				);
-			}, {
-				batch: 500,
-			});
+					await db.setObjectBulk(bulkSet);
+					await db.sortedSetAdd(
+						'messages:mid',
+						messageData.map((msg) => msg.timestamp),
+						messageData.map((msg) => msg.mid)
+					);
+				},
+				{
+					batch: 500,
+				}
+			);
 			progress.incr(1);
 		}
 

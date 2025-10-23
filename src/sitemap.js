@@ -38,42 +38,52 @@ sitemap.render = async function () {
 };
 
 async function getSitemapPages() {
-	const urls = [{
-		url: '',
-		changefreq: 'weekly',
-		priority: 0.6,
-	}, {
-		url: `${nconf.get('relative_path')}/recent`,
-		changefreq: 'daily',
-		priority: 0.4,
-	}, {
-		url: `${nconf.get('relative_path')}/users`,
-		changefreq: 'daily',
-		priority: 0.4,
-	}, {
-		url: `${nconf.get('relative_path')}/groups`,
-		changefreq: 'daily',
-		priority: 0.4,
-	}];
+	const urls = [
+		{
+			url: '',
+			changefreq: 'weekly',
+			priority: 0.6,
+		},
+		{
+			url: `${nconf.get('relative_path')}/recent`,
+			changefreq: 'daily',
+			priority: 0.4,
+		},
+		{
+			url: `${nconf.get('relative_path')}/users`,
+			changefreq: 'daily',
+			priority: 0.4,
+		},
+		{
+			url: `${nconf.get('relative_path')}/groups`,
+			changefreq: 'daily',
+			priority: 0.4,
+		},
+	];
 
-	const data = await plugins.hooks.fire('filter:sitemap.getPages', { urls: urls });
+	const data = await plugins.hooks.fire('filter:sitemap.getPages', {
+		urls: urls,
+	});
 	return data.urls;
 }
 
 sitemap.getPages = async function () {
-	if (sitemap.maps.pages && Date.now() < sitemap.maps.pagesCacheExpireTimestamp) {
+	if (
+		sitemap.maps.pages &&
+		Date.now() < sitemap.maps.pagesCacheExpireTimestamp
+	) {
 		return sitemap.maps.pages;
 	}
 
 	const urls = await getSitemapPages();
 	if (!urls.length) {
 		sitemap.maps.pages = '';
-		sitemap.maps.pagesCacheExpireTimestamp = Date.now() + (1000 * 60 * 60 * 24);
+		sitemap.maps.pagesCacheExpireTimestamp = Date.now() + 1000 * 60 * 60 * 24;
 		return sitemap.maps.pages;
 	}
 
 	sitemap.maps.pages = await urlsToSitemap(urls);
-	sitemap.maps.pagesCacheExpireTimestamp = Date.now() + (1000 * 60 * 60 * 24);
+	sitemap.maps.pagesCacheExpireTimestamp = Date.now() + 1000 * 60 * 60 * 24;
 	return sitemap.maps.pages;
 };
 
@@ -87,7 +97,10 @@ async function getSitemapCategories() {
 }
 
 sitemap.getCategories = async function () {
-	if (sitemap.maps.categories && Date.now() < sitemap.maps.categoriesCacheExpireTimestamp) {
+	if (
+		sitemap.maps.categories &&
+		Date.now() < sitemap.maps.categoriesCacheExpireTimestamp
+	) {
 		return sitemap.maps.categories;
 	}
 
@@ -105,12 +118,14 @@ sitemap.getCategories = async function () {
 
 	if (!categoryUrls.length) {
 		sitemap.maps.categories = '';
-		sitemap.maps.categoriesCacheExpireTimestamp = Date.now() + (1000 * 60 * 60 * 24);
+		sitemap.maps.categoriesCacheExpireTimestamp =
+			Date.now() + 1000 * 60 * 60 * 24;
 		return sitemap.maps.categories;
 	}
 
 	sitemap.maps.categories = await urlsToSitemap(categoryUrls);
-	sitemap.maps.categoriesCacheExpireTimestamp = Date.now() + (1000 * 60 * 60 * 24);
+	sitemap.maps.categoriesCacheExpireTimestamp =
+		Date.now() + 1000 * 60 * 60 * 24;
 	return sitemap.maps.categories;
 };
 
@@ -123,14 +138,22 @@ sitemap.getTopicPage = async function (page) {
 	const start = (parseInt(page, 10) - 1) * numTopics;
 	const stop = start + numTopics - 1;
 
-	if (sitemap.maps.topics[page - 1] && Date.now() < sitemap.maps.topics[page - 1].cacheExpireTimestamp) {
+	if (
+		sitemap.maps.topics[page - 1] &&
+		Date.now() < sitemap.maps.topics[page - 1].cacheExpireTimestamp
+	) {
 		return sitemap.maps.topics[page - 1].sm;
 	}
 
 	const topicUrls = [];
 	let tids = await db.getSortedSetRange('topics:tid', start, stop);
 	tids = await privileges.topics.filterTids('topics:read', tids, 0);
-	const topicData = await topics.getTopicsFields(tids, ['tid', 'title', 'slug', 'lastposttime']);
+	const topicData = await topics.getTopicsFields(tids, [
+		'tid',
+		'title',
+		'slug',
+		'lastposttime',
+	]);
 
 	const data = await plugins.hooks.fire('filter:sitemap.getCategories', {
 		page: page,
@@ -140,7 +163,7 @@ sitemap.getTopicPage = async function (page) {
 	if (!data.topics.length) {
 		sitemap.maps.topics[page - 1] = {
 			sm: '',
-			cacheExpireTimestamp: Date.now() + (1000 * 60 * 60 * 24),
+			cacheExpireTimestamp: Date.now() + 1000 * 60 * 60 * 24,
 		};
 		return sitemap.maps.topics[page - 1].sm;
 	}
@@ -158,7 +181,7 @@ sitemap.getTopicPage = async function (page) {
 
 	sitemap.maps.topics[page - 1] = {
 		sm: await urlsToSitemap(topicUrls),
-		cacheExpireTimestamp: Date.now() + (1000 * 60 * 60 * 24),
+		cacheExpireTimestamp: Date.now() + 1000 * 60 * 60 * 24,
 	};
 
 	return sitemap.maps.topics[page - 1].sm;
@@ -169,7 +192,7 @@ async function urlsToSitemap(urls) {
 		return '';
 	}
 	const smStream = new SitemapStream({ hostname: nconf.get('url') });
-	urls.forEach(url => smStream.write(url));
+	urls.forEach((url) => smStream.write(url));
 	smStream.end();
 	return (await streamToPromise(smStream)).toString();
 }

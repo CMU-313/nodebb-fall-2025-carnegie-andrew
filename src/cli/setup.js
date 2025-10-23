@@ -16,7 +16,9 @@ async function setup(initConfig) {
 	winston.info('NodeBB Setup Triggered via Command Line');
 
 	console.log(`\nWelcome to NodeBB v${pkg.version}!`);
-	console.log('\nThis looks like a new installation, so you\'ll have to answer a few questions about your environment before we can proceed.');
+	console.log(
+		"\nThis looks like a new installation, so you'll have to answer a few questions about your environment before we can proceed."
+	);
 	console.log('Press enter to accept the default setting (shown in brackets).');
 
 	install.values = initConfig;
@@ -49,7 +51,9 @@ async function setup(initConfig) {
 		console.log(`    Password: ${data.password}`);
 		console.log('');
 	}
-	console.log('NodeBB Setup Completed. Run "./nodebb start" to manually start your NodeBB server.');
+	console.log(
+		'NodeBB Setup Completed. Run "./nodebb start" to manually start your NodeBB server.'
+	);
 
 	// If I am a child process, notify the parent of the returned data before exiting
 	// (useful for notifying hosts during headless setups)

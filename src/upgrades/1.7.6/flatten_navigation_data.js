@@ -6,7 +6,11 @@ module.exports = {
 	name: 'Flatten navigation data',
 	timestamp: Date.UTC(2018, 1, 17),
 	method: async function () {
-		const data = await db.getSortedSetRangeWithScores('navigation:enabled', 0, -1);
+		const data = await db.getSortedSetRangeWithScores(
+			'navigation:enabled',
+			0,
+			-1
+		);
 		const order = [];
 		const items = [];
 		data.forEach((item) => {

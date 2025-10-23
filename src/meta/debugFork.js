@@ -2,10 +2,12 @@
 
 const { fork } = require('child_process');
 
-let debugArg = process.execArgv.find(arg => /^--(debug|inspect)/.test(arg));
+let debugArg = process.execArgv.find((arg) => /^--(debug|inspect)/.test(arg));
 const debugging = !!debugArg;
 
-debugArg = debugArg ? debugArg.replace('-brk', '').split('=') : ['--debug', 5859];
+debugArg = debugArg
+	? debugArg.replace('-brk', '').split('=')
+	: ['--debug', 5859];
 let lastAddress = parseInt(debugArg[1], 10);
 
 /**

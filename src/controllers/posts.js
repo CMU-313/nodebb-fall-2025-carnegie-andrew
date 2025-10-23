@@ -14,7 +14,9 @@ const helpers = require('./helpers');
 const postsController = module.exports;
 
 postsController.redirectToPost = async function (req, res, next) {
-	const pid = utils.isNumber(req.params.pid) ? parseInt(req.params.pid, 10) : req.params.pid;
+	const pid = utils.isNumber(req.params.pid)
+		? parseInt(req.params.pid, 10)
+		: req.params.pid;
 	if (!pid) {
 		return next();
 	}
@@ -40,7 +42,10 @@ postsController.redirectToPost = async function (req, res, next) {
 
 	if (meta.config.activitypubEnabled) {
 		// Include link header for richer parsing
-		res.set('Link', `<${nconf.get('url')}/post/${req.params.pid}>; rel="alternate"; type="application/activity+json"`);
+		res.set(
+			'Link',
+			`<${nconf.get('url')}/post/${req.params.pid}>; rel="alternate"; type="application/activity+json"`
+		);
 	}
 
 	const qs = querystring.stringify(req.query);
@@ -52,6 +57,11 @@ postsController.getRecentPosts = async function (req, res) {
 	const postsPerPage = 20;
 	const start = Math.max(0, (page - 1) * postsPerPage);
 	const stop = start + postsPerPage - 1;
-	const data = await posts.getRecentPosts(req.uid, start, stop, req.params.term);
+	const data = await posts.getRecentPosts(
+		req.uid,
+		start,
+		stop,
+		req.params.term
+	);
 	res.json(data);
 };

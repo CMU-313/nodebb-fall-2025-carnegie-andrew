@@ -13,7 +13,10 @@ connection.getConnectionString = function (mongo) {
 	const uri = mongo.uri || '';
 	if (mongo.username && mongo.password) {
 		usernamePassword = `${mongo.username}:${encodeURIComponent(mongo.password)}@`;
-	} else if (!uri.includes('@') || !uri.slice(uri.indexOf('://') + 3, uri.indexOf('@'))) {
+	} else if (
+		!uri.includes('@') ||
+		!uri.slice(uri.indexOf('://') + 3, uri.indexOf('@'))
+	) {
 		winston.warn('You have no mongo username/password setup!');
 	}
 
@@ -38,7 +41,9 @@ connection.getConnectionString = function (mongo) {
 		servers.push(`${hosts[i]}:${ports[i]}`);
 	}
 
-	return uri || `mongodb://${usernamePassword}${servers.join()}/${mongo.database}`;
+	return (
+		uri || `mongodb://${usernamePassword}${servers.join()}/${mongo.database}`
+	);
 };
 
 connection.getConnectionOptions = function (mongo) {

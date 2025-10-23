@@ -1,4 +1,3 @@
-
 'use strict';
 
 const _ = require('lodash');
@@ -20,7 +19,10 @@ privsUsers.isGlobalModerator = async function (uid) {
 };
 
 async function isGroupMember(uid, groupName) {
-	return await groups[Array.isArray(uid) ? 'isMembers' : 'isMember'](uid, groupName);
+	return await groups[Array.isArray(uid) ? 'isMembers' : 'isMember'](
+		uid,
+		groupName
+	);
 }
 
 privsUsers.isModerator = async function (uid, cid) {
@@ -34,18 +36,26 @@ privsUsers.isModerator = async function (uid, cid) {
 
 async function isModeratorOfCategories(cids, uid) {
 	if (parseInt(uid, 10) <= 0) {
-		return await filterIsModerator(cids, uid, cids.map(() => false));
+		return await filterIsModerator(
+			cids,
+			uid,
+			cids.map(() => false)
+		);
 	}
 
 	const isGlobalModerator = await privsUsers.isGlobalModerator(uid);
 	if (isGlobalModerator) {
-		return await filterIsModerator(cids, uid, cids.map(() => true));
+		return await filterIsModerator(
+			cids,
+			uid,
+			cids.map(() => true)
+		);
 	}
 	const uniqueCids = _.uniq(cids);
 	const isAllowed = await helpers.isAllowedTo('moderate', uid, uniqueCids);
 
 	const cidToIsAllowed = _.zipObject(uniqueCids, isAllowed);
-	const isModerator = cids.map(cid => cidToIsAllowed[cid]);
+	const isModerator = cids.map((cid) => cidToIsAllowed[cid]);
 	return await filterIsModerator(cids, uid, isModerator);
 }
 
@@ -55,7 +65,9 @@ async function isModeratorsOfCategory(cid, uids) {
 		groups.isMembers(uids, `cid:${cid}:privileges:moderate`),
 		groups.isMembersOfGroupList(uids, `cid:${cid}:privileges:groups:moderate`),
 	]);
-	const isModerator = uids.map((uid, idx) => check1[idx] || check2[idx] || check3[idx]);
+	const isModerator = uids.map(
+		(uid, idx) => check1[idx] || check2[idx] || check3[idx]
+	);
 	return await filterIsModerator(cid, uids, isModerator);
 }
 
@@ -65,8 +77,15 @@ async function isModeratorOfCategory(cid, uid) {
 }
 
 async function filterIsModerator(cid, uid, isModerator) {
-	const data = await plugins.hooks.fire('filter:user.isModerator', { uid: uid, cid: cid, isModerator: isModerator });
-	if ((Array.isArray(uid) || Array.isArray(cid)) && !Array.isArray(data.isModerator)) {
+	const data = await plugins.hooks.fire('filter:user.isModerator', {
+		uid: uid,
+		cid: cid,
+		isModerator: isModerator,
+	});
+	if (
+		(Array.isArray(uid) || Array.isArray(cid)) &&
+		!Array.isArray(data.isModerator)
+	) {
 		throw new Error('filter:user.isModerator - i/o mismatch');
 	}
 
@@ -78,12 +97,13 @@ privsUsers.canEdit = async function (callerUid, uid) {
 		return true;
 	}
 
-	const [isAdmin, isGlobalMod, isTargetAdmin, isUserAllowedTo] = await Promise.all([
-		privsUsers.isAdministrator(callerUid),
-		privsUsers.isGlobalModerator(callerUid),
-		privsUsers.isAdministrator(uid),
-		helpers.isAllowedTo('admin:users', callerUid, [0]),
-	]);
+	const [isAdmin, isGlobalMod, isTargetAdmin, isUserAllowedTo] =
+		await Promise.all([
+			privsUsers.isAdministrator(callerUid),
+			privsUsers.isGlobalModerator(callerUid),
+			privsUsers.isAdministrator(uid),
+			helpers.isAllowedTo('admin:users', callerUid, [0]),
+		]);
 	const canManageUsers = isUserAllowedTo[0];
 	const data = await plugins.hooks.fire('filter:user.canEdit', {
 		isAdmin: isAdmin,
@@ -128,13 +148,14 @@ privsUsers.canMuteUser = async function (callerUid, uid) {
 };
 
 privsUsers.canFlag = async function (callerUid, uid) {
-	const [userReputation, targetPrivileged, reporterPrivileged] = await Promise.all([
-		user.getUserField(callerUid, 'reputation'),
-		user.isPrivileged(uid),
-		user.isPrivileged(callerUid),
-	]);
+	const [userReputation, targetPrivileged, reporterPrivileged] =
+		await Promise.all([
+			user.getUserField(callerUid, 'reputation'),
+			user.isPrivileged(uid),
+			user.isPrivileged(callerUid),
+		]);
 	const minimumReputation = meta.config['min:rep:flag'];
-	let canFlag = reporterPrivileged || (userReputation >= minimumReputation);
+	let canFlag = reporterPrivileged || userReputation >= minimumReputation;
 
 	if (targetPrivileged && !reporterPrivileged) {
 		canFlag = false;
@@ -143,15 +164,24 @@ privsUsers.canFlag = async function (callerUid, uid) {
 	return { flag: canFlag };
 };
 
-privsUsers.hasBanPrivilege = async uid => await hasGlobalPrivilege('ban', uid);
-privsUsers.hasMutePrivilege = async uid => await hasGlobalPrivilege('mute', uid);
-privsUsers.hasInvitePrivilege = async uid => await hasGlobalPrivilege('invite', uid);
+privsUsers.hasBanPrivilege = async (uid) =>
+	await hasGlobalPrivilege('ban', uid);
+privsUsers.hasMutePrivilege = async (uid) =>
+	await hasGlobalPrivilege('mute', uid);
+privsUsers.hasInvitePrivilege = async (uid) =>
+	await hasGlobalPrivilege('invite', uid);
 
 async function hasGlobalPrivilege(privilege, uid) {
 	const privsGlobal = require('./global');
-	const privilegeName = privilege.split('-').map(word => word.slice(0, 1).toUpperCase() + word.slice(1)).join('');
+	const privilegeName = privilege
+		.split('-')
+		.map((word) => word.slice(0, 1).toUpperCase() + word.slice(1))
+		.join('');
 	let payload = { uid };
 	payload[`can${privilegeName}`] = await privsGlobal.can(privilege, uid);
-	payload = await plugins.hooks.fire(`filter:user.has${privilegeName}Privilege`, payload);
+	payload = await plugins.hooks.fire(
+		`filter:user.has${privilegeName}Privilege`,
+		payload
+	);
 	return payload[`can${privilegeName}`];
 }

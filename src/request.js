@@ -32,7 +32,10 @@ async function call(url, method, { body, timeout, jar, ...config } = {}) {
 	}
 
 	if (body && ['POST', 'PUT', 'PATCH', 'DEL', 'DELETE'].includes(method)) {
-		if (opts.headers['content-type'] && jsonTest.test(opts.headers['content-type'])) {
+		if (
+			opts.headers['content-type'] &&
+			jsonTest.test(opts.headers['content-type'])
+		) {
 			opts.body = JSON.stringify(body);
 		} else {
 			opts.body = body;
@@ -40,7 +43,8 @@ async function call(url, method, { body, timeout, jar, ...config } = {}) {
 	}
 	// Workaround for https://github.com/nodejs/undici/issues/1305
 	if (global[Symbol.for('undici.globalDispatcher.1')] !== undefined) {
-		class FetchAgent extends global[Symbol.for('undici.globalDispatcher.1')].constructor {
+		class FetchAgent extends global[Symbol.for('undici.globalDispatcher.1')]
+			.constructor {
 			dispatch(opts, handler) {
 				delete opts.headers['sec-fetch-mode'];
 				return super.dispatch(opts, handler);
@@ -91,5 +95,3 @@ const { body, response } = await request.post('someurl', { body: { foo: 1, baz: 
 exports.post = async (url, config) => call(url, 'POST', config);
 exports.put = async (url, config) => call(url, 'PUT', config);
 exports.patch = async (url, config) => call(url, 'PATCH', config);
-
-

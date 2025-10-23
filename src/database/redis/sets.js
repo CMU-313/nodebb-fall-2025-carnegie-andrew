@@ -18,7 +18,7 @@ module.exports = function (module) {
 			return;
 		}
 		const batch = module.client.batch();
-		keys.forEach(k => batch.sadd(String(k), String(value)));
+		keys.forEach((k) => batch.sadd(String(k), String(value)));
 		await helpers.execBatch(batch);
 	};
 
@@ -34,13 +34,13 @@ module.exports = function (module) {
 		}
 
 		const batch = module.client.batch();
-		key.forEach(k => batch.srem(String(k), value));
+		key.forEach((k) => batch.srem(String(k), value));
 		await helpers.execBatch(batch);
 	};
 
 	module.setsRemove = async function (keys, value) {
 		const batch = module.client.batch();
-		keys.forEach(k => batch.srem(String(k), value));
+		keys.forEach((k) => batch.srem(String(k), value));
 		await helpers.execBatch(batch);
 	};
 
@@ -51,14 +51,14 @@ module.exports = function (module) {
 
 	module.isSetMembers = async function (key, values) {
 		const batch = module.client.batch();
-		values.forEach(v => batch.sismember(String(key), String(v)));
+		values.forEach((v) => batch.sismember(String(key), String(v)));
 		const results = await helpers.execBatch(batch);
 		return results ? helpers.resultsToBool(results) : null;
 	};
 
 	module.isMemberOfSets = async function (sets, value) {
 		const batch = module.client.batch();
-		sets.forEach(s => batch.sismember(String(s), String(value)));
+		sets.forEach((s) => batch.sismember(String(s), String(value)));
 		const results = await helpers.execBatch(batch);
 		return results ? helpers.resultsToBool(results) : null;
 	};
@@ -69,7 +69,7 @@ module.exports = function (module) {
 
 	module.getSetsMembers = async function (keys) {
 		const batch = module.client.batch();
-		keys.forEach(k => batch.smembers(String(k)));
+		keys.forEach((k) => batch.smembers(String(k)));
 		return await helpers.execBatch(batch);
 	};
 
@@ -79,7 +79,7 @@ module.exports = function (module) {
 
 	module.setsCount = async function (keys) {
 		const batch = module.client.batch();
-		keys.forEach(k => batch.scard(String(k)));
+		keys.forEach((k) => batch.scard(String(k)));
 		return await helpers.execBatch(batch);
 	};
 

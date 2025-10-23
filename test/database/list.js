@@ -1,6 +1,5 @@
 'use strict';
 
-
 const async = require('async');
 const assert = require('assert');
 const db = require('../mocks/databasemock');
@@ -43,17 +42,20 @@ describe('List methods', () => {
 		});
 
 		it('should prepend 2 more elements to a list', (done) => {
-			async.series([
-				function (next) {
-					db.listPrepend('testList2', 2, next);
-				},
-				function (next) {
-					db.listPrepend('testList2', 1, next);
-				},
-			], (err) => {
-				assert.equal(err, null);
-				done();
-			});
+			async.series(
+				[
+					function (next) {
+						db.listPrepend('testList2', 2, next);
+					},
+					function (next) {
+						db.listPrepend('testList2', 1, next);
+					},
+				],
+				(err) => {
+					assert.equal(err, null);
+					done();
+				}
+			);
 		});
 
 		it('should not add anyhing if key is falsy', (done) => {
@@ -120,27 +122,30 @@ describe('List methods', () => {
 
 		it('should return list elements in reverse order', async () => {
 			await db.listAppend('reverselisttest', ['one', 'two', 'three', 'four']);
-			assert.deepStrictEqual(
-				await db.getListRange('reverselisttest', -4, -3),
-				['one', 'two']
-			);
-			assert.deepStrictEqual(
-				await db.getListRange('reverselisttest', -2, -1),
-				['three', 'four']
-			);
+			assert.deepStrictEqual(await db.getListRange('reverselisttest', -4, -3), [
+				'one',
+				'two',
+			]);
+			assert.deepStrictEqual(await db.getListRange('reverselisttest', -2, -1), [
+				'three',
+				'four',
+			]);
 		});
 	});
 
 	describe('listRemoveLast()', () => {
 		before((done) => {
-			async.series([
-				function (next) {
-					db.listAppend('testList7', 12, next);
-				},
-				function (next) {
-					db.listPrepend('testList7', 9, next);
-				},
-			], done);
+			async.series(
+				[
+					function (next) {
+						db.listAppend('testList7', 12, next);
+					},
+					function (next) {
+						db.listPrepend('testList7', 9, next);
+					},
+				],
+				done
+			);
 		});
 
 		it('should remove the last element of list and return it', (done) => {
@@ -162,13 +167,16 @@ describe('List methods', () => {
 
 	describe('listRemoveAll()', () => {
 		before((done) => {
-			async.series([
-				async.apply(db.listAppend, 'testList5', 1),
-				async.apply(db.listAppend, 'testList5', 1),
-				async.apply(db.listAppend, 'testList5', 1),
-				async.apply(db.listAppend, 'testList5', 2),
-				async.apply(db.listAppend, 'testList5', 5),
-			], done);
+			async.series(
+				[
+					async.apply(db.listAppend, 'testList5', 1),
+					async.apply(db.listAppend, 'testList5', 1),
+					async.apply(db.listAppend, 'testList5', 1),
+					async.apply(db.listAppend, 'testList5', 2),
+					async.apply(db.listAppend, 'testList5', 5),
+				],
+				done
+			);
 		});
 
 		it('should remove all the matching elements of list', (done) => {
@@ -206,24 +214,28 @@ describe('List methods', () => {
 	describe('listTrim()', () => {
 		it('should trim list to a certain range', (done) => {
 			const list = ['1', '2', '3', '4', '5'];
-			async.eachSeries(list, (value, next) => {
-				db.listAppend('testList6', value, next);
-			}, (err) => {
-				if (err) {
-					return done(err);
-				}
+			async.eachSeries(
+				list,
+				(value, next) => {
+					db.listAppend('testList6', value, next);
+				},
+				(err) => {
+					if (err) {
+						return done(err);
+					}
 
-				db.listTrim('testList6', 0, 2, function (err) {
-					assert.equal(err, null);
-					assert.equal(arguments.length, 1);
-					db.getListRange('testList6', 0, -1, (err, list) => {
+					db.listTrim('testList6', 0, 2, function (err) {
 						assert.equal(err, null);
-						assert.equal(list.length, 3);
-						assert.deepEqual(list, ['1', '2', '3']);
-						done();
+						assert.equal(arguments.length, 1);
+						db.getListRange('testList6', 0, -1, (err, list) => {
+							assert.equal(err, null);
+							assert.equal(list.length, 3);
+							assert.deepEqual(list, ['1', '2', '3']);
+							done();
+						});
 					});
-				});
-			});
+				}
+			);
 		});
 
 		it('should not add anyhing if key is falsy', (done) => {

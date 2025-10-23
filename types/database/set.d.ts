@@ -1,25 +1,25 @@
 export interface Set {
-  getSetMembers(key: string): Promise<string[]>
+  getSetMembers(key: string): Promise<string[]>;
 
-  getSetsMembers(keys: string[]): Promise<string[][]>
+  getSetsMembers(keys: string[]): Promise<string[][]>;
 
-  isMemberOfSets(sets: string[], value: string): Promise<boolean[]>
+  isMemberOfSets(sets: string[], value: string): Promise<boolean[]>;
 
-  isSetMember(key: string, value: string): Promise<boolean>
+  isSetMember(key: string, value: string): Promise<boolean>;
 
-  isSetMembers(key: string, values: string[]): Promise<boolean[]>
+  isSetMembers(key: string, values: string[]): Promise<boolean[]>;
 
-  setAdd(key: string, value: string | string[]): Promise<void>
+  setAdd(key: string, value: string | string[]): Promise<void>;
 
-  setCount(key: string): Promise<number>
+  setCount(key: string): Promise<number>;
 
-  setRemove(key: string | string[], value: string | string[]): Promise<void>
+  setRemove(key: string | string[], value: string | string[]): Promise<void>;
 
-  setRemoveRandom(key: string): Promise<string>
+  setRemoveRandom(key: string): Promise<string>;
 
-  setsAdd(keys: string[], value: string | string[]): Promise<void>
+  setsAdd(keys: string[], value: string | string[]): Promise<void>;
 
-  setsCount(keys: string[]): Promise<number[]>
+  setsCount(keys: string[]): Promise<number[]>;
 
-  setsRemove(keys: string[], value: string): Promise<void>
+  setsRemove(keys: string[], value: string): Promise<void>;
 }

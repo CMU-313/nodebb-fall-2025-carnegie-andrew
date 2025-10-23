@@ -25,7 +25,7 @@ admin.getAreas = async function () {
 
 	areas.push({ name: 'Draft Zone', template: 'global', location: 'drafts' });
 	const areaData = await Promise.all(
-		areas.map(area => index.getArea(area.template, area.location))
+		areas.map((area) => index.getArea(area.template, area.location))
 	);
 	areas.forEach((area, i) => {
 		area.data = areaData[i];
@@ -45,9 +45,15 @@ async function getAvailableWidgets() {
 }
 
 async function renderAdminTemplate() {
-	const groupsData = await groups.getNonPrivilegeGroups('groups:createtime', 0, -1);
+	const groupsData = await groups.getNonPrivilegeGroups(
+		'groups:createtime',
+		0,
+		-1
+	);
 	groupsData.sort((a, b) => b.system - a.system);
-	return await webserver.app.renderAsync('admin/partials/widget-settings', { groups: groupsData });
+	return await webserver.app.renderAsync('admin/partials/widget-settings', {
+		groups: groupsData,
+	});
 }
 
 function buildTemplatesFromAreas(areas) {

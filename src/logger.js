@@ -13,7 +13,6 @@ const morgan = require('morgan');
 const file = require('./file');
 const meta = require('./meta');
 
-
 const opts = {
 	/*
 	 * state used by Logger
@@ -77,7 +76,9 @@ Logger.open = function (value) {
 			const stats = fs.statSync(value);
 			if (stats) {
 				if (stats.isDirectory()) {
-					stream = fs.createWriteStream(path.join(value, 'nodebb.log'), { flags: 'a' });
+					stream = fs.createWriteStream(path.join(value, 'nodebb.log'), {
+						flags: 'a',
+					});
 				} else {
 					stream = fs.createWriteStream(value, { flags: 'a' });
 				}
@@ -154,7 +155,12 @@ Logger.io_close = function (socket) {
 	/*
 	 * Restore all hijacked sockets to their original emit/on functions
 	 */
-	if (!socket || !socket.io || !socket.io.sockets || !socket.io.sockets.sockets) {
+	if (
+		!socket ||
+		!socket.io ||
+		!socket.io.sockets ||
+		!socket.io.sockets.sockets
+	) {
 		return;
 	}
 
@@ -176,7 +182,12 @@ Logger.io = function (socket) {
 	 * Go through all of the currently established sockets & hook their .emit/.on
 	 */
 
-	if (!socket || !socket.io || !socket.io.sockets || !socket.io.sockets.sockets) {
+	if (
+		!socket ||
+		!socket.io ||
+		!socket.io.sockets ||
+		!socket.io.sockets.sockets
+	) {
 		return;
 	}
 
@@ -212,6 +223,10 @@ Logger.io_one = function (socket, uid) {
 
 		socket.$onvent = socket.onevent;
 		const $onevent = socket.onevent;
-		socket.onevent = override($onevent, 'on', 'Logger.io_one: $emit.apply: Failed');
+		socket.onevent = override(
+			$onevent,
+			'on',
+			'Logger.io_one: $emit.apply: Failed'
+		);
 	}
 };

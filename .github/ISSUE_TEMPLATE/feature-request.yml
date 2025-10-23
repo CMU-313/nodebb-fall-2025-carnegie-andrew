@@ -1,6 +1,6 @@
 name: Feature Request
 description: Suggest a new feature
-labels: ["enhancement"]
+labels: ['enhancement']
 body:
   - type: markdown
     attributes:
@@ -21,4 +21,4 @@ body:
       placeholder: https://community.nodebb.org/topic/0/example-feature-request
   - type: markdown
     attributes:
-      value: "**Thank you!**"
+      value: '**Thank you!**'

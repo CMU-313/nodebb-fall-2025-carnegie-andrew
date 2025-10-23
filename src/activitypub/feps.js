@@ -14,7 +14,8 @@ Feps.announce = async function announce(id, activity) {
 		({ id: localId } = await activitypub.helpers.resolveLocalId(id));
 	}
 	const cid = await posts.getCidByPid(localId || id);
-	if (cid === -1 || !utils.isNumber(cid)) { // local cids only
+	if (cid === -1 || !utils.isNumber(cid)) {
+		// local cids only
 		return;
 	}
 
@@ -31,7 +32,9 @@ Feps.announce = async function announce(id, activity) {
 	if (activity.type === 'Create') {
 		const isMain = await posts.isMain(localId || id);
 		if (isMain) {
-			activitypub.helpers.log(`[activitypub/inbox.announce(1b12)] Announcing plain object (${activity.id}) to followers of cid ${cid}`);
+			activitypub.helpers.log(
+				`[activitypub/inbox.announce(1b12)] Announcing plain object (${activity.id}) to followers of cid ${cid}`
+			);
 			await activitypub.send('cid', cid, followers, {
 				id: `${nconf.get('url')}/post/${encodeURIComponent(id)}#activity/announce/${now}`,
 				type: 'Announce',
@@ -43,7 +46,9 @@ Feps.announce = async function announce(id, activity) {
 		}
 	}
 
-	activitypub.helpers.log(`[activitypub/inbox.announce(1b12)] Announcing ${activity.type} (${activity.id}) to followers of cid ${cid}`);
+	activitypub.helpers.log(
+		`[activitypub/inbox.announce(1b12)] Announcing ${activity.type} (${activity.id}) to followers of cid ${cid}`
+	);
 	await activitypub.send('cid', cid, followers, {
 		id: `${nconf.get('url')}/post/${encodeURIComponent(id)}#activity/announce/${now + 1}`,
 		type: 'Announce',

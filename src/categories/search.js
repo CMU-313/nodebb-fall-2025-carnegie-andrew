@@ -50,7 +50,10 @@ module.exports = function (Categories) {
 		await Categories.getRecentTopicReplies(categoryData, uid, data.qs);
 		categoryData.forEach((category) => {
 			if (category && Array.isArray(category.children)) {
-				category.children = category.children.slice(0, category.subCategoriesPerPage);
+				category.children = category.children.slice(
+					0,
+					category.subCategoriesPerPage
+				);
 				category.children.forEach((child) => {
 					child.children = undefined;
 				});
@@ -63,8 +66,10 @@ module.exports = function (Categories) {
 			}
 			return c1.order - c2.order;
 		});
-		searchResult.timing = (process.elapsedTimeSince(startTime) / 1000).toFixed(2);
-		searchResult.categories = categoryData.filter(c => cids.includes(c.cid));
+		searchResult.timing = (process.elapsedTimeSince(startTime) / 1000).toFixed(
+			2
+		);
+		searchResult.categories = categoryData.filter((c) => cids.includes(c.cid));
 		return searchResult;
 	};
 
@@ -86,7 +91,13 @@ module.exports = function (Categories) {
 	}
 
 	async function getChildrenCids(cids, uid) {
-		const childrenCids = await Promise.all(cids.map(cid => Categories.getChildrenCids(cid)));
-		return await privileges.categories.filterCids('find', _.flatten(childrenCids), uid);
+		const childrenCids = await Promise.all(
+			cids.map((cid) => Categories.getChildrenCids(cid))
+		);
+		return await privileges.categories.filterCids(
+			'find',
+			_.flatten(childrenCids),
+			uid
+		);
 	}
 };

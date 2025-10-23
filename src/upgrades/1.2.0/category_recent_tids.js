@@ -3,7 +3,6 @@
 const async = require('async');
 const db = require('../../database');
 
-
 module.exports = {
 	name: 'Category recent tids',
 	timestamp: Date.UTC(2016, 8, 22),
@@ -13,19 +12,32 @@ module.exports = {
 				return callback(err);
 			}
 
-			async.eachSeries(cids, (cid, next) => {
-				db.getSortedSetRevRange(`cid:${cid}:pids`, 0, 0, (err, pid) => {
-					if (err || !pid) {
-						return next(err);
-					}
-					db.getObjectFields(`post:${pid}`, ['tid', 'timestamp'], (err, postData) => {
-						if (err || !postData || !postData.tid) {
+			async.eachSeries(
+				cids,
+				(cid, next) => {
+					db.getSortedSetRevRange(`cid:${cid}:pids`, 0, 0, (err, pid) => {
+						if (err || !pid) {
 							return next(err);
 						}
-						db.sortedSetAdd(`cid:${cid}:recent_tids`, postData.timestamp, postData.tid, next);
+						db.getObjectFields(
+							`post:${pid}`,
+							['tid', 'timestamp'],
+							(err, postData) => {
+								if (err || !postData || !postData.tid) {
+									return next(err);
+								}
+								db.sortedSetAdd(
+									`cid:${cid}:recent_tids`,
+									postData.timestamp,
+									postData.tid,
+									next
+								);
+							}
+						);
 					});
-				});
-			}, callback);
+				},
+				callback
+			);
 		});
 	},
 };

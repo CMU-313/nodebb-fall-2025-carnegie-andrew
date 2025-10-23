@@ -13,7 +13,12 @@ module.exports = {
 			'9538e7249edb369b2a25b03f2bd3282b', // digest @ 3314ab4b83138c7ae579ac1f1f463098b8c2d414
 		];
 		const fieldset = await meta.configs.getFields(['email:custom:digest']);
-		const hash = fieldset['email:custom:digest'] ? crypto.createHash('md5').update(fieldset['email:custom:digest']).digest('hex') : null;
+		const hash = fieldset['email:custom:digest']
+			? crypto
+					.createHash('md5')
+					.update(fieldset['email:custom:digest'])
+					.digest('hex')
+			: null;
 		if (matches.includes(hash)) {
 			await meta.configs.remove('email:custom:digest');
 		}

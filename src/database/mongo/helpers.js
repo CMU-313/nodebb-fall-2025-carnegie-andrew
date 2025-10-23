@@ -24,8 +24,7 @@ helpers.fieldToString = function (field) {
 	}
 	// if there is a '.' in the field name it inserts subdocument in mongo, replace '.'s with \uff0E
 	// replace $ with \uff04 so we can use $ in document fields
-	return field.replace(/\./g, '\uff0E')
-		.replace(/\$/g, '\uFF04');
+	return field.replace(/\./g, '\uff0E').replace(/\$/g, '\uFF04');
 };
 
 helpers.serializeData = function (data) {

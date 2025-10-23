@@ -79,31 +79,90 @@ OFFSET $2::INTEGER`,
 		}
 
 		if (withScores) {
-			res.rows = res.rows.map(r => ({ value: r.value, score: parseFloat(r.score) }));
+			res.rows = res.rows.map((r) => ({
+				value: r.value,
+				score: parseFloat(r.score),
+			}));
 		} else {
-			res.rows = res.rows.map(r => r.value);
+			res.rows = res.rows.map((r) => r.value);
 		}
 
 		return res.rows;
 	}
 
-	module.getSortedSetRangeByScore = async function (key, start, count, min, max) {
-		return await getSortedSetRangeByScore(key, start, count, min, max, 1, false);
+	module.getSortedSetRangeByScore = async function (
+		key,
+		start,
+		count,
+		min,
+		max
+	) {
+		return await getSortedSetRangeByScore(
+			key,
+			start,
+			count,
+			min,
+			max,
+			1,
+			false
+		);
 	};
 
-	module.getSortedSetRevRangeByScore = async function (key, start, count, max, min) {
-		return await getSortedSetRangeByScore(key, start, count, min, max, -1, false);
+	module.getSortedSetRevRangeByScore = async function (
+		key,
+		start,
+		count,
+		max,
+		min
+	) {
+		return await getSortedSetRangeByScore(
+			key,
+			start,
+			count,
+			min,
+			max,
+			-1,
+			false
+		);
 	};
 
-	module.getSortedSetRangeByScoreWithScores = async function (key, start, count, min, max) {
+	module.getSortedSetRangeByScoreWithScores = async function (
+		key,
+		start,
+		count,
+		min,
+		max
+	) {
 		return await getSortedSetRangeByScore(key, start, count, min, max, 1, true);
 	};
 
-	module.getSortedSetRevRangeByScoreWithScores = async function (key, start, count, max, min) {
-		return await getSortedSetRangeByScore(key, start, count, min, max, -1, true);
+	module.getSortedSetRevRangeByScoreWithScores = async function (
+		key,
+		start,
+		count,
+		max,
+		min
+	) {
+		return await getSortedSetRangeByScore(
+			key,
+			start,
+			count,
+			min,
+			max,
+			-1,
+			true
+		);
 	};
 
-	async function getSortedSetRangeByScore(key, start, count, min, max, sort, withScores) {
+	async function getSortedSetRangeByScore(
+		key,
+		start,
+		count,
+		min,
+		max,
+		sort,
+		withScores
+	) {
 		if (!key) {
 			return;
 		}
@@ -142,9 +201,12 @@ OFFSET $2::INTEGER`,
 		});
 
 		if (withScores) {
-			res.rows = res.rows.map(r => ({ value: r.value, score: parseFloat(r.score) }));
+			res.rows = res.rows.map((r) => ({
+				value: r.value,
+				score: parseFloat(r.score),
+			}));
 		} else {
-			res.rows = res.rows.map(r => r.value);
+			res.rows = res.rows.map((r) => r.value);
 		}
 
 		return res.rows;
@@ -218,7 +280,9 @@ SELECT o."_key" k,
 			values: [keys],
 		});
 
-		return keys.map(k => parseInt((res.rows.find(r => r.k === k) || { c: 0 }).c, 10));
+		return keys.map((k) =>
+			parseInt((res.rows.find((r) => r.k === k) || { c: 0 }).c, 10)
+		);
 	};
 
 	module.sortedSetsCardSum = async function (keys, min = '-inf', max = '+inf') {
@@ -252,7 +316,9 @@ SELECT o."_key" k,
 	GROUP BY o."_key"`,
 				values: [keys, min, max],
 			});
-			counts = keys.map(k => parseInt((res.rows.find(r => r.k === k) || { c: 0 }).c, 10));
+			counts = keys.map((k) =>
+				parseInt((res.rows.find((r) => r.k === k) || { c: 0 }).c, 10)
+			);
 		} else {
 			counts = await module.sortedSetsCard(keys);
 		}
@@ -290,7 +356,7 @@ SELECT (SELECT r
 			values: [keys, values],
 		});
 
-		return res.rows.map(r => (r.r === null ? null : parseFloat(r.r)));
+		return res.rows.map((r) => (r.r === null ? null : parseFloat(r.r)));
 	}
 
 	module.sortedSetsRanks = async function (keys, values) {
@@ -314,7 +380,11 @@ SELECT (SELECT r
 			return [];
 		}
 
-		return await getSortedSetRank('ASC', new Array(values.length).fill(key), values);
+		return await getSortedSetRank(
+			'ASC',
+			new Array(values.length).fill(key),
+			values
+		);
 	};
 
 	module.sortedSetRevRanks = async function (key, values) {
@@ -322,7 +392,11 @@ SELECT (SELECT r
 			return [];
 		}
 
-		return await getSortedSetRank('DESC', new Array(values.length).fill(key), values);
+		return await getSortedSetRank(
+			'DESC',
+			new Array(values.length).fill(key),
+			values
+		);
 	};
 
 	module.sortedSetScore = async function (key, value) {
@@ -372,7 +446,7 @@ SELECT o."_key" k,
 		});
 
 		return keys.map((k) => {
-			const s = res.rows.find(r => r.k === k);
+			const s = res.rows.find((r) => r.k === k);
 			return s ? parseFloat(s.s) : null;
 		});
 	};
@@ -401,7 +475,7 @@ SELECT z."value" v,
 		});
 
 		return values.map((v) => {
-			const s = res.rows.find(r => r.v === v);
+			const s = res.rows.find((r) => r.v === v);
 			return s ? parseFloat(s.s) : null;
 		});
 	};
@@ -452,7 +526,7 @@ SELECT z."value" v
 			values: [key, values],
 		});
 
-		return values.map(v => res.rows.some(r => r.v === v));
+		return values.map((v) => res.rows.some((r) => r.v === v));
 	};
 
 	module.isMemberOfSortedSets = async function (keys, value) {
@@ -475,7 +549,7 @@ SELECT o."_key" k
 			values: [keys, value],
 		});
 
-		return keys.map(k => res.rows.some(r => r.k === k));
+		return keys.map((k) => res.rows.some((r) => r.k === k));
 	};
 
 	module.getSortedSetMembers = async function (key) {
@@ -502,7 +576,7 @@ SELECT "_key" k,
 			values: [keys],
 		});
 
-		return keys.map(k => (res.rows.find(r => r.k === k) || {}).m || []);
+		return keys.map((k) => (res.rows.find((r) => r.k === k) || {}).m || []);
 	};
 
 	module.getSortedSetsMembersWithScores = async function (keys) {
@@ -519,7 +593,7 @@ SELECT "_key" k,
 			values: [keys],
 		});
 
-		return keys.map(k => (res.rows.find(r => r.k === k) || {}).m || []);
+		return keys.map((k) => (res.rows.find((r) => r.k === k) || {}).m || []);
 	};
 
 	module.sortedSetIncrBy = async function (key, increment, value) {
@@ -552,7 +626,11 @@ RETURNING "score" s`,
 		}
 
 		return await module.transaction(async (client) => {
-			await helpers.ensureLegacyObjectsType(client, data.map(item => item[0]), 'zset');
+			await helpers.ensureLegacyObjectsType(
+				client,
+				data.map((item) => item[0]),
+				'zset'
+			);
 
 			const values = [];
 			const queryParams = [];
@@ -562,7 +640,9 @@ RETURNING "score" s`,
 				value = helpers.valueToString(value);
 				increment = parseFloat(increment);
 				values.push(key, value, increment);
-				queryParams.push(`($${paramIndex}::TEXT, $${paramIndex + 1}::TEXT, $${paramIndex + 2}::NUMERIC)`);
+				queryParams.push(
+					`($${paramIndex}::TEXT, $${paramIndex + 1}::TEXT, $${paramIndex + 2}::NUMERIC)`
+				);
 				paramIndex += 3;
 			});
 
@@ -577,7 +657,7 @@ RETURNING "value", "score"`;
 				text: query,
 				values,
 			});
-			return res.rows.map(row => parseFloat(row.score));
+			return res.rows.map((row) => parseFloat(row.score));
 		});
 	};
 
@@ -585,7 +665,13 @@ RETURNING "value", "score"`;
 		return await sortedSetLex(key, min, max, 1, start, count);
 	};
 
-	module.getSortedSetRevRangeByLex = async function (key, max, min, start, count) {
+	module.getSortedSetRevRangeByLex = async function (
+		key,
+		max,
+		min,
+		start,
+		count
+	) {
 		return await sortedSetLex(key, min, max, -1, start, count);
 	};
 
@@ -629,7 +715,7 @@ OFFSET $${q.values.length - 1}::INTEGER`,
 			values: q.values,
 		});
 
-		return res.rows.map(r => r.v);
+		return res.rows.map((r) => r.v);
 	}
 
 	module.sortedSetRemoveRangeByLex = async function (key, min, max) {
@@ -712,9 +798,12 @@ SELECT z."value",
 			values: [params.key, params.limit, match],
 		});
 		if (!params.withScores) {
-			return res.rows.map(r => r.value);
+			return res.rows.map((r) => r.value);
 		}
-		return res.rows.map(r => ({ value: r.value, score: parseFloat(r.score) }));
+		return res.rows.map((r) => ({
+			value: r.value,
+			score: parseFloat(r.score),
+		}));
 	};
 
 	module.processSortedSet = async function (setKey, process, options) {
@@ -723,7 +812,9 @@ SELECT z."value",
 		const sort = options.reverse ? 'DESC' : 'ASC';
 		const min = options.min && options.min !== '-inf' ? options.min : null;
 		const max = options.max && options.max !== '+inf' ? options.max : null;
-		const cursor = client.query(new Cursor(`
+		const cursor = client.query(
+			new Cursor(
+				`
 SELECT z."value", z."score"
   FROM "legacy_object_live" o
  INNER JOIN "legacy_zset" z
@@ -732,9 +823,16 @@ SELECT z."value", z."score"
  WHERE o."_key" = $1::TEXT
    AND (z."score" >= $2::NUMERIC OR $2::NUMERIC IS NULL)
    AND (z."score" <= $3::NUMERIC OR $3::NUMERIC IS NULL)
- ORDER BY z."score" ${sort}, z."value" ${sort}`, [setKey, min, max]));
+ ORDER BY z."score" ${sort}, z."value" ${sort}`,
+				[setKey, min, max]
+			)
+		);
 
-		if (process && process.constructor && process.constructor.name !== 'AsyncFunction') {
+		if (
+			process &&
+			process.constructor &&
+			process.constructor.name !== 'AsyncFunction'
+		) {
 			process = util.promisify(process);
 		}
 		let iteration = 1;
@@ -747,9 +845,12 @@ SELECT z."value", z."score"
 			}
 
 			if (options.withScores) {
-				rows = rows.map(r => ({ value: r.value, score: parseFloat(r.score) }));
+				rows = rows.map((r) => ({
+					value: r.value,
+					score: parseFloat(r.score),
+				}));
 			} else {
-				rows = rows.map(r => r.value);
+				rows = rows.map((r) => r.value);
 			}
 			try {
 				if (iteration > 1 && options.interval) {

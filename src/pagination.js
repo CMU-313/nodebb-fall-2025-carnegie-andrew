@@ -33,7 +33,9 @@ pagination.create = function (currentPage, pageCount, queryObj) {
 		pagesToShow.push(startPage + i);
 	}
 
-	pagesToShow = _.uniq(pagesToShow).filter(page => page > 0 && page <= pageCount).sort((a, b) => a - b);
+	pagesToShow = _.uniq(pagesToShow)
+		.filter((page) => page > 0 && page <= pageCount)
+		.sort((a, b) => a - b);
 
 	queryObj = { ...(queryObj || {}) };
 
@@ -41,28 +43,57 @@ pagination.create = function (currentPage, pageCount, queryObj) {
 
 	const pages = pagesToShow.map((page) => {
 		queryObj.page = page;
-		return { page: page, active: page === currentPage, qs: qs.stringify(queryObj) };
+		return {
+			page: page,
+			active: page === currentPage,
+			qs: qs.stringify(queryObj),
+		};
 	});
 
 	for (let i = pages.length - 1; i > 0; i -= 1) {
 		const prevPage = pages[i].page - 1;
 		if (pages[i].page - 2 === pages[i - 1].page) {
-			pages.splice(i, 0, { page: prevPage, active: false, qs: qs.stringify({ ...queryObj, page: prevPage }) });
+			pages.splice(i, 0, {
+				page: prevPage,
+				active: false,
+				qs: qs.stringify({ ...queryObj, page: prevPage }),
+			});
 		} else if (prevPage !== pages[i - 1].page) {
 			pages.splice(i, 0, { separator: true });
 		}
 	}
 
-	const data = { rel: [], pages: pages, currentPage: currentPage, pageCount: pageCount };
+	const data = {
+		rel: [],
+		pages: pages,
+		currentPage: currentPage,
+		pageCount: pageCount,
+	};
 	queryObj.page = previous;
-	data.prev = { page: previous, active: currentPage > 1, qs: qs.stringify(queryObj) };
+	data.prev = {
+		page: previous,
+		active: currentPage > 1,
+		qs: qs.stringify(queryObj),
+	};
 	queryObj.page = next;
-	data.next = { page: next, active: currentPage < pageCount, qs: qs.stringify(queryObj) };
+	data.next = {
+		page: next,
+		active: currentPage < pageCount,
+		qs: qs.stringify(queryObj),
+	};
 
 	queryObj.page = 1;
-	data.first = { page: 1, active: currentPage === 1, qs: qs.stringify(queryObj) };
+	data.first = {
+		page: 1,
+		active: currentPage === 1,
+		qs: qs.stringify(queryObj),
+	};
 	queryObj.page = pageCount;
-	data.last = { page: pageCount, active: currentPage === pageCount, qs: qs.stringify(queryObj) };
+	data.last = {
+		page: pageCount,
+		active: currentPage === pageCount,
+		qs: qs.stringify(queryObj),
+	};
 
 	if (currentPage < pageCount) {
 		data.rel.push({

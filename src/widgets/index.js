@@ -17,22 +17,33 @@ widgets.render = async function (uid, options) {
 	if (!options.template) {
 		throw new Error('[[error:invalid-data]]');
 	}
-	const data = await widgets.getWidgetDataForTemplates(['global', options.template]);
+	const data = await widgets.getWidgetDataForTemplates([
+		'global',
+		options.template,
+	]);
 	delete data.global.drafts;
 
-	const locations = _.uniq(Object.keys(data.global).concat(Object.keys(data[options.template])));
+	const locations = _.uniq(
+		Object.keys(data.global).concat(Object.keys(data[options.template]))
+	);
 
 	let config = options.res.locals.config || {};
 	if (options.res.locals.isAPI) {
 		config = await apiController.loadConfig(options.req);
 	}
 
-	const widgetData = await Promise.all(locations.map(location => renderLocation(location, data, uid, options, config)));
+	const widgetData = await Promise.all(
+		locations.map((location) =>
+			renderLocation(location, data, uid, options, config)
+		)
+	);
 
 	const returnData = {};
 	locations.forEach((location, i) => {
 		if (Array.isArray(widgetData[i]) && widgetData[i].length) {
-			returnData[location] = widgetData[i].filter(widget => widget && widget.html);
+			returnData[location] = widgetData[i].filter(
+				(widget) => widget && widget.html
+			);
 		}
 	});
 
@@ -40,20 +51,28 @@ widgets.render = async function (uid, options) {
 };
 
 async function renderLocation(location, data, uid, options, config) {
-	const widgetsAtLocation = (data[options.template][location] || []).concat(data.global[location] || []);
+	const widgetsAtLocation = (data[options.template][location] || []).concat(
+		data.global[location] || []
+	);
 
 	if (!widgetsAtLocation.length) {
 		return [];
 	}
 
 	const renderedWidgets = await Promise.all(
-		widgetsAtLocation.map(widget => renderWidget(widget, uid, options, config, location))
+		widgetsAtLocation.map((widget) =>
+			renderWidget(widget, uid, options, config, location)
+		)
 	);
 	return renderedWidgets;
 }
 
 async function renderWidget(widget, uid, options, config, location) {
-	if (!widget || !widget.data || (!!widget.data['hide-mobile'] && options.req.useragent.isMobile)) {
+	if (
+		!widget ||
+		!widget.data ||
+		(!!widget.data['hide-mobile'] && options.req.useragent.isMobile)
+	) {
 		return;
 	}
 
@@ -62,17 +81,20 @@ async function renderWidget(widget, uid, options, config, location) {
 		return;
 	}
 
-	const templateData = _.assign({ }, options.templateData, { config: config });
+	const templateData = _.assign({}, options.templateData, { config: config });
 	try {
-		const data = await plugins.hooks.fire(`filter:widget.render:${widget.widget}`, {
-			uid: uid,
-			area: options,
-			templateData: templateData,
-			data: widget.data,
-			req: options.req,
-			res: options.res,
-			location,
-		});
+		const data = await plugins.hooks.fire(
+			`filter:widget.render:${widget.widget}`,
+			{
+				uid: uid,
+				area: options,
+				templateData: templateData,
+				data: widget.data,
+				req: options.req,
+				res: options.res,
+				location,
+			}
+		);
 
 		if (!data) {
 			return;
@@ -89,7 +111,10 @@ async function renderWidget(widget, uid, options, config, location) {
 		}
 
 		if (html) {
-			html = await translator.translate(html, config.userLang || meta.config.defaultLang || 'en-GB');
+			html = await translator.translate(
+				html,
+				config.userLang || meta.config.defaultLang || 'en-GB'
+			);
 		}
 
 		return { html };
@@ -109,16 +134,15 @@ widgets.checkVisibility = async function (data, uid) {
 		isHidden = await groups.isMemberOfAny(uid, data.groupsHideFrom);
 	}
 
-	const isExpired = (
+	const isExpired =
 		(data.startDate && Date.now() < new Date(data.startDate).getTime()) ||
-		(data.endDate && Date.now() > new Date(data.endDate).getTime())
-	);
+		(data.endDate && Date.now() > new Date(data.endDate).getTime());
 
 	return isVisible && !isHidden && !isExpired;
 };
 
 widgets.getWidgetDataForTemplates = async function (templates) {
-	const keys = templates.map(tpl => `widgets:${tpl}`);
+	const keys = templates.map((tpl) => `widgets:${tpl}`);
 	const data = await db.getObjects(keys);
 
 	const returnData = {};
@@ -132,9 +156,13 @@ widgets.getWidgetDataForTemplates = async function (templates) {
 		locations.forEach((location) => {
 			if (templateWidgetData && templateWidgetData[location]) {
 				try {
-					returnData[template][location] = parseWidgetData(templateWidgetData[location]);
+					returnData[template][location] = parseWidgetData(
+						templateWidgetData[location]
+					);
 				} catch (err) {
-					winston.error(`can not parse widget data. template:  ${template} location: ${location}\n${err.stack}`);
+					winston.error(
+						`can not parse widget data. template:  ${template} location: ${location}\n${err.stack}`
+					);
 					returnData[template][location] = [];
 				}
 			} else {
@@ -164,7 +192,10 @@ function parseWidgetData(data) {
 			}
 
 			widget.data.groupsHideFrom = widget.data.groupsHideFrom || [];
-			if (widget.data.groupsHideFrom && !Array.isArray(widget.data.groupsHideFrom)) {
+			if (
+				widget.data.groupsHideFrom &&
+				!Array.isArray(widget.data.groupsHideFrom)
+			) {
 				widget.data.groupsHideFrom = [widget.data.groupsHideFrom];
 			}
 		}
@@ -177,7 +208,11 @@ widgets.setArea = async function (area) {
 		throw new Error('Missing location and template data');
 	}
 
-	await db.setObjectField(`widgets:${area.template}`, area.location, JSON.stringify(area.widgets));
+	await db.setObjectField(
+		`widgets:${area.template}`,
+		area.location,
+		JSON.stringify(area.widgets)
+	);
 };
 
 widgets.setAreas = async function (areas) {
@@ -191,7 +226,7 @@ widgets.setAreas = async function (areas) {
 	});
 
 	await db.setObjectBulk(
-		Object.keys(templates).map(tpl => [`widgets:${tpl}`, templates[tpl]])
+		Object.keys(templates).map((tpl) => [`widgets:${tpl}`, templates[tpl]])
 	);
 };
 
@@ -201,8 +236,16 @@ widgets.getAvailableAreas = async function () {
 		{ name: 'Global Footer', template: 'global', location: 'footer' },
 		{ name: 'Global Sidebar', template: 'global', location: 'sidebar' },
 
-		{ name: 'Group Page (Left)', template: 'groups/details.tpl', location: 'left' },
-		{ name: 'Group Page (Right)', template: 'groups/details.tpl', location: 'right' },
+		{
+			name: 'Group Page (Left)',
+			template: 'groups/details.tpl',
+			location: 'left',
+		},
+		{
+			name: 'Group Page (Right)',
+			template: 'groups/details.tpl',
+			location: 'right',
+		},
 
 		{ name: 'Chat Header', template: 'chats.tpl', location: 'header' },
 		{ name: 'Chat Sidebar', template: 'chats.tpl', location: 'sidebar' },
@@ -216,7 +259,10 @@ widgets.saveLocationsOnThemeReset = async function () {
 	const available = await widgets.getAvailableAreas();
 	for (const area of available) {
 		/* eslint-disable no-await-in-loop */
-		const widgetsAtLocation = await widgets.getArea(area.template, area.location);
+		const widgetsAtLocation = await widgets.getArea(
+			area.template,
+			area.location
+		);
 		if (widgetsAtLocation.length) {
 			locations[area.template] = locations[area.template] || [];
 			if (!locations[area.template].includes(area.location)) {
@@ -245,7 +291,7 @@ widgets.moveMissingAreasToDrafts = async function () {
 		for (const [template, tplLocations] of Object.entries(locations)) {
 			for (const location of tplLocations) {
 				const locationExists = available.find(
-					area => area.template === template && area.location === location
+					(area) => area.template === template && area.location === location
 				);
 				if (!locationExists) {
 					const widgetsAtLocation = await widgets.getArea(template, location);
@@ -295,11 +341,17 @@ widgets.reset = async function () {
 widgets.resetTemplate = async function (template) {
 	const area = await db.getObject(`widgets:${template}.tpl`);
 	if (area) {
-		const toBeDrafted = _.flatMap(Object.values(area), value => JSON.parse(value));
+		const toBeDrafted = _.flatMap(Object.values(area), (value) =>
+			JSON.parse(value)
+		);
 		await db.delete(`widgets:${template}.tpl`);
 		let draftWidgets = await db.getObjectField('widgets:global', 'drafts');
 		draftWidgets = JSON.parse(draftWidgets).concat(toBeDrafted);
-		await db.setObjectField('widgets:global', 'drafts', JSON.stringify(draftWidgets));
+		await db.setObjectField(
+			'widgets:global',
+			'drafts',
+			JSON.stringify(draftWidgets)
+		);
 	}
 };
 

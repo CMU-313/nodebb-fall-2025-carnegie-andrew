@@ -22,5 +22,6 @@ exports.paths = {
 	nodeModules,
 };
 
-exports.pluginNamePattern = /^(@[\w-]+\/)?nodebb-(theme|plugin|widget|rewards)-[\w-]+$/;
+exports.pluginNamePattern =
+	/^(@[\w-]+\/)?nodebb-(theme|plugin|widget|rewards)-[\w-]+$/;
 exports.themeNamePattern = /^(@[\w-]+\/)?nodebb-theme-[\w-]+$/;

@@ -30,7 +30,10 @@ describe('http signature signing and verification', () => {
 		it('should return an object with date, a null digest, and signature, if no payload is passed in', async () => {
 			const endpoint = `${nconf.get('url')}/uid/${uid}/inbox`;
 			const keyData = await activitypub.getPrivateKey('uid', uid);
-			const { date, digest, signature } = await activitypub.sign(keyData, endpoint);
+			const { date, digest, signature } = await activitypub.sign(
+				keyData,
+				endpoint
+			);
 			const dateObj = new Date(date);
 
 			assert(signature);
@@ -125,7 +128,9 @@ describe('http signature signing and verification', () => {
 			const endpoint = `${nconf.get('url')}/user/${username}/inbox`;
 			const path = `/user/${username}/inbox`;
 			const keyData = await activitypub.getPrivateKey('uid', uid);
-			const signature = await activitypub.sign(keyData, endpoint, { foo: 'bar' });
+			const signature = await activitypub.sign(keyData, endpoint, {
+				foo: 'bar',
+			});
 			const { host } = nconf.get('url_parsed');
 			const req = {
 				...mockReqBase,

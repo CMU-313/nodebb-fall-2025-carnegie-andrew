@@ -1,4 +1,3 @@
-
 'use strict';
 
 const nconf = require('nconf');
@@ -15,7 +14,10 @@ popularController.get = async function (req, res, next) {
 		return next();
 	}
 	const term = helpers.terms[req.query.term] || 'alltime';
-	if (req.originalUrl.startsWith(`${nconf.get('relative_path')}/api/popular`) || req.originalUrl.startsWith(`${nconf.get('relative_path')}/popular`)) {
+	if (
+		req.originalUrl.startsWith(`${nconf.get('relative_path')}/api/popular`) ||
+		req.originalUrl.startsWith(`${nconf.get('relative_path')}/popular`)
+	) {
 		data.title = `[[pages:popular-${term}]]`;
 		const breadcrumbs = [{ text: '[[global:header.popular]]' }];
 		data.breadcrumbs = helpers.buildBreadcrumbs(breadcrumbs);

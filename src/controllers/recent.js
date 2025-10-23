@@ -1,4 +1,3 @@
-
 'use strict';
 
 const nconf = require('nconf');
@@ -33,14 +32,15 @@ recentController.getData = async function (req, url, sort) {
 	}
 	term = term || 'alltime';
 
-	const [settings, categoryData, tagData, rssToken, canPost, isPrivileged] = await Promise.all([
-		user.getSettings(req.uid),
-		helpers.getSelectedCategory(cid),
-		helpers.getSelectedTag(tag),
-		user.auth.getFeedToken(req.uid),
-		privileges.categories.canPostTopic(req.uid),
-		user.isPrivileged(req.uid),
-	]);
+	const [settings, categoryData, tagData, rssToken, canPost, isPrivileged] =
+		await Promise.all([
+			user.getSettings(req.uid),
+			helpers.getSelectedCategory(cid),
+			helpers.getSelectedTag(tag),
+			user.auth.getFeedToken(req.uid),
+			privileges.categories.canPostTopic(req.uid),
+			user.isPrivileged(req.uid),
+		]);
 
 	const start = Math.max(0, (page - 1) * settings.topicsPerPage);
 	const stop = start + settings.topicsPerPage - 1;
@@ -58,7 +58,10 @@ recentController.getData = async function (req, url, sort) {
 		query: req.query,
 	});
 
-	const isDisplayedAsHome = !(req.originalUrl.startsWith(`${relative_path}/api/${url}`) || req.originalUrl.startsWith(`${relative_path}/${url}`));
+	const isDisplayedAsHome = !(
+		req.originalUrl.startsWith(`${relative_path}/api/${url}`) ||
+		req.originalUrl.startsWith(`${relative_path}/${url}`)
+	);
 	const baseUrl = isDisplayedAsHome ? '' : url;
 
 	if (isDisplayedAsHome) {
@@ -87,11 +90,16 @@ recentController.getData = async function (req, url, sort) {
 	}
 
 	data.filters = helpers.buildFilters(baseUrl, filter, query);
-	data.selectedFilter = data.filters.find(filter => filter && filter.selected);
+	data.selectedFilter = data.filters.find(
+		(filter) => filter && filter.selected
+	);
 	data.terms = helpers.buildTerms(baseUrl, term, query);
-	data.selectedTerm = data.terms.find(term => term && term.selected);
+	data.selectedTerm = data.terms.find((term) => term && term.selected);
 
-	const pageCount = Math.max(1, Math.ceil(data.topicCount / settings.topicsPerPage));
+	const pageCount = Math.max(
+		1,
+		Math.ceil(data.topicCount / settings.topicsPerPage)
+	);
 	data.pagination = pagination.create(page, pageCount, req.query);
 	helpers.addLinkTags({
 		url: url,
@@ -101,6 +109,5 @@ recentController.getData = async function (req, url, sort) {
 	});
 	return data;
 };
-
 
 require('../promisify')(recentController, ['get']);

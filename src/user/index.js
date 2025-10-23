@@ -49,7 +49,9 @@ User.exists = async function (uids) {
 
 	const [localExists, remoteExists] = await Promise.all([
 		db.isSortedSetMembers('users:joindate', uids),
-		meta.config.activitypubEnabled ? db.exists(uids.map(uid => `userRemote:${uid}`)) : uids.map(() => false),
+		meta.config.activitypubEnabled
+			? db.exists(uids.map((uid) => `userRemote:${uid}`))
+			: uids.map(() => false),
 	]);
 	const results = localExists.map((local, idx) => local || remoteExists[idx]);
 	return singular ? results.pop() : results;
@@ -58,7 +60,7 @@ User.exists = async function (uids) {
 User.existsBySlug = async function (userslug) {
 	if (Array.isArray(userslug)) {
 		const uids = await User.getUidsByUserslugs(userslug);
-		return uids.map(uid => !!uid);
+		return uids.map((uid) => !!uid);
 	}
 	const uid = await User.getUidByUserslug(userslug);
 	return !!uid;
@@ -68,7 +70,13 @@ User.getUidsFromSet = async function (set, start, stop) {
 	if (set === 'users:online') {
 		const count = parseInt(stop, 10) === -1 ? stop : stop - start + 1;
 		const now = Date.now();
-		return await db.getSortedSetRevRangeByScore(set, start, count, '+inf', now - (meta.config.onlineCutoff * 60000));
+		return await db.getSortedSetRevRangeByScore(
+			set,
+			start,
+			count,
+			'+inf',
+			now - meta.config.onlineCutoff * 60000
+		);
 	}
 	return await db.getSortedSetRevRange(set, start, stop);
 };
@@ -79,19 +87,38 @@ User.getUsersFromSet = async function (set, uid, start, stop) {
 };
 
 User.getUsersWithFields = async function (uids, fields, uid) {
-	let results = await plugins.hooks.fire('filter:users.addFields', { fields: fields });
+	let results = await plugins.hooks.fire('filter:users.addFields', {
+		fields: fields,
+	});
 	results.fields = _.uniq(results.fields);
 	const userData = await User.getUsersFields(uids, results.fields);
-	results = await plugins.hooks.fire('filter:userlist.get', { users: userData, uid: uid });
+	results = await plugins.hooks.fire('filter:userlist.get', {
+		users: userData,
+		uid: uid,
+	});
 	return results.users;
 };
 
 User.getUsers = async function (uids, uid) {
-	const userData = await User.getUsersWithFields(uids, [
-		'uid', 'username', 'userslug', 'picture', 'status',
-		'postcount', 'reputation', 'email:confirmed', 'lastonline',
-		'flags', 'banned', 'banned:expire', 'joindate',
-	], uid);
+	const userData = await User.getUsersWithFields(
+		uids,
+		[
+			'uid',
+			'username',
+			'userslug',
+			'picture',
+			'status',
+			'postcount',
+			'reputation',
+			'email:confirmed',
+			'lastonline',
+			'flags',
+			'banned',
+			'banned:expire',
+			'joindate',
+		],
+		uid
+	);
 
 	return User.hidePrivateData(userData, uid);
 };
@@ -100,8 +127,9 @@ User.getStatus = function (userData) {
 	if (userData.uid <= 0) {
 		return 'offline';
 	}
-	const isOnline = (Date.now() - userData.lastonline) < (meta.config.onlineCutoff * 60000);
-	return isOnline ? (userData.status || 'online') : 'offline';
+	const isOnline =
+		Date.now() - userData.lastonline < meta.config.onlineCutoff * 60000;
+	return isOnline ? userData.status || 'online' : 'offline';
 };
 
 User.getUidByUsername = async function (username) {
@@ -122,21 +150,24 @@ User.getUidByUserslug = async function (userslug) {
 
 	if (userslug.includes('@')) {
 		await activitypub.actors.assert(userslug);
-		return (await db.getObjectField('handle:uid', String(userslug).toLowerCase())) || null;
+		return (
+			(await db.getObjectField('handle:uid', String(userslug).toLowerCase())) ||
+			null
+		);
 	}
 
 	return await db.sortedSetScore('userslug:uid', userslug);
 };
 
 User.getUidsByUserslugs = async function (userslugs) {
-	const apSlugs = userslugs.filter(slug => slug.includes('@'));
-	const normalSlugs = userslugs.filter(slug => !slug.includes('@'));
+	const apSlugs = userslugs.filter((slug) => slug.includes('@'));
+	const normalSlugs = userslugs.filter((slug) => !slug.includes('@'));
 	const slugToUid = Object.create(null);
 	async function getApSlugs() {
-		await Promise.all(apSlugs.map(slug => activitypub.actors.assert(slug)));
+		await Promise.all(apSlugs.map((slug) => activitypub.actors.assert(slug)));
 		const apUids = await db.getObjectFields(
 			'handle:uid',
-			apSlugs.map(slug => String(slug).toLowerCase()),
+			apSlugs.map((slug) => String(slug).toLowerCase())
 		);
 		return apUids;
 	}
@@ -158,12 +189,12 @@ User.getUidsByUserslugs = async function (userslugs) {
 		}
 	});
 
-	return userslugs.map(slug => slugToUid[slug] || null);
+	return userslugs.map((slug) => slugToUid[slug] || null);
 };
 
 User.getUsernamesByUids = async function (uids) {
 	const users = await User.getUsersFields(uids, ['username']);
-	return users.map(user => user.username);
+	return users.map((user) => user.username);
 };
 
 User.getUsernameByUserslug = async function (slug) {
@@ -176,7 +207,7 @@ User.getUidByEmail = async function (email) {
 };
 
 User.getUidsByEmails = async function (emails) {
-	emails = emails.map(email => email && email.toLowerCase());
+	emails = emails.map((email) => email && email.toLowerCase());
 	return await db.sortedSetScores('email:uid', emails);
 };
 
@@ -215,7 +246,11 @@ User.isPrivileged = async function (uid) {
 		return false;
 	}
 	const results = await User.getPrivileges(uid);
-	return results ? (results.isAdmin || results.isGlobalModerator || results.isModeratorOfAnyCategory) : false;
+	return results
+		? results.isAdmin ||
+				results.isGlobalModerator ||
+				results.isModeratorOfAnyCategory
+		: false;
 };
 
 User.isAdminOrGlobalMod = async function (uid) {
@@ -249,7 +284,10 @@ async function isSelfOrMethod(callerUid, uid, method) {
 }
 
 User.getAdminsandGlobalMods = async function () {
-	const results = await groups.getMembersOfGroups(['administrators', 'Global Moderators']);
+	const results = await groups.getMembersOfGroups([
+		'administrators',
+		'Global Moderators',
+	]);
 	return await User.getUsersData(_.union(...results));
 };
 

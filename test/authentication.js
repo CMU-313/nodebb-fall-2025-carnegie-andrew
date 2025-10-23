@@ -1,6 +1,5 @@
 'use strict';
 
-
 const assert = require('assert');
 const url = require('url');
 const nconf = require('nconf');
@@ -27,12 +26,19 @@ describe('authentication', () => {
 			method: dummyEmailerHook,
 		});
 
-		user.create({ username: 'regular', password: 'regularpwd', email: 'regular@nodebb.org' }, (err, uid) => {
-			assert.ifError(err);
-			regularUid = uid;
-			assert.strictEqual(uid, 1);
-			done();
-		});
+		user.create(
+			{
+				username: 'regular',
+				password: 'regularpwd',
+				email: 'regular@nodebb.org',
+			},
+			(err, uid) => {
+				assert.ifError(err);
+				regularUid = uid;
+				assert.strictEqual(uid, 1);
+				done();
+			}
+		);
 	});
 
 	after(() => {
@@ -42,7 +48,10 @@ describe('authentication', () => {
 	it('should allow login with email for uid 1', async () => {
 		const oldValue = meta.config.allowLoginWith;
 		meta.config.allowLoginWith = 'username-email';
-		const { response } = await helpers.loginUser('regular@nodebb.org', 'regularpwd');
+		const { response } = await helpers.loginUser(
+			'regular@nodebb.org',
+			'regularpwd'
+		);
 		assert.strictEqual(response.statusCode, 200);
 		meta.config.allowLoginWith = oldValue;
 	});
@@ -50,8 +59,15 @@ describe('authentication', () => {
 	it('second user should fail to login with email since email is not confirmed', async () => {
 		const oldValue = meta.config.allowLoginWith;
 		meta.config.allowLoginWith = 'username-email';
-		const uid = await user.create({ username: '2nduser', password: '2ndpassword', email: '2nduser@nodebb.org' });
-		const { response, body } = await helpers.loginUser('2nduser@nodebb.org', '2ndpassword');
+		const uid = await user.create({
+			username: '2nduser',
+			password: '2ndpassword',
+			email: '2nduser@nodebb.org',
+		});
+		const { response, body } = await helpers.loginUser(
+			'2nduser@nodebb.org',
+			'2ndpassword'
+		);
 		assert.strictEqual(response.statusCode, 403);
 		assert.strictEqual(body, '[[error:invalid-login-credentials]]');
 		meta.config.allowLoginWith = oldValue;
@@ -112,7 +128,10 @@ describe('authentication', () => {
 			},
 		});
 
-		const validationPending = await user.email.isValidationPending(body.uid, 'admin@nodebb.org');
+		const validationPending = await user.email.isValidationPending(
+			body.uid,
+			'admin@nodebb.org'
+		);
 		assert.strictEqual(validationPending, true);
 
 		assert(body);
@@ -141,14 +160,17 @@ describe('authentication', () => {
 	it('should regenerate the session identifier on successful login', async () => {
 		const matchRegexp = /express\.sid=s%3A(.+?);/;
 		const { hostname, path } = url.parse(nconf.get('url'));
-		const sid = String(jar.store.idx[hostname][path]['express.sid']).match(matchRegexp)[1];
+		const sid = String(jar.store.idx[hostname][path]['express.sid']).match(
+			matchRegexp
+		)[1];
 		await helpers.logoutUser(jar);
 		const newJar = (await helpers.loginUser('regular', 'regularpwd')).jar;
-		const newSid = String(newJar.store.idx[hostname][path]['express.sid']).match(matchRegexp)[1];
+		const newSid = String(
+			newJar.store.idx[hostname][path]['express.sid']
+		).match(matchRegexp)[1];
 
 		assert.notStrictEqual(newSid, sid);
 	});
-
 
 	it('should revoke all sessions', async () => {
 		const socketAdmin = require('../src/socket.io/admin');
@@ -183,12 +205,18 @@ describe('authentication', () => {
 		}
 
 		beforeEach(async () => {
-			([username, password] = [utils.generateUUID().slice(0, 10), utils.generateUUID()]);
+			[username, password] = [
+				utils.generateUUID().slice(0, 10),
+				utils.generateUUID(),
+			];
 			uid = await user.create({ username, password });
 		});
 
 		it('should login a user', async () => {
-			const { jar, body: loginBody } = await helpers.loginUser(username, password);
+			const { jar, body: loginBody } = await helpers.loginUser(
+				username,
+				password
+			);
 			assert(loginBody);
 			const { body } = await request.get(`${nconf.get('url')}/api/self`, {
 				jar,
@@ -205,7 +233,10 @@ describe('authentication', () => {
 
 			assert(response.headers);
 			assert(response.headers['set-cookie']);
-			assert.strictEqual(response.headers['set-cookie'].includes('Expires'), false);
+			assert.strictEqual(
+				response.headers['set-cookie'].includes('Expires'),
+				false
+			);
 		});
 
 		it('should set a different expiry if sessionDuration is set', async () => {
@@ -225,7 +256,9 @@ describe('authentication', () => {
 		});
 
 		it('should set a cookie that lasts for x days where x is loginDays setting, if asked to remember', async () => {
-			const { response } = await helpers.loginUser(username, password, { remember: 'on' });
+			const { response } = await helpers.loginUser(username, password, {
+				remember: 'on',
+			});
 
 			const expiry = getCookieExpiry(response);
 			const expected = new Date();
@@ -238,7 +271,9 @@ describe('authentication', () => {
 			const _loginDays = meta.config.loginDays;
 			meta.config.loginDays = 5;
 
-			const { response } = await helpers.loginUser(username, password, { remember: 'on' });
+			const { response } = await helpers.loginUser(username, password, {
+				remember: 'on',
+			});
 
 			const expiry = getCookieExpiry(response);
 			const expected = new Date();
@@ -253,11 +288,15 @@ describe('authentication', () => {
 			const _loginSeconds = meta.config.loginSeconds;
 			meta.config.loginSeconds = 60;
 
-			const { response } = await helpers.loginUser(username, password, { remember: 'on' });
+			const { response } = await helpers.loginUser(username, password, {
+				remember: 'on',
+			});
 
 			const expiry = getCookieExpiry(response);
 			const expected = new Date();
-			expected.setUTCSeconds(expected.getUTCSeconds() + meta.config.loginSeconds);
+			expected.setUTCSeconds(
+				expected.getUTCSeconds() + meta.config.loginSeconds
+			);
 
 			assert.strictEqual(expiry.getUTCDate(), expected.getUTCDate());
 			assert.strictEqual(expiry.getUTCMinutes(), expected.getUTCMinutes());
@@ -285,7 +324,10 @@ describe('authentication', () => {
 	});
 
 	it('should fail to login if user does not exist', async () => {
-		const { response, body } = await helpers.loginUser('doesnotexist', 'nopassword');
+		const { response, body } = await helpers.loginUser(
+			'doesnotexist',
+			'nopassword'
+		);
 		assert.equal(response.statusCode, 403);
 		assert.equal(body, '[[error:invalid-login-credentials]]');
 	});
@@ -310,7 +352,10 @@ describe('authentication', () => {
 
 	it('should fail to login if user does not have password field in db', async () => {
 		await user.create({ username: 'hasnopassword', email: 'no@pass.org' });
-		const { response, body } = await helpers.loginUser('hasnopassword', 'doesntmatter');
+		const { response, body } = await helpers.loginUser(
+			'hasnopassword',
+			'doesntmatter'
+		);
 		assert.equal(response.statusCode, 403);
 		assert.equal(body, '[[error:invalid-login-credentials]]');
 	});
@@ -320,7 +365,10 @@ describe('authentication', () => {
 		for (let i = 0; i < 5000; i++) {
 			longPassword += 'a';
 		}
-		const { response, body } = await helpers.loginUser('someuser', longPassword);
+		const { response, body } = await helpers.loginUser(
+			'someuser',
+			longPassword
+		);
 		assert.equal(response.statusCode, 403);
 		assert.equal(body, '[[error:password-too-long]]');
 	});
@@ -390,10 +438,13 @@ describe('authentication', () => {
 		assert.equal(body.message, '[[register:registration-added-to-queue]]');
 	});
 
-
 	it('should be able to login with email', async () => {
 		const email = 'ginger@nodebb.org';
-		const uid = await user.create({ username: 'ginger', password: '123456', email });
+		const uid = await user.create({
+			username: 'ginger',
+			password: '123456',
+			email,
+		});
 		await user.setUserField(uid, 'email', email);
 		await user.email.confirmByUid(uid);
 		const { response } = await helpers.loginUser('ginger@nodebb.org', '123456');
@@ -402,7 +453,10 @@ describe('authentication', () => {
 
 	it('should fail to login if login type is username and an email is sent', async () => {
 		meta.config.allowLoginWith = 'username';
-		const { response, body } = await helpers.loginUser('ginger@nodebb.org', '123456');
+		const { response, body } = await helpers.loginUser(
+			'ginger@nodebb.org',
+			'123456'
+		);
 		meta.config.allowLoginWith = 'username-email';
 		assert.equal(response.statusCode, 400);
 		assert.equal(body, '[[error:wrong-login-type-username]]');
@@ -412,13 +466,16 @@ describe('authentication', () => {
 		const jar = request.jar();
 		const csrf_token = await helpers.getCsrfToken(jar);
 
-		const { response, body } = await request.post(`${nconf.get('url')}/logout`, {
-			data: {},
-			jar: jar,
-			headers: {
-				'x-csrf-token': csrf_token,
-			},
-		});
+		const { response, body } = await request.post(
+			`${nconf.get('url')}/logout`,
+			{
+				data: {},
+				jar: jar,
+				headers: {
+					'x-csrf-token': csrf_token,
+				},
+			}
+		);
 
 		assert.equal(response.statusCode, 200);
 		assert.equal(body, 'not-logged-in');
@@ -432,12 +489,19 @@ describe('authentication', () => {
 		};
 
 		before(async () => {
-			bannedUser.uid = await user.create({ username: 'banme', password: '123456', email: 'ban@me.com' });
+			bannedUser.uid = await user.create({
+				username: 'banme',
+				password: '123456',
+				email: 'ban@me.com',
+			});
 		});
 
 		it('should prevent banned user from logging in', async () => {
 			await user.bans.ban(bannedUser.uid, 0, 'spammer');
-			const { response: res1, body: body1 } = await helpers.loginUser(bannedUser.username, bannedUser.pw);
+			const { response: res1, body: body1 } = await helpers.loginUser(
+				bannedUser.username,
+				bannedUser.pw
+			);
 			assert.equal(res1.statusCode, 403);
 			delete body1.timestamp;
 			assert.deepStrictEqual(body1, {
@@ -451,7 +515,10 @@ describe('authentication', () => {
 			await user.bans.unban(bannedUser.uid);
 			const expiry = Date.now() + 10000;
 			await user.bans.ban(bannedUser.uid, expiry, '');
-			const { response: res2, body: body2 } = await helpers.loginUser(bannedUser.username, bannedUser.pw);
+			const { response: res2, body: body2 } = await helpers.loginUser(
+				bannedUser.username,
+				bannedUser.pw
+			);
 			assert.equal(res2.statusCode, 403);
 			assert(body2.banned_until);
 			assert(body2.reason, '[[user:info.banned-no-reason]]');
@@ -459,14 +526,20 @@ describe('authentication', () => {
 
 		it('should allow banned user to log in if the "banned-users" group has "local-login" privilege', async () => {
 			await privileges.global.give(['groups:local:login'], 'banned-users');
-			const { response } = await helpers.loginUser(bannedUser.username, bannedUser.pw);
+			const { response } = await helpers.loginUser(
+				bannedUser.username,
+				bannedUser.pw
+			);
 			assert.strictEqual(response.statusCode, 200);
 		});
 
 		it('should allow banned user to log in if the user herself has "local-login" privilege', async () => {
 			await privileges.global.rescind(['groups:local:login'], 'banned-users');
 			await privileges.categories.give(['local:login'], 0, bannedUser.uid);
-			const { response } = await helpers.loginUser(bannedUser.username, bannedUser.pw);
+			const { response } = await helpers.loginUser(
+				bannedUser.username,
+				bannedUser.pw
+			);
 			assert.strictEqual(response.statusCode, 200);
 		});
 	});
@@ -513,12 +586,16 @@ describe('authentication', () => {
 		});
 
 		it('should fail with invalid token', async () => {
-			const { response, body } = await helpers.request('get', `/api/self?_uid${newUid}`, {
-				jar: jar,
-				headers: {
-					Authorization: `Bearer sdfhaskfdja-jahfdaksdf`,
-				},
-			});
+			const { response, body } = await helpers.request(
+				'get',
+				`/api/self?_uid${newUid}`,
+				{
+					jar: jar,
+					headers: {
+						Authorization: `Bearer sdfhaskfdja-jahfdaksdf`,
+					},
+				}
+			);
 			assert.strictEqual(response.statusCode, 401);
 			assert.strictEqual(body, 'not-authorized');
 		});
@@ -546,11 +623,15 @@ describe('authentication', () => {
 		});
 
 		it('should use master api token and _uid', async () => {
-			const { response, body } = await helpers.request('get', `/api/self?_uid=${newUid}`, {
-				headers: {
-					Authorization: `Bearer ${masterToken}`,
-				},
-			});
+			const { response, body } = await helpers.request(
+				'get',
+				`/api/self?_uid=${newUid}`,
+				{
+					headers: {
+						Authorization: `Bearer ${masterToken}`,
+					},
+				}
+			);
 
 			assert.strictEqual(response.statusCode, 200);
 			assert.strictEqual(body.username, 'apiUserTarget');

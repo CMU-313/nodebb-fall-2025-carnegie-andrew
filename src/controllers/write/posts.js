@@ -32,7 +32,11 @@ Posts.redirectByIndex = async (req, res, next) => {
 
 	const path = req.path.split('/').slice(3).join('/');
 	const urlObj = new URL(nconf.get('url') + req.url);
-	res.redirect(308, nconf.get('relative_path') + encodeURI(`/api/v3/posts/${pid}/${path}${urlObj.search}`));
+	res.redirect(
+		308,
+		nconf.get('relative_path') +
+			encodeURI(`/api/v3/posts/${pid}/${path}${urlObj.search}`)
+	);
 };
 
 Posts.get = async (req, res) => {
@@ -142,12 +146,18 @@ Posts.getUpvoters = async (req, res) => {
 };
 
 Posts.getAnnouncers = async (req, res) => {
-	const data = await api.posts.getAnnouncers(req, { pid: req.params.pid, tooltip: 0 });
+	const data = await api.posts.getAnnouncers(req, {
+		pid: req.params.pid,
+		tooltip: 0,
+	});
 	helpers.formatApiResponse(200, res, data);
 };
 
 Posts.getAnnouncersTooltip = async (req, res) => {
-	const data = await api.posts.getAnnouncers(req, { pid: req.params.pid, tooltip: 1 });
+	const data = await api.posts.getAnnouncers(req, {
+		pid: req.params.pid,
+		tooltip: 1,
+	});
 	helpers.formatApiResponse(200, res, data);
 };
 
@@ -164,21 +174,37 @@ Posts.unbookmark = async (req, res) => {
 };
 
 Posts.getDiffs = async (req, res) => {
-	helpers.formatApiResponse(200, res, await api.posts.getDiffs(req, { ...req.params }));
+	helpers.formatApiResponse(
+		200,
+		res,
+		await api.posts.getDiffs(req, { ...req.params })
+	);
 };
 
 Posts.loadDiff = async (req, res) => {
-	helpers.formatApiResponse(200, res, await api.posts.loadDiff(req, { ...req.params }));
+	helpers.formatApiResponse(
+		200,
+		res,
+		await api.posts.loadDiff(req, { ...req.params })
+	);
 };
 
 Posts.restoreDiff = async (req, res) => {
-	helpers.formatApiResponse(200, res, await api.posts.restoreDiff(req, { ...req.params }));
+	helpers.formatApiResponse(
+		200,
+		res,
+		await api.posts.restoreDiff(req, { ...req.params })
+	);
 };
 
 Posts.deleteDiff = async (req, res) => {
 	await api.posts.deleteDiff(req, { ...req.params });
 
-	helpers.formatApiResponse(200, res, await api.posts.getDiffs(req, { ...req.params }));
+	helpers.formatApiResponse(
+		200,
+		res,
+		await api.posts.getDiffs(req, { ...req.params })
+	);
 };
 
 Posts.getReplies = async (req, res) => {
@@ -201,7 +227,10 @@ Posts.removeQueuedPost = async (req, res) => {
 };
 
 Posts.editQueuedPost = async (req, res) => {
-	const result = await api.posts.editQueuedPost(req, { id: req.params.id, ...req.body });
+	const result = await api.posts.editQueuedPost(req, {
+		id: req.params.id,
+		...req.body,
+	});
 	helpers.formatApiResponse(200, res, result);
 };
 

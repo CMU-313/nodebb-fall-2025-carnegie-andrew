@@ -18,10 +18,9 @@ questions.main = [
 	{
 		name: 'url',
 		description: 'URL used to access this NodeBB',
-		default:
-			nconf.get('url') || 'http://localhost:4567',
+		default: nconf.get('url') || 'http://localhost:4567',
 		pattern: /^http(?:s)?:\/\//,
-		message: 'Base URL must begin with \'http://\' or \'https://\'',
+		message: "Base URL must begin with 'http://' or 'https://'",
 	},
 	{
 		name: 'secret',
@@ -69,11 +68,14 @@ function checkSetupFlagEnv() {
 
 	// Set setup values from env vars (if set)
 	const envKeys = Object.keys(process.env);
-	if (Object.keys(envConfMap).some(key => envKeys.includes(key))) {
-		winston.info('[install/checkSetupFlagEnv] checking env vars for setup info...');
+	if (Object.keys(envConfMap).some((key) => envKeys.includes(key))) {
+		winston.info(
+			'[install/checkSetupFlagEnv] checking env vars for setup info...'
+		);
 		setupVal = setupVal || {};
 
-		Object.entries(process.env).forEach(([evName, evValue]) => { // get setup values from env
+		Object.entries(process.env).forEach(([evName, evValue]) => {
+			// get setup values from env
 			if (evName.startsWith('NODEBB_DB_')) {
 				setupVal[`${process.env.NODEBB_DB}:${envConfMap[evName]}`] = evValue;
 			} else if (evName.startsWith('NODEBB_')) {
@@ -93,14 +95,23 @@ function checkSetupFlagEnv() {
 			setupVal = { ...setupVal, ...setupJSON };
 		}
 	} catch (err) {
-		winston.error('[install/checkSetupFlagEnv] invalid json in nconf.get(\'setup\'), ignoring setup values from json');
+		winston.error(
+			"[install/checkSetupFlagEnv] invalid json in nconf.get('setup'), ignoring setup values from json"
+		);
 	}
 
 	if (setupVal && typeof setupVal === 'object') {
-		if (setupVal['admin:username'] && setupVal['admin:password'] && setupVal['admin:password:confirm'] && setupVal['admin:email']) {
+		if (
+			setupVal['admin:username'] &&
+			setupVal['admin:password'] &&
+			setupVal['admin:password:confirm'] &&
+			setupVal['admin:email']
+		) {
 			install.values = setupVal;
 		} else {
-			winston.error('[install/checkSetupFlagEnv] required values are missing for automated setup:');
+			winston.error(
+				'[install/checkSetupFlagEnv] required values are missing for automated setup:'
+			);
 			if (!setupVal['admin:username']) {
 				winston.error('  admin:username');
 			}
@@ -131,10 +142,16 @@ function checkCIFlag() {
 	}
 
 	if (ciVals && ciVals instanceof Object) {
-		if (ciVals.hasOwnProperty('host') && ciVals.hasOwnProperty('port') && ciVals.hasOwnProperty('database')) {
+		if (
+			ciVals.hasOwnProperty('host') &&
+			ciVals.hasOwnProperty('port') &&
+			ciVals.hasOwnProperty('database')
+		) {
 			install.ciVals = ciVals;
 		} else {
-			winston.error('[install/checkCIFlag] required values are missing for automated CI integration:');
+			winston.error(
+				'[install/checkCIFlag] required values are missing for automated CI integration:'
+			);
 			if (!ciVals.hasOwnProperty('host')) {
 				winston.error('  host');
 			}
@@ -218,7 +235,10 @@ async function completeConfigSetup(config) {
 
 	// If port is explicitly passed via install vars, use it. Otherwise, glean from url if set.
 	const urlObj = url.parse(config.url);
-	if (urlObj.port && (!install.values || !install.values.hasOwnProperty('port'))) {
+	if (
+		urlObj.port &&
+		(!install.values || !install.values.hasOwnProperty('port'))
+	) {
 		config.port = urlObj.port;
 	}
 
@@ -234,16 +254,23 @@ async function completeConfigSetup(config) {
 	delete config.type;
 
 	const meta = require('./meta');
-	await meta.configs.set('submitPluginUsage', config.submitPluginUsage === 'yes' ? 1 : 0);
+	await meta.configs.set(
+		'submitPluginUsage',
+		config.submitPluginUsage === 'yes' ? 1 : 0
+	);
 	delete config.submitPluginUsage;
 
 	await install.save(config);
 }
 
 async function setupDefaultConfigs() {
-	console.log('Populating database with default configs, if not already set...');
+	console.log(
+		'Populating database with default configs, if not already set...'
+	);
 	const meta = require('./meta');
-	const defaults = require(path.join(__dirname, '../', 'install/data/defaults.json'));
+	const defaults = require(
+		path.join(__dirname, '../', 'install/data/defaults.json')
+	);
 
 	await meta.configs.setOnEmpty(defaults);
 	await meta.configs.init();
@@ -280,7 +307,9 @@ async function createDefaultUserGroups() {
 	}
 
 	const [verifiedExists, unverifiedExists, bannedExists] = await groups.exists([
-		'verified-users', 'unverified-users', 'banned-users',
+		'verified-users',
+		'unverified-users',
+		'banned-users',
 	]);
 	if (!verifiedExists) {
 		await createGroup('verified-users');
@@ -310,32 +339,40 @@ async function createAdmin() {
 	const Groups = require('./groups');
 	let password;
 
-	winston.warn('No administrators have been detected, running initial user setup\n');
+	winston.warn(
+		'No administrators have been detected, running initial user setup\n'
+	);
 
-	let questions = [{
-		name: 'username',
-		description: 'Administrator username',
-		required: true,
-		type: 'string',
-	}, {
-		name: 'email',
-		description: 'Administrator email address',
-		pattern: /.+@.+/,
-		required: true,
-	}];
-	const passwordQuestions = [{
-		name: 'password',
-		description: 'Password',
-		required: true,
-		hidden: true,
-		type: 'string',
-	}, {
-		name: 'password:confirm',
-		description: 'Confirm Password',
-		required: true,
-		hidden: true,
-		type: 'string',
-	}];
+	let questions = [
+		{
+			name: 'username',
+			description: 'Administrator username',
+			required: true,
+			type: 'string',
+		},
+		{
+			name: 'email',
+			description: 'Administrator email address',
+			pattern: /.+@.+/,
+			required: true,
+		},
+	];
+	const passwordQuestions = [
+		{
+			name: 'password',
+			description: 'Password',
+			required: true,
+			hidden: true,
+			type: 'string',
+		},
+		{
+			name: 'password:confirm',
+			description: 'Confirm Password',
+			required: true,
+			hidden: true,
+			type: 'string',
+		},
+	];
 
 	async function success(results) {
 		if (!results) {
@@ -351,8 +388,15 @@ async function createAdmin() {
 			User.isPasswordValid(results.password);
 		} catch (err) {
 			const [namespace, key] = err.message.slice(2, -2).split(':', 2);
-			if (namespace && key && err.message.startsWith('[[') && err.message.endsWith(']]')) {
-				const lang = require(path.join(__dirname, `../public/language/en-GB/${namespace}`));
+			if (
+				namespace &&
+				key &&
+				err.message.startsWith('[[') &&
+				err.message.endsWith(']]')
+			) {
+				const lang = require(
+					path.join(__dirname, `../public/language/en-GB/${namespace}`)
+				);
 				if (lang && lang[key]) {
 					err.message = lang[key];
 				}
@@ -390,16 +434,30 @@ async function createAdmin() {
 		return await success(results);
 	}
 
-	if (!install.values.hasOwnProperty('admin:password') && !nconf.get('admin:password')) {
-		console.log('Password was not provided during automated setup, generating one...');
+	if (
+		!install.values.hasOwnProperty('admin:password') &&
+		!nconf.get('admin:password')
+	) {
+		console.log(
+			'Password was not provided during automated setup, generating one...'
+		);
 		password = utils.generateUUID().slice(0, 8);
 	}
 
 	const results = {
-		username: install.values['admin:username'] || nconf.get('admin:username') || 'admin',
+		username:
+			install.values['admin:username'] ||
+			nconf.get('admin:username') ||
+			'admin',
 		email: install.values['admin:email'] || nconf.get('admin:email') || '',
-		password: install.values['admin:password'] || nconf.get('admin:password') || password,
-		'password:confirm': install.values['admin:password:confirm'] || nconf.get('admin:password') || password,
+		password:
+			install.values['admin:password'] ||
+			nconf.get('admin:password') ||
+			password,
+		'password:confirm':
+			install.values['admin:password:confirm'] ||
+			nconf.get('admin:password') ||
+			password,
 	};
 
 	return await success(results);
@@ -426,16 +484,34 @@ async function createGlobalModeratorsGroup() {
 async function giveGlobalPrivileges() {
 	const privileges = require('./privileges');
 	const defaultPrivileges = [
-		'groups:chat', 'groups:upload:post:image', 'groups:signature', 'groups:search:content',
-		'groups:search:users', 'groups:search:tags', 'groups:view:users', 'groups:view:tags', 'groups:view:groups',
+		'groups:chat',
+		'groups:upload:post:image',
+		'groups:signature',
+		'groups:search:content',
+		'groups:search:users',
+		'groups:search:tags',
+		'groups:view:users',
+		'groups:view:tags',
+		'groups:view:groups',
 		'groups:local:login',
 	];
 	await privileges.global.give(defaultPrivileges, 'registered-users');
-	await privileges.global.give(defaultPrivileges.concat([
-		'groups:ban', 'groups:upload:post:file', 'groups:view:users:info',
-	]), 'Global Moderators');
-	await privileges.global.give(['groups:view:users', 'groups:view:tags', 'groups:view:groups'], 'guests');
-	await privileges.global.give(['groups:view:users', 'groups:view:tags', 'groups:view:groups'], 'spiders');
+	await privileges.global.give(
+		defaultPrivileges.concat([
+			'groups:ban',
+			'groups:upload:post:file',
+			'groups:view:users:info',
+		]),
+		'Global Moderators'
+	);
+	await privileges.global.give(
+		['groups:view:users', 'groups:view:tags', 'groups:view:groups'],
+		'guests'
+	);
+	await privileges.global.give(
+		['groups:view:users', 'groups:view:tags', 'groups:view:groups'],
+		'spiders'
+	);
 	await privileges.global.give(['groups:view:users'], 'fediverse');
 }
 
@@ -464,8 +540,13 @@ async function giveWorldPrivileges() {
 	const guestPrivileges = ['groups:find', 'groups:read', 'groups:topics:read'];
 
 	await privileges.categories.give(defaultPrivileges, -1, ['registered-users']);
-	await privileges.categories.give(defaultPrivileges.slice(2), -1, ['fediverse']); // different priv set for fediverse
-	await privileges.categories.give(modPrivileges, -1, ['administrators', 'Global Moderators']);
+	await privileges.categories.give(defaultPrivileges.slice(2), -1, [
+		'fediverse',
+	]); // different priv set for fediverse
+	await privileges.categories.give(modPrivileges, -1, [
+		'administrators',
+		'Global Moderators',
+	]);
 	await privileges.categories.give(guestPrivileges, -1, ['guests', 'spiders']);
 }
 
@@ -478,10 +559,15 @@ async function createCategories() {
 		return;
 	}
 
-	console.log('No categories found, populating instance with default categories');
+	console.log(
+		'No categories found, populating instance with default categories'
+	);
 
 	const default_categories = JSON.parse(
-		await fs.promises.readFile(path.join(__dirname, '../', 'install/data/categories.json'), 'utf8')
+		await fs.promises.readFile(
+			path.join(__dirname, '../', 'install/data/categories.json'),
+			'utf8'
+		)
 	);
 	for (const categoryData of default_categories) {
 		// eslint-disable-next-line no-await-in-loop
@@ -506,7 +592,10 @@ async function createWelcomePost() {
 	const Topics = require('./topics');
 
 	const [content, numTopics] = await Promise.all([
-		fs.promises.readFile(path.join(__dirname, '../', 'install/data/welcome.md'), 'utf8'),
+		fs.promises.readFile(
+			path.join(__dirname, '../', 'install/data/welcome.md'),
+			'utf8'
+		),
 		db.getObjectField('global', 'topicCount'),
 	]);
 
@@ -534,23 +623,33 @@ async function enableDefaultPlugins() {
 		'nodebb-plugin-emoji',
 		'nodebb-plugin-emoji-android',
 	];
-	let customDefaults = nconf.get('defaultplugins') || nconf.get('defaultPlugins');
+	let customDefaults =
+		nconf.get('defaultplugins') || nconf.get('defaultPlugins');
 
-	winston.info(`[install/defaultPlugins] customDefaults ${String(customDefaults)}`);
+	winston.info(
+		`[install/defaultPlugins] customDefaults ${String(customDefaults)}`
+	);
 
 	if (customDefaults && customDefaults.length) {
 		try {
-			customDefaults = Array.isArray(customDefaults) ? customDefaults : JSON.parse(customDefaults);
+			customDefaults = Array.isArray(customDefaults)
+				? customDefaults
+				: JSON.parse(customDefaults);
 			defaultEnabled = defaultEnabled.concat(customDefaults);
 		} catch (e) {
 			// Invalid value received
-			winston.info('[install/enableDefaultPlugins] Invalid defaultPlugins value received. Ignoring.');
+			winston.info(
+				'[install/enableDefaultPlugins] Invalid defaultPlugins value received. Ignoring.'
+			);
 		}
 	}
 
 	defaultEnabled = _.uniq(defaultEnabled);
 
-	winston.info('[install/enableDefaultPlugins] activating default plugins', defaultEnabled);
+	winston.info(
+		'[install/enableDefaultPlugins] activating default plugins',
+		defaultEnabled
+	);
 
 	const db = require('./database');
 	const order = defaultEnabled.map((plugin, index) => index);
@@ -560,7 +659,10 @@ async function enableDefaultPlugins() {
 async function setCopyrightWidget() {
 	const db = require('./database');
 	const [footerJSON, footer] = await Promise.all([
-		fs.promises.readFile(path.join(__dirname, '../', 'install/data/footer.json'), 'utf8'),
+		fs.promises.readFile(
+			path.join(__dirname, '../', 'install/data/footer.json'),
+			'utf8'
+		),
 		db.getObjectField('widgets:global', 'footer'),
 	]);
 
@@ -571,7 +673,11 @@ async function setCopyrightWidget() {
 
 async function copyFavicon() {
 	const file = require('./file');
-	const pathToIco = path.join(nconf.get('upload_path'), 'system', 'favicon.ico');
+	const pathToIco = path.join(
+		nconf.get('upload_path'),
+		'system',
+		'favicon.ico'
+	);
 	const defaultIco = path.join(nconf.get('base_dir'), 'public', 'favicon.ico');
 	const targetExists = await file.exists(pathToIco);
 	const defaultExists = await file.exists(defaultIco);
@@ -601,11 +707,13 @@ async function checkUpgrade() {
 async function installPlugins() {
 	const pluginInstall = require('./plugins');
 	const nbbVersion = require(paths.currentPackage).version;
-	await Promise.all((await pluginInstall.getActive()).map(async (id) => {
-		if (await pluginInstall.isInstalled(id)) return;
-		const version = await pluginInstall.suggest(id, nbbVersion);
-		await pluginInstall.toggleInstall(id, version.version);
-	}));
+	await Promise.all(
+		(await pluginInstall.getActive()).map(async (id) => {
+			if (await pluginInstall.isInstalled(id)) return;
+			const version = await pluginInstall.suggest(id, nbbVersion);
+			await pluginInstall.toggleInstall(id, version.version);
+		})
+	);
 }
 
 install.setup = async function () {
@@ -657,10 +765,17 @@ install.save = async function (server_conf) {
 		}
 	}
 
-	await fs.promises.writeFile(serverConfigPath, JSON.stringify({
-		...currentConfig,
-		...server_conf,
-	}, null, 4));
+	await fs.promises.writeFile(
+		serverConfigPath,
+		JSON.stringify(
+			{
+				...currentConfig,
+				...server_conf,
+			},
+			null,
+			4
+		)
+	);
 	console.log('Configuration Saved OK');
 	nconf.file({
 		file: serverConfigPath,

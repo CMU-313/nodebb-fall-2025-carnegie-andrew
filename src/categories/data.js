@@ -8,9 +8,18 @@ const plugins = require('../plugins');
 const utils = require('../utils');
 
 const intFields = [
-	'cid', 'parentCid', 'disabled', 'isSection', 'order',
-	'topic_count', 'post_count', 'numRecentReplies',
-	'minTags', 'maxTags', 'postQueue', 'subCategoriesPerPage',
+	'cid',
+	'parentCid',
+	'disabled',
+	'isSection',
+	'order',
+	'topic_count',
+	'post_count',
+	'numRecentReplies',
+	'minTags',
+	'maxTags',
+	'postQueue',
+	'subCategoriesPerPage',
 ];
 
 const worldCategory = {
@@ -36,8 +45,10 @@ module.exports = function (Categories) {
 			return [];
 		}
 
-		cids = cids.map(cid => (utils.isNumber(cid) ? parseInt(cid, 10) : cid));
-		const keys = cids.map(cid => (utils.isNumber(cid) ? `category:${cid}` : `categoryRemote:${cid}`));
+		cids = cids.map((cid) => (utils.isNumber(cid) ? parseInt(cid, 10) : cid));
+		const keys = cids.map((cid) =>
+			utils.isNumber(cid) ? `category:${cid}` : `categoryRemote:${cid}`
+		);
 		const categories = await db.getObjects(keys, fields);
 
 		// Handle cid -1
@@ -58,7 +69,7 @@ module.exports = function (Categories) {
 			fields: fields,
 			keys: keys,
 		});
-		result.categories.forEach(category => modifyCategory(category, fields));
+		result.categories.forEach((category) => modifyCategory(category, fields));
 		return result.categories;
 	};
 
@@ -87,22 +98,33 @@ module.exports = function (Categories) {
 	};
 
 	Categories.setCategoryField = async function (cid, field, value) {
-		await db.setObjectField(`${utils.isNumber(cid) ? 'category' : 'categoryRemote'}:${cid}`, field, value);
+		await db.setObjectField(
+			`${utils.isNumber(cid) ? 'category' : 'categoryRemote'}:${cid}`,
+			field,
+			value
+		);
 	};
 
 	Categories.incrementCategoryFieldBy = async function (cid, field, value) {
-		await db.incrObjectFieldBy(`${utils.isNumber(cid) ? 'category' : 'categoryRemote'}:${cid}`, field, value);
+		await db.incrObjectFieldBy(
+			`${utils.isNumber(cid) ? 'category' : 'categoryRemote'}:${cid}`,
+			field,
+			value
+		);
 	};
 };
 
 function defaultIntField(category, fields, fieldName, defaultField) {
 	if (!fields.length || fields.includes(fieldName)) {
-		const useDefault = !category.hasOwnProperty(fieldName) ||
+		const useDefault =
+			!category.hasOwnProperty(fieldName) ||
 			category[fieldName] === null ||
 			category[fieldName] === '' ||
 			!utils.isNumber(category[fieldName]);
 
-		category[fieldName] = useDefault ? meta.config[defaultField] : category[fieldName];
+		category[fieldName] = useDefault
+			? meta.config[defaultField]
+			: category[fieldName];
 	}
 }
 
@@ -117,7 +139,17 @@ function modifyCategory(category, fields) {
 
 	db.parseIntFields(category, intFields, fields);
 
-	const escapeFields = ['name', 'description', 'federatedDescription', 'color', 'bgColor', 'backgroundImage', 'imageClass', 'class', 'link'];
+	const escapeFields = [
+		'name',
+		'description',
+		'federatedDescription',
+		'color',
+		'bgColor',
+		'backgroundImage',
+		'imageClass',
+		'class',
+		'link',
+	];
 	escapeFields.forEach((field) => {
 		if (category.hasOwnProperty(field)) {
 			category[field] = validator.escape(String(category[field] || ''));
@@ -137,6 +169,7 @@ function modifyCategory(category, fields) {
 	}
 
 	if (category.description) {
-		category.descriptionParsed = category.descriptionParsed || category.description;
+		category.descriptionParsed =
+			category.descriptionParsed || category.description;
 	}
 }

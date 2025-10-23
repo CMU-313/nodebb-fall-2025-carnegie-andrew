@@ -129,7 +129,7 @@ SELECT s."member" m
 			values: [key, values],
 		});
 
-		return values.map(v => res.rows.some(r => r.m === v));
+		return values.map((v) => res.rows.some((r) => r.m === v));
 	};
 
 	module.isMemberOfSets = async function (sets, value) {
@@ -152,7 +152,7 @@ SELECT o."_key" k
 			values: [sets, value],
 		});
 
-		return sets.map(s => res.rows.some(r => r.k === s));
+		return sets.map((s) => res.rows.some((r) => r.k === s));
 	};
 
 	module.getSetMembers = async function (key) {
@@ -172,7 +172,7 @@ SELECT s."member" m
 			values: [key],
 		});
 
-		return res.rows.map(r => r.m);
+		return res.rows.map((r) => r.m);
 	};
 
 	module.getSetsMembers = async function (keys) {
@@ -194,7 +194,7 @@ SELECT o."_key" k,
 			values: [keys],
 		});
 
-		return keys.map(k => (res.rows.find(r => r.k === k) || { m: [] }).m);
+		return keys.map((k) => (res.rows.find((r) => r.k === k) || { m: [] }).m);
 	};
 
 	module.setCount = async function (key) {
@@ -232,7 +232,7 @@ SELECT o."_key" k,
 			values: [keys],
 		});
 
-		return keys.map(k => (res.rows.find(r => r.k === k) || { c: 0 }).c);
+		return keys.map((k) => (res.rows.find((r) => r.k === k) || { c: 0 }).c);
 	};
 
 	module.setRemoveRandom = async function (key) {

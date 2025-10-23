@@ -13,23 +13,28 @@ module.exports = function (middleware) {
 	middleware.addHeaders = helpers.try((req, res, next) => {
 		const headers = {
 			'X-Powered-By': encodeURI(meta.config['powered-by'] || 'NodeBB'),
-			'Access-Control-Allow-Methods': encodeURI(meta.config['access-control-allow-methods'] || ''),
-			'Access-Control-Allow-Headers': encodeURI(meta.config['access-control-allow-headers'] || ''),
+			'Access-Control-Allow-Methods': encodeURI(
+				meta.config['access-control-allow-methods'] || ''
+			),
+			'Access-Control-Allow-Headers': encodeURI(
+				meta.config['access-control-allow-headers'] || ''
+			),
 		};
 
 		if (meta.config['csp-frame-ancestors']) {
-			headers['Content-Security-Policy'] = `frame-ancestors ${meta.config['csp-frame-ancestors']}`;
-			if (meta.config['csp-frame-ancestors'] === '\'none\'') {
+			headers['Content-Security-Policy'] =
+				`frame-ancestors ${meta.config['csp-frame-ancestors']}`;
+			if (meta.config['csp-frame-ancestors'] === "'none'") {
 				headers['X-Frame-Options'] = 'DENY';
 			}
 		} else {
-			headers['Content-Security-Policy'] = 'frame-ancestors \'self\'';
+			headers['Content-Security-Policy'] = "frame-ancestors 'self'";
 			headers['X-Frame-Options'] = 'SAMEORIGIN';
 		}
 
 		if (meta.config['access-control-allow-origin']) {
 			let origins = meta.config['access-control-allow-origin'].split(',');
-			origins = origins.map(origin => origin && origin.trim());
+			origins = origins.map((origin) => origin && origin.trim());
 
 			if (origins.includes(req.get('origin'))) {
 				headers['Access-Control-Allow-Origin'] = encodeURI(req.get('origin'));
@@ -38,12 +43,15 @@ module.exports = function (middleware) {
 		}
 
 		if (meta.config['access-control-allow-origin-regex']) {
-			let originsRegex = meta.config['access-control-allow-origin-regex'].split(',');
+			let originsRegex =
+				meta.config['access-control-allow-origin-regex'].split(',');
 			originsRegex = originsRegex.map((origin) => {
 				try {
 					origin = new RegExp(origin.trim());
 				} catch (err) {
-					winston.error(`[middleware.addHeaders] Invalid RegExp For access-control-allow-origin ${origin}`);
+					winston.error(
+						`[middleware.addHeaders] Invalid RegExp For access-control-allow-origin ${origin}`
+					);
 					origin = null;
 				}
 				return origin;
@@ -62,11 +70,14 @@ module.exports = function (middleware) {
 		}
 
 		if (meta.config['access-control-allow-credentials']) {
-			headers['Access-Control-Allow-Credentials'] = meta.config['access-control-allow-credentials'];
+			headers['Access-Control-Allow-Credentials'] =
+				meta.config['access-control-allow-credentials'];
 		}
 
 		if (process.env.NODE_ENV === 'development') {
-			headers['X-Upstream-Hostname'] = os.hostname().replace(/[^0-9A-Za-z-.]/g, '');
+			headers['X-Upstream-Hostname'] = os
+				.hostname()
+				.replace(/[^0-9A-Za-z-.]/g, '');
 		}
 
 		for (const [key, value] of Object.entries(headers)) {
@@ -109,7 +120,9 @@ module.exports = function (middleware) {
 			const codes = await languages.listCodes();
 			return _.uniq([defaultLang, ...codes]);
 		} catch (err) {
-			winston.error(`[middleware/autoLocale] Could not retrieve languages codes list! ${err.stack}`);
+			winston.error(
+				`[middleware/autoLocale] Could not retrieve languages codes list! ${err.stack}`
+			);
 			return [defaultLang];
 		}
 	}

@@ -1,4 +1,3 @@
-
 'use strict';
 
 const nconf = require('nconf');
@@ -37,7 +36,11 @@ function deserialize(config) {
 			deserialized[key] = false;
 		} else if (config[key] === null) {
 			deserialized[key] = defaults[key];
-		} else if (defaultType === 'undefined' && !isNaN(number) && isFinite(config[key])) {
+		} else if (
+			defaultType === 'undefined' &&
+			!isNaN(number) &&
+			isFinite(config[key])
+		) {
 			deserialized[key] = number;
 		} else if (Array.isArray(defaults[key]) && !Array.isArray(config[key])) {
 			try {
@@ -71,7 +74,11 @@ function serialize(config) {
 			}
 		} else if (config[key] === null) {
 			serialized[key] = defaults[key];
-		} else if (defaultType === 'undefined' && !isNaN(number) && isFinite(config[key])) {
+		} else if (
+			defaultType === 'undefined' &&
+			!isNaN(number) &&
+			isFinite(config[key])
+		) {
 			serialized[key] = number;
 		} else if (Array.isArray(defaults[key]) && Array.isArray(config[key])) {
 			serialized[key] = JSON.stringify(config[key]);
@@ -98,7 +105,9 @@ Configs.list = async function () {
 
 Configs.get = async function (field) {
 	const values = await Configs.getFields([field]);
-	return (values.hasOwnProperty(field) && values[field] !== undefined) ? values[field] : null;
+	return values.hasOwnProperty(field) && values[field] !== undefined
+		? values[field]
+		: null;
 };
 
 Configs.getFields = async function (fields) {
@@ -180,10 +189,7 @@ async function processConfig(data) {
 		throw new Error('[[error:invalid-data]]');
 	}
 	require('../social').postSharing = null;
-	await Promise.all([
-		saveRenderedCss(data),
-		getLogoSize(data),
-	]);
+	await Promise.all([saveRenderedCss(data), getLogoSize(data)]);
 }
 
 function ensureInteger(data, field, min) {
@@ -211,11 +217,15 @@ async function getLogoSize(data) {
 	}
 	let size;
 	try {
-		size = await image.size(path.join(nconf.get('upload_path'), 'system', 'site-logo-x50.png'));
+		size = await image.size(
+			path.join(nconf.get('upload_path'), 'system', 'site-logo-x50.png')
+		);
 	} catch (err) {
 		if (err.code === 'ENOENT') {
 			// For whatever reason the x50 logo wasn't generated, gracefully error out
-			winston.warn('[logo] The email-safe logo doesn\'t seem to have been created, please re-upload your site logo.');
+			winston.warn(
+				"[logo] The email-safe logo doesn't seem to have been created, please re-upload your site logo."
+			);
 			size = {
 				height: 0,
 				width: 0,
@@ -224,7 +234,9 @@ async function getLogoSize(data) {
 			throw err;
 		}
 	}
-	data['brand:emailLogo'] = nconf.get('url') + path.join(nconf.get('upload_url'), 'system', 'site-logo-x50.png');
+	data['brand:emailLogo'] =
+		nconf.get('url') +
+		path.join(nconf.get('upload_url'), 'system', 'site-logo-x50.png');
 	data['brand:emailLogo:height'] = size.height;
 	data['brand:emailLogo:width'] = size.width;
 }
@@ -232,7 +244,9 @@ async function getLogoSize(data) {
 async function updateNavItems(data) {
 	if (data.hasOwnProperty('activitypubEnabled')) {
 		const navAdmin = require('../navigation/admin');
-		await navAdmin.update('/world', { enabled: data.activitypubEnabled ? 'on' : '' });
+		await navAdmin.update('/world', {
+			enabled: data.activitypubEnabled ? 'on' : '',
+		});
 	}
 }
 

@@ -1,4 +1,3 @@
-
 'use strict';
 
 const nconf = require('nconf');
@@ -18,13 +17,14 @@ unreadController.get = async function (req, res) {
 	const { cid, tag } = req.query;
 	const filter = req.query.filter || '';
 
-	const [categoryData, tagData, userSettings, canPost, isPrivileged] = await Promise.all([
-		helpers.getSelectedCategory(cid),
-		helpers.getSelectedTag(tag),
-		user.getSettings(req.uid),
-		privileges.categories.canPostTopic(req.uid),
-		user.isPrivileged(req.uid),
-	]);
+	const [categoryData, tagData, userSettings, canPost, isPrivileged] =
+		await Promise.all([
+			helpers.getSelectedCategory(cid),
+			helpers.getSelectedTag(tag),
+			user.getSettings(req.uid),
+			privileges.categories.canPostTopic(req.uid),
+			user.isPrivileged(req.uid),
+		]);
 
 	const page = parseInt(req.query.page, 10) || 1;
 	const start = Math.max(0, (page - 1) * userSettings.topicsPerPage);
@@ -39,7 +39,10 @@ unreadController.get = async function (req, res) {
 		query: req.query,
 	});
 
-	const isDisplayedAsHome = !(req.originalUrl.startsWith(`${relative_path}/api/unread`) || req.originalUrl.startsWith(`${relative_path}/unread`));
+	const isDisplayedAsHome = !(
+		req.originalUrl.startsWith(`${relative_path}/api/unread`) ||
+		req.originalUrl.startsWith(`${relative_path}/unread`)
+	);
 	const baseUrl = isDisplayedAsHome ? '' : 'unread';
 
 	if (isDisplayedAsHome) {
@@ -49,7 +52,10 @@ unreadController.get = async function (req, res) {
 		data.breadcrumbs = helpers.buildBreadcrumbs([{ text: '[[unread:title]]' }]);
 	}
 
-	data.pageCount = Math.max(1, Math.ceil(data.topicCount / userSettings.topicsPerPage));
+	data.pageCount = Math.max(
+		1,
+		Math.ceil(data.topicCount / userSettings.topicsPerPage)
+	);
 	data.pagination = pagination.create(page, data.pageCount, req.query);
 	helpers.addLinkTags({
 		url: 'unread',
@@ -74,7 +80,9 @@ unreadController.get = async function (req, res) {
 	data.selectedTag = tagData.selectedTag;
 	data.selectedTags = tagData.selectedTags;
 	data.filters = helpers.buildFilters(baseUrl, filter, req.query);
-	data.selectedFilter = data.filters.find(filter => filter && filter.selected);
+	data.selectedFilter = data.filters.find(
+		(filter) => filter && filter.selected
+	);
 
 	res.render('unread', data);
 };

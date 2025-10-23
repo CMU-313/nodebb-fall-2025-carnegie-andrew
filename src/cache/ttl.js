@@ -69,7 +69,7 @@ module.exports = function (opts) {
 			keys = [keys];
 		}
 		pubsub.publish(`${cache.name}:ttlCache:del`, keys);
-		keys.forEach(key => ttlCache.delete(key));
+		keys.forEach((key) => ttlCache.delete(key));
 	};
 	cache.delete = cache.del;
 
@@ -95,7 +95,7 @@ module.exports = function (opts) {
 
 	pubsub.on(`${cache.name}:ttlCache:del`, (keys) => {
 		if (Array.isArray(keys)) {
-			keys.forEach(key => ttlCache.delete(key));
+			keys.forEach((key) => ttlCache.delete(key));
 		}
 	});
 

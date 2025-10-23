@@ -1,6 +1,5 @@
 'use strict';
 
-
 const nconf = require('nconf');
 const meta = require('./meta');
 
@@ -19,7 +18,9 @@ coverPhoto.getDefaultProfileCover = function (uid) {
 function getCover(type, id) {
 	const defaultCover = `${relative_path}/assets/images/cover-default.png`;
 	if (meta.config[`${type}:defaultCovers`]) {
-		const covers = String(meta.config[`${type}:defaultCovers`]).trim().split(/[\s,]+/g);
+		const covers = String(meta.config[`${type}:defaultCovers`])
+			.trim()
+			.split(/[\s,]+/g);
 		let coverPhoto = defaultCover;
 		if (!covers.length) {
 			return coverPhoto;
@@ -31,7 +32,9 @@ function getCover(type, id) {
 			id %= covers.length;
 		}
 		if (covers[id]) {
-			coverPhoto = covers[id].startsWith('http') ? covers[id] : (relative_path + covers[id]);
+			coverPhoto = covers[id].startsWith('http')
+				? covers[id]
+				: relative_path + covers[id];
 		}
 		return coverPhoto;
 	}

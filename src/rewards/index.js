@@ -16,12 +16,16 @@ rewards.checkConditionAndRewardUser = async function (params) {
 	const ids = await getIDsByCondition(condition);
 	let rewardData = await getRewardDataByIDs(ids);
 	// filter disabled
-	rewardData = rewardData.filter(r => r && !(r.disabled === 'true' || r.disabled === true));
+	rewardData = rewardData.filter(
+		(r) => r && !(r.disabled === 'true' || r.disabled === true)
+	);
 	rewardData = await filterCompletedRewards(uid, rewardData);
 	if (!rewardData || !rewardData.length) {
 		return;
 	}
-	const eligible = await Promise.all(rewardData.map(reward => checkCondition(reward, method)));
+	const eligible = await Promise.all(
+		rewardData.map((reward) => checkCondition(reward, method))
+	);
 	const eligibleRewards = rewardData.filter((reward, index) => eligible[index]);
 	await giveRewards(uid, eligibleRewards);
 };
@@ -35,7 +39,13 @@ async function getIDsByCondition(condition) {
 }
 
 async function filterCompletedRewards(uid, rewards) {
-	const data = await db.getSortedSetRangeByScoreWithScores(`uid:${uid}:rewards`, 0, -1, 1, '+inf');
+	const data = await db.getSortedSetRangeByScoreWithScores(
+		`uid:${uid}:rewards`,
+		0,
+		-1,
+		1,
+		'+inf'
+	);
 	const userRewards = {};
 
 	data.forEach((obj) => {
@@ -48,16 +58,22 @@ async function filterCompletedRewards(uid, rewards) {
 		}
 
 		const claimable = parseInt(reward.claimable, 10);
-		return claimable === 0 || (!userRewards[reward.id] || userRewards[reward.id] < reward.claimable);
+		return (
+			claimable === 0 ||
+			!userRewards[reward.id] ||
+			userRewards[reward.id] < reward.claimable
+		);
 	});
 }
 
 async function getRewardDataByIDs(ids) {
-	return await db.getObjects(ids.map(id => `rewards:id:${id}`));
+	return await db.getObjects(ids.map((id) => `rewards:id:${id}`));
 }
 
 async function getRewardsByRewardData(rewards) {
-	return await db.getObjects(rewards.map(reward => `rewards:id:${reward.id}:rewards`));
+	return await db.getObjects(
+		rewards.map((reward) => `rewards:id:${reward.id}:rewards`)
+	);
 }
 
 async function checkCondition(reward, method) {
@@ -65,7 +81,10 @@ async function checkCondition(reward, method) {
 		method = util.promisify(method);
 	}
 	const value = await method();
-	const bool = await plugins.hooks.fire(`filter:rewards.checkConditional:${reward.conditional}`, { left: value, right: reward.value });
+	const bool = await plugins.hooks.fire(
+		`filter:rewards.checkConditional:${reward.conditional}`,
+		{ left: value, right: reward.value }
+	);
 	return bool;
 }
 

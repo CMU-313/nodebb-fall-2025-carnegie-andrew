@@ -18,25 +18,33 @@ module.exports = {
 			await meta.configs.set('topicThumbSize', 512);
 		}
 
-		await batch.processSortedSet('topics:tid', async (tids) => {
-			const keys = tids.map(tid => `topic:${tid}`);
-			const topicThumbs = (await db.getObjectsFields(keys, ['thumb']))
-				.map(obj => (obj.thumb ? obj.thumb.replace(nconf.get('upload_url'), '') : null));
+		await batch.processSortedSet(
+			'topics:tid',
+			async (tids) => {
+				const keys = tids.map((tid) => `topic:${tid}`);
+				const topicThumbs = (await db.getObjectsFields(keys, ['thumb'])).map(
+					(obj) =>
+						obj.thumb ? obj.thumb.replace(nconf.get('upload_url'), '') : null
+				);
 
-			await Promise.all(tids.map(async (tid, idx) => {
-				const path = topicThumbs[idx];
-				if (path) {
-					if (path.length < 255 && !path.startsWith('data:')) {
-						await topics.thumbs.associate({ id: tid, path });
-					}
-					await db.deleteObjectField(keys[idx], 'thumb');
-				}
+				await Promise.all(
+					tids.map(async (tid, idx) => {
+						const path = topicThumbs[idx];
+						if (path) {
+							if (path.length < 255 && !path.startsWith('data:')) {
+								await topics.thumbs.associate({ id: tid, path });
+							}
+							await db.deleteObjectField(keys[idx], 'thumb');
+						}
 
-				progress.incr();
-			}));
-		}, {
-			batch: 500,
-			progress: progress,
-		});
+						progress.incr();
+					})
+				);
+			},
+			{
+				batch: 500,
+				progress: progress,
+			}
+		);
 	},
 };

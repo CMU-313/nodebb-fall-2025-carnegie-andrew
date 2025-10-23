@@ -8,8 +8,17 @@ const Flags = module.exports;
 
 Flags.create = async (req, res) => {
 	const { type, id, reason, notifyRemote } = req.body;
-	const flagObj = await api.flags.create(req, { type, id, reason, notifyRemote });
-	helpers.formatApiResponse(200, res, await user.isPrivileged(req.uid) ? flagObj : undefined);
+	const flagObj = await api.flags.create(req, {
+		type,
+		id,
+		reason,
+		notifyRemote,
+	});
+	helpers.formatApiResponse(
+		200,
+		res,
+		(await user.isPrivileged(req.uid)) ? flagObj : undefined
+	);
 };
 
 Flags.get = async (req, res) => {
@@ -49,5 +58,9 @@ Flags.appendNote = async (req, res) => {
 };
 
 Flags.deleteNote = async (req, res) => {
-	helpers.formatApiResponse(200, res, await api.flags.deleteNote(req, req.params));
+	helpers.formatApiResponse(
+		200,
+		res,
+		await api.flags.deleteNote(req, req.params)
+	);
 };

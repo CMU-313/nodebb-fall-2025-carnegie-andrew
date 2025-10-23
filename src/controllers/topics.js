@@ -25,7 +25,9 @@ const validSorts = ['oldest_to_newest', 'newest_to_oldest', 'most_votes'];
 topicsController.get = async function getTopic(req, res, next) {
 	const tid = req.params.topic_id;
 	if (
-		(req.params.post_index && !utils.isNumber(req.params.post_index) && req.params.post_index !== 'unread') ||
+		(req.params.post_index &&
+			!utils.isNumber(req.params.post_index) &&
+			req.params.post_index !== 'unread') ||
 		(!utils.isNumber(tid) && !validator.isUUID(tid))
 	) {
 		return next();
@@ -35,19 +37,19 @@ topicsController.get = async function getTopic(req, res, next) {
 	if (!topicData) {
 		return next();
 	}
-	const [
-		userPrivileges,
-		settings,
-		rssToken,
-	] = await Promise.all([
+	const [userPrivileges, settings, rssToken] = await Promise.all([
 		privileges.topics.get(tid, req.uid),
 		user.getSettings(req.uid),
 		user.auth.getFeedToken(req.uid),
 	]);
 
 	let currentPage = parseInt(req.query.page, 10) || 1;
-	const pageCount = Math.max(1, Math.ceil((topicData && topicData.postcount) / settings.postsPerPage));
-	const invalidPagination = (settings.usePagination && (currentPage < 1 || currentPage > pageCount));
+	const pageCount = Math.max(
+		1,
+		Math.ceil((topicData && topicData.postcount) / settings.postsPerPage)
+	);
+	const invalidPagination =
+		settings.usePagination && (currentPage < 1 || currentPage > pageCount);
 	if (
 		userPrivileges.disabled ||
 		invalidPagination ||
@@ -56,7 +58,10 @@ topicsController.get = async function getTopic(req, res, next) {
 		return next();
 	}
 
-	if (!userPrivileges['topics:read'] || (!topicData.scheduled && topicData.deleted && !userPrivileges.view_deleted)) {
+	if (
+		!userPrivileges['topics:read'] ||
+		(!topicData.scheduled && topicData.deleted && !userPrivileges.view_deleted)
+	) {
 		return helpers.notAllowed(req, res);
 	}
 
@@ -64,25 +69,44 @@ topicsController.get = async function getTopic(req, res, next) {
 		postIndex = await topics.getUserBookmark(tid, req.uid);
 	}
 
-	if (!res.locals.isAPI && (!req.params.slug || topicData.slug !== `${tid}/${req.params.slug}`) && (topicData.slug && topicData.slug !== `${tid}/`)) {
-		return helpers.redirect(res, `/topic/${topicData.slug}${postIndex ? `/${postIndex}` : ''}${generateQueryString(req.query)}`, true);
+	if (
+		!res.locals.isAPI &&
+		(!req.params.slug || topicData.slug !== `${tid}/${req.params.slug}`) &&
+		topicData.slug &&
+		topicData.slug !== `${tid}/`
+	) {
+		return helpers.redirect(
+			res,
+			`/topic/${topicData.slug}${postIndex ? `/${postIndex}` : ''}${generateQueryString(req.query)}`,
+			true
+		);
 	}
 
-	if (utils.isNumber(postIndex) && topicData.postcount > 0 && (postIndex < 1 || postIndex > topicData.postcount)) {
-		return helpers.redirect(res, `/topic/${tid}/${req.params.slug}${postIndex > topicData.postcount ? `/${topicData.postcount}` : ''}${generateQueryString(req.query)}`);
+	if (
+		utils.isNumber(postIndex) &&
+		topicData.postcount > 0 &&
+		(postIndex < 1 || postIndex > topicData.postcount)
+	) {
+		return helpers.redirect(
+			res,
+			`/topic/${tid}/${req.params.slug}${postIndex > topicData.postcount ? `/${topicData.postcount}` : ''}${generateQueryString(req.query)}`
+		);
 	}
 	postIndex = Math.max(1, postIndex);
-	const sort = validSorts.includes(req.query.sort) ? req.query.sort : settings.topicPostSort;
-	const set = sort === 'most_votes' ? `tid:${tid}:posts:votes` : `tid:${tid}:posts`;
+	const sort = validSorts.includes(req.query.sort)
+		? req.query.sort
+		: settings.topicPostSort;
+	const set =
+		sort === 'most_votes' ? `tid:${tid}:posts:votes` : `tid:${tid}:posts`;
 	const reverse = sort === 'newest_to_oldest' || sort === 'most_votes';
 
 	if (!req.query.page) {
 		currentPage = calculatePageFromIndex(postIndex, settings);
 	}
 	if (settings.usePagination && req.query.page) {
-		const top = ((currentPage - 1) * settings.postsPerPage) + 1;
+		const top = (currentPage - 1) * settings.postsPerPage + 1;
 		const bottom = top + settings.postsPerPage;
-		if (!req.params.post_index || (postIndex < top || postIndex > bottom)) {
+		if (!req.params.post_index || postIndex < top || postIndex > bottom) {
 			postIndex = top;
 		}
 	}
@@ -94,11 +118,13 @@ topicsController.get = async function getTopic(req, res, next) {
 	if (req.uid && topicData.posts && topicData.posts.length) {
 		const db = require('../database');
 		// const pids = topicData.posts.map(post => post.pid);
-		const userPinnedPids = await db.getSortedSetMembers(`uid:${req.uid}:pinned_posts`);
+		const userPinnedPids = await db.getSortedSetMembers(
+			`uid:${req.uid}:pinned_posts`
+		);
 		topicData.posts.forEach((post) => {
 			post.userPinned = userPinnedPids.includes(String(post.pid));
 		});
-		
+
 		// Sort posts to move user-pinned posts to the top
 		topicData.posts.sort((a, b) => {
 			// First sort by user-pinned status (pinned posts first)
@@ -111,7 +137,10 @@ topicsController.get = async function getTopic(req, res, next) {
 	}
 
 	topics.modifyPostsByPrivilege(topicData, userPrivileges);
-	topicData.tagWhitelist = categories.filterTagWhitelist(topicData.tagWhitelist, userPrivileges.isAdminOrMod);
+	topicData.tagWhitelist = categories.filterTagWhitelist(
+		topicData.tagWhitelist,
+		userPrivileges.isAdminOrMod
+	);
 
 	topicData.privileges = userPrivileges;
 	topicData.topicStaleDays = meta.config.topicStaleDays;
@@ -120,7 +149,8 @@ topicsController.get = async function getTopic(req, res, next) {
 	topicData.upvoteVisibility = meta.config.upvoteVisibility;
 	topicData.downvoteVisibility = meta.config.downvoteVisibility;
 	topicData['feeds:disableRSS'] = meta.config['feeds:disableRSS'] || 0;
-	topicData['signatures:hideDuplicates'] = meta.config['signatures:hideDuplicates'];
+	topicData['signatures:hideDuplicates'] =
+		meta.config['signatures:hideDuplicates'];
 	topicData.bookmarkThreshold = meta.config.bookmarkThreshold;
 	topicData.necroThreshold = meta.config.necroThreshold;
 	topicData.postEditDuration = meta.config.postEditDuration;
@@ -140,7 +170,7 @@ topicsController.get = async function getTopic(req, res, next) {
 
 	topicData.postIndex = postIndex;
 	const postAtIndex = topicData.posts.find(
-		p => parseInt(p.index, 10) === parseInt(Math.max(0, postIndex - 1), 10)
+		(p) => parseInt(p.index, 10) === parseInt(Math.max(0, postIndex - 1), 10)
 	);
 
 	const [author] = await Promise.all([
@@ -164,7 +194,10 @@ topicsController.get = async function getTopic(req, res, next) {
 		// Include link header for richer parsing
 		const { pid } = postAtIndex;
 		const href = utils.isNumber(pid) ? `${nconf.get('url')}/post/${pid}` : pid;
-		res.set('Link', `<${href}>; rel="alternate"; type="application/activity+json"`);
+		res.set(
+			'Link',
+			`<${href}>; rel="alternate"; type="application/activity+json"`
+		);
 	}
 
 	res.render('topic', topicData);
@@ -189,7 +222,7 @@ function calculateStartStop(page, postIndex, settings) {
 		startSkip = Math.max(0, postIndex - Math.ceil(settings.postsPerPage / 2));
 	}
 
-	const start = ((page - 1) * settings.postsPerPage) + startSkip;
+	const start = (page - 1) * settings.postsPerPage + startSkip;
 	const stop = start + settings.postsPerPage - 1;
 	return { start: Math.max(0, start), stop: Math.max(0, stop) };
 }
@@ -216,14 +249,17 @@ async function buildBreadcrumbs(topicData) {
 			text: topicData.title,
 		},
 	];
-	const parentCrumbs = await helpers.buildCategoryBreadcrumbs(topicData.category.parentCid);
+	const parentCrumbs = await helpers.buildCategoryBreadcrumbs(
+		topicData.category.parentCid
+	);
 	topicData.breadcrumbs = parentCrumbs.concat(breadcrumbs);
 }
 
 async function addOldCategory(topicData, userPrivileges) {
 	if (userPrivileges.isAdminOrMod && topicData.oldCid) {
 		topicData.oldCategory = await categories.getCategoryFields(
-			topicData.oldCid, ['cid', 'name', 'icon', 'bgColor', 'color', 'slug']
+			topicData.oldCid,
+			['cid', 'name', 'icon', 'bgColor', 'color', 'slug']
 		);
 	}
 }
@@ -231,7 +267,9 @@ async function addOldCategory(topicData, userPrivileges) {
 async function addTags(topicData, req, res, currentPage, postAtIndex) {
 	let description = '';
 	if (postAtIndex && postAtIndex.content) {
-		description = utils.stripHTMLTags(utils.decodeHTMLEntities(postAtIndex.content)).trim();
+		description = utils
+			.stripHTMLTags(utils.decodeHTMLEntities(postAtIndex.content))
+			.trim();
 	}
 
 	if (description.length > 160) {
@@ -239,7 +277,7 @@ async function addTags(topicData, req, res, currentPage, postAtIndex) {
 	}
 	description = description.replace(/\n/g, ' ').trim();
 
-	let mainPost = topicData.posts.find(p => parseInt(p.index, 10) === 0);
+	let mainPost = topicData.posts.find((p) => parseInt(p.index, 10) === 0);
 	if (!mainPost) {
 		mainPost = await posts.getPostData(topicData.mainPid);
 	}
@@ -263,7 +301,9 @@ async function addTags(topicData, req, res, currentPage, postAtIndex) {
 		},
 		{
 			property: 'article:modified_time',
-			content: utils.toISOString(Math.max(topicData.lastposttime, mainPost && mainPost.edited)),
+			content: utils.toISOString(
+				Math.max(topicData.lastposttime, mainPost && mainPost.edited)
+			),
 		},
 		{
 			property: 'article:section',
@@ -280,7 +320,7 @@ async function addTags(topicData, req, res, currentPage, postAtIndex) {
 			{
 				property: 'og:description',
 				content: description,
-			},
+			}
 		);
 	}
 
@@ -328,7 +368,9 @@ async function addTags(topicData, req, res, currentPage, postAtIndex) {
 }
 
 async function addOGImageTags(res, topicData, postAtIndex) {
-	const uploads = postAtIndex ? await posts.uploads.listWithSizes(postAtIndex.pid) : [];
+	const uploads = postAtIndex
+		? await posts.uploads.listWithSizes(postAtIndex.pid)
+		: [];
 	const images = uploads.map((upload) => {
 		upload.name = `${url + upload_url}/${upload.name}`;
 		return upload;
@@ -336,17 +378,24 @@ async function addOGImageTags(res, topicData, postAtIndex) {
 	if (topicData.thumbs) {
 		const path = require('path');
 		const thumbs = topicData.thumbs.filter(
-			t => t && images.every(img => path.normalize(img.name) !== path.normalize(url + t.url))
+			(t) =>
+				t &&
+				images.every(
+					(img) => path.normalize(img.name) !== path.normalize(url + t.url)
+				)
 		);
-		images.push(...thumbs.map(thumbObj => ({ name: url + thumbObj.url })));
+		images.push(...thumbs.map((thumbObj) => ({ name: url + thumbObj.url })));
 	}
-	if (topicData.category.backgroundImage && (!postAtIndex || !postAtIndex.index)) {
+	if (
+		topicData.category.backgroundImage &&
+		(!postAtIndex || !postAtIndex.index)
+	) {
 		images.push(topicData.category.backgroundImage);
 	}
 	if (postAtIndex && postAtIndex.user && postAtIndex.user.picture) {
 		images.push(postAtIndex.user.picture);
 	}
-	images.forEach(path => addOGImageTag(res, path));
+	images.forEach((path) => addOGImageTag(res, path));
 }
 
 function addOGImageTag(res, image) {
@@ -359,24 +408,30 @@ function addOGImageTag(res, image) {
 		imageUrl = image;
 	}
 
-	res.locals.metaTags.push({
-		property: 'og:image',
-		content: imageUrl,
-		noEscape: true,
-	}, {
-		property: 'og:image:url',
-		content: imageUrl,
-		noEscape: true,
-	});
+	res.locals.metaTags.push(
+		{
+			property: 'og:image',
+			content: imageUrl,
+			noEscape: true,
+		},
+		{
+			property: 'og:image:url',
+			content: imageUrl,
+			noEscape: true,
+		}
+	);
 
 	if (typeof image === 'object' && image.width && image.height) {
-		res.locals.metaTags.push({
-			property: 'og:image:width',
-			content: String(image.width),
-		}, {
-			property: 'og:image:height',
-			content: String(image.height),
-		});
+		res.locals.metaTags.push(
+			{
+				property: 'og:image:width',
+				content: String(image.width),
+			},
+			{
+				property: 'og:image:height',
+				content: String(image.height),
+			}
+		);
 	}
 }
 
@@ -393,7 +448,9 @@ topicsController.teaser = async function (req, res, next) {
 	if (!pid) {
 		return res.status(404).json('not-found');
 	}
-	const postData = await posts.getPostSummaryByPids([pid], req.uid, { stripTags: false });
+	const postData = await posts.getPostSummaryByPids([pid], req.uid, {
+		stripTags: false,
+	});
 	if (!postData.length) {
 		return res.status(404).json('not-found');
 	}
@@ -416,7 +473,10 @@ topicsController.pagination = async function (req, res, next) {
 		user.getSettings(req.uid),
 	]);
 
-	if (!userPrivileges.read || !privileges.topics.canViewDeletedScheduled(topic, userPrivileges)) {
+	if (
+		!userPrivileges.read ||
+		!privileges.topics.canViewDeletedScheduled(topic, userPrivileges)
+	) {
 		return helpers.notAllowed(req, res);
 	}
 

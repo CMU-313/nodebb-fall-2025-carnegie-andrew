@@ -37,7 +37,10 @@ module.exports = function (Posts) {
 		} else {
 			await db.sortedSetRemove(`uid:${uid}:bookmarks`, pid);
 		}
-		await db[isBookmarking ? 'setAdd' : 'setRemove'](`pid:${pid}:users_bookmarked`, uid);
+		await db[isBookmarking ? 'setAdd' : 'setRemove'](
+			`pid:${pid}:users_bookmarked`,
+			uid
+		);
 		postData.bookmarks = await db.setCount(`pid:${pid}:users_bookmarked`);
 		await Posts.setPostField(pid, 'bookmarks', postData.bookmarks);
 
@@ -60,7 +63,7 @@ module.exports = function (Posts) {
 		}
 
 		if (Array.isArray(pid)) {
-			const sets = pid.map(pid => `pid:${pid}:users_bookmarked`);
+			const sets = pid.map((pid) => `pid:${pid}:users_bookmarked`);
 			return await db.isMemberOfSets(sets, uid);
 		}
 		return await db.isSetMember(`pid:${pid}:users_bookmarked`, uid);

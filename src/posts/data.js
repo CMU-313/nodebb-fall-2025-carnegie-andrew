@@ -5,9 +5,18 @@ const plugins = require('../plugins');
 const utils = require('../utils');
 
 const intFields = [
-	'uid', 'pid', 'tid', 'deleted', 'timestamp',
-	'upvotes', 'downvotes', 'deleterUid', 'edited',
-	'replies', 'bookmarks', 'announces',
+	'uid',
+	'pid',
+	'tid',
+	'deleted',
+	'timestamp',
+	'upvotes',
+	'downvotes',
+	'deleterUid',
+	'edited',
+	'replies',
+	'bookmarks',
+	'announces',
 ];
 
 module.exports = function (Posts) {
@@ -15,14 +24,14 @@ module.exports = function (Posts) {
 		if (!Array.isArray(pids) || !pids.length) {
 			return [];
 		}
-		const keys = pids.map(pid => `post:${pid}`);
+		const keys = pids.map((pid) => `post:${pid}`);
 		const postData = await db.getObjects(keys, fields);
 		const result = await plugins.hooks.fire('filter:post.getFields', {
 			pids: pids,
 			posts: postData,
 			fields: fields,
 		});
-		result.posts.forEach(post => modifyPost(post, fields));
+		result.posts.forEach((post) => modifyPost(post, fields));
 		return result.posts;
 	};
 

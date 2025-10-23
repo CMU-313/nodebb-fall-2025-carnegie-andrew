@@ -7,7 +7,7 @@ const flagsApi = module.exports;
 
 flagsApi.create = async (caller, data) => {
 	const required = ['type', 'id', 'reason'];
-	if (!required.every(prop => !!data[prop])) {
+	if (!required.every((prop) => !!data[prop])) {
 		throw new Error('[[error:invalid-data]]');
 	}
 
@@ -19,7 +19,15 @@ flagsApi.create = async (caller, data) => {
 		id: id,
 	});
 
-	const flagObj = await flags.create(type, id, caller.uid, reason, undefined, undefined, notifyRemote);
+	const flagObj = await flags.create(
+		type,
+		id,
+		caller.uid,
+		reason,
+		undefined,
+		undefined,
+		notifyRemote
+	);
 	flags.notify(flagObj, caller.uid);
 
 	return flagObj;

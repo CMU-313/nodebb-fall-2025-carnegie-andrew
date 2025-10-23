@@ -51,7 +51,9 @@ const smtpSettingsChanged = (config) => {
 		'email:smtpTransport:security',
 	];
 	// config only has these properties if settings are saved on /admin/settings/email
-	return settings.some(key => config.hasOwnProperty(key) && config[key] !== prevConfig[key]);
+	return settings.some(
+		(key) => config.hasOwnProperty(key) && config[key] !== prevConfig[key]
+	);
 };
 
 const getHostname = () => {
@@ -63,10 +65,9 @@ const getHostname = () => {
 const buildCustomTemplates = async (config) => {
 	try {
 		// If the new config contains any email override values, re-compile those templates
-		const toBuild = Object
-			.keys(config)
-			.filter(prop => prop.startsWith('email:custom:'))
-			.map(key => key.split(':')[2]);
+		const toBuild = Object.keys(config)
+			.filter((prop) => prop.startsWith('email:custom:'))
+			.map((key) => key.split(':')[2]);
 
 		if (!toBuild.length) {
 			return;
@@ -77,42 +78,61 @@ const buildCustomTemplates = async (config) => {
 			file.walk(viewsDir),
 		]);
 
-		const templatesToBuild = templates.filter(template => toBuild.includes(template.path));
-		const paths = _.fromPairs(allPaths.map((p) => {
-			const relative = path.relative(viewsDir, p).replace(/\\/g, '/');
-			return [relative, p];
-		}));
+		const templatesToBuild = templates.filter((template) =>
+			toBuild.includes(template.path)
+		);
+		const paths = _.fromPairs(
+			allPaths.map((p) => {
+				const relative = path.relative(viewsDir, p).replace(/\\/g, '/');
+				return [relative, p];
+			})
+		);
 
-		await Promise.all(templatesToBuild.map(async (template) => {
-			const source = await meta.templates.processImports(paths, template.path, template.text);
-			const compiled = await Benchpress.precompile(source, { filename: template.path });
-			await fs.promises.writeFile(template.fullpath.replace(/\.tpl$/, '.js'), compiled);
-		}));
+		await Promise.all(
+			templatesToBuild.map(async (template) => {
+				const source = await meta.templates.processImports(
+					paths,
+					template.path,
+					template.text
+				);
+				const compiled = await Benchpress.precompile(source, {
+					filename: template.path,
+				});
+				await fs.promises.writeFile(
+					template.fullpath.replace(/\.tpl$/, '.js'),
+					compiled
+				);
+			})
+		);
 
 		Benchpress.flush();
 		winston.verbose('[emailer] Built custom email templates');
 	} catch (err) {
-		winston.error(`[emailer] Failed to build custom email templates\n${err.stack}`);
+		winston.error(
+			`[emailer] Failed to build custom email templates\n${err.stack}`
+		);
 	}
 };
 
 Emailer.getTemplates = async (config) => {
 	const emailsPath = path.join(viewsDir, 'emails');
 	let emails = await file.walk(emailsPath);
-	emails = emails.filter(email => !email.endsWith('.js'));
+	emails = emails.filter((email) => !email.endsWith('.js'));
 
-	const templates = await Promise.all(emails.map(async (email) => {
-		const path = email.replace(emailsPath, '').slice(1).replace('.tpl', '');
-		const original = await fs.promises.readFile(email, 'utf8');
+	const templates = await Promise.all(
+		emails.map(async (email) => {
+			const path = email.replace(emailsPath, '').slice(1).replace('.tpl', '');
+			const original = await fs.promises.readFile(email, 'utf8');
 
-		return {
-			path: path,
-			fullpath: email,
-			text: config[`email:custom:${path}`] || original,
-			original: original,
-			isCustom: !!config[`email:custom:${path}`],
-		};
-	}));
+			return {
+				path: path,
+				fullpath: email,
+				text: config[`email:custom:${path}`] || original,
+				original: original,
+				isCustom: !!config[`email:custom:${path}`],
+			};
+		})
+	);
 	return templates;
 };
 
@@ -125,7 +145,10 @@ Emailer.setupFallbackTransport = (config) => {
 			pool: config['email:smtpTransport:pool'],
 		};
 
-		if (config['email:smtpTransport:user'] || config['email:smtpTransport:pass']) {
+		if (
+			config['email:smtpTransport:user'] ||
+			config['email:smtpTransport:pass']
+		) {
 			smtpOptions.auth = {
 				user: config['email:smtpTransport:user'],
 				pass: config['email:smtpTransport:pass'],
@@ -170,7 +193,10 @@ Emailer.registerApp = (expressApp) => {
 
 	let logo = null;
 	if (meta.config.hasOwnProperty('brand:emailLogo')) {
-		logo = (!meta.config['brand:emailLogo'].startsWith('http') ? nconf.get('url') : '') + meta.config['brand:emailLogo'];
+		logo =
+			(!meta.config['brand:emailLogo'].startsWith('http')
+				? nconf.get('url')
+				: '') + meta.config['brand:emailLogo'];
 	}
 
 	Emailer._defaultPayload = {
@@ -223,7 +249,12 @@ Emailer.send = async (template, uid, params) => {
 		throw Error('[emailer] App not ready!');
 	}
 
-	let userData = await User.getUserFields(uid, ['email', 'username', 'email:confirmed', 'banned']);
+	let userData = await User.getUserFields(uid, [
+		'email',
+		'username',
+		'email:confirmed',
+		'banned',
+	]);
 
 	// 'welcome' and 'verify-email' explicitly used passed-in email address
 	if (['welcome', 'verify-email'].includes(template)) {
@@ -237,26 +268,45 @@ Emailer.send = async (template, uid, params) => {
 		}
 	}
 
-	({ template, userData, params } = await Plugins.hooks.fire('filter:email.prepare', { template, uid, userData, params }));
+	({ template, userData, params } = await Plugins.hooks.fire(
+		'filter:email.prepare',
+		{ template, uid, userData, params }
+	));
 
 	if (!meta.config.sendEmailToBanned && template !== 'banned') {
 		if (userData.banned) {
-			winston.warn(`[emailer/send] User ${userData.username} (uid: ${uid}) is banned; not sending email due to system config.`);
+			winston.warn(
+				`[emailer/send] User ${userData.username} (uid: ${uid}) is banned; not sending email due to system config.`
+			);
 			return;
 		}
 	}
 
 	if (!userData || !userData.email) {
 		if (process.env.NODE_ENV === 'development') {
-			winston.warn(`uid : ${uid} has no email, not sending "${template}" email.`);
+			winston.warn(
+				`uid : ${uid} has no email, not sending "${template}" email.`
+			);
 		}
 		return;
 	}
 
-	const allowedTpls = ['verify-email', 'welcome', 'registration_accepted', 'reset', 'reset_notify'];
-	if (!meta.config.includeUnverifiedEmails && !userData['email:confirmed'] && !allowedTpls.includes(template)) {
+	const allowedTpls = [
+		'verify-email',
+		'welcome',
+		'registration_accepted',
+		'reset',
+		'reset_notify',
+	];
+	if (
+		!meta.config.includeUnverifiedEmails &&
+		!userData['email:confirmed'] &&
+		!allowedTpls.includes(template)
+	) {
 		if (process.env.NODE_ENV === 'development') {
-			winston.warn(`uid : ${uid} (${userData.email}) has not confirmed email, not sending "${template}" email.`);
+			winston.warn(
+				`uid : ${uid} (${userData.email}) has not confirmed email, not sending "${template}" email.`
+			);
 		}
 		return;
 	}
@@ -266,7 +316,9 @@ Emailer.send = async (template, uid, params) => {
 	params.uid = uid;
 	params.username = userData.username;
 	params.displayname = userData.displayname;
-	params.rtl = await translator.translate('[[language:dir]]', userSettings.userLang) === 'rtl';
+	params.rtl =
+		(await translator.translate('[[language:dir]]', userSettings.userLang)) ===
+		'rtl';
 
 	const result = await Plugins.hooks.fire('filter:email.cancel', {
 		cancel: false, // set to true in plugin to cancel sending email
@@ -277,7 +329,12 @@ Emailer.send = async (template, uid, params) => {
 	if (result.cancel) {
 		return;
 	}
-	await Emailer.sendToEmail(template, userData.email, userSettings.userLang, params);
+	await Emailer.sendToEmail(
+		template,
+		userData.email,
+		userSettings.userLang,
+		params
+	);
 };
 
 Emailer.sendToEmail = async (template, email, language, params) => {
@@ -298,7 +355,9 @@ Emailer.sendToEmail = async (template, email, language, params) => {
 			expiresIn: '30d',
 		});
 
-		const unsubUrl = [nconf.get('url'), 'email', 'unsubscribe', payload].join('/');
+		const unsubUrl = [nconf.get('url'), 'email', 'unsubscribe', payload].join(
+			'/'
+		);
 		params.headers = {
 			'List-Id': `<${[template, params.uid, getHostname()].join('.')}>`,
 			'List-Unsubscribe': `<${unsubUrl}>`,
@@ -341,7 +400,8 @@ Emailer.sendToEmail = async (template, email, language, params) => {
 		headers: params.headers,
 		rtl: params.rtl,
 	});
-	const usingFallback = !Plugins.hooks.hasListeners('filter:email.send') &&
+	const usingFallback =
+		!Plugins.hooks.hasListeners('filter:email.send') &&
 		!Plugins.hooks.hasListeners('static:email.send');
 	try {
 		if (Plugins.hooks.hasListeners('static:email.send')) {

@@ -8,7 +8,7 @@ module.exports = function (Topics) {
 		options = options || {};
 
 		const topicsData = await Topics.getTopicsFields(tids, ['scheduled']);
-		if (topicsData.some(t => t.scheduled)) {
+		if (topicsData.some((t) => t.scheduled)) {
 			throw new Error('[[error:cant-merge-scheduled]]');
 		}
 
@@ -20,8 +20,9 @@ module.exports = function (Topics) {
 			mergeIntoTid = await createNewTopic(options.newTopicTitle, oldestTid);
 		}
 
-		const otherTids = tids.sort((a, b) => a - b)
-			.filter(tid => tid && String(tid) !== String(mergeIntoTid));
+		const otherTids = tids
+			.sort((a, b) => a - b)
+			.filter((tid) => tid && String(tid) !== String(mergeIntoTid));
 
 		for (const tid of otherTids) {
 			/* eslint-disable no-await-in-loop */
@@ -60,10 +61,13 @@ module.exports = function (Topics) {
 			cid: topicData.cid,
 			title: title,
 		};
-		const result = await plugins.hooks.fire('filter:topic.mergeCreateNewTopic', {
-			oldestTid: oldestTid,
-			params: params,
-		});
+		const result = await plugins.hooks.fire(
+			'filter:topic.mergeCreateNewTopic',
+			{
+				oldestTid: oldestTid,
+				params: params,
+			}
+		);
 		const tid = await Topics.create(result.params);
 		return tid;
 	}
@@ -71,7 +75,8 @@ module.exports = function (Topics) {
 	async function updateViewCount(mergeIntoTid, tids) {
 		const topicData = await Topics.getTopicsFields(tids, ['viewcount']);
 		const totalViewCount = topicData.reduce(
-			(count, topic) => count + parseInt(topic.viewcount, 10), 0
+			(count, topic) => count + parseInt(topic.viewcount, 10),
+			0
 		);
 		await Topics.setTopicField(mergeIntoTid, 'viewcount', totalViewCount);
 	}

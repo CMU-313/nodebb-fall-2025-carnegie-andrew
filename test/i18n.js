@@ -14,16 +14,23 @@ describe.skip('i18n', () => {
 	let folders;
 
 	before(async function () {
-		if ((process.env.GITHUB_REF && process.env.GITHUB_REF !== 'refs/heads/develop') || process.env.GITHUB_EVENT_NAME === 'pull_request') {
+		if (
+			(process.env.GITHUB_REF &&
+				process.env.GITHUB_REF !== 'refs/heads/develop') ||
+			process.env.GITHUB_EVENT_NAME === 'pull_request'
+		) {
 			this.skip();
 		}
 
-		folders = await fs.promises.readdir(path.resolve(__dirname, '../public/language'));
-		folders = folders.filter(f => f !== 'README.md');
+		folders = await fs.promises.readdir(
+			path.resolve(__dirname, '../public/language')
+		);
+		folders = folders.filter((f) => f !== 'README.md');
 	});
 
 	it('should contain folders named after the language code', async () => {
-		const valid = /(?:README.md|^[a-z]{2}(?:-[A-Z]{2})?$|^[a-z]{2}(?:-x-[a-z]+)?$)/; // good luck
+		const valid =
+			/(?:README.md|^[a-z]{2}(?:-[A-Z]{2})?$|^[a-z]{2}(?:-x-[a-z]+)?$)/; // good luck
 
 		folders.forEach((folder) => {
 			assert(valid.test(folder));
@@ -34,7 +41,7 @@ describe.skip('i18n', () => {
 	it('', async () => {
 		const sourcePath = path.resolve(__dirname, '../public/language/en-GB');
 		const fullPaths = await file.walk(sourcePath);
-		const sourceFiles = fullPaths.map(path => path.replace(sourcePath, ''));
+		const sourceFiles = fullPaths.map((path) => path.replace(sourcePath, ''));
 		const sourceStrings = new Map();
 
 		describe('source language file structure', () => {
@@ -58,12 +65,21 @@ describe.skip('i18n', () => {
 			describe('should only contain lowercase or numeric language keys separated by either dashes or periods', async () => {
 				describe('(regexp validation)', () => {
 					const valid = [
-						'foo.bar', 'foo.bar-baz', 'foo.bar.baz-quux-lorem-ipsum-dolor-sit-amet', 'foo.barBazQuux', // human generated
-						'example-name.isValid', 'kebab-case.isGood', 'camelcase.isFine', 'camelcase.with-dashes.isAlsoFine', 'single-character.is-ok', 'abc.def', // chatgpt generated
+						'foo.bar',
+						'foo.bar-baz',
+						'foo.bar.baz-quux-lorem-ipsum-dolor-sit-amet',
+						'foo.barBazQuux', // human generated
+						'example-name.isValid',
+						'kebab-case.isGood',
+						'camelcase.isFine',
+						'camelcase.with-dashes.isAlsoFine',
+						'single-character.is-ok',
+						'abc.def', // chatgpt generated
 					];
 					const invalid = [
 						// human generated
-						'foo.PascalCase', 'foo.snake_case',
+						'foo.PascalCase',
+						'foo.snake_case',
 						'badger.badger_badger_badger',
 						'foo.BarBazQuux',
 
@@ -109,26 +125,40 @@ describe.skip('i18n', () => {
 				let files;
 
 				before(async () => {
-					const translationPath = path.resolve(__dirname, `../public/language/${language}`);
-					files = (await file.walk(translationPath)).map(path => path.replace(translationPath, ''));
+					const translationPath = path.resolve(
+						__dirname,
+						`../public/language/${language}`
+					);
+					files = (await file.walk(translationPath)).map((path) =>
+						path.replace(translationPath, '')
+					);
 				});
 
 				it('translations should contain every language file contained in the source language directory', () => {
 					sourceFiles.forEach((relativePath) => {
-						assert(files.includes(relativePath), `${relativePath.slice(1)} was found in source files but was not found in language "${language}" (likely not internationalized)`);
+						assert(
+							files.includes(relativePath),
+							`${relativePath.slice(1)} was found in source files but was not found in language "${language}" (likely not internationalized)`
+						);
 					});
 				});
 
 				it('should not contain any extraneous files not included in the source language directory', () => {
 					files.forEach((relativePath) => {
-						assert(sourceFiles.includes(relativePath), `${relativePath.slice(1)} was found in language "${language}" but there is no source file for it (likely removed from en-GB)`);
+						assert(
+							sourceFiles.includes(relativePath),
+							`${relativePath.slice(1)} was found in language "${language}" but there is no source file for it (likely removed from en-GB)`
+						);
 					});
 				});
 			});
 
 			describe(`"${language}" file contents`, () => {
 				let fullPaths;
-				const translationPath = path.resolve(__dirname, `../public/language/${language}`);
+				const translationPath = path.resolve(
+					__dirname,
+					`../public/language/${language}`
+				);
 				const strings = new Map();
 
 				before(async () => {
@@ -158,7 +188,10 @@ describe.skip('i18n', () => {
 
 						assert(sourceKeys && translationKeys);
 						sourceKeys.forEach((key) => {
-							assert(translationKeys.includes(key), `${namespace.slice(1, -5)}:${key} missing in ${language}`);
+							assert(
+								translationKeys.includes(key),
+								`${namespace.slice(1, -5)}:${key} missing in ${language}`
+							);
 						});
 						assert.strictEqual(
 							sourceKeys.length,

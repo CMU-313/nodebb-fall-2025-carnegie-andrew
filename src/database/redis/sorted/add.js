@@ -42,8 +42,10 @@ module.exports = function (module) {
 			return;
 		}
 		const isArrayOfScores = Array.isArray(scores);
-		if ((!isArrayOfScores && !utils.isNumber(scores)) ||
-			(isArrayOfScores && scores.map(s => utils.isNumber(s)).includes(false))) {
+		if (
+			(!isArrayOfScores && !utils.isNumber(scores)) ||
+			(isArrayOfScores && scores.map((s) => utils.isNumber(s)).includes(false))
+		) {
 			throw new Error(`[[error:invalid-score, ${scores}]]`);
 		}
 
@@ -54,7 +56,11 @@ module.exports = function (module) {
 		const batch = module.client.batch();
 		for (let i = 0; i < keys.length; i += 1) {
 			if (keys[i]) {
-				batch.zadd(keys[i], isArrayOfScores ? scores[i] : scores, String(value));
+				batch.zadd(
+					keys[i],
+					isArrayOfScores ? scores[i] : scores,
+					String(value)
+				);
 			}
 		}
 		await helpers.execBatch(batch);

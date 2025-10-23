@@ -19,19 +19,30 @@ module.exports = {
 			}
 		}
 
-		await batch.processSortedSet('users:joindate', async (ids) => {
-			await Promise.all(ids.map(async (uid) => {
-				progress.incr();
-				const language = await db.getObjectField(`user:${uid}:settings`, 'userLang');
-				if (language) {
-					const newLanguage = language.replace('_', '-').replace('@', '-x-');
-					if (newLanguage !== language) {
-						await user.setSetting(uid, 'userLang', newLanguage);
-					}
-				}
-			}));
-		}, {
-			progress: progress,
-		});
+		await batch.processSortedSet(
+			'users:joindate',
+			async (ids) => {
+				await Promise.all(
+					ids.map(async (uid) => {
+						progress.incr();
+						const language = await db.getObjectField(
+							`user:${uid}:settings`,
+							'userLang'
+						);
+						if (language) {
+							const newLanguage = language
+								.replace('_', '-')
+								.replace('@', '-x-');
+							if (newLanguage !== language) {
+								await user.setSetting(uid, 'userLang', newLanguage);
+							}
+						}
+					})
+				);
+			},
+			{
+				progress: progress,
+			}
+		);
 	},
 };

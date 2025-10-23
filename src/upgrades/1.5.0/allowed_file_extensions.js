@@ -10,7 +10,12 @@ module.exports = {
 			if (err || value) {
 				return callback(err);
 			}
-			db.setObjectField('config', 'allowedFileExtensions', 'png,jpg,bmp', callback);
+			db.setObjectField(
+				'config',
+				'allowedFileExtensions',
+				'png,jpg,bmp',
+				callback
+			);
 		});
 	},
 };

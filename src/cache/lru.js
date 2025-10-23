@@ -13,7 +13,9 @@ module.exports = function (opts) {
 	// sometimes we kept passing in `length` with no corresponding `maxSize`.
 	// This is now enforced in v7; drop superfluous property
 	if (opts.hasOwnProperty('length') && !opts.hasOwnProperty('maxSize')) {
-		winston.warn(`[cache/init(${opts.name})] ${chalk.white.bgRed.bold('DEPRECATION')} ${chalk.yellow('length')} was passed in without a corresponding ${chalk.yellow('maxSize')}. Both are now required as of lru-cache@7.0.0.`);
+		winston.warn(
+			`[cache/init(${opts.name})] ${chalk.white.bgRed.bold('DEPRECATION')} ${chalk.yellow('length')} was passed in without a corresponding ${chalk.yellow('maxSize')}. Both are now required as of lru-cache@7.0.0.`
+		);
 		delete opts.length;
 	}
 
@@ -24,7 +26,9 @@ module.exports = function (opts) {
 	]);
 	deprecations.forEach((newProp, oldProp) => {
 		if (opts.hasOwnProperty(oldProp) && !opts.hasOwnProperty(newProp)) {
-			winston.warn(`[cache/init(${opts.name})] ${chalk.white.bgRed.bold('DEPRECATION')} The option ${chalk.yellow(oldProp)} has been deprecated as of lru-cache@7.0.0. Please change this to ${chalk.yellow(newProp)} instead.`);
+			winston.warn(
+				`[cache/init(${opts.name})] ${chalk.white.bgRed.bold('DEPRECATION')} The option ${chalk.yellow(oldProp)} has been deprecated as of lru-cache@7.0.0. Please change this to ${chalk.yellow(newProp)} instead.`
+			);
 			opts[newProp] = opts[oldProp];
 			delete opts[oldProp];
 		}
@@ -96,7 +100,7 @@ module.exports = function (opts) {
 			keys = [keys];
 		}
 		pubsub.publish(`${cache.name}:lruCache:del`, keys);
-		keys.forEach(key => lruCache.delete(key));
+		keys.forEach((key) => lruCache.delete(key));
 	};
 	cache.delete = cache.del;
 
@@ -122,7 +126,7 @@ module.exports = function (opts) {
 
 	pubsub.on(`${cache.name}:lruCache:del`, (keys) => {
 		if (Array.isArray(keys)) {
-			keys.forEach(key => lruCache.delete(key));
+			keys.forEach((key) => lruCache.delete(key));
 		}
 	});
 

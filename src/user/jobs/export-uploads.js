@@ -14,7 +14,11 @@ const winston = require('winston');
 process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 
 // Alternate configuration file support
-const configFile = path.resolve(__dirname, '../../../', nconf.any(['config', 'CONFIG']) || 'config.json');
+const configFile = path.resolve(
+	__dirname,
+	'../../../',
+	nconf.any(['config', 'CONFIG']) || 'config.json'
+);
 const prestart = require('../../prestart');
 
 prestart.loadConfig(configFile);
@@ -28,7 +32,11 @@ process.on('message', async (msg) => {
 
 		const targetUid = msg.uid;
 
-		const archivePath = path.join(__dirname, '../../../build/export', `${targetUid}_uploads.zip`);
+		const archivePath = path.join(
+			__dirname,
+			'../../../build/export',
+			`${targetUid}_uploads.zip`
+		);
 		const rootDirectory = path.join(__dirname, '../../../public/uploads/');
 
 		const user = require('../index');
@@ -44,7 +52,9 @@ process.on('message', async (msg) => {
 					break;
 
 				default:
-					winston.warn(`[user/export/uploads] Unexpected warning: ${err.message}`);
+					winston.warn(
+						`[user/export/uploads] Unexpected warning: ${err.message}`
+					);
 					break;
 			}
 		});
@@ -55,11 +65,15 @@ process.on('message', async (msg) => {
 			};
 			switch (err.code) {
 				case 'EACCES':
-					winston.error(`[user/export/uploads] File inaccessible: ${trimPath(err.path)}`);
+					winston.error(
+						`[user/export/uploads] File inaccessible: ${trimPath(err.path)}`
+					);
 					break;
 
 				default:
-					winston.error(`[user/export/uploads] Unable to construct archive: ${err.message}`);
+					winston.error(
+						`[user/export/uploads] Unable to construct archive: ${err.message}`
+					);
 					break;
 			}
 		});
@@ -71,10 +85,15 @@ process.on('message', async (msg) => {
 		});
 
 		archive.pipe(output);
-		winston.verbose(`[user/export/uploads] Collating uploads for uid ${targetUid}`);
+		winston.verbose(
+			`[user/export/uploads] Collating uploads for uid ${targetUid}`
+		);
 		await user.collateUploads(targetUid, archive);
 
-		const profileUploadPath = path.join(nconf.get('upload_path'), `profile/uid-${targetUid}`);
+		const profileUploadPath = path.join(
+			nconf.get('upload_path'),
+			`profile/uid-${targetUid}`
+		);
 		archive.directory(profileUploadPath, 'profile');
 		archive.finalize();
 	}

@@ -10,13 +10,27 @@ module.exports = {
 	method: function (callback) {
 		const { progress } = this;
 		const privileges = require('../../privileges');
-		batch.processSortedSet('categories:cid', (cids, next) => {
-			async.eachSeries(cids, (cid, next) => {
-				progress.incr();
-				privileges.categories.give(['groups:topics:tag'], cid, 'registered-users', next);
-			}, next);
-		}, {
-			progress: progress,
-		}, callback);
+		batch.processSortedSet(
+			'categories:cid',
+			(cids, next) => {
+				async.eachSeries(
+					cids,
+					(cid, next) => {
+						progress.incr();
+						privileges.categories.give(
+							['groups:topics:tag'],
+							cid,
+							'registered-users',
+							next
+						);
+					},
+					next
+				);
+			},
+			{
+				progress: progress,
+			},
+			callback
+		);
 	},
 };

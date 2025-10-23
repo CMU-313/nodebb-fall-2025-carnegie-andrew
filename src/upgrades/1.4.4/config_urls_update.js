@@ -1,6 +1,5 @@
 'use strict';
 
-
 const db = require('../../database');
 
 module.exports = {
@@ -25,7 +24,10 @@ module.exports = {
 					return;
 				}
 
-				config[key] = oldValue.replace(/(?:\/assets)?\/(images|uploads)\//g, '/assets/$1/');
+				config[key] = oldValue.replace(
+					/(?:\/assets)?\/(images|uploads)\//g,
+					'/assets/$1/'
+				);
 			});
 
 			await db.setObject('config', config);

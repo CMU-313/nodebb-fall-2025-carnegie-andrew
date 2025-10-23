@@ -15,28 +15,34 @@ describe('rewards', () => {
 
 	before((done) => {
 		// Create 3 users: 1 admin, 2 regular
-		async.series([
-			async.apply(User.create, { username: 'foo' }),
-			async.apply(User.create, { username: 'baz' }),
-			async.apply(User.create, { username: 'herp' }),
-		], (err, uids) => {
-			if (err) {
-				return done(err);
+		async.series(
+			[
+				async.apply(User.create, { username: 'foo' }),
+				async.apply(User.create, { username: 'baz' }),
+				async.apply(User.create, { username: 'herp' }),
+			],
+			(err, uids) => {
+				if (err) {
+					return done(err);
+				}
+
+				adminUid = uids[0];
+				bazUid = uids[1];
+				herpUid = uids[2];
+
+				async.series(
+					[
+						function (next) {
+							Groups.join('administrators', adminUid, next);
+						},
+						function (next) {
+							Groups.join('rewardGroup', adminUid, next);
+						},
+					],
+					done
+				);
 			}
-
-			adminUid = uids[0];
-			bazUid = uids[1];
-			herpUid = uids[2];
-
-			async.series([
-				function (next) {
-					Groups.join('administrators', adminUid, next);
-				},
-				function (next) {
-					Groups.join('rewardGroup', adminUid, next);
-				},
-			], done);
-		});
+		);
 	});
 
 	describe('rewards create', () => {
@@ -66,14 +72,17 @@ describe('rewards', () => {
 			function method(next) {
 				next(null, 1);
 			}
-			rewards.checkConditionAndRewardUser({
-				uid: adminUid,
-				condition: 'essentials/user.postcount',
-				method: method,
-			}, (err, data) => {
-				assert.ifError(err);
-				done();
-			});
+			rewards.checkConditionAndRewardUser(
+				{
+					uid: adminUid,
+					condition: 'essentials/user.postcount',
+					method: method,
+				},
+				(err, data) => {
+					assert.ifError(err);
+					done();
+				}
+			);
 		});
 	});
 });

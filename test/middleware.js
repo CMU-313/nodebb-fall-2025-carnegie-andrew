@@ -116,19 +116,24 @@ describe('Middlewares', () => {
 		});
 
 		it('should be absent on non-existent routes, for guests', async () => {
-			const { response } = await request.get(`${nconf.get('url')}/${utils.generateUUID()}`);
+			const { response } = await request.get(
+				`${nconf.get('url')}/${utils.generateUUID()}`
+			);
 
 			assert.strictEqual(response.statusCode, 404);
 			assert(!Object.keys(response.headers).includes('cache-control'));
 		});
 
 		it('should be set to "private" on non-existent routes, for logged in users', async () => {
-			const { response } = await request.get(`${nconf.get('url')}/${utils.generateUUID()}`, {
-				jar,
-				headers: {
-					accept: 'text/html',
-				},
-			});
+			const { response } = await request.get(
+				`${nconf.get('url')}/${utils.generateUUID()}`,
+				{
+					jar,
+					headers: {
+						accept: 'text/html',
+					},
+				}
+			);
 
 			assert.strictEqual(response.statusCode, 404);
 			assert(Object.keys(response.headers).includes('cache-control'));
@@ -158,7 +163,9 @@ describe('Middlewares', () => {
 		});
 
 		it('should be set to "private" on api routes, for logged-in users', async () => {
-			const { response } = await request.get(`${nconf.get('url')}/api`, { jar });
+			const { response } = await request.get(`${nconf.get('url')}/api`, {
+				jar,
+			});
 
 			assert.strictEqual(response.statusCode, 200);
 			assert(Object.keys(response.headers).includes('cache-control'));
@@ -166,7 +173,10 @@ describe('Middlewares', () => {
 		});
 
 		it('should be set to "private" on apiv3 routes, for logged-in users', async () => {
-			const { response } = await request.get(`${nconf.get('url')}/api/v3/users/${uid}`, { jar });
+			const { response } = await request.get(
+				`${nconf.get('url')}/api/v3/users/${uid}`,
+				{ jar }
+			);
 
 			assert.strictEqual(response.statusCode, 200);
 			assert(Object.keys(response.headers).includes('cache-control'));
@@ -174,4 +184,3 @@ describe('Middlewares', () => {
 		});
 	});
 });
-
