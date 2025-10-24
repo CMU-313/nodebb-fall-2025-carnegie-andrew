@@ -44,28 +44,32 @@ module.exports = {
 		}
 		// restore setting
 		meta.config.maximumGroupNameLength = maxGroupLength;
-		await batch.processSortedSet('users:joindate', async (uids) => {
-			progress.incr(uids.length);
-			const userData = await user.getUsersFields(uids, ['uid', 'email:confirmed']);
+		await batch.processSortedSet(
+			'users:joindate',
+			async uids => {
+				progress.incr(uids.length);
+				const userData = await user.getUsersFields(uids, ['uid', 'email:confirmed']);
 
-			const verified = userData.filter(u => parseInt(u['email:confirmed'], 10) === 1);
-			const unverified = userData.filter(u => parseInt(u['email:confirmed'], 10) !== 1);
+				const verified = userData.filter(u => parseInt(u['email:confirmed'], 10) === 1);
+				const unverified = userData.filter(u => parseInt(u['email:confirmed'], 10) !== 1);
 
-			await db.sortedSetAdd(
-				'group:verified-users:members',
-				verified.map(() => now),
-				verified.map(u => u.uid)
-			);
+				await db.sortedSetAdd(
+					'group:verified-users:members',
+					verified.map(() => now),
+					verified.map(u => u.uid),
+				);
 
-			await db.sortedSetAdd(
-				'group:unverified-users:members',
-				unverified.map(() => now),
-				unverified.map(u => u.uid)
-			);
-		}, {
-			batch: 500,
-			progress: this.progress,
-		});
+				await db.sortedSetAdd(
+					'group:unverified-users:members',
+					unverified.map(() => now),
+					unverified.map(u => u.uid),
+				);
+			},
+			{
+				batch: 500,
+				progress: this.progress,
+			},
+		);
 
 		await db.delete('users:notvalidated');
 		await updatePrivilges();

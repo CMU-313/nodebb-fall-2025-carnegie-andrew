@@ -10,7 +10,6 @@ const utils = require('../utils');
 
 const sockets = require('../socket.io');
 
-
 module.exports = function (Messaging) {
 	Messaging.editMessage = async (uid, mid, roomId, content) => {
 		await Messaging.checkContent(content);
@@ -39,7 +38,10 @@ module.exports = function (Messaging) {
 			});
 
 			if (!isPublic && utils.isNumber(messages[0].fromuid)) {
-				api.activitypub.update.privateNote({ uid: messages[0].fromuid }, { messageObj: messages[0] });
+				api.activitypub.update.privateNote(
+					{ uid: messages[0].fromuid },
+					{ messageObj: messages[0] },
+				);
 			}
 		}
 
@@ -79,7 +81,11 @@ module.exports = function (Messaging) {
 			throw new Error('[[error:no-privileges]]');
 		}
 
-		const messageData = await Messaging.getMessageFields(messageId, ['fromuid', 'timestamp', 'system']);
+		const messageData = await Messaging.getMessageFields(messageId, [
+			'fromuid',
+			'timestamp',
+			'system',
+		]);
 		if (isAdminOrGlobalMod && !messageData.system) {
 			return;
 		}

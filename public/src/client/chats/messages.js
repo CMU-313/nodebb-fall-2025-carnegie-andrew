@@ -1,12 +1,15 @@
 'use strict';
 
-
 define('forum/chats/messages', [
-	'components', 'hooks', 'bootbox', 'alerts',
-	'messages', 'api', 'forum/topic/images', 'imagesloaded',
-], function (
-	components, hooks, bootbox, alerts, messagesModule, api, images, imagesLoaded
-) {
+	'components',
+	'hooks',
+	'bootbox',
+	'alerts',
+	'messages',
+	'api',
+	'forum/topic/images',
+	'imagesloaded',
+], function (components, hooks, bootbox, alerts, messagesModule, api, images, imagesLoaded) {
 	const messages = {};
 
 	messages.sendMessage = async function (roomId, inputEl) {
@@ -25,33 +28,38 @@ define('forum/chats/messages', [
 		const replyToEl = chatComposer.find('[component="chat/composer/replying-to"]');
 		const toMid = replyToEl.attr('data-tomid');
 
-		api.post(`/chats/${roomId}`, { message, toMid: toMid }).then(() => {
-			hooks.fire('action:chat.sent', { roomId, message });
-			replyToEl.addClass('hidden');
-			replyToEl.attr('data-tomid', '');
-		}).catch((err) => {
-			inputEl.val(message).trigger('input');
-			messages.updateRemainingLength(chatComposer);
-			messages.updateTextAreaHeight(chatContent);
-			if (err.message === '[[error:email-not-confirmed-chat]]') {
-				return messagesModule.showEmailConfirmWarning(err.message);
-			}
+		api
+			.post(`/chats/${roomId}`, { message, toMid: toMid })
+			.then(() => {
+				hooks.fire('action:chat.sent', { roomId, message });
+				replyToEl.addClass('hidden');
+				replyToEl.attr('data-tomid', '');
+			})
+			.catch(err => {
+				inputEl.val(message).trigger('input');
+				messages.updateRemainingLength(chatComposer);
+				messages.updateTextAreaHeight(chatContent);
+				if (err.message === '[[error:email-not-confirmed-chat]]') {
+					return messagesModule.showEmailConfirmWarning(err.message);
+				}
 
-			alerts.alert({
-				alert_id: 'chat_spam_error',
-				title: '[[global:alert.error]]',
-				message: err.message,
-				type: 'danger',
-				timeout: 10000,
+				alerts.alert({
+					alert_id: 'chat_spam_error',
+					title: '[[global:alert.error]]',
+					message: err.message,
+					type: 'danger',
+					timeout: 10000,
+				});
 			});
-		});
 	};
 
 	messages.updateRemainingLength = function (parent) {
 		const element = parent.find('[component="chat/input"]');
 		parent.find('[component="chat/message/length"]').text(element.val().length);
 		const remainingLength = config.maximumChatMessageLength - element.val().length;
-		parent.find('[component="chat/message/remaining"]').text(remainingLength)
+		parent
+			.find('[component="chat/message/remaining"]')
+			.text(remainingLength)
 			.toggleClass('fw-bold text-danger', remainingLength < 0)
 			.toggleClass('text-muted', remainingLength >= 0);
 		hooks.fire('action:chat.updateRemainingLength', {
@@ -84,8 +92,10 @@ define('forum/chats/messages', [
 		const lastSpeaker = parseInt(lastMsgEl.attr('data-uid'), 10);
 		const lasttimestamp = parseInt(lastMsgEl.attr('data-timestamp'), 10);
 		if (!Array.isArray(data)) {
-			data.newSet = data.toMid || lastSpeaker !== parseInt(data.fromuid, 10) ||
-				parseInt(data.timestamp, 10) > parseInt(lasttimestamp, 10) + (1000 * 60 * 3);
+			data.newSet =
+				data.toMid ||
+				lastSpeaker !== parseInt(data.fromuid, 10) ||
+				parseInt(data.timestamp, 10) > parseInt(lasttimestamp, 10) + 1000 * 60 * 3;
 			data.index = parseInt(lastMsgEl.attr('data-index'), 10) + 1;
 		}
 
@@ -133,15 +143,19 @@ define('forum/chats/messages', [
 		if (Array.isArray(data)) {
 			app.parseAndTranslate('partials/chats/messages', tplData).then(callback);
 		} else {
-			app.parseAndTranslate('partials/chats/' + (data.system ? 'system-message' : 'message'), tplData).then(callback);
+			app
+				.parseAndTranslate(
+					'partials/chats/' + (data.system ? 'system-message' : 'message'),
+					tplData,
+				)
+				.then(callback);
 		}
 	};
 
 	messages.isAtBottom = function (containerEl, threshold) {
 		if (containerEl.length) {
-			const distanceToBottom = containerEl[0].scrollHeight - (
-				containerEl.outerHeight() + containerEl.scrollTop()
-			);
+			const distanceToBottom =
+				containerEl[0].scrollHeight - (containerEl.outerHeight() + containerEl.scrollTop());
 			return distanceToBottom < (threshold || 100);
 		}
 	};
@@ -158,7 +172,8 @@ define('forum/chats/messages', [
 		if (containerEl && containerEl.length) {
 			containerEl.attr('data-ignore-next-scroll', 1);
 			containerEl.scrollTop(containerEl[0].scrollHeight - containerEl.height());
-			containerEl.parents('[component="chat/message/window"]')
+			containerEl
+				.parents('[component="chat/message/window"]')
 				.find('[component="chat/messages/scroll-up-alert"]')
 				.addClass('hidden');
 		}
@@ -172,7 +187,8 @@ define('forum/chats/messages', [
 
 	messages.toggleScrollUpAlert = function (containerEl) {
 		const isAtBottom = messages.isAtBottom(containerEl, 300);
-		containerEl.parents('[component="chat/message/window"]')
+		containerEl
+			.parents('[component="chat/message/window"]')
 			.find('[component="chat/messages/scroll-up-alert"]')
 			.toggleClass('hidden', isAtBottom);
 	};
@@ -182,11 +198,14 @@ define('forum/chats/messages', [
 		const composerEl = chatMessageWindow.find('[component="chat/composer"]');
 		const mid = msgEl.attr('data-mid');
 		const replyToEl = composerEl.find('[component="chat/composer/replying-to"]');
-		replyToEl.attr('data-tomid', mid)
+		replyToEl
+			.attr('data-tomid', mid)
 			.find('[component="chat/composer/replying-to-text"]')
 			.translateText(`[[modules:chat.replying-to, ${msgEl.attr('data-displayname')}]]`);
 		replyToEl.removeClass('hidden');
-		replyToEl.find('[component="chat/composer/replying-to-cancel"]').off('click')
+		replyToEl
+			.find('[component="chat/composer/replying-to-cancel"]')
+			.off('click')
 			.on('click', () => {
 				replyToEl.attr('data-tomid', '');
 				replyToEl.addClass('hidden');
@@ -234,7 +253,7 @@ define('forum/chats/messages', [
 				autoCompleteEl.destroy();
 			}
 		}
-		textarea.on('keyup', (e) => {
+		textarea.on('keyup', e => {
 			if (e.key === 'Escape') {
 				finishEdit();
 			}
@@ -246,13 +265,16 @@ define('forum/chats/messages', [
 			if (!message.trim().length) {
 				return;
 			}
-			api.put(`/chats/${roomId}/messages/${mid}`, { message }).then(() => {
-				finishEdit();
-				hooks.fire('action:chat.edited', { roomId, message, mid });
-			}).catch((err) => {
-				textarea.val(message).trigger('input');
-				alerts.error(err);
-			});
+			api
+				.put(`/chats/${roomId}/messages/${mid}`, { message })
+				.then(() => {
+					finishEdit();
+					hooks.fire('action:chat.edited', { roomId, message, mid });
+				})
+				.catch(err => {
+					textarea.val(message).trigger('input');
+					alerts.error(err);
+				});
 		});
 
 		hooks.fire('action:chat.prepEdit', {
@@ -286,18 +308,18 @@ define('forum/chats/messages', [
 						'[component="chat/message/body"]',
 						'[component="chat/message/edited"]',
 					];
-					componentsToReplace.forEach((cmp) => {
+					componentsToReplace.forEach(cmp => {
 						msgEl.find(cmp).replaceWith(html.find(cmp));
 					});
 					messages.onMessagesAddedToDom(components.get('chat/message', message.mid));
 				}
 				const parentEl = $(`[component="chat/message/parent"][data-parent-mid="${message.mid}"]`);
 				if (parentEl.length) {
-					parentEl.find('[component="chat/message/parent/content"]').html(
-						html.find('[component="chat/message/body"]').html()
-					);
+					parentEl
+						.find('[component="chat/message/parent/content"]')
+						.html(html.find('[component="chat/message/body"]').html());
 					messages.onMessagesAddedToDom(
-						$(`[component="chat/message/parent"][data-parent-mid="${message.mid}"]`)
+						$(`[component="chat/message/parent"][data-parent-mid="${message.mid}"]`),
 					);
 				}
 			});
@@ -312,11 +334,13 @@ define('forum/chats/messages', [
 		msgEl.toggleClass('deleted', true);
 		parentEl.toggleClass('deleted', true);
 		if (!isSelf) {
-			msgEl.find('[component="chat/message/body"]')
+			msgEl
+				.find('[component="chat/message/body"]')
 				.translateHtml('<p>[[modules:chat.message-deleted]]</p>');
 		}
 		if (!isParentSelf) {
-			parentEl.find('[component="chat/message/parent/content"]')
+			parentEl
+				.find('[component="chat/message/parent/content"]')
 				.translateHtml('<p>[[modules:chat.message-deleted]]</p>');
 		}
 	}
@@ -329,15 +353,15 @@ define('forum/chats/messages', [
 		msgEl.toggleClass('deleted', false);
 		parentEl.toggleClass('deleted', false);
 		if (!isSelf) {
-			msgEl.find('[component="chat/message/body"]')
-				.translateHtml(message.content);
+			msgEl.find('[component="chat/message/body"]').translateHtml(message.content);
 			messages.onMessagesAddedToDom(components.get('chat/message', message.messageId));
 		}
 
 		if (!isParentSelf && parentEl.length) {
-			parentEl.find('[component="chat/message/parent/content"]')
-				.translateHtml(message.content);
-			messages.onMessagesAddedToDom($(`[component="chat/message/parent"][data-parent-mid="${message.messageId}"]`));
+			parentEl.find('[component="chat/message/parent/content"]').translateHtml(message.content);
+			messages.onMessagesAddedToDom(
+				$(`[component="chat/message/parent"][data-parent-mid="${message.messageId}"]`),
+			);
 		}
 	}
 
@@ -347,16 +371,22 @@ define('forum/chats/messages', [
 				return;
 			}
 
-			api.del(`/chats/${roomId}/messages/${encodeURIComponent(messageId)}`, {}).then(() => {
-				components.get('chat/message', messageId).toggleClass('deleted', true);
-			}).catch(alerts.error);
+			api
+				.del(`/chats/${roomId}/messages/${encodeURIComponent(messageId)}`, {})
+				.then(() => {
+					components.get('chat/message', messageId).toggleClass('deleted', true);
+				})
+				.catch(alerts.error);
 		});
 	};
 
 	messages.restore = function (messageId, roomId) {
-		api.post(`/chats/${roomId}/messages/${encodeURIComponent(messageId)}`, {}).then(() => {
-			components.get('chat/message', messageId).toggleClass('deleted', false);
-		}).catch(alerts.error);
+		api
+			.post(`/chats/${roomId}/messages/${encodeURIComponent(messageId)}`, {})
+			.then(() => {
+				components.get('chat/message', messageId).toggleClass('deleted', false);
+			})
+			.catch(alerts.error);
 	};
 
 	return messages;

@@ -1,7 +1,11 @@
 'use strict';
 
-
-define('flags', ['hooks', 'components', 'api', 'alerts'], function (hooks, components, api, alerts) {
+define('flags', ['hooks', 'components', 'api', 'alerts'], function (
+	hooks,
+	components,
+	api,
+	alerts,
+) {
 	const Flag = {};
 	let flagModal;
 	let flagCommit;
@@ -45,7 +49,6 @@ define('flags', ['hooks', 'components', 'api', 'alerts'], function (hooks, compo
 				flagReason.focus();
 			});
 
-
 			flagModal.modal('show');
 			hooks.fire('action:flag.showModal', {
 				modalEl: flagModal,
@@ -59,27 +62,35 @@ define('flags', ['hooks', 'components', 'api', 'alerts'], function (hooks, compo
 	};
 
 	Flag.resolve = function (flagId) {
-		api.put(`/flags/${flagId}`, {
-			state: 'resolved',
-		}).then(() => {
-			alerts.success('[[flags:resolved]]');
-			hooks.fire('action:flag.resolved', { flagId: flagId });
-		}).catch(alerts.error);
+		api
+			.put(`/flags/${flagId}`, {
+				state: 'resolved',
+			})
+			.then(() => {
+				alerts.success('[[flags:resolved]]');
+				hooks.fire('action:flag.resolved', { flagId: flagId });
+			})
+			.catch(alerts.error);
 	};
 
-
 	Flag.rescind = function (flagId) {
-		api.del(`/flags/${flagId}/report`).then(() => {
-			alerts.success('[[flags:report-rescinded]]');
-			hooks.fire('action:flag.rescinded', { flagId: flagId });
-		}).catch(alerts.error);
+		api
+			.del(`/flags/${flagId}/report`)
+			.then(() => {
+				alerts.success('[[flags:report-rescinded]]');
+				hooks.fire('action:flag.rescinded', { flagId: flagId });
+			})
+			.catch(alerts.error);
 	};
 
 	Flag.purge = function (flagId) {
-		api.del(`/flags/${flagId}`).then(() => {
-			alerts.success('[[flags:purged]]');
-			hooks.fire('action:flag.purged', { flagId: flagId });
-		}).catch(alerts.error);
+		api
+			.del(`/flags/${flagId}`)
+			.then(() => {
+				alerts.success('[[flags:purged]]');
+				hooks.fire('action:flag.purged', { flagId: flagId });
+			})
+			.catch(alerts.error);
 	};
 
 	function createFlag(type, id, reason, notifyRemote = false) {
@@ -97,7 +108,11 @@ define('flags', ['hooks', 'components', 'api', 'alerts'], function (hooks, compo
 			if (type === 'post') {
 				const postEl = components.get('post', 'pid', id);
 				postEl.find('[component="post/flag"]').addClass('hidden').parent().attr('hidden', '');
-				postEl.find('[component="post/already-flagged"]').removeClass('hidden').parent().attr('hidden', null);
+				postEl
+					.find('[component="post/already-flagged"]')
+					.removeClass('hidden')
+					.parent()
+					.attr('hidden', null);
 			}
 			hooks.fire('action:flag.create', { flagId: flagId, data: data });
 		});

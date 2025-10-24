@@ -35,13 +35,16 @@ define('admin/modules/checkboxRowSelector', function () {
 	function toggleAll($checkboxEl) {
 		self.toggling = true;
 		const state = $checkboxEl.prop('checked');
-		$checkboxEl.closest('tr').find('input:not(.checkbox-helper):visible').each((idx, el) => {
-			const $checkbox = $(el);
-			if ($checkbox.prop('checked') === state) {
-				return;
-			}
-			$checkbox.click();
-		});
+		$checkboxEl
+			.closest('tr')
+			.find('input:not(.checkbox-helper):visible')
+			.each((idx, el) => {
+				const $checkbox = $(el);
+				if ($checkbox.prop('checked') === state) {
+					return;
+				}
+				$checkbox.click();
+			});
 		self.toggling = false;
 	}
 

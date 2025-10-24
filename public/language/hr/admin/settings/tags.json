@@ -1,13 +1,13 @@
 {
-    "tag": "Postavke oznaka",
-    "link-to-manage": "Manage Tags",
-    "system-tags": "System Tags",
-    "system-tags-help": "Only privileged users will be able to use these tags.",
-    "tags-per-topic": "Tags per topic",
-    "min-per-topic": "Najmanje oznaka za temu",
-    "max-per-topic": "Maksimalno oznaka po temi",
-    "min-length": "Minimalna dužina oznake",
-    "max-length": "Maksimalna dužina oznaka",
-    "related-topics": "Slične teme",
-    "max-related-topics": "Maksimalni broj povezanih tema za prikaz(ako je podržano unutar predloška)"
+  "tag": "Postavke oznaka",
+  "link-to-manage": "Manage Tags",
+  "system-tags": "System Tags",
+  "system-tags-help": "Only privileged users will be able to use these tags.",
+  "tags-per-topic": "Tags per topic",
+  "min-per-topic": "Najmanje oznaka za temu",
+  "max-per-topic": "Maksimalno oznaka po temi",
+  "min-length": "Minimalna dužina oznake",
+  "max-length": "Maksimalna dužina oznaka",
+  "related-topics": "Slične teme",
+  "max-related-topics": "Maksimalni broj povezanih tema za prikaz(ako je podržano unutar predloška)"
 }

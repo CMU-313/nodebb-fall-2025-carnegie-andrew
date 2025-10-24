@@ -21,9 +21,7 @@ const roomUidCache = cacheCreate({
 	ttl: 0,
 });
 
-const intFields = [
-	'roomId', 'timestamp', 'userCount', 'messageCount',
-];
+const intFields = ['roomId', 'timestamp', 'userCount', 'messageCount'];
 
 module.exports = function (Messaging) {
 	Messaging.getRoomData = async (roomId, fields = []) => {
@@ -37,14 +35,14 @@ module.exports = function (Messaging) {
 		}
 		const roomData = await db.getObjects(
 			roomIds.map(roomId => `chat:room:${roomId}`),
-			fields
+			fields,
 		);
 		modifyRoomData(roomData, fields);
 		return roomData;
 	};
 
 	function modifyRoomData(rooms, fields) {
-		rooms.forEach((data) => {
+		rooms.forEach(data => {
 			if (data) {
 				db.parseIntFields(data, intFields, fields);
 				data.roomName = validator.escape(String(data.roomName || ''));
@@ -52,12 +50,11 @@ module.exports = function (Messaging) {
 				data.groupChat = data.userCount > 2;
 
 				if (!fields.length || fields.includes('notificationSetting')) {
-					data.notificationSetting = data.notificationSetting ||
-						(
-							data.public ?
-								Messaging.notificationSettings.ATMENTION :
-								Messaging.notificationSettings.ALLMESSAGES
-						);
+					data.notificationSetting =
+						data.notificationSetting ||
+						(data.public
+							? Messaging.notificationSettings.ATMENTION
+							: Messaging.notificationSettings.ALLMESSAGES);
 				}
 
 				if (data.hasOwnProperty('groups') || !fields.length || fields.includes('groups')) {
@@ -74,7 +71,8 @@ module.exports = function (Messaging) {
 
 	Messaging.newRoom = async (uid, data) => {
 		// backwards compat. remove in 4.x
-		if (Array.isArray(data)) { // old usage second param used to be toUids
+		if (Array.isArray(data)) {
+			// old usage second param used to be toUids
 			data = { uids: data };
 		}
 		if (data.hasOwnProperty('roomName')) {
@@ -105,26 +103,20 @@ module.exports = function (Messaging) {
 			db.setObject(`chat:room:${roomId}`, room),
 			db.sortedSetAdd('chat:rooms', now, roomId),
 			db.sortedSetAdd(`chat:room:${roomId}:owners`, now, uid),
-			db.sortedSetsAdd([
-				`chat:room:${roomId}:uids`,
-				`chat:room:${roomId}:uids:online`,
-			], now, uid),
+			db.sortedSetsAdd([`chat:room:${roomId}:uids`, `chat:room:${roomId}:uids:online`], now, uid),
 		]);
 
 		await Promise.all([
 			Messaging.addUsersToRoom(uid, data.uids, roomId),
-			isPublic ?
-				db.sortedSetAddBulk([
-					['chat:rooms:public', now, roomId],
-					['chat:rooms:public:order', roomId, roomId],
-				]) :
-				Messaging.addRoomToUsers(roomId, [uid].concat(data.uids), now),
+			isPublic
+				? db.sortedSetAddBulk([
+						['chat:rooms:public', now, roomId],
+						['chat:rooms:public:order', roomId, roomId],
+					])
+				: Messaging.addRoomToUsers(roomId, [uid].concat(data.uids), now),
 		]);
 
-		cache.del([
-			'chat:rooms:public:all',
-			'chat:rooms:public:order:all',
-		]);
+		cache.del(['chat:rooms:public:all', 'chat:rooms:public:order:all']);
 
 		if (!isPublic) {
 			// chat owner should also get the user-join system message
@@ -134,7 +126,7 @@ module.exports = function (Messaging) {
 		return roomId;
 	};
 
-	Messaging.deleteRooms = async (roomIds) => {
+	Messaging.deleteRooms = async roomIds => {
 		if (!roomIds) {
 			throw new Error('[[error:invalid-data]]');
 		}
@@ -143,14 +135,16 @@ module.exports = function (Messaging) {
 			roomIds = [roomIds];
 		}
 
-		await Promise.all(roomIds.map(async (roomId) => {
-			const uids = await db.getSortedSetMembers(`chat:room:${roomId}:uids`);
-			const keys = uids
-				.map(uid => `uid:${uid}:chat:rooms`)
-				.concat(uids.map(uid => `uid:${uid}:chat:rooms:unread`));
+		await Promise.all(
+			roomIds.map(async roomId => {
+				const uids = await db.getSortedSetMembers(`chat:room:${roomId}:uids`);
+				const keys = uids
+					.map(uid => `uid:${uid}:chat:rooms`)
+					.concat(uids.map(uid => `uid:${uid}:chat:rooms:unread`));
 
-			await db.sortedSetsRemove(keys, roomId);
-		}));
+				await db.sortedSetsRemove(keys, roomId);
+			}),
+		);
 		await Promise.all([
 			db.deleteAll([
 				...roomIds.map(id => `chat:room:${id}`),
@@ -159,17 +153,17 @@ module.exports = function (Messaging) {
 				...roomIds.map(id => `chat:room:${id}:uids:online`),
 				...roomIds.map(id => `chat:room:${id}:notification:settings`),
 			]),
-			db.sortedSetRemove([
-				'chat:rooms',
-				'chat:rooms:public',
-				'chat:rooms:public:order',
-				'chat:rooms:public:lastpost',
-			], roomIds),
+			db.sortedSetRemove(
+				[
+					'chat:rooms',
+					'chat:rooms:public',
+					'chat:rooms:public:order',
+					'chat:rooms:public:lastpost',
+				],
+				roomIds,
+			),
 		]);
-		cache.del([
-			'chat:rooms:public:all',
-			'chat:rooms:public:order:all',
-		]);
+		cache.del(['chat:rooms:public:all', 'chat:rooms:public:order:all']);
 	};
 
 	Messaging.isUserInRoom = async (uid, roomIds) => {
@@ -180,17 +174,19 @@ module.exports = function (Messaging) {
 		}
 		const inRooms = await db.isMemberOfSortedSets(
 			roomIds.map(id => `chat:room:${id}:uids`),
-			uid
+			uid,
 		);
 
-		const data = await Promise.all(roomIds.map(async (roomId, idx) => {
-			const data = await plugins.hooks.fire('filter:messaging.isUserInRoom', {
-				uid: uid,
-				roomId: roomId,
-				inRoom: inRooms[idx],
-			});
-			return data.inRoom;
-		}));
+		const data = await Promise.all(
+			roomIds.map(async (roomId, idx) => {
+				const data = await plugins.hooks.fire('filter:messaging.isUserInRoom', {
+					uid: uid,
+					roomId: roomId,
+					inRoom: inRooms[idx],
+				});
+				return data.inRoom;
+			}),
+		);
 		return single ? data.pop() : data;
 	};
 
@@ -201,10 +197,7 @@ module.exports = function (Messaging) {
 			single = true;
 		}
 
-		const inRooms = await db.isSortedSetMembers(
-			`chat:room:${roomId}:uids`,
-			uids,
-		);
+		const inRooms = await db.isSortedSetMembers(`chat:room:${roomId}:uids`, uids);
 
 		const data = await plugins.hooks.fire('filter:messaging.isUsersInRoom', {
 			uids: uids,
@@ -226,10 +219,16 @@ module.exports = function (Messaging) {
 		}
 
 		const isOwners = await db.isSortedSetMembers(`chat:room:${roomId}:owners`, uids);
-		const result = await Promise.all(isOwners.map(async (isOwner, index) => {
-			const payload = await plugins.hooks.fire('filter:messaging.isRoomOwner', { uid: uids[index], roomId, isOwner });
-			return payload.isOwner;
-		}));
+		const result = await Promise.all(
+			isOwners.map(async (isOwner, index) => {
+				const payload = await plugins.hooks.fire('filter:messaging.isRoomOwner', {
+					uid: uids[index],
+					roomId,
+					isOwner,
+				});
+				return payload.isOwner;
+			}),
+		);
 		return isArray ? result : result[0];
 	};
 
@@ -268,7 +267,12 @@ module.exports = function (Messaging) {
 		}
 
 		const inRoom = await Messaging.isUserInRoom(uid, roomId);
-		const payload = await plugins.hooks.fire('filter:messaging.addUsersToRoom', { uid, uids, roomId, inRoom });
+		const payload = await plugins.hooks.fire('filter:messaging.addUsersToRoom', {
+			uid,
+			uids,
+			roomId,
+			inRoom,
+		});
 
 		if (!payload.inRoom) {
 			throw new Error('[[error:cant-add-users-to-chat-room]]');
@@ -293,7 +297,13 @@ module.exports = function (Messaging) {
 			Messaging.isRoomOwner(uid, roomId),
 			Messaging.getUserCountInRoom(roomId),
 		]);
-		const payload = await plugins.hooks.fire('filter:messaging.removeUsersFromRoom', { uid, uids, roomId, isOwner, userCount });
+		const payload = await plugins.hooks.fire('filter:messaging.removeUsersFromRoom', {
+			uid,
+			uids,
+			roomId,
+			isOwner,
+			userCount,
+		});
 
 		if (!payload.isOwner) {
 			throw new Error('[[error:cant-remove-users-from-chat-room]]');
@@ -327,11 +337,14 @@ module.exports = function (Messaging) {
 			.concat(uids.map(uid => `uid:${uid}:chat:rooms:unread`));
 
 		await Promise.all([
-			db.sortedSetRemove([
-				`chat:room:${roomId}:uids`,
-				`chat:room:${roomId}:owners`,
-				`chat:room:${roomId}:uids:online`,
-			], uids),
+			db.sortedSetRemove(
+				[
+					`chat:room:${roomId}:uids`,
+					`chat:room:${roomId}:owners`,
+					`chat:room:${roomId}:uids:online`,
+				],
+				uids,
+			),
 			db.sortedSetsRemove(keys, roomId),
 		]);
 
@@ -351,15 +364,13 @@ module.exports = function (Messaging) {
 		];
 		await Promise.all([
 			db.sortedSetsRemove(roomKeys, uid),
-			db.sortedSetRemove([
-				`uid:${uid}:chat:rooms`,
-				`uid:${uid}:chat:rooms:unread`,
-			], roomIds),
+			db.sortedSetRemove([`uid:${uid}:chat:rooms`, `uid:${uid}:chat:rooms:unread`], roomIds),
 		]);
 
 		await Promise.all(
-			roomIds.map(roomId => updateOwner(roomId))
-				.concat(roomIds.map(roomId => Messaging.addSystemMessage('user-leave', uid, roomId)))
+			roomIds
+				.map(roomId => updateOwner(roomId))
+				.concat(roomIds.map(roomId => Messaging.addSystemMessage('user-leave', uid, roomId))),
 		);
 		await updateUserCount(roomIds);
 	};
@@ -387,17 +398,23 @@ module.exports = function (Messaging) {
 		return uids;
 	};
 
-	Messaging.getUidsInRoomFromSet = async (set, start, stop, reverse = false) => db[
-		reverse ? 'getSortedSetRevRange' : 'getSortedSetRange'
-	](set, start, stop);
+	Messaging.getUidsInRoomFromSet = async (set, start, stop, reverse = false) =>
+		db[reverse ? 'getSortedSetRevRange' : 'getSortedSetRange'](set, start, stop);
 
-	Messaging.getUidsInRoom = async (roomId, start, stop, reverse = false) => db[
-		reverse ? 'getSortedSetRevRange' : 'getSortedSetRange'
-	](`chat:room:${roomId}:uids`, start, stop);
+	Messaging.getUidsInRoom = async (roomId, start, stop, reverse = false) =>
+		db[reverse ? 'getSortedSetRevRange' : 'getSortedSetRange'](
+			`chat:room:${roomId}:uids`,
+			start,
+			stop,
+		);
 
 	Messaging.getUsersInRoom = async (roomId, start, stop, reverse = false) => {
 		const users = await Messaging.getUsersInRoomFromSet(
-			`chat:room:${roomId}:uids`, roomId, start, stop, reverse
+			`chat:room:${roomId}:uids`,
+			roomId,
+			start,
+			stop,
+			reverse,
 		);
 		return users;
 	};
@@ -431,7 +448,11 @@ module.exports = function (Messaging) {
 		}
 
 		await db.setObjectField(`chat:room:${payload.roomId}`, 'roomName', payload.newName);
-		await Messaging.addSystemMessage(`room-rename, ${payload.newName.replace(',', '&#44;')}`, payload.uid, payload.roomId);
+		await Messaging.addSystemMessage(
+			`room-rename, ${payload.newName.replace(',', '&#44;')}`,
+			payload.uid,
+			payload.roomId,
+		);
 
 		plugins.hooks.fire('action:chat.renameRoom', {
 			roomId: payload.roomId,
@@ -444,13 +465,20 @@ module.exports = function (Messaging) {
 			throw new Error('[[error:invalid-room-name]]');
 		}
 		if (roomName.length > meta.config.maximumChatRoomNameLength) {
-			throw new Error(`[[error:chat-room-name-too-long, ${meta.config.maximumChatRoomNameLength}]]`);
+			throw new Error(
+				`[[error:chat-room-name-too-long, ${meta.config.maximumChatRoomNameLength}]]`,
+			);
 		}
 	}
 
 	Messaging.canReply = async (roomId, uid) => {
 		const inRoom = await db.isSortedSetMember(`chat:room:${roomId}:uids`, uid);
-		const data = await plugins.hooks.fire('filter:messaging.canReply', { uid: uid, roomId: roomId, inRoom: inRoom, canReply: inRoom });
+		const data = await plugins.hooks.fire('filter:messaging.canReply', {
+			uid: uid,
+			roomId: roomId,
+			inRoom: inRoom,
+			canReply: inRoom,
+		});
 		return data.canReply;
 	};
 
@@ -464,11 +492,14 @@ module.exports = function (Messaging) {
 			user.isGlobalModerator(uid),
 		]);
 
-		if (!room ||
+		if (
+			!room ||
 			(!room.public && !inRoom) ||
-			(room.public && (
-				Array.isArray(room.groups) && room.groups.length && !isAdmin && !(await groups.isMemberOfAny(uid, room.groups)))
-			)
+			(room.public &&
+				Array.isArray(room.groups) &&
+				room.groups.length &&
+				!isAdmin &&
+				!(await groups.isMemberOfAny(uid, room.groups)))
 		) {
 			return null;
 		}
@@ -489,9 +520,18 @@ module.exports = function (Messaging) {
 			const roomDefault = room.notificationSetting;
 			const currentSetting = userSetting || roomDefault;
 			const labels = {
-				[Messaging.notificationSettings.NONE]: { label: '[[modules:chat.notification-setting-none]]', icon: 'fa-ban' },
-				[Messaging.notificationSettings.ATMENTION]: { label: '[[modules:chat.notification-setting-at-mention-only]]', icon: 'fa-at' },
-				[Messaging.notificationSettings.ALLMESSAGES]: { label: '[[modules:chat.notification-setting-all-messages]]', icon: 'fa-comment-o' },
+				[Messaging.notificationSettings.NONE]: {
+					label: '[[modules:chat.notification-setting-none]]',
+					icon: 'fa-ban',
+				},
+				[Messaging.notificationSettings.ATMENTION]: {
+					label: '[[modules:chat.notification-setting-at-mention-only]]',
+					icon: 'fa-at',
+				},
+				[Messaging.notificationSettings.ALLMESSAGES]: {
+					label: '[[modules:chat.notification-setting-all-messages]]',
+					icon: 'fa-comment-o',
+				},
 			};
 			const options = [
 				{
@@ -502,7 +542,7 @@ module.exports = function (Messaging) {
 					selected: userSetting === null,
 				},
 			];
-			Object.keys(labels).forEach((key) => {
+			Object.keys(labels).forEach(key => {
 				options.push({
 					label: labels[key].label,
 					icon: labels[key].icon,
@@ -513,26 +553,28 @@ module.exports = function (Messaging) {
 			return { options, selectedIcon: labels[currentSetting].icon };
 		}
 
-		const [canReply, users, messages, settings, isOwner, onlineUids, notifOptions] = await Promise.all([
-			Messaging.canReply(roomId, uid),
-			Messaging.getUsersInRoomFromSet(`chat:room:${roomId}:uids:online`, roomId, 0, 39, true),
-			Messaging.getMessages({
-				callerUid: uid,
-				start: data.start || 0,
-				uid: data.uid || uid,
-				roomId: roomId,
-				isNew: false,
-			}),
-			user.getSettings(uid),
-			Messaging.isRoomOwner(uid, roomId),
-			io.getUidsInRoom(`chat_room_${roomId}`),
-			getNotificationOptions(),
-			Messaging.markRoomNotificationsRead(uid, roomId),
-		]);
+		const [canReply, users, messages, settings, isOwner, onlineUids, notifOptions] =
+			await Promise.all([
+				Messaging.canReply(roomId, uid),
+				Messaging.getUsersInRoomFromSet(`chat:room:${roomId}:uids:online`, roomId, 0, 39, true),
+				Messaging.getMessages({
+					callerUid: uid,
+					start: data.start || 0,
+					uid: data.uid || uid,
+					roomId: roomId,
+					isNew: false,
+				}),
+				user.getSettings(uid),
+				Messaging.isRoomOwner(uid, roomId),
+				io.getUidsInRoom(`chat_room_${roomId}`),
+				getNotificationOptions(),
+				Messaging.markRoomNotificationsRead(uid, roomId),
+			]);
 
-		users.forEach((user) => {
+		users.forEach(user => {
 			if (user) {
-				user.online = parseInt(user.uid, 10) === parseInt(uid, 10) || onlineUids.includes(String(user.uid));
+				user.online =
+					parseInt(user.uid, 10) === parseInt(uid, 10) || onlineUids.includes(String(user.uid));
 			}
 		});
 
@@ -553,16 +595,25 @@ module.exports = function (Messaging) {
 		room.notificationOptionsIcon = notifOptions.selectedIcon;
 		room.composerActions = [];
 
-		const payload = await plugins.hooks.fire('filter:messaging.loadRoom', { uid, data, room });
+		const payload = await plugins.hooks.fire('filter:messaging.loadRoom', {
+			uid,
+			data,
+			room,
+		});
 		return payload.room;
 	};
 
 	const globalUserGroups = [
-		'registered-users', 'verified-users', 'unverified-users', 'banned-users',
+		'registered-users',
+		'verified-users',
+		'unverified-users',
+		'banned-users',
 	];
 
 	Messaging.getRoomIcon = function (roomData) {
 		const hasGroups = Array.isArray(roomData.groups) && roomData.groups.length;
-		return !hasGroups || roomData.groups.some(group => globalUserGroups.includes(group)) ? 'fa-hashtag' : 'fa-lock';
+		return !hasGroups || roomData.groups.some(group => globalUserGroups.includes(group))
+			? 'fa-hashtag'
+			: 'fa-lock';
 	};
 };

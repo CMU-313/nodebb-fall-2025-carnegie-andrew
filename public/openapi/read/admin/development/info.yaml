@@ -3,8 +3,8 @@ get:
     - admin
   summary: Get process/system information
   responses:
-    "200":
-      description: "A JSON object containing process and system information"
+    '200':
+      description: 'A JSON object containing process and system information'
       content:
         application/json:
           schema:
@@ -139,7 +139,7 @@ get:
                           type: string
                   infoJSON:
                     type: string
-                    description: "`info`, but stringified"
+                    description: '`info`, but stringified'
                   host:
                     type: string
                     description: Server hostname

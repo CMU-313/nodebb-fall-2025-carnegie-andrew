@@ -1,6 +1,5 @@
 'use strict';
 
-
 const db = require('../../database');
 
 module.exports = {
@@ -18,7 +17,7 @@ module.exports = {
 				'profile:defaultCovers',
 			];
 
-			keys.forEach((key) => {
+			keys.forEach(key => {
 				const oldValue = config[key];
 
 				if (!oldValue || typeof oldValue !== 'string') {

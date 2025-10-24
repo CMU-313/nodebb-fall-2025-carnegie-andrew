@@ -25,8 +25,11 @@ Contexts.get = async (uid, id) => {
 	}
 
 	try {
-		({ id, type, context } = await activitypub.get('uid', uid, id, { headers }));
-		if (activitypub._constants.acceptable.contextTypes.has(type)) { // is context
+		({ id, type, context } = await activitypub.get('uid', uid, id, {
+			headers,
+		}));
+		if (activitypub._constants.acceptable.contextTypes.has(type)) {
+			// is context
 			activitypub.helpers.log(`[activitypub/context] ${id} is the context.`);
 			return { context: id };
 		} else if (!context) {
@@ -81,8 +84,11 @@ Contexts.getItems = async (uid, id, options) => {
 	}
 
 	if (items) {
-		items = await Promise.all(items
-			.map(async item => (activitypub.helpers.isUri(item) ? parseString(uid, item) : parseItem(uid, item))));
+		items = await Promise.all(
+			items.map(async item =>
+				activitypub.helpers.isUri(item) ? parseString(uid, item) : parseItem(uid, item),
+			),
+		);
 		items = items.filter(Boolean);
 		activitypub.helpers.log(`[activitypub/context] Found ${items.length} items.`);
 	}
@@ -100,26 +106,28 @@ Contexts.getItems = async (uid, id, options) => {
 	if (next) {
 		activitypub.helpers.log('[activitypub/context] Fetching next page...');
 		const isUrl = activitypub.helpers.isUri(next);
-		Array
-			.from(await Contexts.getItems(uid, isUrl && next, {
+		Array.from(
+			await Contexts.getItems(uid, isUrl && next, {
 				...options,
 				root: false,
 				object: !isUrl && next,
-			}))
-			.forEach((item) => {
-				chain.add(item);
-			});
+			}),
+		).forEach(item => {
+			chain.add(item);
+		});
 
 		return chain;
 	}
 
 	// Handle special case where originating object is not actually part of the context collection
 	const inputId = activitypub.helpers.isUri(options.input) ? options.input : options.input.id;
-	const inCollection = Array.from(chain).map(p => p.pid).includes(inputId);
+	const inCollection = Array.from(chain)
+		.map(p => p.pid)
+		.includes(inputId);
 	if (!inCollection) {
-		const item = activitypub.helpers.isUri(options.input) ?
-			await parseString(uid, options.input) :
-			await parseItem(uid, options.input);
+		const item = activitypub.helpers.isUri(options.input)
+			? await parseString(uid, options.input)
+			: await parseItem(uid, options.input);
 
 		if (item) {
 			chain.add(item);

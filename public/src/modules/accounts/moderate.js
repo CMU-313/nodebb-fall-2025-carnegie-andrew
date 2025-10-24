@@ -1,11 +1,11 @@
 'use strict';
 
-define('forum/account/moderate', [
-	'benchpress',
-	'api',
-	'bootbox',
-	'alerts',
-], function (Benchpress, api, bootbox, alerts) {
+define('forum/account/moderate', ['benchpress', 'api', 'bootbox', 'alerts'], function (
+	Benchpress,
+	api,
+	bootbox,
+	alerts,
+) {
 	const AccountModerate = {};
 
 	AccountModerate.banAccount = function (theirid, onSuccess) {
@@ -15,19 +15,23 @@ define('forum/account/moderate', [
 			tpl: 'modals/temporary-ban',
 			title: '[[user:ban-account]]',
 			onSubmit: function (formData) {
-				const until = formData.length > 0 ? (
-					Date.now() + (formData.length * 1000 * 60 * 60 * (parseInt(formData.unit, 10) ? 24 : 1))
-				) : 0;
-				api.put('/users/' + theirid + '/ban', {
-					until: until,
-					reason: formData.reason || '',
-				}).then(() => {
-					if (typeof onSuccess === 'function') {
-						return onSuccess();
-					}
+				const until =
+					formData.length > 0
+						? Date.now() + formData.length * 1000 * 60 * 60 * (parseInt(formData.unit, 10) ? 24 : 1)
+						: 0;
+				api
+					.put('/users/' + theirid + '/ban', {
+						until: until,
+						reason: formData.reason || '',
+					})
+					.then(() => {
+						if (typeof onSuccess === 'function') {
+							return onSuccess();
+						}
 
-					ajaxify.refresh();
-				}).catch(alerts.error);
+						ajaxify.refresh();
+					})
+					.catch(alerts.error);
 			},
 		});
 	};
@@ -37,11 +41,14 @@ define('forum/account/moderate', [
 			tpl: 'modals/unban',
 			title: '[[user:unban-account]]',
 			onSubmit: function (formData) {
-				api.del('/users/' + theirid + '/ban', {
-					reason: formData.reason || '',
-				}).then(() => {
-					ajaxify.refresh();
-				}).catch(alerts.error);
+				api
+					.del('/users/' + theirid + '/ban', {
+						reason: formData.reason || '',
+					})
+					.then(() => {
+						ajaxify.refresh();
+					})
+					.catch(alerts.error);
 			},
 		});
 	};
@@ -52,19 +59,23 @@ define('forum/account/moderate', [
 			tpl: 'modals/temporary-mute',
 			title: '[[user:mute-account]]',
 			onSubmit: function (formData) {
-				const until = formData.length > 0 ? (
-					Date.now() + (formData.length * 1000 * 60 * 60 * (parseInt(formData.unit, 10) ? 24 : 1))
-				) : 0;
+				const until =
+					formData.length > 0
+						? Date.now() + formData.length * 1000 * 60 * 60 * (parseInt(formData.unit, 10) ? 24 : 1)
+						: 0;
 
-				api.put('/users/' + theirid + '/mute', {
-					until: until,
-					reason: formData.reason || '',
-				}).then(() => {
-					if (typeof onSuccess === 'function') {
-						return onSuccess();
-					}
-					ajaxify.refresh();
-				}).catch(alerts.error);
+				api
+					.put('/users/' + theirid + '/mute', {
+						until: until,
+						reason: formData.reason || '',
+					})
+					.then(() => {
+						if (typeof onSuccess === 'function') {
+							return onSuccess();
+						}
+						ajaxify.refresh();
+					})
+					.catch(alerts.error);
 			},
 		});
 	};
@@ -74,11 +85,14 @@ define('forum/account/moderate', [
 			tpl: 'modals/unmute',
 			title: '[[user:unmute-account]]',
 			onSubmit: function (formData) {
-				api.del('/users/' + theirid + '/mute', {
-					reason: formData.reason || '',
-				}).then(() => {
-					ajaxify.refresh();
-				}).catch(alerts.error);
+				api
+					.del('/users/' + theirid + '/mute', {
+						reason: formData.reason || '',
+					})
+					.then(() => {
+						ajaxify.refresh();
+					})
+					.catch(alerts.error);
 			},
 		});
 	};
@@ -98,10 +112,13 @@ define('forum/account/moderate', [
 					submit: {
 						label: options.title,
 						callback: function () {
-							const formData = modal.find('form').serializeArray().reduce(function (data, cur) {
-								data[cur.name] = cur.value;
-								return data;
-							}, {});
+							const formData = modal
+								.find('form')
+								.serializeArray()
+								.reduce(function (data, cur) {
+									data[cur.name] = cur.value;
+									return data;
+								}, {});
 
 							options.onSubmit(formData);
 						},

@@ -55,13 +55,17 @@ Plugins.orderActivePlugins = async function (socket, data) {
 	}
 	data = data.filter(plugin => plugin && plugin.name);
 
-	data.forEach((plugin) => {
+	data.forEach(plugin => {
 		if (!pluginNamePattern.test(plugin.name)) {
 			throw new Error('[[error:invalid-plugin-id]]');
 		}
 	});
 
-	await db.sortedSetAdd('plugins:active', data.map(p => p.order || 0), data.map(p => p.name));
+	await db.sortedSetAdd(
+		'plugins:active',
+		data.map(p => p.order || 0),
+		data.map(p => p.name),
+	);
 };
 
 Plugins.upgrade = async function (socket, data) {

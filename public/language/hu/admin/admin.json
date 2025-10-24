@@ -1,18 +1,18 @@
 {
-	"alert.confirm-rebuild-and-restart": "Biztosan újra kívánod építeni majd újraindítod a NodeBB-t?",
-	"alert.confirm-restart": "Biztosan újra szeretnéd indítani a NodeBB-t?",
+  "alert.confirm-rebuild-and-restart": "Biztosan újra kívánod építeni majd újraindítod a NodeBB-t?",
+  "alert.confirm-restart": "Biztosan újra szeretnéd indítani a NodeBB-t?",
 
-	"acp-title": "%1 | NodeBB Adminisztrációs vezérlőpult",
-	"settings-header-contents": "Tartalmak",
-	"changes-saved": "Változások mentve",
-	"changes-saved-message": "A NodeBB konfigurációjának módosításai mentésre kerültek.",
-	"changes-not-saved": "A változtatások nincsenek elmentve",
-	"changes-not-saved-message": "NodeBB encountered a problem saving your changes. (%1)",
-	"save-changes": "Változások mentése",
-	"min": "Min:",
-	"max": "Max:",
-	"view": "Megnéz",
-	"edit": "Szerkeszt",
-	"add": "Hozzáad",
-	"select-icon": "Válassz ikont"
+  "acp-title": "%1 | NodeBB Adminisztrációs vezérlőpult",
+  "settings-header-contents": "Tartalmak",
+  "changes-saved": "Változások mentve",
+  "changes-saved-message": "A NodeBB konfigurációjának módosításai mentésre kerültek.",
+  "changes-not-saved": "A változtatások nincsenek elmentve",
+  "changes-not-saved-message": "NodeBB encountered a problem saving your changes. (%1)",
+  "save-changes": "Változások mentése",
+  "min": "Min:",
+  "max": "Max:",
+  "view": "Megnéz",
+  "edit": "Szerkeszt",
+  "add": "Hozzáad",
+  "select-icon": "Válassz ikont"
 }

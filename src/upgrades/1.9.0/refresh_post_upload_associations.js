@@ -9,13 +9,22 @@ module.exports = {
 	method: function (callback) {
 		const { progress } = this;
 
-		require('../../batch').processSortedSet('posts:pid', (pids, next) => {
-			async.each(pids, (pid, next) => {
-				posts.uploads.sync(pid, next);
-				progress.incr();
-			}, next);
-		}, {
-			progress: this.progress,
-		}, callback);
+		require('../../batch').processSortedSet(
+			'posts:pid',
+			(pids, next) => {
+				async.each(
+					pids,
+					(pid, next) => {
+						posts.uploads.sync(pid, next);
+						progress.incr();
+					},
+					next,
+				);
+			},
+			{
+				progress: this.progress,
+			},
+			callback,
+		);
 	},
 };

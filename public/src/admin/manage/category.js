@@ -82,11 +82,14 @@ define('admin/manage/category', [
 			}
 
 			const cid = ajaxify.data.category.cid;
-			api.put('/categories/' + cid, updateHash).then(() => {
-				app.flags._unsaved = false;
-				settings.toggleSaveSuccess($('#save'));
-				updateHash = {};
-			}).catch(alerts.error);
+			api
+				.put('/categories/' + cid, updateHash)
+				.then(() => {
+					app.flags._unsaved = false;
+					settings.toggleSaveSuccess($('#save'));
+					updateHash = {};
+				})
+				.catch(alerts.error);
 
 			return false;
 		});
@@ -116,11 +119,13 @@ define('admin/manage/category', [
 									}
 
 									try {
-										const { count } = await api.get(`/categories/${ajaxify.data.category.cid}/count`);
+										const { count } = await api.get(
+											`/categories/${ajaxify.data.category.cid}/count`,
+										);
 
 										let percent = 0;
 										if (ajaxify.data.category.topic_count > 0) {
-											percent = Math.max(0, (1 - (count / ajaxify.data.category.topic_count))) * 100;
+											percent = Math.max(0, 1 - count / ajaxify.data.category.topic_count) * 100;
 										}
 
 										modal.find('.progress-bar').css({ width: percent + '%' });
@@ -130,16 +135,19 @@ define('admin/manage/category', [
 									}
 								}, 1000);
 
-								api.del('/categories/' + ajaxify.data.category.cid).then(() => {
-									if (intervalId) {
-										clearInterval(intervalId);
-									}
-									modal.modal('hide');
-									alerts.success('[[admin/manage/categories:alert.purge-success]]');
-									setTimeout(() => {
-										ajaxify.go('admin/manage/categories');
-									}, 2500);
-								}).catch(alerts.error);
+								api
+									.del('/categories/' + ajaxify.data.category.cid)
+									.then(() => {
+										if (intervalId) {
+											clearInterval(intervalId);
+										}
+										modal.modal('hide');
+										alerts.success('[[admin/manage/categories:alert.purge-success]]');
+										setTimeout(() => {
+											ajaxify.go('admin/manage/categories');
+										}, 2500);
+									})
+									.catch(alerts.error);
 
 								return false;
 							},
@@ -160,23 +168,30 @@ define('admin/manage/category', [
 							label: '[[modules:bootbox.confirm]]',
 							className: 'btn-primary',
 							callback: function () {
-								if (!selectedCid || parseInt(selectedCid, 10) === parseInt(ajaxify.data.category.cid, 10)) {
+								if (
+									!selectedCid ||
+									parseInt(selectedCid, 10) === parseInt(ajaxify.data.category.cid, 10)
+								) {
 									return;
 								}
 
-								socket.emit('admin.categories.copySettingsFrom', {
-									fromCid: selectedCid,
-									toCid: ajaxify.data.category.cid,
-									copyParent: modal.find('#copyParent').prop('checked'),
-								}, function (err) {
-									if (err) {
-										return alerts.error(err);
-									}
+								socket.emit(
+									'admin.categories.copySettingsFrom',
+									{
+										fromCid: selectedCid,
+										toCid: ajaxify.data.category.cid,
+										copyParent: modal.find('#copyParent').prop('checked'),
+									},
+									function (err) {
+										if (err) {
+											return alerts.error(err);
+										}
 
-									modal.modal('hide');
-									alert.success('[[admin/manage/categories:alert.copy-success]]');
-									ajaxify.refresh();
-								});
+										modal.modal('hide');
+										alert.success('[[admin/manage/categories:alert.copy-success]]');
+										ajaxify.refresh();
+									},
+								);
 								return false;
 							},
 						},
@@ -200,20 +215,26 @@ define('admin/manage/category', [
 			const inputEl = $(this);
 			const cid = inputEl.attr('data-cid');
 
-			uploader.show({
-				title: '[[admin/manage/categories:alert.upload-image]]',
-				route: config.relative_path + '/api/admin/category/uploadpicture',
-				params: { cid: cid },
-			}, function (imageUrlOnServer) {
-				$('#category-image').val(imageUrlOnServer);
-				previewEl.css('background-image', 'url(' + imageUrlOnServer + '?' + new Date().getTime() + ')');
+			uploader.show(
+				{
+					title: '[[admin/manage/categories:alert.upload-image]]',
+					route: config.relative_path + '/api/admin/category/uploadpicture',
+					params: { cid: cid },
+				},
+				function (imageUrlOnServer) {
+					$('#category-image').val(imageUrlOnServer);
+					previewEl.css(
+						'background-image',
+						'url(' + imageUrlOnServer + '?' + new Date().getTime() + ')',
+					);
 
-				modified($('#category-image'));
-			});
+					modified($('#category-image'));
+				},
+			);
 		});
 
 		$('#category-image').on('change', function () {
-			previewEl.css('background-image', $(this).val() ? ('url("' + $(this).val() + '")') : '');
+			previewEl.css('background-image', $(this).val() ? 'url("' + $(this).val() + '")' : '');
 			modified($('#category-image'));
 		});
 
@@ -232,17 +253,25 @@ define('admin/manage/category', [
 		$('button[data-action="toggle"]').on('click', function () {
 			const $this = $(this);
 			const disabled = $this.attr('data-disabled') === '1';
-			api.put('/categories/' + ajaxify.data.category.cid, {
-				disabled: disabled ? 0 : 1,
-			}).then(() => {
-				$this.find('.label').translateText(
-					!disabled ? '[[admin/manage/categories:enable]]' : '[[admin/manage/categories:disable]]'
-				);
-				$this.find('i')
-					.toggleClass(['fa-check', 'text-success'], !disabled)
-					.toggleClass(['fa-ban', 'text-danger'], disabled);
-				$this.attr('data-disabled', disabled ? 0 : 1);
-			}).catch(alerts.error);
+			api
+				.put('/categories/' + ajaxify.data.category.cid, {
+					disabled: disabled ? 0 : 1,
+				})
+				.then(() => {
+					$this
+						.find('.label')
+						.translateText(
+							!disabled
+								? '[[admin/manage/categories:enable]]'
+								: '[[admin/manage/categories:disable]]',
+						);
+					$this
+						.find('i')
+						.toggleClass(['fa-check', 'text-success'], !disabled)
+						.toggleClass(['fa-ban', 'text-danger'], disabled);
+					$this.attr('data-disabled', disabled ? 0 : 1);
+				})
+				.catch(alerts.error);
 		});
 	};
 
@@ -268,9 +297,11 @@ define('admin/manage/category', [
 		}
 
 		if (fields && fields.length) {
-			if (fields.length === 1) { // simple field name ie data-name="name"
+			if (fields.length === 1) {
+				// simple field name ie data-name="name"
 				updateHash[fields[0]] = value;
-			} else if (fields.length > 1) { // nested field name ie data-name="name[sub1][sub2]"
+			} else if (fields.length > 1) {
+				// nested field name ie data-name="name[sub1][sub2]"
 				setNestedFields(updateHash, 0);
 			}
 		}

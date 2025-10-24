@@ -11,7 +11,7 @@ get:
         type: string
       example: all
   responses:
-    "200":
+    '200':
       description: An array of topic objects sorted by timestamp.
       content:
         application/json:

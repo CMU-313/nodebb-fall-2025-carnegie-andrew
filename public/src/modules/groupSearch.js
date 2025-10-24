@@ -28,7 +28,10 @@ define('groupSearch', function () {
 					liEl.toggleClass('hidden', !isMatch);
 				});
 
-				el.find('[component="group-list"] [component="group-no-matches"]').toggleClass('hidden', !noMatch);
+				el.find('[component="group-list"] [component="group-no-matches"]').toggleClass(
+					'hidden',
+					!noMatch,
+				);
 			}
 			if (toggleVisibility) {
 				searchEl.removeClass('hidden');

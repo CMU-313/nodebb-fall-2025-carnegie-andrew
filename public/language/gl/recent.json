@@ -1,13 +1,13 @@
 {
-    "title": "Recentes",
-    "day": "Día",
-    "week": "Semana",
-    "month": "Mes",
-    "year": "Ano",
-    "alltime": "Dende o principio",
-    "no-recent-topics": "Non hai temas recentes",
-    "no-popular-topics": "Non hai temas populares",
-    "load-new-posts": "Load new posts",
-    "uncategorized.title": "All known topics",
-    "uncategorized.intro": "This page shows a chronological listing of every topic that this forum has received.<br />The views and opinions expressed in the topics below are not moderated and may not represent the views and opinions of this website."
+  "title": "Recentes",
+  "day": "Día",
+  "week": "Semana",
+  "month": "Mes",
+  "year": "Ano",
+  "alltime": "Dende o principio",
+  "no-recent-topics": "Non hai temas recentes",
+  "no-popular-topics": "Non hai temas populares",
+  "load-new-posts": "Load new posts",
+  "uncategorized.title": "All known topics",
+  "uncategorized.intro": "This page shows a chronological listing of every topic that this forum has received.<br />The views and opinions expressed in the topics below are not moderated and may not represent the views and opinions of this website."
 }

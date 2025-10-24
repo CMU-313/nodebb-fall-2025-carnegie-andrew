@@ -56,10 +56,7 @@ search.search = async function (data) {
 async function searchInContent(data) {
 	data.uid = data.uid || 0;
 
-	const [searchCids, searchUids] = await Promise.all([
-		getSearchCids(data),
-		getSearchUids(data),
-	]);
+	const [searchCids, searchUids] = await Promise.all([getSearchCids(data), getSearchUids(data)]);
 
 	async function doSearch(type, searchIn) {
 		if (searchIn.includes(data.searchIn)) {
@@ -142,14 +139,17 @@ async function searchInContent(data) {
 	};
 
 	if (data.page) {
-		const start = Math.max(0, (data.page - 1)) * itemsPerPage;
+		const start = Math.max(0, data.page - 1) * itemsPerPage;
 		metadata.pids = metadata.pids.slice(start, start + itemsPerPage);
 	}
 
 	returnData.posts = await posts.getPostSummaryByPids(metadata.pids, data.uid, {
 		extraFields: ['attachments'],
 	});
-	await plugins.hooks.fire('filter:search.contentGetResult', { result: returnData, data: data });
+	await plugins.hooks.fire('filter:search.contentGetResult', {
+		result: returnData,
+		data: data,
+	});
 	delete metadata.pids;
 	delete metadata.data;
 	return Object.assign(returnData, metadata);
@@ -190,43 +190,53 @@ async function fetchRemoteObject(data) {
 async function searchInBookmarks(data, searchCids, searchUids) {
 	const { uid, query, matchWords } = data;
 	const allPids = [];
-	await batch.processSortedSet(`uid:${uid}:bookmarks`, async (pids) => {
-		if (Array.isArray(searchCids) && searchCids.length) {
-			pids = await posts.filterPidsByCid(pids, searchCids);
-		}
-		if (Array.isArray(searchUids) && searchUids.length) {
-			pids = await posts.filterPidsByUid(pids, searchUids);
-		}
-		if (query) {
-			const tokens = String(query).split(' ');
-			const postData = await db.getObjectsFields(pids.map(pid => `post:${pid}`), ['content', 'tid']);
-			const tids = _.uniq(postData.map(p => p.tid));
-			const topicData = await db.getObjectsFields(tids.map(tid => `topic:${tid}`), ['title']);
-			const tidToTopic = _.zipObject(tids, topicData);
-			pids = pids.filter((pid, i) => {
-				const content = String(postData[i].content);
-				const title = String(tidToTopic[postData[i].tid].title);
-				const method = (matchWords === 'any' ? 'some' : 'every');
-				return tokens[method](
-					token => content.includes(token) || title.includes(token)
+	await batch.processSortedSet(
+		`uid:${uid}:bookmarks`,
+		async pids => {
+			if (Array.isArray(searchCids) && searchCids.length) {
+				pids = await posts.filterPidsByCid(pids, searchCids);
+			}
+			if (Array.isArray(searchUids) && searchUids.length) {
+				pids = await posts.filterPidsByUid(pids, searchUids);
+			}
+			if (query) {
+				const tokens = String(query).split(' ');
+				const postData = await db.getObjectsFields(
+					pids.map(pid => `post:${pid}`),
+					['content', 'tid'],
 				);
-			});
-		}
-		allPids.push(...pids);
-	}, {
-		batch: 500,
-	});
+				const tids = _.uniq(postData.map(p => p.tid));
+				const topicData = await db.getObjectsFields(
+					tids.map(tid => `topic:${tid}`),
+					['title'],
+				);
+				const tidToTopic = _.zipObject(tids, topicData);
+				pids = pids.filter((pid, i) => {
+					const content = String(postData[i].content);
+					const title = String(tidToTopic[postData[i].tid].title);
+					const method = matchWords === 'any' ? 'some' : 'every';
+					return tokens[method](token => content.includes(token) || title.includes(token));
+				});
+			}
+			allPids.push(...pids);
+		},
+		{
+			batch: 500,
+		},
+	);
 
 	return allPids;
 }
 
 async function filterAndSort(pids, data) {
-	if (data.sortBy === 'relevance' &&
+	if (
+		data.sortBy === 'relevance' &&
 		!data.replies &&
 		!data.timeRange &&
 		!data.hasTags &&
 		data.searchIn !== 'bookmarks' &&
-		!plugins.hooks.hasListeners('filter:search.filterAndSort')) {
+		!plugins.hooks.hasListeners('filter:search.filterAndSort')
+	) {
 		return pids;
 	}
 	let postsData = await getMatchedPosts(pids, data);
@@ -241,7 +251,11 @@ async function filterAndSort(pids, data) {
 
 	sortPosts(postsData, data);
 
-	const result = await plugins.hooks.fire('filter:search.filterAndSort', { pids: pids, posts: postsData, data: data });
+	const result = await plugins.hooks.fire('filter:search.filterAndSort', {
+		pids: pids,
+		posts: postsData,
+		data: data,
+	});
 	return result.posts.map(post => post && post.pid);
 }
 
@@ -253,14 +267,11 @@ async function getMatchedPosts(pids, data) {
 	const uids = _.uniq(postsData.map(post => post.uid));
 	const tids = _.uniq(postsData.map(post => post.tid));
 
-	const [users, topics] = await Promise.all([
-		getUsers(uids, data),
-		getTopics(tids, data),
-	]);
+	const [users, topics] = await Promise.all([getUsers(uids, data), getTopics(tids, data)]);
 
 	const tidToTopic = _.zipObject(tids, topics);
 	const uidToUser = _.zipObject(uids, users);
-	postsData.forEach((post) => {
+	postsData.forEach(post => {
 		if (topics && tidToTopic[post.tid]) {
 			post.topic = tidToTopic[post.tid];
 			if (post.topic && post.topic.category) {
@@ -289,7 +300,7 @@ async function getTopics(tids, data) {
 	const categories = await getCategories(cids, data);
 
 	const cidToCategory = _.zipObject(cids, categories);
-	topicsData.forEach((topic) => {
+	topicsData.forEach(topic => {
 		if (topic && categories && cidToCategory[topic.cid]) {
 			topic.category = cidToCategory[topic.cid];
 		}
@@ -311,7 +322,10 @@ async function getCategories(cids, data) {
 		return null;
 	}
 
-	return await db.getObjectsFields(cids.map(cid => `category:${cid}`), categoryFields);
+	return await db.getObjectsFields(
+		cids.map(cid => `category:${cid}`),
+		categoryFields,
+	);
 }
 
 function filterByPostcount(posts, postCount, repliesFilter) {
@@ -341,7 +355,7 @@ function filterByTimerange(posts, timeRange, timeFilter) {
 
 function filterByTags(posts, hasTags) {
 	if (Array.isArray(hasTags) && hasTags.length) {
-		posts = posts.filter((post) => {
+		posts = posts.filter(post => {
 			let hasAllTags = false;
 			if (post && post.topic && Array.isArray(post.topic.tags) && post.topic.tags.length) {
 				hasAllTags = hasTags.every(tag => post.topic.tags.includes(tag));
@@ -412,7 +426,9 @@ async function getChildrenCids(data) {
 	if (!data.searchChildren) {
 		return [];
 	}
-	const childrenCids = await Promise.all(data.categories.map(cid => categories.getChildrenCids(cid)));
+	const childrenCids = await Promise.all(
+		data.categories.map(cid => categories.getChildrenCids(cid)),
+	);
 	return await privileges.categories.filterCids('find', _.uniq(_.flatten(childrenCids)), data.uid);
 }
 
@@ -420,7 +436,9 @@ async function getSearchUids(data) {
 	if (!data.postedBy) {
 		return [];
 	}
-	return await user.getUidsByUsernames(Array.isArray(data.postedBy) ? data.postedBy : [data.postedBy]);
+	return await user.getUidsByUsernames(
+		Array.isArray(data.postedBy) ? data.postedBy : [data.postedBy],
+	);
 }
 
 require('./promisify')(search);

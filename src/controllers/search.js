@@ -1,4 +1,3 @@
-
 'use strict';
 
 const validator = require('validator');
@@ -33,10 +32,12 @@ searchController.search = async function (req, res, next) {
 		'search:tags': privileges.global.can('search:tags', req.uid),
 	});
 	req.query.in = req.query.in || meta.config.searchDefaultIn || 'titlesposts';
-	let allowed = (req.query.in === 'users' && userPrivileges['search:users']) ||
-					(req.query.in === 'tags' && userPrivileges['search:tags']) ||
-					(req.query.in === 'categories') ||
-					(['titles', 'titlesposts', 'posts', 'bookmarks'].includes(req.query.in) && userPrivileges['search:content']);
+	let allowed =
+		(req.query.in === 'users' && userPrivileges['search:users']) ||
+		(req.query.in === 'tags' && userPrivileges['search:tags']) ||
+		req.query.in === 'categories' ||
+		(['titles', 'titlesposts', 'posts', 'bookmarks'].includes(req.query.in) &&
+			userPrivileges['search:content']);
 	({ allowed } = await plugins.hooks.fire('filter:search.isAllowed', {
 		uid: req.uid,
 		query: req.query,
@@ -65,7 +66,8 @@ searchController.search = async function (req, res, next) {
 		repliesFilter: validator.escape(String(req.query.repliesFilter || '')),
 		timeRange: validator.escape(String(req.query.timeRange || '')),
 		timeFilter: validator.escape(String(req.query.timeFilter || '')),
-		sortBy: validator.escape(String(req.query.sortBy || '')) || meta.config.searchDefaultSortBy || '',
+		sortBy:
+			validator.escape(String(req.query.sortBy || '')) || meta.config.searchDefaultSortBy || '',
 		sortDirection: validator.escape(String(req.query.sortDirection || '')),
 		page: page,
 		itemsPerPage: req.query.itemsPerPage,
@@ -73,10 +75,7 @@ searchController.search = async function (req, res, next) {
 		qs: req.query,
 	};
 
-	const [searchData] = await Promise.all([
-		search.search(data),
-		recordSearch(data),
-	]);
+	const [searchData] = await Promise.all([search.search(data), recordSearch(data)]);
 
 	searchData.pagination = pagination.create(page, searchData.pageCount, req.query);
 	searchData.multiplePages = searchData.pageCount > 1;
@@ -86,7 +85,6 @@ searchController.search = async function (req, res, next) {
 	if (searchOnly) {
 		return res.json(searchData);
 	}
-
 
 	searchData.breadcrumbs = helpers.buildBreadcrumbs([{ text: '[[global:search]]' }]);
 	searchData.showAsPosts = !req.query.showAs || req.query.showAs === 'posts';
@@ -113,11 +111,12 @@ searchController.search = async function (req, res, next) {
 			label: `[[search:sort-by-${data.sortBy}-${data.sortDirection}]]`,
 		},
 		users: {
-			active: !!(data.postedBy),
+			active: !!data.postedBy,
 			label: translator.compile(
 				'search:posted-by-usernames',
 				(Array.isArray(data.postedBy) ? data.postedBy : [])
-					.map(u => validator.escape(String(u))).join(', ')
+					.map(u => validator.escape(String(u)))
+					.join(', '),
 			),
 		},
 		tags: {
@@ -125,12 +124,16 @@ searchController.search = async function (req, res, next) {
 			label: translator.compile(
 				'search:tags-x',
 				(Array.isArray(data.hasTags) ? data.hasTags : [])
-					.map(u => validator.escape(String(u))).join(', ')
+					.map(u => validator.escape(String(u)))
+					.join(', '),
 			),
 		},
 		categories: {
-			active: !!(Array.isArray(data.categories) && data.categories.length &&
-				(data.categories.length > 1 || data.categories[0] !== 'all')),
+			active: !!(
+				Array.isArray(data.categories) &&
+				data.categories.length &&
+				(data.categories.length > 1 || data.categories[0] !== 'all')
+			),
 			label: await buildSelectedCategoryLabel(searchData.selectedCids),
 		},
 	};
@@ -162,15 +165,17 @@ async function recordSearch(data) {
 			if (searches[data.uid] && searches[data.uid].queries) {
 				const copy = searches[data.uid].queries.slice();
 				const filtered = searches[data.uid].queries.filter(
-					q => !copy.find(query => query.startsWith(q) && query.length > q.length)
+					q => !copy.find(query => query.startsWith(q) && query.length > q.length),
 				);
 				delete searches[data.uid];
-				const dayTimestamp = (new Date());
+				const dayTimestamp = new Date();
 				dayTimestamp.setHours(0, 0, 0, 0);
-				await Promise.all(_.uniq(filtered).map(async (query) => {
-					await db.sortedSetIncrBy('searches:all', 1, query);
-					await db.sortedSetIncrBy(`searches:${dayTimestamp.getTime()}`, 1, query);
-				}));
+				await Promise.all(
+					_.uniq(filtered).map(async query => {
+						await db.sortedSetIncrBy('searches:all', 1, query);
+						await db.sortedSetIncrBy(`searches:${dayTimestamp.getTime()}`, 1, query);
+					}),
+				);
 			}
 		}, 5000);
 	}

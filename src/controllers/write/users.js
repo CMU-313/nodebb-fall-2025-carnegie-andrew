@@ -17,7 +17,10 @@ Users.redirectBySlug = async (req, res) => {
 	if (uid) {
 		const path = req.path.split('/').slice(3).join('/');
 		const urlObj = new URL(nconf.get('url') + req.url);
-		res.redirect(308, nconf.get('relative_path') + encodeURI(`/api/v3/users/${uid}/${path}${urlObj.search}`));
+		res.redirect(
+			308,
+			nconf.get('relative_path') + encodeURI(`/api/v3/users/${uid}/${path}${urlObj.search}`),
+		);
 	} else {
 		helpers.formatApiResponse(404, res);
 	}
@@ -37,7 +40,10 @@ Users.get = async (req, res) => {
 };
 
 Users.update = async (req, res) => {
-	const userObj = await api.users.update(req, { ...req.body, uid: req.params.uid });
+	const userObj = await api.users.update(req, {
+		...req.body,
+		uid: req.params.uid,
+	});
 	helpers.formatApiResponse(200, res, userObj);
 };
 
@@ -47,12 +53,18 @@ Users.delete = async (req, res) => {
 };
 
 Users.deleteContent = async (req, res) => {
-	await api.users.deleteContent(req, { ...req.params, password: req.body.password });
+	await api.users.deleteContent(req, {
+		...req.params,
+		password: req.body.password,
+	});
 	helpers.formatApiResponse(200, res);
 };
 
 Users.deleteAccount = async (req, res) => {
-	await api.users.deleteAccount(req, { ...req.params, password: req.body.password });
+	await api.users.deleteAccount(req, {
+		...req.params,
+		password: req.body.password,
+	});
 	helpers.formatApiResponse(200, res);
 };
 
@@ -82,7 +94,10 @@ Users.getPrivateRoomId = async (req, res) => {
 };
 
 Users.updateSettings = async (req, res) => {
-	const settings = await api.users.updateSettings(req, { ...req.body, uid: req.params.uid });
+	const settings = await api.users.updateSettings(req, {
+		...req.body,
+		uid: req.params.uid,
+	});
 	helpers.formatApiResponse(200, res, settings);
 };
 
@@ -142,7 +157,10 @@ Users.unmute = async (req, res) => {
 
 Users.generateToken = async (req, res) => {
 	const { description } = req.body;
-	const token = await api.users.generateToken(req, { description, ...req.params });
+	const token = await api.users.generateToken(req, {
+		description,
+		...req.params,
+	});
 	helpers.formatApiResponse(200, res, token);
 };
 
@@ -172,12 +190,20 @@ Users.invite = async (req, res) => {
 };
 
 Users.getInviteGroups = async function (req, res) {
-	return helpers.formatApiResponse(200, res, await api.users.getInviteGroups(req, { ...req.params }));
+	return helpers.formatApiResponse(
+		200,
+		res,
+		await api.users.getInviteGroups(req, { ...req.params }),
+	);
 };
 
 Users.addEmail = async (req, res) => {
 	const { email, skipConfirmation } = req.body;
-	const emails = await api.users.addEmail(req, { email, skipConfirmation, ...req.params });
+	const emails = await api.users.addEmail(req, {
+		email,
+		skipConfirmation,
+		...req.params,
+	});
 
 	helpers.formatApiResponse(200, res, { emails });
 };
@@ -213,23 +239,27 @@ Users.checkExportByType = async (req, res) => {
 };
 
 Users.getExportByType = async (req, res, next) => {
-	const data = await api.users.getExportByType(req, ({ ...req.params }));
+	const data = await api.users.getExportByType(req, { ...req.params });
 	if (!data) {
 		return next();
 	}
 
 	res.status(200);
-	res.sendFile(data.filename, {
-		root: path.join(__dirname, '../../../build/export'),
-		headers: {
-			'Content-Type': data.mime,
-			'Content-Disposition': `attachment; filename=${data.filename}`,
+	res.sendFile(
+		data.filename,
+		{
+			root: path.join(__dirname, '../../../build/export'),
+			headers: {
+				'Content-Type': data.mime,
+				'Content-Disposition': `attachment; filename=${data.filename}`,
+			},
 		},
-	}, (err) => {
-		if (err) {
-			throw err;
-		}
-	});
+		err => {
+			if (err) {
+				throw err;
+			}
+		},
+	);
 };
 
 Users.generateExportsByType = async (req, res) => {

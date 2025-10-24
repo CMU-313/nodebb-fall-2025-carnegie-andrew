@@ -18,7 +18,9 @@ define('admin/manage/categories', [
 		categorySelector.init($('[component="category-selector"]'), {
 			parentCid: ajaxify.data.selectedCategory ? ajaxify.data.selectedCategory.cid : 0,
 			onSelect: function (selectedCategory) {
-				ajaxify.go('/admin/manage/categories' + (selectedCategory.cid ? '?cid=' + selectedCategory.cid : ''));
+				ajaxify.go(
+					'/admin/manage/categories' + (selectedCategory.cid ? '?cid=' + selectedCategory.cid : ''),
+				);
 			},
 			cacheList: false,
 			localCategories: [],
@@ -35,9 +37,11 @@ define('admin/manage/categories', [
 			const parentEl = $this.parents('li[data-cid="' + cid + '"]');
 			const disabled = parentEl.hasClass('disabled');
 			const childrenEls = parentEl.find('li[data-cid]');
-			const childrenCids = childrenEls.map(function () {
-				return $(this).attr('data-cid');
-			}).get();
+			const childrenCids = childrenEls
+				.map(function () {
+					return $(this).attr('data-cid');
+				})
+				.get();
 
 			Categories.toggle([cid].concat(childrenCids), !disabled);
 		});
@@ -57,7 +61,10 @@ define('admin/manage/categories', [
 			const order = $(this).attr('data-order');
 			const modal = bootbox.dialog({
 				title: '[[admin/manage/categories:set-order]]',
-				message: '<input type="number" min="1" class="form-control input-lg" value=' + order + ' /><p class="form-text">[[admin/manage/categories:set-order-help]]</p>',
+				message:
+					'<input type="number" min="1" class="form-control input-lg" value=' +
+					order +
+					' /><p class="form-text">[[admin/manage/categories:set-order-help]]</p>',
 				show: true,
 				buttons: {
 					save: {
@@ -68,9 +75,12 @@ define('admin/manage/categories', [
 							if (val && cid) {
 								const modified = {};
 								modified[cid] = { order: Math.max(1, parseInt(val, 10)) };
-								api.put('/categories/' + cid, modified[cid]).then(function () {
-									ajaxify.refresh();
-								}).catch(alerts.error);
+								api
+									.put('/categories/' + cid, modified[cid])
+									.then(function () {
+										ajaxify.refresh();
+									})
+									.catch(alerts.error);
 							} else {
 								return false;
 							}
@@ -84,10 +94,13 @@ define('admin/manage/categories', [
 			const $this = $(this);
 			const isCollapsed = parseInt($this.attr('data-collapsed'), 10) === 1;
 			toggleAll(isCollapsed);
-			$this.attr('data-collapsed', isCollapsed ? 0 : 1)
-				.translateText(isCollapsed ?
-					'[[admin/manage/categories:collapse-all]]' :
-					'[[admin/manage/categories:expand-all]]');
+			$this
+				.attr('data-collapsed', isCollapsed ? 0 : 1)
+				.translateText(
+					isCollapsed
+						? '[[admin/manage/categories:collapse-all]]'
+						: '[[admin/manage/categories:expand-all]]',
+				);
 		});
 
 		function toggleAll(expand) {
@@ -120,8 +133,14 @@ define('admin/manage/categories', [
 				],
 				template: 'admin/partials/category/selector-dropdown-left',
 			};
-			const parentSelector = categorySelector.init(modal.find('#parentCidGroup [component="category-selector"]'), options);
-			const cloneFromSelector = categorySelector.init(modal.find('#cloneFromCidGroup [component="category-selector"]'), options);
+			const parentSelector = categorySelector.init(
+				modal.find('#parentCidGroup [component="category-selector"]'),
+				options,
+			);
+			const cloneFromSelector = categorySelector.init(
+				modal.find('#cloneFromCidGroup [component="category-selector"]'),
+				options,
+			);
 			function submit() {
 				const formData = modal.find('form').serializeObject();
 				formData.description = '';
@@ -137,7 +156,9 @@ define('admin/manage/categories', [
 
 			$('#cloneChildren').on('change', function () {
 				const check = $(this);
-				const parentSelect = modal.find('#parentCidGroup [component="category-selector"] .dropdown-toggle');
+				const parentSelect = modal.find(
+					'#parentCidGroup [component="category-selector"] .dropdown-toggle',
+				);
 
 				if (check.prop('checked')) {
 					parentSelect.attr('disabled', 'disabled');
@@ -174,10 +195,7 @@ define('admin/manage/categories', [
 
 		if (!categories || !categories.length) {
 			translator.translate('[[admin/manage/categories:alert.none-active]]', function (text) {
-				$('<div></div>')
-					.addClass('alert alert-info text-center')
-					.text(text)
-					.appendTo(container);
+				$('<div></div>').addClass('alert alert-info text-center').text(text).appendTo(container);
 			});
 		} else {
 			sortables = {};
@@ -187,13 +205,27 @@ define('admin/manage/categories', [
 
 	Categories.toggle = function (cids, disabled) {
 		const listEl = document.querySelector('.categories [data-cid="0"]');
-		Promise.all(cids.map(cid => api.put('/categories/' + cid, {
-			disabled: disabled ? 1 : 0,
-		}).then(() => {
-			const categoryEl = listEl.querySelector(`li[data-cid="${cid}"]`);
-			categoryEl.classList[disabled ? 'add' : 'remove']('disabled');
-			$(categoryEl).find('li a[data-action="toggle"]').first().translateText(disabled ? '[[admin/manage/categories:enable]]' : '[[admin/manage/categories:disable]]');
-		}).catch(alerts.error)));
+		Promise.all(
+			cids.map(cid =>
+				api
+					.put('/categories/' + cid, {
+						disabled: disabled ? 1 : 0,
+					})
+					.then(() => {
+						const categoryEl = listEl.querySelector(`li[data-cid="${cid}"]`);
+						categoryEl.classList[disabled ? 'add' : 'remove']('disabled');
+						$(categoryEl)
+							.find('li a[data-action="toggle"]')
+							.first()
+							.translateText(
+								disabled
+									? '[[admin/manage/categories:enable]]'
+									: '[[admin/manage/categories:disable]]',
+							);
+					})
+					.catch(alerts.error),
+			),
+		);
 	};
 
 	function itemDidAdd(e) {
@@ -204,7 +236,10 @@ define('admin/manage/categories', [
 		const isCategoryUpdate = parseInt(newCategoryId, 10) !== -1;
 
 		// Update needed?
-		if ((e.newIndex != null && parseInt(e.oldIndex, 10) !== parseInt(e.newIndex, 10)) || isCategoryUpdate) {
+		if (
+			(e.newIndex != null && parseInt(e.oldIndex, 10) !== parseInt(e.newIndex, 10)) ||
+			isCategoryUpdate
+		) {
 			const cid = e.item.dataset.cid;
 			const modified = {};
 			// on page 1 baseIndex is 0, on page n baseIndex is (n - 1) * ajaxify.data.categoriesPerPage
@@ -221,14 +256,20 @@ define('admin/manage/categories', [
 				const oldParentCid = parseInt(e.from.getAttribute('data-cid'), 10);
 				const newParentCid = parseInt(e.to.getAttribute('data-cid'), 10);
 				if (oldParentCid !== newParentCid) {
-					const toggle = document.querySelector(`.categories li[data-cid="${newParentCid}"] .toggle`);
+					const toggle = document.querySelector(
+						`.categories li[data-cid="${newParentCid}"] .toggle`,
+					);
 					if (toggle) {
 						toggle.classList.toggle('invisible', false);
 					}
 
-					const children = document.querySelectorAll(`.categories li[data-cid="${oldParentCid}"] ul[data-cid] li[data-cid]`);
+					const children = document.querySelectorAll(
+						`.categories li[data-cid="${oldParentCid}"] ul[data-cid] li[data-cid]`,
+					);
 					if (!children.length) {
-						const toggle = document.querySelector(`.categories li[data-cid="${oldParentCid}"] .toggle`);
+						const toggle = document.querySelector(
+							`.categories li[data-cid="${oldParentCid}"] .toggle`,
+						);
 						if (toggle) {
 							toggle.classList.toggle('invisible', true);
 						}
@@ -273,39 +314,47 @@ define('admin/manage/categories', [
 		}
 
 		function continueRender() {
-			app.parseAndTranslate('admin/partials/categories/category-rows', {
-				cid: parentCategory.cid,
-				categories: categories,
-				parentCategory: parentCategory,
-			}, function (html) {
-				if (container.find('.category-row').length) {
-					container.find('.category-row').after(html);
-				} else {
-					container.append(html);
-				}
+			app.parseAndTranslate(
+				'admin/partials/categories/category-rows',
+				{
+					cid: parentCategory.cid,
+					categories: categories,
+					parentCategory: parentCategory,
+				},
+				function (html) {
+					if (container.find('.category-row').length) {
+						container.find('.category-row').after(html);
+					} else {
+						container.append(html);
+					}
 
-				// Disable expand toggle
-				if (!categories.length) {
-					const toggleEl = container.get(0).querySelector('.toggle');
-					toggleEl.classList.toggle('invisible', true);
-				}
+					// Disable expand toggle
+					if (!categories.length) {
+						const toggleEl = container.get(0).querySelector('.toggle');
+						toggleEl.classList.toggle('invisible', true);
+					}
 
-				// Handle and children categories in this level have
-				for (let x = 0, numCategories = categories.length; x < numCategories; x += 1) {
-					renderList(categories[x].children, $('li[data-cid="' + categories[x].cid + '"]'), categories[x]);
-				}
+					// Handle and children categories in this level have
+					for (let x = 0, numCategories = categories.length; x < numCategories; x += 1) {
+						renderList(
+							categories[x].children,
+							$('li[data-cid="' + categories[x].cid + '"]'),
+							categories[x],
+						);
+					}
 
-				// Make list sortable
-				sortables[parentId] = Sortable.create($('ul[data-cid="' + parentId + '"]')[0], {
-					group: 'cross-categories',
-					animation: 150,
-					handle: '.information',
-					dataIdAttr: 'data-cid',
-					ghostClass: 'placeholder',
-					onAdd: itemDidAdd,
-					onEnd: itemDragDidEnd,
-				});
-			});
+					// Make list sortable
+					sortables[parentId] = Sortable.create($('ul[data-cid="' + parentId + '"]')[0], {
+						group: 'cross-categories',
+						animation: 150,
+						handle: '.information',
+						dataIdAttr: 'data-cid',
+						ghostClass: 'placeholder',
+						onAdd: itemDidAdd,
+						onEnd: itemDragDidEnd,
+					});
+				},
+			);
 		}
 	}
 

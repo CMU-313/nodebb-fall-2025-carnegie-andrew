@@ -18,7 +18,7 @@ Chart.register(
 	LineElement,
 	PointElement,
 	Tooltip,
-	Filler
+	Filler,
 );
 
 export function init() {
@@ -147,4 +147,3 @@ export function init() {
 		options: chartOpts,
 	});
 }
-

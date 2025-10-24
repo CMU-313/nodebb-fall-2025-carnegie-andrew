@@ -12,7 +12,11 @@ module.exports = {
 		const { progress } = this;
 		const cids = await db.getSortedSetRange('categories:cid', 0, -1);
 		for (const cid of cids) {
-			const uids = await db.getSortedSetRange(`group:cid:${cid}:privileges:moderate:members`, 0, -1);
+			const uids = await db.getSortedSetRange(
+				`group:cid:${cid}:privileges:moderate:members`,
+				0,
+				-1,
+			);
 			for (const uid of uids) {
 				await groups.join(`cid:${cid}:privileges:posts:view_deleted`, uid);
 			}

@@ -25,29 +25,32 @@ module.exports = {
 			});
 		}
 
-		await batch.processSortedSet('users:banned', async (uids) => {
-			progress.incr(uids.length);
+		await batch.processSortedSet(
+			'users:banned',
+			async uids => {
+				progress.incr(uids.length);
 
-			await db.sortedSetAdd(
-				'group:banned-users:members',
-				uids.map(() => now),
-				uids
-			);
+				await db.sortedSetAdd(
+					'group:banned-users:members',
+					uids.map(() => now),
+					uids,
+				);
 
-			await db.sortedSetRemove(
-				[
-					'group:registered-users:members',
-					'group:verified-users:members',
-					'group:unverified-users:members',
-					'group:Global Moderators:members',
-				],
-				uids
-			);
-		}, {
-			batch: 500,
-			progress: this.progress,
-		});
-
+				await db.sortedSetRemove(
+					[
+						'group:registered-users:members',
+						'group:verified-users:members',
+						'group:unverified-users:members',
+						'group:Global Moderators:members',
+					],
+					uids,
+				);
+			},
+			{
+				batch: 500,
+				progress: this.progress,
+			},
+		);
 
 		const bannedCount = await db.sortedSetCard('group:banned-users:members');
 		const registeredCount = await db.sortedSetCard('group:registered-users:members');

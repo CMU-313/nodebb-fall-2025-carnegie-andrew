@@ -1,50 +1,51 @@
-
 .form-label {
-	font-weight: 500;
-	font-size: $font-size-sm;
-	font-family: $font-family-base;
-	margin-bottom: 0;
+  font-weight: 500;
+  font-size: $font-size-sm;
+  font-family: $font-family-base;
+  margin-bottom: 0;
 }
 
 .form-text {
-	font-size: 0.75rem!important;;
-	font-family: $font-family-base;
+  font-size: 0.75rem !important;
+  font-family: $font-family-base;
 }
 
-.tracking-tight { letter-spacing: -0.02em; }
+.tracking-tight {
+  letter-spacing: -0.02em;
+}
 
 // https://getbootstrap.com/docs/5.3/components/buttons/#variables
 .btn-ghost {
-	--bs-btn-color: #{$btn-ghost-color};
-	--bs-btn-bg: transparent;
-	--bs-btn-border-color: transparent;
-	--bs-btn-box-shadow: none;
-	--bs-btn-hover-color: #{$btn-ghost-color};
-	--bs-btn-hover-bg: #{$btn-ghost-hover-color};
-	--bs-btn-hover-border-color: #{$btn-ghost-hover-color};
-	--bs-btn-active-bg: #{$btn-ghost-hover-color};
-	--bs-btn-active-border-color: transparent;
+  --bs-btn-color: #{$btn-ghost-color};
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: transparent;
+  --bs-btn-box-shadow: none;
+  --bs-btn-hover-color: #{$btn-ghost-color};
+  --bs-btn-hover-bg: #{$btn-ghost-hover-color};
+  --bs-btn-hover-border-color: #{$btn-ghost-hover-color};
+  --bs-btn-active-bg: #{$btn-ghost-hover-color};
+  --bs-btn-active-border-color: transparent;
 }
 
-
 @include color-mode(dark) {
-	.btn-light {
-		@extend .btn-dark;
-	}
-	.text-bg-light {
-		@extend .text-bg-dark;
-	}
-	.btn-ghost {
-		color: $btn-ghost-color-dark;
-		&:hover, &.active {
-			background-color: $btn-ghost-hover-color-dark;
-			border-color: $btn-ghost-hover-color-dark;
-		}
-	}
+  .btn-light {
+    @extend .btn-dark;
+  }
+  .text-bg-light {
+    @extend .text-bg-dark;
+  }
+  .btn-ghost {
+    color: $btn-ghost-color-dark;
+    &:hover,
+    &.active {
+      background-color: $btn-ghost-hover-color-dark;
+      border-color: $btn-ghost-hover-color-dark;
+    }
+  }
 }
 
 .flex-basis-md-200 {
-	@include media-breakpoint-up(md) {
-		flex-basis: 200px!important;
-	}
+  @include media-breakpoint-up(md) {
+    flex-basis: 200px !important;
+  }
 }

@@ -33,7 +33,10 @@ describe('ActivityPub integration', () => {
 		it('should log an entry in ActivityPub._sent when .send is called', async () => {
 			const uuid = utils.generateUUID();
 			const uid = await user.create({ username: uuid });
-			await activitypub.send('uid', 0, [`https://localhost/uid/${uid}`], { id: `${nconf.get('url')}/activity/${uuid}`, foo: 'bar' });
+			await activitypub.send('uid', 0, [`https://localhost/uid/${uid}`], {
+				id: `${nconf.get('url')}/activity/${uuid}`,
+				foo: 'bar',
+			});
 
 			assert(activitypub._sent.has(`${nconf.get('url')}/activity/${uuid}`));
 		});
@@ -45,15 +48,17 @@ describe('ActivityPub integration', () => {
 		});
 
 		it('calls to activitypub.get should throw', async () => {
-			await assert.rejects(
-				activitypub.get('uid', 0, 'https://example.org'),
-				{ message: '[[error:activitypub.not-enabled]]' },
-			);
+			await assert.rejects(activitypub.get('uid', 0, 'https://example.org'), {
+				message: '[[error:activitypub.not-enabled]]',
+			});
 		});
 
 		it('calls to activitypub.send should silently log', async () => {
 			await activitypub.send('uid', 0, ['https://example.org'], { foo: 'bar' });
-			assert.strictEqual(activitypub.helpers.log(), '[activitypub/send] Federation not enabled; not sending.');
+			assert.strictEqual(
+				activitypub.helpers.log(),
+				'[activitypub/send] Federation not enabled; not sending.',
+			);
 		});
 
 		it('request for an activitypub route should return 404 Not Found', async () => {
@@ -68,14 +73,18 @@ describe('ActivityPub integration', () => {
 		});
 
 		it('requests to the /ap endpoint should return 404 Not Found', async () => {
-			const { response } = await request.get(`${nconf.get('url')}/ap?resource=${encodeURIComponent('https://example.org')}`);
+			const { response } = await request.get(
+				`${nconf.get('url')}/ap?resource=${encodeURIComponent('https://example.org')}`,
+			);
 			assert.strictEqual(response.statusCode, 404);
 		});
 
 		it('webfinger request to a local user should not indicate an application/activity+json endpoint', async () => {
 			const username = utils.generateUUID().slice(0, 8);
 			await user.create({ username });
-			const { response, body } = await request.get(`${nconf.get('url')}/.well-known/webfinger?resource=acct%3a${username}%40${nconf.get('url_parsed').host}`);
+			const { response, body } = await request.get(
+				`${nconf.get('url')}/.well-known/webfinger?resource=acct%3a${username}%40${nconf.get('url_parsed').host}`,
+			);
 
 			assert.strictEqual(response.statusCode, 200);
 			assert(body && body.links && Array.isArray(body.links));
@@ -88,13 +97,9 @@ describe('ActivityPub integration', () => {
 	});
 
 	describe.skip('Helpers', () => {
-		describe('.query()', () => {
+		describe('.query()', () => {});
 
-		});
-
-		describe('.generateKeys()', () => {
-
-		});
+		describe('.generateKeys()', () => {});
 
 		describe('.resolveId()', () => {
 			let url;
@@ -146,18 +151,24 @@ describe('ActivityPub integration', () => {
 			});
 
 			it('should return null when valid input is passed but does not resolve', async () => {
-				const { type, id } = await activitypub.helpers.resolveLocalId(`acct%3afoobar@${nconf.get('url_parsed').host}`);
+				const { type, id } = await activitypub.helpers.resolveLocalId(
+					`acct%3afoobar@${nconf.get('url_parsed').host}`,
+				);
 				assert.strictEqual(type, 'user');
 				assert.strictEqual(id, null);
 			});
 
 			it('should resolve to a local uid when given a webfinger-style string', async () => {
-				const { id } = await activitypub.helpers.resolveLocalId(`acct%3a${slug}@${nconf.get('url_parsed').host}`);
+				const { id } = await activitypub.helpers.resolveLocalId(
+					`acct%3a${slug}@${nconf.get('url_parsed').host}`,
+				);
 				assert.strictEqual(id, uid);
 			});
 
 			it('should resolve even without the "acct:" prefix', async () => {
-				const { id } = await activitypub.helpers.resolveLocalId(`${slug}@${nconf.get('url_parsed').host}`);
+				const { id } = await activitypub.helpers.resolveLocalId(
+					`${slug}@${nconf.get('url_parsed').host}`,
+				);
 				assert.strictEqual(id, uid);
 			});
 
@@ -174,20 +185,38 @@ describe('ActivityPub integration', () => {
 					['<p>test title</p><span>abc</span>', 'test title'],
 
 					// other tags like h1 or span
-					['<h1>Lorem ipsum dolor sit amet</h1><p>consectetur adipiscing elit. Integer tincidunt metus scelerisque, dignissim risus a, fermentum leo. Pellentesque eleifend ullamcorper risus tempus vestibulum. Proin mollis ipsum et magna lobortis, at pretium enim pharetra. Ut vel ex metus. Mauris faucibus lectus et nulla iaculis, et pellentesque elit pellentesque. Aliquam rhoncus nec nulla eu lacinia. Maecenas cursus iaculis ligula, eu pharetra ex suscipit sit amet.</p>', 'Lorem ipsum dolor sit amet'],
-					['<span>Lorem ipsum dolor sit amet</span><p>consectetur adipiscing elit. Integer tincidunt metus scelerisque, dignissim risus a, fermentum leo. Pellentesque eleifend ullamcorper risus tempus vestibulum. Proin mollis ipsum et magna lobortis, at pretium enim pharetra. Ut vel ex metus. Mauris faucibus lectus et nulla iaculis, et pellentesque elit pellentesque. Aliquam rhoncus nec nulla eu lacinia. Maecenas cursus iaculis ligula, eu pharetra ex suscipit sit amet.</p>', 'Lorem ipsum dolor sit amet'],
+					[
+						'<h1>Lorem ipsum dolor sit amet</h1><p>consectetur adipiscing elit. Integer tincidunt metus scelerisque, dignissim risus a, fermentum leo. Pellentesque eleifend ullamcorper risus tempus vestibulum. Proin mollis ipsum et magna lobortis, at pretium enim pharetra. Ut vel ex metus. Mauris faucibus lectus et nulla iaculis, et pellentesque elit pellentesque. Aliquam rhoncus nec nulla eu lacinia. Maecenas cursus iaculis ligula, eu pharetra ex suscipit sit amet.</p>',
+						'Lorem ipsum dolor sit amet',
+					],
+					[
+						'<span>Lorem ipsum dolor sit amet</span><p>consectetur adipiscing elit. Integer tincidunt metus scelerisque, dignissim risus a, fermentum leo. Pellentesque eleifend ullamcorper risus tempus vestibulum. Proin mollis ipsum et magna lobortis, at pretium enim pharetra. Ut vel ex metus. Mauris faucibus lectus et nulla iaculis, et pellentesque elit pellentesque. Aliquam rhoncus nec nulla eu lacinia. Maecenas cursus iaculis ligula, eu pharetra ex suscipit sit amet.</p>',
+						'Lorem ipsum dolor sit amet',
+					],
 
 					// first line's text otherwise
-					['Lorem ipsum dolor sit amet\n\nconsectetur adipiscing elit. Integer tincidunt metus scelerisque, dignissim risus a, fermentum leo. Pellentesque eleifend ullamcorper risus tempus vestibulum. Proin mollis ipsum et magna lobortis, at pretium enim pharetra. Ut vel ex metus. Mauris faucibus lectus et nulla iaculis, et pellentesque elit pellentesque. Aliquam rhoncus nec nulla eu lacinia. Maecenas cursus iaculis ligula, eu pharetra ex suscipit sit amet.', 'Lorem ipsum dolor sit amet'],
+					[
+						'Lorem ipsum dolor sit amet\n\nconsectetur adipiscing elit. Integer tincidunt metus scelerisque, dignissim risus a, fermentum leo. Pellentesque eleifend ullamcorper risus tempus vestibulum. Proin mollis ipsum et magna lobortis, at pretium enim pharetra. Ut vel ex metus. Mauris faucibus lectus et nulla iaculis, et pellentesque elit pellentesque. Aliquam rhoncus nec nulla eu lacinia. Maecenas cursus iaculis ligula, eu pharetra ex suscipit sit amet.',
+						'Lorem ipsum dolor sit amet',
+					],
 
 					// first sentence of matched line/element
-					['Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam a ex pellentesque, fringilla lorem non, blandit est. Nulla facilisi. Curabitur cursus neque vel enim semper, id lacinia elit facilisis. Vestibulum turpis orci, efficitur ut semper eu, faucibus eu turpis. Praesent eu odio non libero gravida tempor. Ut porta pellentesque orci. In porta nunc eget tincidunt interdum. Curabitur vel dui nec libero tempus porttitor. Phasellus tincidunt, diam id viverra suscipit, est diam maximus purus, in vestibulum dui ligula vel libero. Sed tempus finibus ante, sit amet consequat magna facilisis eget. Proin ullamcorper, velit sit amet feugiat varius, massa sem aliquam dui, non aliquam augue velit vel est. Phasellus eu sapien in purus feugiat scelerisque congue id velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.'],
+					[
+						'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Etiam a ex pellentesque, fringilla lorem non, blandit est. Nulla facilisi. Curabitur cursus neque vel enim semper, id lacinia elit facilisis. Vestibulum turpis orci, efficitur ut semper eu, faucibus eu turpis. Praesent eu odio non libero gravida tempor. Ut porta pellentesque orci. In porta nunc eget tincidunt interdum. Curabitur vel dui nec libero tempus porttitor. Phasellus tincidunt, diam id viverra suscipit, est diam maximus purus, in vestibulum dui ligula vel libero. Sed tempus finibus ante, sit amet consequat magna facilisis eget. Proin ullamcorper, velit sit amet feugiat varius, massa sem aliquam dui, non aliquam augue velit vel est. Phasellus eu sapien in purus feugiat scelerisque congue id velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.',
+						'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+					],
 
 					// other sentence ending symbols
-					['Lorem ipsum dolor sit amet, consectetur adipiscing elit? Etiam a ex pellentesque, fringilla lorem non, blandit est. Nulla facilisi. Curabitur cursus neque vel enim semper, id lacinia elit facilisis. Vestibulum turpis orci, efficitur ut semper eu, faucibus eu turpis. Praesent eu odio non libero gravida tempor. Ut porta pellentesque orci. In porta nunc eget tincidunt interdum. Curabitur vel dui nec libero tempus porttitor. Phasellus tincidunt, diam id viverra suscipit, est diam maximus purus, in vestibulum dui ligula vel libero. Sed tempus finibus ante, sit amet consequat magna facilisis eget. Proin ullamcorper, velit sit amet feugiat varius, massa sem aliquam dui, non aliquam augue velit vel est. Phasellus eu sapien in purus feugiat scelerisque congue id velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.', 'Lorem ipsum dolor sit amet, consectetur adipiscing elit?'],
+					[
+						'Lorem ipsum dolor sit amet, consectetur adipiscing elit? Etiam a ex pellentesque, fringilla lorem non, blandit est. Nulla facilisi. Curabitur cursus neque vel enim semper, id lacinia elit facilisis. Vestibulum turpis orci, efficitur ut semper eu, faucibus eu turpis. Praesent eu odio non libero gravida tempor. Ut porta pellentesque orci. In porta nunc eget tincidunt interdum. Curabitur vel dui nec libero tempus porttitor. Phasellus tincidunt, diam id viverra suscipit, est diam maximus purus, in vestibulum dui ligula vel libero. Sed tempus finibus ante, sit amet consequat magna facilisis eget. Proin ullamcorper, velit sit amet feugiat varius, massa sem aliquam dui, non aliquam augue velit vel est. Phasellus eu sapien in purus feugiat scelerisque congue id velit. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.',
+						'Lorem ipsum dolor sit amet, consectetur adipiscing elit?',
+					],
 
 					// Content after line breaks can be discarded
-					['<p>Intro text<br /><a href="https://example.org/">example.org/</span></a></p><p>more text</p>', 'Intro text'],
+					[
+						'<p>Intro text<br /><a href="https://example.org/">example.org/</span></a></p><p>more text</p>',
+						'Intro text',
+					],
 
 					// HTML without outer wrapping element
 					['Lorem ipsum dolor <span>sit amet</span>', 'Lorem ipsum dolor sit amet'],
@@ -228,7 +257,7 @@ describe('ActivityPub integration', () => {
 			let localUid;
 			before(async () => {
 				// Mock up a fake remote user
-				[,,,, localUid] = await Promise.all([
+				[, , , , localUid] = await Promise.all([
 					db.setObjectField('remoteUrl:uid', url1, id1),
 					db.sortedSetAdd('usersRemote:lastCrawled', Date.now(), id2),
 					db.setObject(`userRemote:${id1}`, { uid: id1, userslug: uuid1 }),
@@ -246,7 +275,10 @@ describe('ActivityPub integration', () => {
 			it('should convert an anchor pointing to a remote user id', async () => {
 				const content = `adsf <a href="${id2}">@${uuid2}</a> asdf`;
 				const converted = await activitypub.helpers.remoteAnchorToLocalProfile(content);
-				assert.strictEqual(converted, `adsf <a href="/user/${encodeURIComponent(id2)}">@${uuid2}</a> asdf`);
+				assert.strictEqual(
+					converted,
+					`adsf <a href="/user/${encodeURIComponent(id2)}">@${uuid2}</a> asdf`,
+				);
 			});
 
 			it('should convert an anchor pointing to a local user URL', async () => {
@@ -274,7 +306,9 @@ describe('ActivityPub integration', () => {
 		let uid;
 
 		beforeEach(async () => {
-			uid = await user.create({ username: slugify(utils.generateUUID().slice(0, 8)) });
+			uid = await user.create({
+				username: slugify(utils.generateUUID().slice(0, 8)),
+			});
 		});
 
 		it('should return regular user profile html if federation is disabled', async () => {
@@ -364,13 +398,16 @@ describe('ActivityPub integration', () => {
 					activitypub._cache.set(`0;${id}`, remoteNote);
 					activitypub._cache.set(`0;https://example.org/user/foobar`, remoteUser);
 					await db.sortedSetAdd(`followersRemote:${remoteUser.id}`, Date.now(), 1); // fake a follow
-					await controllers.activitypub.postInbox({
-						body: {
-							type: 'Create',
-							actor: 'https://example.org/user/foobar',
-							object: remoteNote,
+					await controllers.activitypub.postInbox(
+						{
+							body: {
+								type: 'Create',
+								actor: 'https://example.org/user/foobar',
+								object: remoteNote,
+							},
 						},
-					}, { sendStatus: () => {} });
+						{ sendStatus: () => {} },
+					);
 				});
 
 				it('should create a new topic if Note is at root-level or its parent has not been seen before', async () => {
@@ -407,7 +444,9 @@ describe('ActivityPub integration', () => {
 			let uid;
 
 			before(async () => {
-				({ cid } = await categories.create({ name: utils.generateUUID().slice(0, 8) }));
+				({ cid } = await categories.create({
+					name: utils.generateUUID().slice(0, 8),
+				}));
 				const slug = slugify(utils.generateUUID().slice(0, 8));
 				uid = await user.create({ username: slug });
 			});
@@ -433,11 +472,14 @@ describe('ActivityPub integration', () => {
 				});
 
 				it('should return a 404 on a non-existant post', async () => {
-					const { response } = await request.get(`${nconf.get('url')}/post/${parseInt(postData.pid, 10) + 1}`, {
-						headers: {
-							Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+					const { response } = await request.get(
+						`${nconf.get('url')}/post/${parseInt(postData.pid, 10) + 1}`,
+						{
+							headers: {
+								Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+							},
 						},
-					});
+					);
 
 					assert.strictEqual(response.statusCode, 404);
 				});
@@ -447,7 +489,10 @@ describe('ActivityPub integration', () => {
 				});
 
 				it('should return the expected Content-Type header', () => {
-					assert.strictEqual(response.headers['content-type'], 'application/activity+json; charset=utf-8');
+					assert.strictEqual(
+						response.headers['content-type'],
+						'application/activity+json; charset=utf-8',
+					);
 				});
 
 				it('Topic title (`name`) should not be escaped', () => {
@@ -491,7 +536,11 @@ describe('ActivityPub integration', () => {
 				});
 
 				it('should still contain contextual information (context, audience, attributedTo)', () => {
-					assert(['context', 'audience', 'attributedTo'].every(prop => body.hasOwnProperty(prop) && body[prop]));
+					assert(
+						['context', 'audience', 'attributedTo'].every(
+							prop => body.hasOwnProperty(prop) && body[prop],
+						),
+					);
 				});
 			});
 		});
@@ -505,7 +554,7 @@ describe('ActivityPub integration', () => {
 		});
 
 		it('subfolder tests', () => {
-			files.forEach((filePath) => {
+			files.forEach(filePath => {
 				require(filePath);
 			});
 		});

@@ -34,20 +34,31 @@ module.exports = function (Categories) {
 			db.sortedSetsScore(keys, uid),
 		]);
 
-		const fallbacks = cids.map(cid => (utils.isNumber(cid) ?
-			Categories.watchStates[userSettings.categoryWatchState] : Categories.watchStates.notwatching));
+		const fallbacks = cids.map(cid =>
+			utils.isNumber(cid)
+				? Categories.watchStates[userSettings.categoryWatchState]
+				: Categories.watchStates.notwatching,
+		);
 
 		return states.map((state, idx) => state || fallbacks[idx]);
 	};
 
 	Categories.getIgnorers = async function (cid, start, stop) {
-		const count = (stop === -1) ? -1 : (stop - start + 1);
-		return await db.getSortedSetRevRangeByScore(`cid:${cid}:uid:watch:state`, start, count, Categories.watchStates.ignoring, Categories.watchStates.ignoring);
+		const count = stop === -1 ? -1 : stop - start + 1;
+		return await db.getSortedSetRevRangeByScore(
+			`cid:${cid}:uid:watch:state`,
+			start,
+			count,
+			Categories.watchStates.ignoring,
+			Categories.watchStates.ignoring,
+		);
 	};
 
 	Categories.filterIgnoringUids = async function (cid, uids) {
 		const states = await Categories.getUidsWatchStates(cid, uids);
-		const readingUids = uids.filter((uid, index) => uid && states[index] !== Categories.watchStates.ignoring);
+		const readingUids = uids.filter(
+			(uid, index) => uid && states[index] !== Categories.watchStates.ignoring,
+		);
 		return readingUids;
 	};
 
@@ -56,6 +67,8 @@ module.exports = function (Categories) {
 			user.getMultipleUserSettings(uids),
 			db.sortedSetScores(`cid:${cid}:uid:watch:state`, uids),
 		]);
-		return states.map((state, index) => state || Categories.watchStates[userSettings[index].categoryWatchState]);
+		return states.map(
+			(state, index) => state || Categories.watchStates[userSettings[index].categoryWatchState],
+		);
 	};
 };

@@ -1,164 +1,196 @@
-
 .flex-1 {
-	flex: 1 1 0%!important;
+  flex: 1 1 0% !important;
 }
 .flex-0 {
-	flex: 0!important;
+  flex: 0 !important;
 }
 
 .pointer {
-	@include pointer;
+  @include pointer;
 }
 
-.text-md { font-size: 1.125rem!important; } // 18px on harmony
-.text-sm { font-size: 0.875rem!important; } // 14px on harmony
-.text-xs { font-size: 0.75rem!important; } // 12px on harmony
+.text-md {
+  font-size: 1.125rem !important;
+} // 18px on harmony
+.text-sm {
+  font-size: 0.875rem !important;
+} // 14px on harmony
+.text-xs {
+  font-size: 0.75rem !important;
+} // 12px on harmony
 
 .overscroll-behavior-contain {
-	overscroll-behavior: contain;
+  overscroll-behavior: contain;
 }
 
-[component="category-selector"], .category-dropdown-container {
-	#category-dropdown-check:checked + .dropdown-menu {
-		display: block;
-	}
+[component='category-selector'],
+.category-dropdown-container {
+  #category-dropdown-check:checked + .dropdown-menu {
+    display: block;
+  }
 }
-html[data-dir="ltr"] {
-	.dropdown-left .dropdown-menu { --bs-position: start; }
-	.dropdown-right .dropdown-menu { --bs-position: end; }
+html[data-dir='ltr'] {
+  .dropdown-left .dropdown-menu {
+    --bs-position: start;
+  }
+  .dropdown-right .dropdown-menu {
+    --bs-position: end;
+  }
 }
-html[data-dir="rtl"] {
-	.dropdown-left .dropdown-menu { --bs-position: end; }
-	.dropdown-right .dropdown-menu { --bs-position: start; }
+html[data-dir='rtl'] {
+  .dropdown-left .dropdown-menu {
+    --bs-position: end;
+  }
+  .dropdown-right .dropdown-menu {
+    --bs-position: start;
+  }
 }
 
 .category-dropdown-menu {
-	max-height: 500px;
-	overflow-y: auto;
-	overflow-x: hidden;
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .bootstrap-tagsinput {
-	@extend .form-control;
-	box-shadow: none;
-	input {
-		&::placeholder{
-			color: $input-placeholder-color;
-		}
-		color: $input-color;
-	}
-	.tag { margin-bottom: 2px; }
+  @extend .form-control;
+  box-shadow: none;
+  input {
+    &::placeholder {
+      color: $input-placeholder-color;
+    }
+    color: $input-color;
+  }
+  .tag {
+    margin-bottom: 2px;
+  }
 }
 
 @mixin user-icon() {
-	display: inline-flex;
-	justify-content: center;
-	align-items: center;
-	color: $white;
-	font-weight: normal;
-	overflow: hidden;	/* stops alt text from overflowing past boundaries if image does not load */
-	white-space: nowrap;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  color: $white;
+  font-weight: normal;
+  overflow: hidden; /* stops alt text from overflowing past boundaries if image does not load */
+  white-space: nowrap;
 }
 
 .avatar {
-	/* Contains the user icon class as a mixin, so there's no need to include that in the template */
-	@include user-icon;
+  /* Contains the user icon class as a mixin, so there's no need to include that in the template */
+  @include user-icon;
 
-	$size: var(--avatar-size);
-	@include user-icon-style($size, calc($size * 0.6));
+  $size: var(--avatar-size);
+  @include user-icon-style($size, calc($size * 0.6));
 
-	&.avatar-rounded {
-		border-radius: 50%;
-	}
+  &.avatar-rounded {
+    border-radius: 50%;
+  }
 
-	&+.avatar {
-		display: none;
-	}
+  & + .avatar {
+    display: none;
+  }
 }
 
 blockquote {
-	background-color: $light;
-	font-style: italic;
-	border-left: 4px solid $primary;
-	padding: 1rem;
-	p:last-child {
-		margin-bottom: 0;
-	}
+  background-color: $light;
+  font-style: italic;
+  border-left: 4px solid $primary;
+  padding: 1rem;
+  p:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .necro-post {
-	text-align: center;
-	text-transform: uppercase;
+  text-align: center;
+  text-transform: uppercase;
 }
 
 .timeline-event {
-	display: flex;
-	align-items: center;
-	justify-content: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-	.timeline-badge {
-		padding: 1rem;
-	}
+  .timeline-badge {
+    padding: 1rem;
+  }
 }
 
 .imagedrop {
-	position: absolute;
-	text-align: center;
-	font-size: 24px;
-	color: $gray-600;
-	width: 100%;
-	display: none;
+  position: absolute;
+  text-align: center;
+  font-size: 24px;
+  color: $gray-600;
+  width: 100%;
+  display: none;
 }
 
 .hover-parent {
-	.hover-d-block, .hover-d-flex {
-		display: none!important;
-	}
-	.hover-visible {
-		visibility: hidden;
-	}
-	.hover-opacity-75 {
-		opacity: 0;
-		&:focus { opacity: 0.75 }
-	}
-	.hover-opacity-100 {
-		opacity: 0;
-		&:focus {opacity: 1; }
-	}
+  .hover-d-block,
+  .hover-d-flex {
+    display: none !important;
+  }
+  .hover-visible {
+    visibility: hidden;
+  }
+  .hover-opacity-75 {
+    opacity: 0;
+    &:focus {
+      opacity: 0.75;
+    }
+  }
+  .hover-opacity-100 {
+    opacity: 0;
+    &:focus {
+      opacity: 1;
+    }
+  }
 
-	&:hover {
-		.hover-d-block { display: block!important; }
-		.hover-d-flex { display: flex!important; }
-		.hover-visible { visibility: visible; }
-		.hover-opacity-100 { opacity: 1; }
-		.hover-opacity-75 { opacity: 0.75; }
-	}
+  &:hover {
+    .hover-d-block {
+      display: block !important;
+    }
+    .hover-d-flex {
+      display: flex !important;
+    }
+    .hover-visible {
+      visibility: visible;
+    }
+    .hover-opacity-100 {
+      opacity: 1;
+    }
+    .hover-opacity-75 {
+      opacity: 0.75;
+    }
+  }
 }
 
 .border-muted {
-	border-color: $text-muted!important;
+  border-color: $text-muted !important;
 }
 
 .hidden-empty {
-	&:empty {
-		display: none!important;
-	}
+  &:empty {
+    display: none !important;
+  }
 }
 
 // some classes that are used commonly in themes from bs3
-.hidden, .hide {
-    display: none!important;
+.hidden,
+.hide {
+  display: none !important;
 }
 
 // for backwards compat, replace with float-start, float-end respectively
 .pull-left {
-	float: left!important;
+  float: left !important;
 }
 
 .pull-right {
-	float: right!important;
+  float: right !important;
 }
 
 img.emoji {
-	height: $font-size-lg;
+  height: $font-size-lg;
 }

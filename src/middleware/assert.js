@@ -30,8 +30,8 @@ Assert.user = helpers.try(async (req, res, next) => {
 
 	if (
 		uid !== -2 && // exposeUid middleware was in chain (means route is local user only) and resolved to fediverse user
-		(((utils.isNumber(uid) || activitypub.helpers.isUri(uid)) && await user.exists(uid)) ||
-		(uid.indexOf('@') !== -1 && await user.existsBySlug(uid)))
+		(((utils.isNumber(uid) || activitypub.helpers.isUri(uid)) && (await user.exists(uid))) ||
+			(uid.indexOf('@') !== -1 && (await user.existsBySlug(uid))))
 	) {
 		return next();
 	}
@@ -41,7 +41,7 @@ Assert.user = helpers.try(async (req, res, next) => {
 
 Assert.group = helpers.try(async (req, res, next) => {
 	const name = await groups.getGroupNameByGroupSlug(req.params.slug);
-	if (!name || !await groups.exists(name)) {
+	if (!name || !(await groups.exists(name))) {
 		return controllerHelpers.formatApiResponse(404, res, new Error('[[error:no-group]]'));
 	}
 
@@ -49,7 +49,7 @@ Assert.group = helpers.try(async (req, res, next) => {
 });
 
 Assert.category = helpers.try(async (req, res, next) => {
-	if (!await categories.exists(req.params.cid)) {
+	if (!(await categories.exists(req.params.cid))) {
 		return controllerHelpers.formatApiResponse(404, res, new Error('[[error:no-category]]'));
 	}
 
@@ -57,7 +57,7 @@ Assert.category = helpers.try(async (req, res, next) => {
 });
 
 Assert.topic = helpers.try(async (req, res, next) => {
-	if (!await topics.exists(req.params.tid)) {
+	if (!(await topics.exists(req.params.tid))) {
 		return controllerHelpers.formatApiResponse(404, res, new Error('[[error:no-topic]]'));
 	}
 
@@ -65,7 +65,7 @@ Assert.topic = helpers.try(async (req, res, next) => {
 });
 
 Assert.post = helpers.try(async (req, res, next) => {
-	if (!await posts.exists(req.params.pid)) {
+	if (!(await posts.exists(req.params.pid))) {
 		return controllerHelpers.formatApiResponse(404, res, new Error('[[error:no-post]]'));
 	}
 
@@ -100,7 +100,7 @@ Assert.path = helpers.try(async (req, res, next) => {
 		return controllerHelpers.formatApiResponse(403, res, new Error('[[error:invalid-path]]'));
 	}
 
-	if (!await file.exists(pathToFile)) {
+	if (!(await file.exists(pathToFile))) {
 		return controllerHelpers.formatApiResponse(404, res, new Error('[[error:invalid-path]]'));
 	}
 
@@ -135,7 +135,11 @@ Assert.room = helpers.try(async (req, res, next) => {
 	]);
 
 	if (!exists) {
-		return controllerHelpers.formatApiResponse(404, res, new Error('[[error:chat-room-does-not-exist]]'));
+		return controllerHelpers.formatApiResponse(
+			404,
+			res,
+			new Error('[[error:chat-room-does-not-exist]]'),
+		);
 	}
 
 	if (!inRoom) {

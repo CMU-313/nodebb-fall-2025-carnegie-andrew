@@ -1,12 +1,12 @@
 {
-    "manage-uploads": "Quản Lý Tải Lên",
-    "upload-file": "Tải Lên Tệp",
-    "filename": "Tên Tệp",
-    "usage": "Dùng Bài Đăng",
-    "orphaned": "Đơn độc",
-    "size/filecount": "Kích cỡ/ Số tệp",
-    "confirm-delete": "Bạn có chắc muốn xóa tệp này không?",
-    "filecount": "%1 tệp",
-    "new-folder": "Thư Mục Mới",
-    "name-new-folder": "Nhập tên cho thư mục mới"
+  "manage-uploads": "Quản Lý Tải Lên",
+  "upload-file": "Tải Lên Tệp",
+  "filename": "Tên Tệp",
+  "usage": "Dùng Bài Đăng",
+  "orphaned": "Đơn độc",
+  "size/filecount": "Kích cỡ/ Số tệp",
+  "confirm-delete": "Bạn có chắc muốn xóa tệp này không?",
+  "filecount": "%1 tệp",
+  "new-folder": "Thư Mục Mới",
+  "name-new-folder": "Nhập tên cho thư mục mới"
 }

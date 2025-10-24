@@ -40,50 +40,64 @@ module.exports = {
 		progress.total = duplicateUsers.size + duplicateCategories.size;
 
 		// Find real user, fix handle reference, delete the rest
-		await Promise.all(Array.from(duplicateUsers).map(async (handle) => {
-			const max = '(' + handle.substr(0, handle.length - 1) + String.fromCharCode(handle.charCodeAt(handle.length - 1) + 1);
-			let ids = await db.getSortedSetRangeByLex('ap.preferredUsername:sorted', `[${handle}`, max);
-			ids = ids.map(id => id.slice(handle.length + 1));
-			const { actorUri: canonicalId } = await activitypub.helpers.query(handle);
+		await Promise.all(
+			Array.from(duplicateUsers).map(async handle => {
+				const max =
+					'(' +
+					handle.substr(0, handle.length - 1) +
+					String.fromCharCode(handle.charCodeAt(handle.length - 1) + 1);
+				let ids = await db.getSortedSetRangeByLex('ap.preferredUsername:sorted', `[${handle}`, max);
+				ids = ids.map(id => id.slice(handle.length + 1));
+				const { actorUri: canonicalId } = await activitypub.helpers.query(handle);
 
-			await Promise.all(ids.map(async (id) => {
-				if (id !== canonicalId) {
-					try {
-						await user.deleteAccount(id);
-					} catch (e) {
-						// User doesn't exist, maybe never did.
-						await db.sortedSetRemove('ap.preferredUsername:sorted', `${handle}:${id}`);
-					}
+				await Promise.all(
+					ids.map(async id => {
+						if (id !== canonicalId) {
+							try {
+								await user.deleteAccount(id);
+							} catch (e) {
+								// User doesn't exist, maybe never did.
+								await db.sortedSetRemove('ap.preferredUsername:sorted', `${handle}:${id}`);
+							}
+						}
+					}),
+				);
+
+				// Fix handle:uid backreference or delete
+				if (canonicalId) {
+					await db.setObjectField('handle:uid', handle, canonicalId);
 				}
-			}));
 
-			// Fix handle:uid backreference or delete
-			if (canonicalId) {
-				await db.setObjectField('handle:uid', handle, canonicalId);
-			}
-
-			progress.incr();
-		}));
+				progress.incr();
+			}),
+		);
 
 		// Find real category, fix handle reference, delete the rest
-		await Promise.all(Array.from(duplicateCategories).map(async (handle) => {
-			const max = '(' + handle.substr(0, handle.length - 1) + String.fromCharCode(handle.charCodeAt(handle.length - 1) + 1);
-			let ids = await db.getSortedSetRangeByLex('categories:name', `[${handle}`, max);
-			ids = ids.map(id => id.slice(handle.length + 1));
-			const { actorUri: canonicalId } = await activitypub.helpers.query(handle);
+		await Promise.all(
+			Array.from(duplicateCategories).map(async handle => {
+				const max =
+					'(' +
+					handle.substr(0, handle.length - 1) +
+					String.fromCharCode(handle.charCodeAt(handle.length - 1) + 1);
+				let ids = await db.getSortedSetRangeByLex('categories:name', `[${handle}`, max);
+				ids = ids.map(id => id.slice(handle.length + 1));
+				const { actorUri: canonicalId } = await activitypub.helpers.query(handle);
 
-			await Promise.all(ids.map(async (id) => {
-				if (id !== canonicalId) {
-					await categories.purge(id, 0);
+				await Promise.all(
+					ids.map(async id => {
+						if (id !== canonicalId) {
+							await categories.purge(id, 0);
+						}
+					}),
+				);
+
+				// Fix handle:uid backreference or delete
+				if (canonicalId) {
+					await db.setObjectField('handle:cid', handle, canonicalId);
 				}
-			}));
 
-			// Fix handle:uid backreference or delete
-			if (canonicalId) {
-				await db.setObjectField('handle:cid', handle, canonicalId);
-			}
-
-			progress.incr();
-		}));
+				progress.incr();
+			}),
+		);
 	},
 };

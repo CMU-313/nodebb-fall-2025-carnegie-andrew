@@ -1,23 +1,29 @@
 'use strict';
 
-
 define('forum/tags', ['forum/infinitescroll', 'alerts'], function (infinitescroll, alerts) {
 	const Tags = {};
 
 	Tags.init = function () {
 		app.enterRoom('tags');
-		$('#tag-search').on('input propertychange', utils.debounce(function () {
-			if (!$('#tag-search').val().length) {
-				return resetSearch();
-			}
-
-			socket.emit('topics.searchAndLoadTags', { query: $('#tag-search').val() }, function (err, results) {
-				if (err) {
-					return alerts.error(err);
+		$('#tag-search').on(
+			'input propertychange',
+			utils.debounce(function () {
+				if (!$('#tag-search').val().length) {
+					return resetSearch();
 				}
-				onTagsLoaded(results.tags, true);
-			});
-		}, 250));
+
+				socket.emit(
+					'topics.searchAndLoadTags',
+					{ query: $('#tag-search').val() },
+					function (err, results) {
+						if (err) {
+							return alerts.error(err);
+						}
+						onTagsLoaded(results.tags, true);
+					},
+				);
+			}, 250),
+		);
 
 		infinitescroll.init(Tags.loadMoreTags);
 	};
@@ -27,27 +33,35 @@ define('forum/tags', ['forum/infinitescroll', 'alerts'], function (infinitescrol
 			return;
 		}
 
-		infinitescroll.loadMore('topics.loadMoreTags', {
-			after: $('.tag-list').attr('data-nextstart'),
-		}, function (data, done) {
-			if (data && data.tags && data.tags.length) {
-				onTagsLoaded(data.tags, false, done);
-				$('.tag-list').attr('data-nextstart', data.nextStart);
-			} else {
-				done();
-			}
-		});
+		infinitescroll.loadMore(
+			'topics.loadMoreTags',
+			{
+				after: $('.tag-list').attr('data-nextstart'),
+			},
+			function (data, done) {
+				if (data && data.tags && data.tags.length) {
+					onTagsLoaded(data.tags, false, done);
+					$('.tag-list').attr('data-nextstart', data.nextStart);
+				} else {
+					done();
+				}
+			},
+		);
 	};
 
 	function resetSearch() {
-		socket.emit('topics.loadMoreTags', {
-			after: 0,
-		}, function (err, data) {
-			if (err) {
-				return alerts.error(err);
-			}
-			onTagsLoaded(data.tags, true);
-		});
+		socket.emit(
+			'topics.loadMoreTags',
+			{
+				after: 0,
+			},
+			function (err, data) {
+				if (err) {
+					return alerts.error(err);
+				}
+				onTagsLoaded(data.tags, true);
+			},
+		);
 	}
 
 	function onTagsLoaded(tags, replace, callback) {

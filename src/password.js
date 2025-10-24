@@ -4,11 +4,9 @@ const path = require('path');
 const crypto = require('crypto');
 const workerpool = require('workerpool');
 
-const pool = workerpool.pool(
-	path.join(__dirname, '/password_worker.js'), {
-		minWorkers: 1,
-	}
-);
+const pool = workerpool.pool(path.join(__dirname, '/password_worker.js'), {
+	minWorkers: 1,
+});
 
 exports.hash = async function (rounds, password) {
 	password = crypto.createHash('sha512').update(password).digest('hex');
@@ -30,8 +28,10 @@ async function getFakeHash() {
 		return fakeHashCache;
 	}
 	const length = 18;
-	fakeHashCache = crypto.randomBytes(Math.ceil(length / 2))
-		.toString('hex').slice(0, length);
+	fakeHashCache = crypto
+		.randomBytes(Math.ceil(length / 2))
+		.toString('hex')
+		.slice(0, length);
 	return fakeHashCache;
 }
 

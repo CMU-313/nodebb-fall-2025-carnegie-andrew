@@ -3,8 +3,8 @@ get:
     - admin
   summary: Get active plugin hooks
   responses:
-    "200":
-      description: "A JSON object containing all hooks with active listeners"
+    '200':
+      description: 'A JSON object containing all hooks with active listeners'
       content:
         application/json:
           schema:

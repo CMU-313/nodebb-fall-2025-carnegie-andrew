@@ -1,12 +1,12 @@
 {
-    "username-email": "ชื่อผู้ใช้ / อีเมล",
-    "username": "ชื่อผู้ใช้",
-    "remember-me": "จำไว้ในระบบ?",
-    "forgot-password": "ลืมรหัสผ่าน?",
-    "alternative-logins": "เข้าสู่ระบบโดยทางอื่น",
-    "failed-login-attempt": "เข้าสู่ระบบสำเร็จ",
-    "login-successful": "คุณเข้าสู่ระบบเรียบร้อยแล้ว",
-    "dont-have-account": "คุณยังไม่มีบัญชีเข้าระบบ?",
-    "logged-out-due-to-inactivity": "คุณได้ออกจากแผงควบคุมผู้ดูแลระบบแล้ว เนื่องจากว่าไม่มีกิจกรรมใดๆมาสักระยะ",
-    "caps-lock-enabled": "ปุ่ม Caps Lock เปิดอยู่"
+  "username-email": "ชื่อผู้ใช้ / อีเมล",
+  "username": "ชื่อผู้ใช้",
+  "remember-me": "จำไว้ในระบบ?",
+  "forgot-password": "ลืมรหัสผ่าน?",
+  "alternative-logins": "เข้าสู่ระบบโดยทางอื่น",
+  "failed-login-attempt": "เข้าสู่ระบบสำเร็จ",
+  "login-successful": "คุณเข้าสู่ระบบเรียบร้อยแล้ว",
+  "dont-have-account": "คุณยังไม่มีบัญชีเข้าระบบ?",
+  "logged-out-due-to-inactivity": "คุณได้ออกจากแผงควบคุมผู้ดูแลระบบแล้ว เนื่องจากว่าไม่มีกิจกรรมใดๆมาสักระยะ",
+  "caps-lock-enabled": "ปุ่ม Caps Lock เปิดอยู่"
 }

@@ -1,4 +1,3 @@
-
 'use strict';
 
 const _ = require('lodash');
@@ -40,7 +39,8 @@ privsAdmin.init = async () => {
 };
 
 privsAdmin.getUserPrivilegeList = () => Array.from(_privilegeMap.keys());
-privsAdmin.getGroupPrivilegeList = () => Array.from(_privilegeMap.keys()).map(privilege => `groups:${privilege}`);
+privsAdmin.getGroupPrivilegeList = () =>
+	Array.from(_privilegeMap.keys()).map(privilege => `groups:${privilege}`);
 privsAdmin.getPrivilegeList = async () => {
 	const [user, group] = await Promise.all([
 		privsAdmin.getUserPrivilegeList(),
@@ -122,7 +122,7 @@ privsAdmin.socketMap = {
 	'admin.settings.set': 'admin:settings',
 };
 
-privsAdmin.resolve = (path) => {
+privsAdmin.resolve = path => {
 	if (privsAdmin.routeMap.hasOwnProperty(path)) {
 		return privsAdmin.routeMap[path];
 	}

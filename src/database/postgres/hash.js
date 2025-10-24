@@ -14,7 +14,7 @@ module.exports = function (module) {
 		if (!Object.keys(data).length) {
 			return;
 		}
-		await module.transaction(async (client) => {
+		await module.transaction(async client => {
 			const dataString = JSON.stringify(data);
 
 			if (Array.isArray(key)) {
@@ -50,12 +50,14 @@ module.exports = function (module) {
 			return;
 		}
 		if (Array.isArray(args[1])) {
-			console.warn('[deprecated] db.setObjectBulk(keys, data) usage is deprecated, please use db.setObjectBulk(data)');
+			console.warn(
+				'[deprecated] db.setObjectBulk(keys, data) usage is deprecated, please use db.setObjectBulk(data)',
+			);
 			// conver old format to new format for backwards compatibility
 			data = args[0].map((key, i) => [key, args[1][i]]);
 		}
-		await module.transaction(async (client) => {
-			data = data.filter((item) => {
+		await module.transaction(async client => {
+			data = data.filter(item => {
 				if (item[1].hasOwnProperty('')) {
 					delete item[1][''];
 				}
@@ -86,7 +88,7 @@ module.exports = function (module) {
 			return;
 		}
 
-		await module.transaction(async (client) => {
+		await module.transaction(async client => {
 			const valueString = JSON.stringify(value);
 			if (Array.isArray(key)) {
 				await module.setObject(key, { [field]: value });
@@ -200,7 +202,7 @@ SELECT (SELECT jsonb_object_agg(f, d."value")
 		}
 
 		const obj = {};
-		fields.forEach((f) => {
+		fields.forEach(f => {
 			obj[f] = null;
 		});
 
@@ -343,32 +345,36 @@ SELECT (h."data" ? $2::TEXT AND h."data"->>$2::TEXT IS NOT NULL) b
 			return null;
 		}
 
-		return await module.transaction(async (client) => {
+		return await module.transaction(async client => {
 			if (Array.isArray(key)) {
 				await helpers.ensureLegacyObjectsType(client, key, 'hash');
 			} else {
 				await helpers.ensureLegacyObjectType(client, key, 'hash');
 			}
 
-			const res = await client.query(Array.isArray(key) ? {
-				name: 'incrObjectFieldByMulti',
-				text: `
+			const res = await client.query(
+				Array.isArray(key)
+					? {
+							name: 'incrObjectFieldByMulti',
+							text: `
 INSERT INTO "legacy_hash" ("_key", "data")
 SELECT UNNEST($1::TEXT[]), jsonb_build_object($2::TEXT, $3::NUMERIC)
 ON CONFLICT ("_key")
 DO UPDATE SET "data" = jsonb_set("legacy_hash"."data", ARRAY[$2::TEXT], to_jsonb(COALESCE(("legacy_hash"."data"->>$2::TEXT)::NUMERIC, 0) + $3::NUMERIC))
 RETURNING ("data"->>$2::TEXT)::NUMERIC v`,
-				values: [key, field, value],
-			} : {
-				name: 'incrObjectFieldBy',
-				text: `
+							values: [key, field, value],
+						}
+					: {
+							name: 'incrObjectFieldBy',
+							text: `
 INSERT INTO "legacy_hash" ("_key", "data")
 VALUES ($1::TEXT, jsonb_build_object($2::TEXT, $3::NUMERIC))
 ON CONFLICT ("_key")
 DO UPDATE SET "data" = jsonb_set("legacy_hash"."data", ARRAY[$2::TEXT], to_jsonb(COALESCE(("legacy_hash"."data"->>$2::TEXT)::NUMERIC, 0) + $3::NUMERIC))
 RETURNING ("data"->>$2::TEXT)::NUMERIC v`,
-				values: [key, field, value],
-			});
+							values: [key, field, value],
+						},
+			);
 			return Array.isArray(key) ? res.rows.map(r => parseFloat(r.v)) : parseFloat(res.rows[0].v);
 		});
 	};
@@ -378,8 +384,12 @@ RETURNING ("data"->>$2::TEXT)::NUMERIC v`,
 			return;
 		}
 
-		await module.transaction(async (client) => {
-			await helpers.ensureLegacyObjectsType(client, data.map(item => item[0]), 'hash');
+		await module.transaction(async client => {
+			await helpers.ensureLegacyObjectsType(
+				client,
+				data.map(item => item[0]),
+				'hash',
+			);
 
 			const keys = data.map(item => item[0]);
 			const dataStrings = data.map(item => JSON.stringify(item[1]));

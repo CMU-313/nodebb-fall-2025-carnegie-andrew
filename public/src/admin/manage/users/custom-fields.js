@@ -1,5 +1,8 @@
 define('admin/manage/user/custom-fields', [
-	'bootbox', 'alerts', 'iconSelect', 'jquery-ui/widgets/sortable',
+	'bootbox',
+	'alerts',
+	'iconSelect',
+	'jquery-ui/widgets/sortable',
 ], function (bootbox, alerts, iconSelect) {
 	const manageUserFields = {};
 
@@ -14,12 +17,15 @@ define('admin/manage/user/custom-fields', [
 		table.on('click', '[data-action="delete"]', function () {
 			const key = $(this).attr('data-key');
 			const row = $(this).parents('[data-key]');
-			bootbox.confirm(`[[admin/manage/user-custom-fields:delete-field-confirm-x, ${key}]]`, function (ok) {
-				if (!ok) {
-					return;
-				}
-				row.remove();
-			});
+			bootbox.confirm(
+				`[[admin/manage/user-custom-fields:delete-field-confirm-x, ${key}]]`,
+				function (ok) {
+					if (!ok) {
+						return;
+					}
+					row.remove();
+				},
+			);
 		});
 
 		$('tbody').sortable({
@@ -57,33 +63,44 @@ define('admin/manage/user/custom-fields', [
 	}
 
 	async function showModal(field = null) {
-		const html = await app.parseAndTranslate('admin/partials/manage-custom-user-fields-modal', field);
+		const html = await app.parseAndTranslate(
+			'admin/partials/manage-custom-user-fields-modal',
+			field,
+		);
 
 		const modal = bootbox.dialog({
 			message: html,
 			onEscape: true,
-			title: field ?
-				'[[admin/manage/user-custom-fields:edit-field]]' :
-				'[[admin/manage/user-custom-fields:create-field]]',
+			title: field
+				? '[[admin/manage/user-custom-fields:edit-field]]'
+				: '[[admin/manage/user-custom-fields:create-field]]',
 			buttons: {
 				submit: {
 					label: '[[global:save]]',
 					callback: function () {
 						const formData = modal.find('form').serializeObject();
 						if (formData.type === 'select' || formData.type === 'select-multi') {
-							formData.selectOptionsFormatted = formData['select-options'].trim().split('\n').join(', ');
+							formData.selectOptionsFormatted = formData['select-options']
+								.trim()
+								.split('\n')
+								.join(', ');
 						}
 
-						app.parseAndTranslate('admin/manage/users/custom-fields', 'fields', {
-							fields: [formData],
-						}, (html) => {
-							if (field) {
-								const oldKey = field.key;
-								$(`tbody [data-key="${oldKey}"]`).replaceWith(html);
-							} else {
-								$('tbody').append(html);
-							}
-						});
+						app.parseAndTranslate(
+							'admin/manage/users/custom-fields',
+							'fields',
+							{
+								fields: [formData],
+							},
+							html => {
+								if (field) {
+									const oldKey = field.key;
+									$(`tbody [data-key="${oldKey}"]`).replaceWith(html);
+								} else {
+									$('tbody').append(html);
+								}
+							},
+						);
 					},
 				},
 			},
@@ -106,5 +123,3 @@ define('admin/manage/user/custom-fields', [
 
 	return manageUserFields;
 });
-
-

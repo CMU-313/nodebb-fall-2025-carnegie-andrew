@@ -9,7 +9,9 @@ module.exports = function (SocketTopics) {
 		if (!data || !Array.isArray(data.tids)) {
 			throw new Error('[[error:invalid-data]]');
 		}
-		const allowed = await Promise.all(data.tids.map(tid => privileges.topics.isAdminOrMod(tid, socket.uid)));
+		const allowed = await Promise.all(
+			data.tids.map(tid => privileges.topics.isAdminOrMod(tid, socket.uid)),
+		);
 		if (allowed.includes(false)) {
 			throw new Error('[[error:no-privileges]]');
 		}

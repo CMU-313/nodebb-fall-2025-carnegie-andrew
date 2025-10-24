@@ -1,4 +1,3 @@
-
 'use strict';
 
 const _ = require('lodash');
@@ -22,7 +21,7 @@ module.exports = function (Topics) {
 		// This is an internal method, consider using Topics.post instead
 		const timestamp = data.timestamp || Date.now();
 
-		const tid = data.tid || await db.incrObjectField('global', 'nextTid');
+		const tid = data.tid || (await db.incrObjectField('global', 'nextTid'));
 
 		let topicData = {
 			tid: tid,
@@ -41,7 +40,10 @@ module.exports = function (Topics) {
 			topicData.tags = data.tags.join(',');
 		}
 
-		const result = await plugins.hooks.fire('filter:topic.create', { topic: topicData, data: data });
+		const result = await plugins.hooks.fire('filter:topic.create', {
+			topic: topicData,
+			data: data,
+		});
 		topicData = result.topic;
 		await db.setObject(`topic:${topicData.tid}`, topicData);
 
@@ -52,7 +54,9 @@ module.exports = function (Topics) {
 			`cid:${topicData.cid}:uid:${topicData.uid}:tids`,
 		];
 		const countedSortedSetKeys = [
-			...['views', 'posts', 'votes'].map(prop => `${utils.isNumber(tid) ? 'topics' : 'topicsRemote'}:${prop}`),
+			...['views', 'posts', 'votes'].map(
+				prop => `${utils.isNumber(tid) ? 'topics' : 'topicsRemote'}:${prop}`,
+			),
 			`cid:${topicData.cid}:tids:votes`,
 			`cid:${topicData.cid}:tids:posts`,
 			`cid:${topicData.cid}:tids:views`,
@@ -67,7 +71,10 @@ module.exports = function (Topics) {
 			db.sortedSetsAdd(timestampedSortedSetKeys, timestamp, topicData.tid),
 			db.sortedSetsAdd(countedSortedSetKeys, 0, topicData.tid),
 			user.addTopicIdToUser(topicData.uid, topicData.tid, timestamp),
-			db.incrObjectField(`${utils.isNumber(topicData.cid) ? 'category' : 'categoryRemote'}:${topicData.cid}`, 'topic_count'),
+			db.incrObjectField(
+				`${utils.isNumber(topicData.cid) ? 'category' : 'categoryRemote'}:${topicData.cid}`,
+				'topic_count',
+			),
 			utils.isNumber(tid) ? db.incrObjectField('global', 'topicCount') : null,
 			Topics.createTags(data.tags, topicData.tid, timestamp),
 			scheduled ? Promise.resolve() : categories.updateRecentTid(topicData.cid, topicData.tid),
@@ -76,7 +83,10 @@ module.exports = function (Topics) {
 			await Topics.scheduled.pin(tid, topicData);
 		}
 
-		plugins.hooks.fire('action:topic.save', { topic: _.clone(topicData), data: data });
+		plugins.hooks.fire('action:topic.save', {
+			topic: _.clone(topicData),
+			data: data,
+		});
 		return topicData.tid;
 	};
 
@@ -102,8 +112,10 @@ module.exports = function (Topics) {
 		data.tags = await Topics.filterTags(data.tags, data.cid);
 		if (!data.fromQueue && !isAdmin) {
 			Topics.checkContent(data.sourceContent || data.content);
-			if (!await posts.canUserPostContentWithLinks(uid, data.content)) {
-				throw new Error(`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`);
+			if (!(await posts.canUserPostContentWithLinks(uid, data.content))) {
+				throw new Error(
+					`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`,
+				);
 			}
 		}
 
@@ -152,7 +164,11 @@ module.exports = function (Topics) {
 		}
 
 		analytics.increment(['topics', `topics:byCid:${topicData.cid}`]);
-		plugins.hooks.fire('action:topic.post', { topic: topicData, post: postData, data: data });
+		plugins.hooks.fire('action:topic.post', {
+			topic: topicData,
+			post: postData,
+			data: data,
+		});
 
 		if (!topicData.scheduled) {
 			setImmediate(async () => {
@@ -195,8 +211,10 @@ module.exports = function (Topics) {
 		if (!data.fromQueue && !isAdmin) {
 			await user.isReadyToPost(uid, data.cid);
 			Topics.checkContent(data.sourceContent || data.content);
-			if (!await posts.canUserPostContentWithLinks(uid, data.content)) {
-				throw new Error(`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`);
+			if (!(await posts.canUserPostContentWithLinks(uid, data.content))) {
+				throw new Error(
+					`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`,
+				);
 			}
 		}
 
@@ -218,12 +236,20 @@ module.exports = function (Topics) {
 			user.setUserField(uid, 'lastonline', Date.now());
 		}
 
-		if (parseInt(uid, 10) || activitypub.helpers.isUri(uid) || meta.config.allowGuestReplyNotifications) {
+		if (
+			parseInt(uid, 10) ||
+			activitypub.helpers.isUri(uid) ||
+			meta.config.allowGuestReplyNotifications
+		) {
 			setImmediate(async () => {
 				try {
 					await Topics.notifyFollowers(postData, uid, {
 						type: 'new-reply',
-						bodyShort: translator.compile('notifications:user-posted-to', postData.user.displayname, postData.topic.title),
+						bodyShort: translator.compile(
+							'notifications:user-posted-to',
+							postData.user.displayname,
+							postData.topic.title,
+						),
 						nid: `new_post:tid:${postData.topic.tid}:pid:${postData.pid}:uid:${uid}`,
 						mergeId: `notifications:user-posted-to|${postData.topic.tid}`,
 					});
@@ -234,7 +260,10 @@ module.exports = function (Topics) {
 		}
 
 		analytics.increment(['posts', `posts:byCid:${data.cid}`]);
-		plugins.hooks.fire('action:topic.reply', { post: _.clone(postData), data: data });
+		plugins.hooks.fire('action:topic.reply', {
+			post: _.clone(postData),
+			data: data,
+		});
 
 		return postData;
 	};
@@ -264,11 +293,23 @@ module.exports = function (Topics) {
 	}
 
 	Topics.checkTitle = function (title) {
-		check(title, meta.config.minimumTitleLength, meta.config.maximumTitleLength, 'title-too-short', 'title-too-long');
+		check(
+			title,
+			meta.config.minimumTitleLength,
+			meta.config.maximumTitleLength,
+			'title-too-short',
+			'title-too-long',
+		);
 	};
 
 	Topics.checkContent = function (content) {
-		check(content, meta.config.minimumPostLength, meta.config.maximumPostLength, 'content-too-short', 'content-too-long');
+		check(
+			content,
+			meta.config.minimumPostLength,
+			meta.config.maximumPostLength,
+			'content-too-short',
+			'content-too-long',
+		);
 	};
 
 	function check(item, min, max, minError, maxError) {

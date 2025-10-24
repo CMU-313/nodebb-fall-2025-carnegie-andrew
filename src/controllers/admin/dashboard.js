@@ -91,7 +91,13 @@ async function getLatestVersion() {
 dashboardController.getAnalytics = async (req, res, next) => {
 	// Basic validation
 	const validUnits = ['days', 'hours'];
-	const validSets = ['uniquevisitors', 'pageviews', 'pageviews:registered', 'pageviews:bot', 'pageviews:guest'];
+	const validSets = [
+		'uniquevisitors',
+		'pageviews',
+		'pageviews:registered',
+		'pageviews:bot',
+		'pageviews:guest',
+	];
 	const until = req.query.until ? new Date(parseInt(req.query.until, 10)) : Date.now();
 	const count = req.query.count || (req.query.units === 'hours' ? 24 : 30);
 	if (isNaN(until) || !validUnits.includes(req.query.units)) {
@@ -107,7 +113,8 @@ dashboardController.getAnalytics = async (req, res, next) => {
 		sets = validSets;
 	}
 
-	const method = req.query.units === 'days' ? analytics.getDailyStatsForSet : analytics.getHourlyStatsForSet;
+	const method =
+		req.query.units === 'days' ? analytics.getDailyStatsForSet : analytics.getHourlyStatsForSet;
 	let payload = await Promise.all(sets.map(set => method(`analytics:${set}`, until, count)));
 	payload = _.zipObject(sets, payload);
 
@@ -168,11 +175,11 @@ async function getStatsForSet(set, field) {
 
 	const now = Date.now();
 	const results = await utils.promiseParallel({
-		yesterday: db.sortedSetCount(set, now - (terms.day * 2), '+inf'),
+		yesterday: db.sortedSetCount(set, now - terms.day * 2, '+inf'),
 		today: db.sortedSetCount(set, now - terms.day, '+inf'),
-		lastweek: db.sortedSetCount(set, now - (terms.week * 2), '+inf'),
+		lastweek: db.sortedSetCount(set, now - terms.week * 2, '+inf'),
 		thisweek: db.sortedSetCount(set, now - terms.week, '+inf'),
-		lastmonth: db.sortedSetCount(set, now - (terms.month * 2), '+inf'),
+		lastmonth: db.sortedSetCount(set, now - terms.month * 2, '+inf'),
 		thismonth: db.sortedSetCount(set, now - terms.month, '+inf'),
 		alltime: getGlobalField(field),
 	});
@@ -210,7 +217,7 @@ function calculateDeltas(results) {
 	}
 
 	function increasePercent(last, now) {
-		const percent = last ? (now - last) / last * 100 : 0;
+		const percent = last ? ((now - last) / last) * 100 : 0;
 		return percent.toFixed(1);
 	}
 	results.yesterday -= results.today;
@@ -247,15 +254,20 @@ async function getLastRestart() {
 
 async function getPopularSearches() {
 	const searches = await db.getSortedSetRevRangeWithScores('searches:all', 0, 9);
-	return searches.map(s => ({ value: validator.escape(String(s.value)), score: s.score }));
+	return searches.map(s => ({
+		value: validator.escape(String(s.value)),
+		score: s.score,
+	}));
 }
 
 dashboardController.getLogins = async (req, res) => {
 	let stats = await getStats();
-	stats = stats.filter(stat => stat.name === '[[admin/dashboard:logins]]').map(({ ...stat }) => {
-		delete stat.href;
-		return stat;
-	});
+	stats = stats
+		.filter(stat => stat.name === '[[admin/dashboard:logins]]')
+		.map(({ ...stat }) => {
+			delete stat.href;
+			return stat;
+		});
 	const summary = {
 		day: stats[0].today,
 		week: stats[0].thisweek,
@@ -263,17 +275,19 @@ dashboardController.getLogins = async (req, res) => {
 	};
 
 	// List recent sessions
-	const start = Date.now() - (1000 * 60 * 60 * 24 * meta.config.loginDays);
+	const start = Date.now() - 1000 * 60 * 60 * 24 * meta.config.loginDays;
 	const uids = await db.getSortedSetRangeByScore('users:online', 0, 500, start, Date.now());
 	const usersData = await user.getUsersData(uids);
-	let sessions = await Promise.all(uids.map(async (uid) => {
-		const sessions = await user.auth.getSessions(uid);
-		sessions.forEach((session) => {
-			session.user = usersData[uids.indexOf(uid)];
-		});
+	let sessions = await Promise.all(
+		uids.map(async uid => {
+			const sessions = await user.auth.getSessions(uid);
+			sessions.forEach(session => {
+				session.user = usersData[uids.indexOf(uid)];
+			});
 
-		return sessions;
-	}));
+			return sessions;
+		}),
+	);
 	sessions = _.flatten(sessions).sort((a, b) => b.datetime - a.datetime);
 
 	res.render('admin/dashboard/logins', {
@@ -288,10 +302,12 @@ dashboardController.getLogins = async (req, res) => {
 
 dashboardController.getUsers = async (req, res) => {
 	let stats = await getStats();
-	stats = stats.filter(stat => stat.name === '[[admin/dashboard:new-users]]').map(({ ...stat }) => {
-		delete stat.href;
-		return stat;
-	});
+	stats = stats
+		.filter(stat => stat.name === '[[admin/dashboard:new-users]]')
+		.map(({ ...stat }) => {
+			delete stat.href;
+			return stat;
+		});
 	const summary = {
 		day: stats[0].today,
 		week: stats[0].thisweek,
@@ -300,7 +316,13 @@ dashboardController.getUsers = async (req, res) => {
 
 	// List of users registered within time frame
 	const end = parseInt(req.query.until, 10) || Date.now();
-	const start = end - (1000 * 60 * 60 * (req.query.units === 'days' ? 24 : 1) * (req.query.count || (req.query.units === 'days' ? 30 : 24)));
+	const start =
+		end -
+		1000 *
+			60 *
+			60 *
+			(req.query.units === 'days' ? 24 : 1) *
+			(req.query.count || (req.query.units === 'days' ? 30 : 24));
 	const uids = await db.getSortedSetRangeByScore('users:joindate', 0, 500, start, end);
 	const users = await user.getUsersData(uids);
 
@@ -315,10 +337,12 @@ dashboardController.getUsers = async (req, res) => {
 
 dashboardController.getTopics = async (req, res) => {
 	let stats = await getStats();
-	stats = stats.filter(stat => stat.name === '[[admin/dashboard:topics]]').map(({ ...stat }) => {
-		delete stat.href;
-		return stat;
-	});
+	stats = stats
+		.filter(stat => stat.name === '[[admin/dashboard:topics]]')
+		.map(({ ...stat }) => {
+			delete stat.href;
+			return stat;
+		});
 	const summary = {
 		day: stats[0].today,
 		week: stats[0].thisweek,
@@ -327,7 +351,13 @@ dashboardController.getTopics = async (req, res) => {
 
 	// List of topics created within time frame
 	const end = parseInt(req.query.until, 10) || Date.now();
-	const start = end - (1000 * 60 * 60 * (req.query.units === 'days' ? 24 : 1) * (req.query.count || (req.query.units === 'days' ? 30 : 24)));
+	const start =
+		end -
+		1000 *
+			60 *
+			60 *
+			(req.query.units === 'days' ? 24 : 1) *
+			(req.query.count || (req.query.units === 'days' ? 30 : 24));
 	const tids = await db.getSortedSetRangeByScore('topics:tid', 0, 500, start, end);
 	const topicData = await topics.getTopicsByTids(tids);
 
@@ -365,12 +395,12 @@ dashboardController.getSearches = async (req, res) => {
 		}
 
 		const daysData = await Promise.all(
-			daysArr.map(async d => db.getSortedSetRevRangeWithScores(`searches:${d.getTime()}`, 0, -1))
+			daysArr.map(async d => db.getSortedSetRevRangeWithScores(`searches:${d.getTime()}`, 0, -1)),
 		);
 
 		const map = {};
-		daysData.forEach((d) => {
-			d.forEach((search) => {
+		daysData.forEach(d => {
+			d.forEach(search => {
 				if (!map[search.value]) {
 					map[search.value] = search.score;
 				} else {
@@ -387,7 +417,10 @@ dashboardController.getSearches = async (req, res) => {
 	}
 
 	res.render('admin/dashboard/searches', {
-		searches: searches.map(s => ({ value: validator.escape(String(s.value)), score: s.score })),
+		searches: searches.map(s => ({
+			value: validator.escape(String(s.value)),
+			score: s.score,
+		})),
 		startDate: req.query.start ? validator.escape(String(req.query.start)) : null,
 		endDate: req.query.end ? validator.escape(String(req.query.end)) : null,
 	});

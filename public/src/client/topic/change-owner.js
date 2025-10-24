@@ -1,11 +1,10 @@
 'use strict';
 
-
-define('forum/topic/change-owner', [
-	'postSelect',
-	'autocomplete',
-	'alerts',
-], function (postSelect, autocomplete, alerts) {
+define('forum/topic/change-owner', ['postSelect', 'autocomplete', 'alerts'], function (
+	postSelect,
+	autocomplete,
+	alerts,
+) {
 	const ChangeOwner = {};
 
 	let modal;
@@ -53,7 +52,12 @@ define('forum/topic/change-owner', [
 	}
 
 	function checkButtonEnable() {
-		if (toUid && modal.find('#username').length && modal.find('#username').val().length && postSelect.pids.length) {
+		if (
+			toUid &&
+			modal.find('#username').length &&
+			modal.find('#username').val().length &&
+			postSelect.pids.length
+		) {
 			commit.removeAttr('disabled');
 		} else {
 			commit.attr('disabled', true);

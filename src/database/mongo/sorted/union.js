@@ -6,11 +6,14 @@ module.exports = function (module) {
 			return 0;
 		}
 
-		const data = await module.client.collection('objects').aggregate([
-			{ $match: { _key: { $in: keys } } },
-			{ $group: { _id: { value: '$value' } } },
-			{ $group: { _id: null, count: { $sum: 1 } } },
-		]).toArray();
+		const data = await module.client
+			.collection('objects')
+			.aggregate([
+				{ $match: { _key: { $in: keys } } },
+				{ $group: { _id: { value: '$value' } } },
+				{ $group: { _id: null, count: { $sum: 1 } } },
+			])
+			.toArray();
 		return Array.isArray(data) && data.length ? data[0].count : 0;
 	};
 

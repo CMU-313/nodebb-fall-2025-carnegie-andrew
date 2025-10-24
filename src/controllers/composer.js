@@ -81,7 +81,9 @@ exports.post = async function (req, res) {
 			throw new Error('[[error:invalid-data]]');
 		}
 		if (result.queued) {
-			return res.redirect(`${nconf.get('relative_path') || '/'}?noScriptMessage=[[success:post-queued]]`);
+			return res.redirect(
+				`${nconf.get('relative_path') || '/'}?noScriptMessage=[[success:post-queued]]`,
+			);
 		}
 		user.updateOnlineUsers(req.uid);
 		let path = nconf.get('relative_path');

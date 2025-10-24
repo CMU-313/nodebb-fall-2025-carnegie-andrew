@@ -72,7 +72,8 @@ export function remove(id) {
 function updateAlert(alert, params) {
 	alert.find('strong').translateHtml(params.title);
 	alert.find('p').translateHtml(params.message);
-	alert.removeClass('alert-success alert-danger alert-info alert-warning')
+	alert
+		.removeClass('alert-success alert-danger alert-info alert-warning')
 		.addClass(`alert-${params.type}`);
 
 	clearTimeout(parseInt(alert.attr('timeoutId'), 10));
@@ -85,14 +86,12 @@ function updateAlert(alert, params) {
 	// Handle changes in the clickfn
 	alert.off('click').removeClass('pointer');
 	if (typeof params.clickfn === 'function') {
-		alert
-			.addClass('pointer')
-			.on('click', function (e) {
-				if (!$(e.target).is('.btn-close')) {
-					params.clickfn();
-					close(alert);
-				}
-			});
+		alert.addClass('pointer').on('click', function (e) {
+			if (!$(e.target).is('.btn-close')) {
+				params.clickfn();
+				close(alert);
+			}
+		});
 	}
 }
 
@@ -123,14 +122,12 @@ function createNew(params) {
 		}
 
 		if (typeof params.clickfn === 'function') {
-			alert
-				.addClass('pointer')
-				.on('click', function (e) {
-					if (!$(e.target).is('.btn-close')) {
-						params.clickfn(alert, params);
-						close(alert);
-					}
-				});
+			alert.addClass('pointer').on('click', function (e) {
+				if (!$(e.target).is('.btn-close')) {
+					params.clickfn(alert, params);
+					close(alert);
+				}
+			});
 		}
 
 		hooks.fire('action:alert.new', { alert, params });
@@ -168,9 +165,7 @@ function startTimeout(alert, params) {
 	}, 50);
 
 	// Handle mouseenter/mouseleave
-	alert
-		.on('mouseenter', function () {
-			alertProgress.css('transition-duration', 0);
-		});
+	alert.on('mouseenter', function () {
+		alertProgress.css('transition-duration', 0);
+	});
 }
-

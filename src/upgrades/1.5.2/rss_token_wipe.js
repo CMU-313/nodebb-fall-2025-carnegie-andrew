@@ -10,13 +10,23 @@ module.exports = {
 	method: function (callback) {
 		const { progress } = this;
 
-		batch.processSortedSet('users:joindate', (uids, next) => {
-			async.eachLimit(uids, 500, (uid, next) => {
-				progress.incr();
-				db.deleteObjectField(`user:${uid}`, 'rss_token', next);
-			}, next);
-		}, {
-			progress: progress,
-		}, callback);
+		batch.processSortedSet(
+			'users:joindate',
+			(uids, next) => {
+				async.eachLimit(
+					uids,
+					500,
+					(uid, next) => {
+						progress.incr();
+						db.deleteObjectField(`user:${uid}`, 'rss_token', next);
+					},
+					next,
+				);
+			},
+			{
+				progress: progress,
+			},
+			callback,
+		);
 	},
 };

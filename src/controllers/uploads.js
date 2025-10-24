@@ -49,7 +49,7 @@ uploadsController.upload = async function (req, res, filesIterator) {
 };
 
 uploadsController.uploadPost = async function (req, res) {
-	await uploadsController.upload(req, res, async (uploadedFile) => {
+	await uploadsController.upload(req, res, async uploadedFile => {
 		const isImage = uploadedFile.type.match(/image./);
 		if (isImage) {
 			return await uploadAsImage(req, uploadedFile);
@@ -110,9 +110,9 @@ async function resizeImage(fileObj) {
 
 	await image.resizeImage({
 		path: fileObj.path,
-		target: meta.config.resizeImageKeepOriginal ?
-			file.appendToFileName(fileObj.path, '-resized') :
-			fileObj.path,
+		target: meta.config.resizeImageKeepOriginal
+			? file.appendToFileName(fileObj.path, '-resized')
+			: fileObj.path,
 		width: meta.config.resizeImageWidth,
 		quality: meta.config.resizeImageQuality,
 	});
@@ -127,10 +127,14 @@ async function resizeImage(fileObj) {
 uploadsController.uploadThumb = async function (req, res) {
 	if (!meta.config.allowTopicsThumbnail) {
 		deleteTempFiles(req.files.files);
-		return helpers.formatApiResponse(503, res, new Error('[[error:topic-thumbnails-are-disabled]]'));
+		return helpers.formatApiResponse(
+			503,
+			res,
+			new Error('[[error:topic-thumbnails-are-disabled]]'),
+		);
 	}
 
-	return await uploadsController.upload(req, res, async (uploadedFile) => {
+	return await uploadsController.upload(req, res, async uploadedFile => {
 		if (!uploadedFile.type.match(/image./)) {
 			throw new Error('[[error:invalid-file]]');
 		}
@@ -196,7 +200,11 @@ async function saveFileToLocal(uid, folder, uploadedFile) {
 	};
 
 	await user.associateUpload(uid, upload.url.replace(`${nconf.get('upload_url')}`, ''));
-	const data = await plugins.hooks.fire('filter:uploadStored', { uid: uid, uploadedFile: uploadedFile, storedFile: storedFile });
+	const data = await plugins.hooks.fire('filter:uploadStored', {
+		uid: uid,
+		uploadedFile: uploadedFile,
+		storedFile: storedFile,
+	});
 	return data.storedFile;
 }
 

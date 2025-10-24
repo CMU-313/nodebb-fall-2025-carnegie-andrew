@@ -10,8 +10,8 @@ get:
         type: string
       example: 1
   responses:
-    "200":
-      description: "A JSON object containing the teaser post for a topic"
+    '200':
+      description: 'A JSON object containing the teaser post for a topic'
       content:
         application/json:
           schema:

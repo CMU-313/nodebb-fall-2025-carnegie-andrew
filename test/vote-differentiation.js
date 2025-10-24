@@ -38,7 +38,7 @@ describe('Vote Differentiation', () => {
 		// Upvote the post
 		const upvoteResult = await apiPosts.upvote(
 			{ uid: voterUid },
-			{ pid: postData.pid, room_id: `topic_${topicData.tid}` }
+			{ pid: postData.pid, room_id: `topic_${topicData.tid}` },
 		);
 
 		assert.strictEqual(upvoteResult.post.upvotes, 1);
@@ -48,7 +48,7 @@ describe('Vote Differentiation', () => {
 		// Downvote the post from a different user
 		const downvoteResult = await apiPosts.downvote(
 			{ uid: downvoterUid },
-			{ pid: postData.pid, room_id: `topic_${topicData.tid}` }
+			{ pid: postData.pid, room_id: `topic_${topicData.tid}` },
 		);
 
 		assert.strictEqual(downvoteResult.post.upvotes, 1);
@@ -75,7 +75,7 @@ describe('Vote Differentiation', () => {
 		// First upvote
 		await apiPosts.upvote(
 			{ uid: voterUid },
-			{ pid: newPost.pid, room_id: `topic_${topicData.tid}` }
+			{ pid: newPost.pid, room_id: `topic_${topicData.tid}` },
 		);
 
 		const fields = await posts.getPostFields(newPost.pid, ['upvotes', 'downvotes', 'votes']);
@@ -86,7 +86,7 @@ describe('Vote Differentiation', () => {
 		// Switch to downvote
 		const downvoteResult = await apiPosts.downvote(
 			{ uid: voterUid },
-			{ pid: newPost.pid, room_id: `topic_${topicData.tid}` }
+			{ pid: newPost.pid, room_id: `topic_${topicData.tid}` },
 		);
 
 		assert.strictEqual(downvoteResult.post.upvotes, 0);
@@ -105,13 +105,13 @@ describe('Vote Differentiation', () => {
 		// Upvote
 		await apiPosts.upvote(
 			{ uid: voterUid },
-			{ pid: newPost.pid, room_id: `topic_${topicData.tid}` }
+			{ pid: newPost.pid, room_id: `topic_${topicData.tid}` },
 		);
 
 		// Unvote
 		const unvoteResult = await apiPosts.unvote(
 			{ uid: voterUid },
-			{ pid: newPost.pid, room_id: `topic_${topicData.tid}` }
+			{ pid: newPost.pid, room_id: `topic_${topicData.tid}` },
 		);
 
 		assert.strictEqual(unvoteResult.post.upvotes, 0);
@@ -134,7 +134,10 @@ describe('Vote Differentiation', () => {
 		// 2 upvotes, 1 downvote
 		await apiPosts.upvote({ uid: voter1 }, { pid: newPost.pid, room_id: `topic_${topicData.tid}` });
 		await apiPosts.upvote({ uid: voter2 }, { pid: newPost.pid, room_id: `topic_${topicData.tid}` });
-		await apiPosts.downvote({ uid: voter3 }, { pid: newPost.pid, room_id: `topic_${topicData.tid}` });
+		await apiPosts.downvote(
+			{ uid: voter3 },
+			{ pid: newPost.pid, room_id: `topic_${topicData.tid}` },
+		);
 
 		const fields = await posts.getPostFields(newPost.pid, ['upvotes', 'downvotes', 'votes']);
 
@@ -143,4 +146,3 @@ describe('Vote Differentiation', () => {
 		assert.strictEqual(fields.votes, 1);
 	});
 });
-

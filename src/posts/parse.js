@@ -15,25 +15,63 @@ const postCache = require('./cache');
 let sanitizeConfig = {
 	allowedTags: sanitize.defaults.allowedTags.concat([
 		// Some safe-to-use tags to add
-		'ins', 'del', 'img', 'button',
-		'video', 'audio', 'source', 'iframe', 'embed',
+		'ins',
+		'del',
+		'img',
+		'button',
+		'video',
+		'audio',
+		'source',
+		'iframe',
+		'embed',
 	]),
 	allowedAttributes: {
 		...sanitize.defaults.allowedAttributes,
 		a: ['href', 'name', 'hreflang', 'media', 'rel', 'target', 'type'],
 		img: ['alt', 'height', 'ismap', 'src', 'usemap', 'width', 'srcset'],
 		iframe: ['height', 'name', 'src', 'width', 'allow', 'frameborder'],
-		video: ['autoplay', 'playsinline', 'controls', 'height', 'loop', 'muted', 'poster', 'preload', 'src', 'width'],
+		video: [
+			'autoplay',
+			'playsinline',
+			'controls',
+			'height',
+			'loop',
+			'muted',
+			'poster',
+			'preload',
+			'src',
+			'width',
+		],
 		audio: ['autoplay', 'controls', 'loop', 'muted', 'preload', 'src'],
 		source: ['type', 'src', 'srcset', 'sizes', 'media', 'height', 'width'],
 		embed: ['height', 'src', 'type', 'width'],
 	},
-	nonBooleanAttributes: ['accesskey', 'class', 'contenteditable', 'dir',
-		'draggable', 'dropzone', 'hidden', 'id', 'lang', 'spellcheck', 'style',
-		'tabindex', 'title', 'translate', 'aria-*', 'data-*',
+	nonBooleanAttributes: [
+		'accesskey',
+		'class',
+		'contenteditable',
+		'dir',
+		'draggable',
+		'dropzone',
+		'hidden',
+		'id',
+		'lang',
+		'spellcheck',
+		'style',
+		'tabindex',
+		'title',
+		'translate',
+		'aria-*',
+		'data-*',
 	],
 };
-const allowedTypes = new Set(['default', 'plaintext', 'activitypub.note', 'activitypub.article', 'markdown']);
+const allowedTypes = new Set([
+	'default',
+	'plaintext',
+	'activitypub.note',
+	'activitypub.article',
+	'markdown',
+]);
 
 module.exports = function (Posts) {
 	Posts.urlRegex = /href="([^"]+)"/g;
@@ -58,7 +96,10 @@ module.exports = function (Posts) {
 			return postData;
 		}
 
-		({ postData } = await plugins.hooks.fire('filter:parse.post', { postData, type }));
+		({ postData } = await plugins.hooks.fire('filter:parse.post', {
+			postData,
+			type,
+		}));
 		postData.content = translator.escape(postData.content);
 		if (postData.pid) {
 			cache.set(cacheKey, postData.content);
@@ -74,7 +115,10 @@ module.exports = function (Posts) {
 
 	Posts.parseSignature = async function (userData, uid) {
 		userData.signature = sanitizeSignature(userData.signature || '');
-		return await plugins.hooks.fire('filter:parse.signature', { userData: userData, uid: uid });
+		return await plugins.hooks.fire('filter:parse.signature', {
+			userData: userData,
+			uid: uid,
+		});
 	};
 
 	Posts.relativeToAbsolute = function (content, regex) {
@@ -99,9 +143,10 @@ module.exports = function (Posts) {
 						}
 
 						const offset = current[0].indexOf(current[1]);
-						content = content.slice(0, current.index + offset) +
-						absolute +
-						content.slice(current.index + offset + current[1].length);
+						content =
+							content.slice(0, current.index + offset) +
+							absolute +
+							content.slice(current.index + offset + current[1].length);
 					}
 				} catch (err) {
 					winston.verbose(err.messsage);
@@ -121,16 +166,17 @@ module.exports = function (Posts) {
 		});
 	};
 
-	Posts.sanitizePlaintext = content => sanitize(content, {
-		allowedTags: [],
-	});
+	Posts.sanitizePlaintext = content =>
+		sanitize(content, {
+			allowedTags: [],
+		});
 
 	Posts.configureSanitize = async () => {
 		// Each allowed tags should have some common global attributes...
-		sanitizeConfig.allowedTags.forEach((tag) => {
+		sanitizeConfig.allowedTags.forEach(tag => {
 			sanitizeConfig.allowedAttributes[tag] = _.union(
 				sanitizeConfig.allowedAttributes[tag],
-				sanitizeConfig.nonBooleanAttributes
+				sanitizeConfig.nonBooleanAttributes,
 			);
 		});
 
@@ -141,8 +187,10 @@ module.exports = function (Posts) {
 	Posts.registerHooks = () => {
 		plugins.hooks.register('core', {
 			hook: 'filter:parse.post',
-			method: async (data) => {
-				data.postData.content = Posts[data.type !== 'plaintext' ? 'sanitize' : 'sanitizePlaintext'](data.postData.content);
+			method: async data => {
+				data.postData.content = Posts[data.type !== 'plaintext' ? 'sanitize' : 'sanitizePlaintext'](
+					data.postData.content,
+				);
 				return data;
 			},
 		});
@@ -159,7 +207,7 @@ module.exports = function (Posts) {
 
 		plugins.hooks.register('core', {
 			hook: 'filter:parse.signature',
-			method: async (data) => {
+			method: async data => {
 				data.userData.signature = Posts.sanitize(data.userData.signature);
 				return data;
 			},

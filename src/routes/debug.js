@@ -21,7 +21,10 @@ module.exports = function (app) {
 			return next();
 		}
 
-		const handle = await fs.open(path.resolve(__dirname, '../../public/vendor/redoc/index.html'), 'r');
+		const handle = await fs.open(
+			path.resolve(__dirname, '../../public/vendor/redoc/index.html'),
+			'r',
+		);
 		let html = await handle.readFile({
 			encoding: 'utf-8',
 		});

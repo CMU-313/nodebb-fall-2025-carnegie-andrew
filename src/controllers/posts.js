@@ -40,7 +40,10 @@ postsController.redirectToPost = async function (req, res, next) {
 
 	if (meta.config.activitypubEnabled) {
 		// Include link header for richer parsing
-		res.set('Link', `<${nconf.get('url')}/post/${req.params.pid}>; rel="alternate"; type="application/activity+json"`);
+		res.set(
+			'Link',
+			`<${nconf.get('url')}/post/${req.params.pid}>; rel="alternate"; type="application/activity+json"`,
+		);
 	}
 
 	const qs = querystring.stringify(req.query);

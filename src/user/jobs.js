@@ -33,20 +33,25 @@ module.exports = function (User) {
 	};
 
 	function startDigestJob(name, cronString, term) {
-		jobs[name] = new cronJob(cronString, (async () => {
-			winston.verbose(`[user/jobs] Digest job (${name}) started.`);
-			try {
-				if (name === 'digest.weekly') {
-					const counter = await db.increment('biweeklydigestcounter');
-					if (counter % 2) {
-						await User.digest.execute({ interval: 'biweek' });
+		jobs[name] = new cronJob(
+			cronString,
+			async () => {
+				winston.verbose(`[user/jobs] Digest job (${name}) started.`);
+				try {
+					if (name === 'digest.weekly') {
+						const counter = await db.increment('biweeklydigestcounter');
+						if (counter % 2) {
+							await User.digest.execute({ interval: 'biweek' });
+						}
 					}
+					await User.digest.execute({ interval: term });
+				} catch (err) {
+					winston.error(err.stack);
 				}
-				await User.digest.execute({ interval: term });
-			} catch (err) {
-				winston.error(err.stack);
-			}
-		}), null, true);
+			},
+			null,
+			true,
+		);
 		winston.verbose(`[user/jobs] Starting job (${name})`);
 	}
 

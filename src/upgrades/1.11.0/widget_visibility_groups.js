@@ -11,7 +11,7 @@ module.exports = {
 			if (area.data.length) {
 				// area.data is actually an array of widgets
 				area.widgets = area.data;
-				area.widgets.forEach((widget) => {
+				area.widgets.forEach(widget => {
 					if (widget && widget.data) {
 						const groupsToShow = ['administrators', 'Global Moderators'];
 						if (widget.data['hide-guests'] !== 'on') {

@@ -1,5 +1,4 @@
-Harmony theme for NodeBB
-====================
+# Harmony theme for NodeBB
 
 The Harmony theme is the default theme for NodeBB for versions spanning v3.0.0 onwards.
 
@@ -16,7 +15,9 @@ _The cards in the header are added by the recent cards plugin. https://github.co
 <img height="450" src="screenshots/categories.png">
 
 ### Recent
+
 <img height="450" src="screenshots/recent.png">
 
 ### Topic
+
 <img height="450" src="screenshots/topic.png">

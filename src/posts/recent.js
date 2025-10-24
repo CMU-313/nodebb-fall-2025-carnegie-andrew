@@ -5,7 +5,6 @@ const _ = require('lodash');
 const db = require('../database');
 const privileges = require('../privileges');
 
-
 module.exports = function (Posts) {
 	const terms = {
 		day: 86400000,

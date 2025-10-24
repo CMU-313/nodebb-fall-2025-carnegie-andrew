@@ -3,9 +3,7 @@
 const { Command, Option } = require('commander');
 
 module.exports = () => {
-	const userCmd = new Command('user')
-		.description('Manage users')
-		.arguments('[command]');
+	const userCmd = new Command('user').description('Manage users').arguments('[command]');
 
 	userCmd.configureHelp(require('./colors'));
 	const userCommands = UserCommands();
@@ -26,9 +24,13 @@ module.exports = () => {
 		.action((...args) => execute(userCommands.create, args));
 	userCmd
 		.command('reset')
-		.description('Reset a user\'s password or send a password reset email.')
+		.description("Reset a user's password or send a password reset email.")
 		.arguments('<uid>')
-		.option('-p, --password <password>', 'Set a new password. (Auto-generates if passed empty)', false)
+		.option(
+			'-p, --password <password>',
+			'Set a new password. (Auto-generates if passed empty)',
+			false,
+		)
 		.option('-s, --send-reset-email', 'Send a password reset email.', false)
 		.action((...args) => execute(userCommands.reset, args));
 	userCmd
@@ -36,29 +38,38 @@ module.exports = () => {
 		.description('Delete user(s) and/or their content')
 		.arguments('<uids...>')
 		.addOption(
-			new Option('-t, --type [operation]', 'Delete user content ([purge]), leave content ([account]), or delete content only ([content])')
-				.choices(['purge', 'account', 'content']).default('purge')
+			new Option(
+				'-t, --type [operation]',
+				'Delete user content ([purge]), leave content ([account]), or delete content only ([content])',
+			)
+				.choices(['purge', 'account', 'content'])
+				.default('purge'),
 		)
 		.action((...args) => execute(userCommands.deleteUser, args));
 
-	const make = userCmd.command('make')
+	const make = userCmd
+		.command('make')
 		.description('Make user(s) admin, global mod, moderator or a regular user.')
 		.arguments('[command]');
 
-	make.command('admin')
+	make
+		.command('admin')
 		.description('Make user(s) an admin')
 		.arguments('<uids...>')
 		.action((...args) => execute(userCommands.makeAdmin, args));
-	make.command('global-mod')
+	make
+		.command('global-mod')
 		.description('Make user(s) a global moderator')
 		.arguments('<uids...>')
 		.action((...args) => execute(userCommands.makeGlobalMod, args));
-	make.command('mod')
+	make
+		.command('mod')
 		.description('Make uid(s) of user(s) moderator of given category IDs (cids)')
 		.arguments('<uids...>')
 		.requiredOption('-c, --cid <cids...>', 'ID(s) of categories to make the user a moderator of')
 		.action((...args) => execute(userCommands.makeMod, args));
-	make.command('regular')
+	make
+		.command('regular')
 		.description('Make user(s) a non-privileged user')
 		.arguments('<uids...>')
 		.action((...args) => execute(userCommands.makeRegular, args));
@@ -93,7 +104,10 @@ async function execute(cmd, args) {
 		await cmd(...args);
 	} catch (err) {
 		const userError = err.name === 'UserError';
-		winston.error(`[userCmd/${cmd.name}] ${userError ? `${err.message}` : 'Command failed.'}`, userError ? '' : err);
+		winston.error(
+			`[userCmd/${cmd.name}] ${userError ? `${err.message}` : 'Command failed.'}`,
+			userError ? '' : err,
+		);
 		process.exit(1);
 	}
 
@@ -158,7 +172,9 @@ function UserCommands() {
 
 	async function info({ uid, username, userslug }) {
 		if (!uid && !username && !userslug) {
-			return winston.error('[userCmd/info] At least one option has to be passed (--uid, --username or --userslug).');
+			return winston.error(
+				'[userCmd/info] At least one option has to be passed (--uid, --username or --userslug).',
+			);
 		}
 
 		if (uid) {
@@ -200,7 +216,9 @@ ${pwGenerated ? ` Generated password: ${password}` : ''}`);
 		uid = argParsers.intParse(uid, 'uid');
 
 		if (password === false && sendResetEmail === false) {
-			return winston.error('[userCmd/reset] At least one option has to be passed (--password or --send-reset-email).');
+			return winston.error(
+				'[userCmd/reset] At least one option has to be passed (--password or --send-reset-email).',
+			);
 		}
 
 		const userExists = await user.exists(uid);
@@ -222,13 +240,15 @@ ${pwGenerated ? ` Generated password: ${password}` : ''}`);
 				newPassword: password,
 				uid,
 			});
-			winston.info(`[userCmd/reset] ${password ? 'User password changed.' : ''}${pwGenerated ? ` Generated password: ${password}` : ''}`);
+			winston.info(
+				`[userCmd/reset] ${password ? 'User password changed.' : ''}${pwGenerated ? ` Generated password: ${password}` : ''}`,
+			);
 		}
 
 		if (sendResetEmail) {
 			const userEmail = await user.getUserField(uid, 'email');
 			if (!userEmail) {
-				return winston.error('User doesn\'t have an email address to send reset email.');
+				return winston.error("User doesn't have an email address to send reset email.");
 			}
 			await setupApp();
 			await user.reset.send(userEmail);

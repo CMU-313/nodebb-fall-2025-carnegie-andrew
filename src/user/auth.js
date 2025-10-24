@@ -54,24 +54,23 @@ module.exports = function (User) {
 	};
 
 	User.auth.resetLockout = async function (uid) {
-		await db.deleteAll([
-			`loginAttempts:${uid}`,
-			`lockout:${uid}`,
-		]);
+		await db.deleteAll([`loginAttempts:${uid}`, `lockout:${uid}`]);
 	};
 
 	User.auth.getSessions = async function (uid, curSessionId) {
 		await cleanExpiredSessions(uid);
 		const sids = await db.getSortedSetRevRange(`uid:${uid}:sessions`, 0, 19);
 		let sessions = await Promise.all(sids.map(sid => db.sessionStoreGet(sid)));
-		sessions = sessions.map((sessObj, idx) => {
-			if (sessObj && sessObj.meta) {
-				sessObj.meta.current = curSessionId === sids[idx];
-				sessObj.meta.datetimeISO = new Date(sessObj.meta.datetime).toISOString();
-				sessObj.meta.ip = validator.escape(String(sessObj.meta.ip));
-			}
-			return sessObj && sessObj.meta;
-		}).filter(Boolean);
+		sessions = sessions
+			.map((sessObj, idx) => {
+				if (sessObj && sessObj.meta) {
+					sessObj.meta.current = curSessionId === sids[idx];
+					sessObj.meta.datetimeISO = new Date(sessObj.meta.datetime).toISOString();
+					sessObj.meta.ip = validator.escape(String(sessObj.meta.ip));
+				}
+				return sessObj && sessObj.meta;
+			})
+			.filter(Boolean);
 		return sessions;
 	};
 
@@ -83,17 +82,21 @@ module.exports = function (User) {
 
 		const expiredSids = [];
 		const activeSids = [];
-		await Promise.all(sids.map(async (sid) => {
-			const sessionObj = await db.sessionStoreGet(sid);
-			const expired = !sessionObj || !sessionObj.hasOwnProperty('passport') ||
-				!sessionObj.passport.hasOwnProperty('user') ||
-				parseInt(sessionObj.passport.user, 10) !== parseInt(uid, 10);
-			if (expired) {
-				expiredSids.push(sid);
-			} else {
-				activeSids.push(sid);
-			}
-		}));
+		await Promise.all(
+			sids.map(async sid => {
+				const sessionObj = await db.sessionStoreGet(sid);
+				const expired =
+					!sessionObj ||
+					!sessionObj.hasOwnProperty('passport') ||
+					!sessionObj.passport.hasOwnProperty('user') ||
+					parseInt(sessionObj.passport.user, 10) !== parseInt(uid, 10);
+				if (expired) {
+					expiredSids.push(sid);
+				} else {
+					activeSids.push(sid);
+				}
+			}),
+		);
 
 		await db.sortedSetRemove(`uid:${uid}:sessions`, expiredSids);
 		return activeSids;
@@ -140,14 +143,18 @@ module.exports = function (User) {
 	};
 
 	User.auth.deleteAllSessions = async function () {
-		await batch.processSortedSet('users:joindate', async (uids) => {
-			const sessionKeys = uids.map(uid => `uid:${uid}:sessions`);
-			const sids = _.flatten(await db.getSortedSetRange(sessionKeys, 0, -1));
+		await batch.processSortedSet(
+			'users:joindate',
+			async uids => {
+				const sessionKeys = uids.map(uid => `uid:${uid}:sessions`);
+				const sids = _.flatten(await db.getSortedSetRange(sessionKeys, 0, -1));
 
-			await Promise.all([
-				db.deleteAll(sessionKeys),
-				...sids.map(sid => db.sessionStoreDestroy(sid)),
-			]);
-		}, { batch: 1000 });
+				await Promise.all([
+					db.deleteAll(sessionKeys),
+					...sids.map(sid => db.sessionStoreDestroy(sid)),
+				]);
+			},
+			{ batch: 1000 },
+		);
 	};
 };

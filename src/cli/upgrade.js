@@ -59,7 +59,9 @@ async function runSteps(tasks, options) {
 		// some consoles will return undefined/zero columns,
 		// so just use 2 spaces in upgrade script if we can't get our column count
 		const { columns } = process.stdout;
-		const spaces = columns ? new Array(Math.floor(columns / 2) - (message.length / 2) + 1).join(' ') : '  ';
+		const spaces = columns
+			? new Array(Math.floor(columns / 2) - message.length / 2 + 1).join(' ')
+			: '  ';
 
 		console.log(`\n\n${spaces}${chalk.green.bold(message)}\n`);
 
@@ -91,8 +93,7 @@ async function runUpgrade(upgrades, options) {
 
 	if (upgrades === true) {
 		let tasks = Object.keys(steps);
-		if (options.package || options.install ||
-				options.plugins || options.schema || options.build) {
+		if (options.package || options.install || options.plugins || options.schema || options.build) {
 			tasks = tasks.filter(key => options[key]);
 		}
 		await runSteps(tasks, options);

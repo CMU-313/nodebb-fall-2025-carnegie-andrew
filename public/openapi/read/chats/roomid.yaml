@@ -17,8 +17,8 @@ get:
         type: string
       example: 1
   responses:
-    "200":
-      description: "Chat identifier resolved"
+    '200':
+      description: 'Chat identifier resolved'
       content:
         text/plain:
           schema:

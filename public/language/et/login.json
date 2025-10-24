@@ -1,12 +1,12 @@
 {
-    "username-email": "Kasutajanimi / E-mail",
-    "username": "Kasutajanimi",
-    "remember-me": "Mäleta mind?",
-    "forgot-password": "Unustasid parooli?",
-    "alternative-logins": "Alternatiivsed sisse logimise võimalused",
-    "failed-login-attempt": "Sisselogimine ebaõnnestus",
-    "login-successful": "Edukalt sisse logitud!",
-    "dont-have-account": "Pole veel kasutajat?",
-    "logged-out-due-to-inactivity": "Sind on Administraatori Juhtpaneelist ebaaktiivsuse tõttu välja logitud",
-    "caps-lock-enabled": "Caps Lock is enabled"
+  "username-email": "Kasutajanimi / E-mail",
+  "username": "Kasutajanimi",
+  "remember-me": "Mäleta mind?",
+  "forgot-password": "Unustasid parooli?",
+  "alternative-logins": "Alternatiivsed sisse logimise võimalused",
+  "failed-login-attempt": "Sisselogimine ebaõnnestus",
+  "login-successful": "Edukalt sisse logitud!",
+  "dont-have-account": "Pole veel kasutajat?",
+  "logged-out-due-to-inactivity": "Sind on Administraatori Juhtpaneelist ebaaktiivsuse tõttu välja logitud",
+  "caps-lock-enabled": "Caps Lock is enabled"
 }

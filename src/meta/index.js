@@ -42,15 +42,15 @@ Meta.slugTaken = async function (slug) {
 		categories.existsByHandle(slug),
 	]);
 
-	return isArray ?
-		slug.map((s, i) => userExists[i] || groupExists[i] || categoryExists[i]) :
-		(userExists || groupExists || categoryExists);
+	return isArray
+		? slug.map((s, i) => userExists[i] || groupExists[i] || categoryExists[i])
+		: userExists || groupExists || categoryExists;
 };
 
 Meta.userOrGroupExists = Meta.slugTaken; // backwards compatiblity
 
 if (nconf.get('isPrimary')) {
-	pubsub.on('meta:restart', (data) => {
+	pubsub.on('meta:restart', data => {
 		if (data.hostname !== os.hostname()) {
 			restart();
 		}
@@ -68,7 +68,9 @@ function restart() {
 			action: 'restart',
 		});
 	} else {
-		winston.error('[meta.restart] Could not restart, are you sure NodeBB was started with `./nodebb start`?');
+		winston.error(
+			'[meta.restart] Could not restart, are you sure NodeBB was started with `./nodebb start`?',
+		);
 	}
 }
 

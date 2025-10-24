@@ -41,7 +41,7 @@ app.onDomReady();
 	}
 
 	require(['hooks', 'admin/settings'], (hooks, Settings) => {
-		hooks.on('action:ajaxify.end', (data) => {
+		hooks.on('action:ajaxify.end', data => {
 			updatePageTitle(data.url);
 			setupRestartLinks();
 			showCorrectNavTab();
@@ -132,8 +132,11 @@ app.onDomReady();
 		require(['translator'], function (translator) {
 			url = url
 				.replace(/\/\d+$/, '')
-				.split('/').slice(0, 3).join('/')
-				.split(/[?#]/)[0].replace(/(\/+$)|(^\/+)/, '');
+				.split('/')
+				.slice(0, 3)
+				.join('/')
+				.split(/[?#]/)[0]
+				.replace(/(\/+$)|(^\/+)/, '');
 
 			// If index is requested, load the dashboard
 			if (url === 'admin') {
@@ -156,9 +159,11 @@ app.onDomReady();
 				const matches = url.match(/admin\/(.+?)\/(.+?)$/);
 				if (matches) {
 					mainTitle = '[[admin/menu:' + matches[1] + '/' + matches[2] + ']]';
-					pageTitle = '[[admin/menu:section-' +
+					pageTitle =
+						'[[admin/menu:section-' +
 						(matches[1] === 'development' ? 'advanced' : matches[1]) +
-						']]' + (matches[2] ? (' > ' + mainTitle) : '');
+						']]' +
+						(matches[2] ? ' > ' + mainTitle : '');
 					if (matches[2] === 'settings') {
 						mainTitle = translator.compile('admin/menu:settings.page-title', mainTitle);
 					}
@@ -177,27 +182,38 @@ app.onDomReady();
 	}
 
 	function setupRestartLinks() {
-		require(['benchpress', 'bootbox', 'admin/modules/instance'], function (benchpress, bootbox, instance) {
+		require(['benchpress', 'bootbox', 'admin/modules/instance'], function (
+			benchpress,
+			bootbox,
+			instance,
+		) {
 			// need to preload the compiled alert template
 			// otherwise it can be unloaded when rebuild & restart is run
 			// the client can't fetch the template file, resulting in an error
 			benchpress.render('partials/toast', {}).then(function () {
-				$('[component="rebuild-and-restart"]').off('click').on('click', function () {
-					bootbox.confirm('[[admin/admin:alert.confirm-rebuild-and-restart]]', function (confirm) {
-						if (confirm) {
-							instance.rebuildAndRestart();
-						}
+				$('[component="rebuild-and-restart"]')
+					.off('click')
+					.on('click', function () {
+						bootbox.confirm(
+							'[[admin/admin:alert.confirm-rebuild-and-restart]]',
+							function (confirm) {
+								if (confirm) {
+									instance.rebuildAndRestart();
+								}
+							},
+						);
 					});
-				});
 
-				$('[component="restart"]').off('click').on('click', function () {
-					bootbox.confirm('[[admin/admin:alert.confirm-restart]]', function (confirm) {
-						if (confirm) {
-							instance.restart();
-						}
+				$('[component="restart"]')
+					.off('click')
+					.on('click', function () {
+						bootbox.confirm('[[admin/admin:alert.confirm-restart]]', function (confirm) {
+							if (confirm) {
+								instance.restart();
+							}
+						});
 					});
-				});
 			});
 		});
 	}
-}());
+})();

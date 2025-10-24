@@ -28,5 +28,3 @@ get:
                     type: number
                   announcers:
                     type: array
-
-

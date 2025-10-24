@@ -119,18 +119,18 @@ put:
                         type: array
                         items:
                           type: string
-                          description: "Privilege name"
+                          description: 'Privilege name'
                       groups:
                         type: array
                         items:
                           type: string
-                          description: "Privilege name"
+                          description: 'Privilege name'
                   columnCountUserOther:
                     type: number
-                    description: "The number of additional user privileges added by plugins"
+                    description: 'The number of additional user privileges added by plugins'
                   columnCountGroupOther:
                     type: number
-                    description: "The number of additional user privileges added by plugins"
+                    description: 'The number of additional user privileges added by plugins'
 delete:
   tags:
     - categories

@@ -1,52 +1,53 @@
 #navigation {
-	.fa-nbb-none {
-		display: inline-block;
-		width: 16px;
-		height: 16px;
-		border: 2px dashed #aaa;
-		position: relative;
-		top: 0.2em;
-	}
+  .fa-nbb-none {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px dashed #aaa;
+    position: relative;
+    top: 0.2em;
+  }
 
-	#active-navigation {
-		float: none;
-		min-height: 50px;
-		overflow: auto;
+  #active-navigation {
+    float: none;
+    min-height: 50px;
+    overflow: auto;
 
-		.active {
-			background-color: var(--bs-secondary-bg);
-		}
+    .active {
+      background-color: var(--bs-secondary-bg);
+    }
 
-		li a {
-			cursor: move;
-		}
+    li a {
+      cursor: move;
+    }
 
-		li {
-			display: inline-block;
-			>a:hover, >a:focus {
-				color: var(--bs-secondary-color);
-				background-color: var(--bs-secondary-bg);
-			}
-		}
-	}
+    li {
+      display: inline-block;
+      > a:hover,
+      > a:focus {
+        color: var(--bs-secondary-color);
+        background-color: var(--bs-secondary-bg);
+      }
+    }
+  }
 
-	#available {
-		.drag-item {
-			cursor: move;
-		}
-	}
+  #available {
+    .drag-item {
+      cursor: move;
+    }
+  }
 
-	#enabled {
-		.iconPicker i {
-			cursor: pointer;
-		}
-		.form-group {
-			min-height: 80px;
-		}
-	}
+  #enabled {
+    .iconPicker i {
+      cursor: pointer;
+    }
+    .form-group {
+      min-height: 80px;
+    }
+  }
 
-	ul {
-		list-style-type: none;
-		padding: 0;
-	}
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
 }

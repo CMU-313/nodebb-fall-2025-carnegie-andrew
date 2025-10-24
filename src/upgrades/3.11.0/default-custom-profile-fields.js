@@ -26,11 +26,7 @@ module.exports = {
 			type: 'input-text',
 		};
 
-		await db.sortedSetAdd(
-			`user-custom-fields`,
-			[0, 1],
-			['website', 'location']
-		);
+		await db.sortedSetAdd(`user-custom-fields`, [0, 1], ['website', 'location']);
 
 		await db.setObjectBulk([
 			[`user-custom-field:website`, website],

@@ -25,9 +25,7 @@ themesController.get = async function (req, res, next) {
 		return next(err);
 	}
 
-	const screenshotPath = themeConfig.screenshot ?
-		path.join(themeDir, themeConfig.screenshot) :
-		'';
+	const screenshotPath = themeConfig.screenshot ? path.join(themeDir, themeConfig.screenshot) : '';
 
 	if (screenshotPath && !screenshotPath.startsWith(themeDir)) {
 		throw new Error('[[error:invalid-path]]');

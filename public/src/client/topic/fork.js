@@ -1,9 +1,11 @@
 'use strict';
 
-
-define('forum/topic/fork', [
-	'components', 'postSelect', 'alerts', 'categorySelector',
-], function (components, postSelect, alerts, categorySelector) {
+define('forum/topic/fork', ['components', 'postSelect', 'alerts', 'categorySelector'], function (
+	components,
+	postSelect,
+	alerts,
+	categorySelector,
+) {
 	const Fork = {};
 	let forkModal;
 	let forkCommit;
@@ -20,36 +22,40 @@ define('forum/topic/fork', [
 			return;
 		}
 
-		app.parseAndTranslate('modals/fork-topic', {
-			selectedCategory: selectedCategory,
-		}, function (html) {
-			forkModal = html;
+		app.parseAndTranslate(
+			'modals/fork-topic',
+			{
+				selectedCategory: selectedCategory,
+			},
+			function (html) {
+				forkModal = html;
 
-			forkCommit = forkModal.find('#fork_thread_commit');
+				forkCommit = forkModal.find('#fork_thread_commit');
 
-			$('body').append(forkModal);
+				$('body').append(forkModal);
 
-			const dropdownEl = forkModal.find('[component="category-selector"]');
-			dropdownEl.addClass('dropup');
+				const dropdownEl = forkModal.find('[component="category-selector"]');
+				dropdownEl.addClass('dropup');
 
-			categorySelector.init(dropdownEl, {
-				onSelect: function (category) {
-					selectedCategory = category;
-				},
-				privilege: 'moderate',
-			});
+				categorySelector.init(dropdownEl, {
+					onSelect: function (category) {
+						selectedCategory = category;
+					},
+					privilege: 'moderate',
+				});
 
-			forkModal.find('#fork_thread_cancel').on('click', closeForkModal);
-			forkModal.find('#fork-title').on('keyup', checkForkButtonEnable);
+				forkModal.find('#fork_thread_cancel').on('click', closeForkModal);
+				forkModal.find('#fork-title').on('keyup', checkForkButtonEnable);
 
-			postSelect.init(function () {
-				checkForkButtonEnable();
+				postSelect.init(function () {
+					checkForkButtonEnable();
+					showPostsSelected();
+				});
 				showPostsSelected();
-			});
-			showPostsSelected();
 
-			forkCommit.on('click', createTopicFromPosts);
-		});
+				forkCommit.on('click', createTopicFromPosts);
+			},
+		);
 	};
 
 	function onAjaxifyEnd() {
@@ -64,43 +70,49 @@ define('forum/topic/fork', [
 			return;
 		}
 		forkCommit.attr('disabled', true);
-		socket.emit('topics.createTopicFromPosts', {
-			title: forkModal.find('#fork-title').val(),
-			pids: postSelect.pids,
-			fromTid: fromTid,
-			cid: selectedCategory.cid,
-		}, function (err, newTopic) {
-			function fadeOutAndRemove(pid) {
-				components.get('post', 'pid', pid).fadeOut(500, function () {
-					$(this).remove();
+		socket.emit(
+			'topics.createTopicFromPosts',
+			{
+				title: forkModal.find('#fork-title').val(),
+				pids: postSelect.pids,
+				fromTid: fromTid,
+				cid: selectedCategory.cid,
+			},
+			function (err, newTopic) {
+				function fadeOutAndRemove(pid) {
+					components.get('post', 'pid', pid).fadeOut(500, function () {
+						$(this).remove();
+					});
+				}
+				forkCommit.removeAttr('disabled');
+				if (err) {
+					return alerts.error(err.message);
+				}
+
+				alerts.alert({
+					timeout: 5000,
+					title: '[[global:alert.success]]',
+					message: '[[topic:fork-success]]',
+					type: 'success',
+					clickfn: function () {
+						ajaxify.go('topic/' + newTopic.slug);
+					},
 				});
-			}
-			forkCommit.removeAttr('disabled');
-			if (err) {
-				return alerts.error(err.message);
-			}
 
-			alerts.alert({
-				timeout: 5000,
-				title: '[[global:alert.success]]',
-				message: '[[topic:fork-success]]',
-				type: 'success',
-				clickfn: function () {
-					ajaxify.go('topic/' + newTopic.slug);
-				},
-			});
+				postSelect.pids.forEach(function (pid) {
+					fadeOutAndRemove(pid);
+				});
 
-			postSelect.pids.forEach(function (pid) {
-				fadeOutAndRemove(pid);
-			});
-
-			closeForkModal();
-		});
+				closeForkModal();
+			},
+		);
 	}
 
 	function showPostsSelected() {
 		if (postSelect.pids.length) {
-			forkModal.find('#fork-pids').translateHtml('[[topic:fork-pid-count, ' + postSelect.pids.length + ']]');
+			forkModal
+				.find('#fork-pids')
+				.translateHtml('[[topic:fork-pid-count, ' + postSelect.pids.length + ']]');
 		} else {
 			forkModal.find('#fork-pids').translateHtml('[[topic:fork-no-pids]]');
 		}

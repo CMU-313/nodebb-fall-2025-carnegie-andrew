@@ -10,12 +10,12 @@ const { setupApiRoute } = require('../helpers');
 
 const Write = module.exports;
 
-Write.reload = async (params) => {
+Write.reload = async params => {
 	const { router } = params;
 	let apiSettings = await meta.settings.get('core.api');
 	plugins.hooks.register('core', {
 		hook: 'action:settings.set',
-		method: async (data) => {
+		method: async data => {
 			if (data.plugin === 'core.api') {
 				apiSettings = await meta.settings.get('core.api');
 			}
@@ -69,7 +69,7 @@ Write.reload = async (params) => {
 	});
 };
 
-Write.cleanup = (req) => {
+Write.cleanup = req => {
 	if (req && req.session) {
 		req.session.destroy();
 	}

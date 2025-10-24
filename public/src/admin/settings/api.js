@@ -1,6 +1,13 @@
 'use strict';
 
-define('admin/settings/api', ['settings', 'clipboard', 'bootbox', 'benchpress', 'api', 'alerts'], function (settings, clipboard, bootbox, Benchpress, api, alerts) {
+define('admin/settings/api', [
+	'settings',
+	'clipboard',
+	'bootbox',
+	'benchpress',
+	'api',
+	'alerts',
+], function (settings, clipboard, bootbox, Benchpress, api, alerts) {
 	const ACP = {};
 
 	ACP.init = function () {
@@ -24,7 +31,7 @@ define('admin/settings/api', ['settings', 'clipboard', 'bootbox', 'benchpress', 
 			return;
 		}
 
-		formEl.addEventListener('click', (e) => {
+		formEl.addEventListener('click', e => {
 			const subselector = e.target.closest('[data-action]');
 			if (subselector) {
 				const action = subselector.getAttribute('data-action');
@@ -66,9 +73,11 @@ define('admin/settings/api', ['settings', 'clipboard', 'bootbox', 'benchpress', 
 					}
 
 					ajaxify.data.tokens.push(tokenObj);
-					const rowEl = (await app.parseAndTranslate(ajaxify.data.template.name, 'tokens', {
-						tokens: [tokenObj],
-					})).get(0);
+					const rowEl = (
+						await app.parseAndTranslate(ajaxify.data.template.name, 'tokens', {
+							tokens: [tokenObj],
+						})
+					).get(0);
 
 					tokensTableBody.append(rowEl);
 					$(rowEl).find('.timeago').timeago();
@@ -109,9 +118,11 @@ define('admin/settings/api', ['settings', 'clipboard', 'bootbox', 'benchpress', 
 
 				try {
 					const tokenObj = await api.put(`/admin/tokens/${token}`, { uid, description });
-					const newEl = (await app.parseAndTranslate(ajaxify.data.template.name, 'tokens', {
-						tokens: [tokenObj],
-					})).get(0);
+					const newEl = (
+						await app.parseAndTranslate(ajaxify.data.template.name, 'tokens', {
+							tokens: [tokenObj],
+						})
+					).get(0);
 
 					rowEl.replaceWith(newEl);
 					$(newEl).find('.timeago').timeago();
@@ -142,7 +153,7 @@ define('admin/settings/api', ['settings', 'clipboard', 'bootbox', 'benchpress', 
 		const rowEl = el.closest('[data-token]');
 		const token = rowEl.getAttribute('data-token');
 
-		bootbox.confirm('[[admin/settings/api:delete-confirm]]', async (ok) => {
+		bootbox.confirm('[[admin/settings/api:delete-confirm]]', async ok => {
 			if (ok) {
 				try {
 					await api.del(`/admin/tokens/${token}`);
@@ -159,13 +170,15 @@ define('admin/settings/api', ['settings', 'clipboard', 'bootbox', 'benchpress', 
 		const rowEl = el.closest('[data-token]');
 		const token = rowEl.getAttribute('data-token');
 
-		bootbox.confirm('[[admin/settings/api:roll-confirm]]', async (ok) => {
+		bootbox.confirm('[[admin/settings/api:roll-confirm]]', async ok => {
 			if (ok) {
 				try {
 					const tokenObj = await api.post(`/admin/tokens/${token}/roll`);
-					const newEl = (await app.parseAndTranslate(ajaxify.data.template.name, 'tokens', {
-						tokens: [tokenObj],
-					})).get(0);
+					const newEl = (
+						await app.parseAndTranslate(ajaxify.data.template.name, 'tokens', {
+							tokens: [tokenObj],
+						})
+					).get(0);
 
 					rowEl.replaceWith(newEl);
 					$(newEl).find('.timeago').timeago();

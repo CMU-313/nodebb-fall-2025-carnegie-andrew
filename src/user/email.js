@@ -1,4 +1,3 @@
-
 'use strict';
 
 const nconf = require('nconf');
@@ -51,7 +50,7 @@ UserEmail.remove = async function (uid, sessionId) {
 	]);
 };
 
-UserEmail.getEmailForValidation = async (uid) => {
+UserEmail.getEmailForValidation = async uid => {
 	let email = '';
 	// check email from confirmObj
 	const code = await db.get(`confirm:byUid:${uid}`);
@@ -69,18 +68,20 @@ UserEmail.getEmailForValidation = async (uid) => {
 UserEmail.isValidationPending = async (uid, email) => {
 	const code = await db.get(`confirm:byUid:${uid}`);
 	const confirmObj = await db.getObject(`confirm:${code}`);
-	return !!(confirmObj && (
-		(!email || email === confirmObj.email) && Date.now() < parseInt(confirmObj.expires, 10)
-	));
+	return !!(
+		confirmObj &&
+		(!email || email === confirmObj.email) &&
+		Date.now() < parseInt(confirmObj.expires, 10)
+	);
 };
 
-UserEmail.getValidationExpiry = async (uid) => {
+UserEmail.getValidationExpiry = async uid => {
 	const code = await db.get(`confirm:byUid:${uid}`);
 	const confirmObj = await db.getObject(`confirm:${code}`);
 	return confirmObj ? Math.max(0, confirmObj.expires - Date.now()) : null;
 };
 
-UserEmail.expireValidation = async (uid) => {
+UserEmail.expireValidation = async uid => {
 	const keys = [`confirm:byUid:${uid}`];
 	const code = await db.get(`confirm:byUid:${uid}`);
 	if (code) {
@@ -134,7 +135,7 @@ UserEmail.sendValidationEmail = async function (uid, options) {
 	}
 
 	const { emailConfirmInterval, emailConfirmExpiry } = meta.config;
-	if (!options.force && !await UserEmail.canSendValidation(uid, options.email)) {
+	if (!options.force && !(await UserEmail.canSendValidation(uid, options.email))) {
 		throw new Error(`[[error:confirm-email-already-sent, ${emailConfirmInterval}]]`);
 	}
 
@@ -158,7 +159,7 @@ UserEmail.sendValidationEmail = async function (uid, options) {
 	await db.setObject(`confirm:${confirm_code}`, {
 		email: options.email.toLowerCase(),
 		uid: uid,
-		expires: Date.now() + (emailConfirmExpiry * 60 * 60 * 1000),
+		expires: Date.now() + emailConfirmExpiry * 60 * 60 * 1000,
 	});
 
 	winston.verbose(`[user/email] Validation email for uid ${uid} sent to ${options.email}`);
@@ -236,7 +237,7 @@ UserEmail.confirmByUid = async function (uid, callerUid = 0) {
 		// remove old email of user by uid
 		await db.sortedSetsRemoveRangeByScore([`email:uid`], uid, uid);
 		await db.sortedSetRemoveBulk(
-			confirmedEmails.map(email => [`email:sorted`, `${email.toLowerCase()}:${uid}`])
+			confirmedEmails.map(email => [`email:sorted`, `${email.toLowerCase()}:${uid}`]),
 		);
 	}
 	await Promise.all([
@@ -251,5 +252,8 @@ UserEmail.confirmByUid = async function (uid, callerUid = 0) {
 		user.email.expireValidation(uid),
 		user.reset.cleanByUid(uid),
 	]);
-	await plugins.hooks.fire('action:user.email.confirmed', { uid: uid, email: currentEmail });
+	await plugins.hooks.fire('action:user.email.confirmed', {
+		uid: uid,
+		email: currentEmail,
+	});
 };

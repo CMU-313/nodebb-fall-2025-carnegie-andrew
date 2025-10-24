@@ -24,7 +24,10 @@ module.exports = {
 					newJS.push(match[1].trim());
 
 					// Remove the match from the existing value
-					newHTML = ((match.index > 0 ? newHTML.slice(0, match.index) : '') + newHTML.slice(match.index + match[0].length)).trim();
+					newHTML = (
+						(match.index > 0 ? newHTML.slice(0, match.index) : '') +
+						newHTML.slice(match.index + match[0].length)
+					).trim();
 				}
 
 				match = scriptMatch.exec(newHTML);
@@ -34,10 +37,13 @@ module.exports = {
 			newJS = newJS.join('\n\n');
 
 			// Write both values to config
-			meta.configs.setMultiple({
-				customHTML: newHTML,
-				customJS: newJS,
-			}, callback);
+			meta.configs.setMultiple(
+				{
+					customHTML: newHTML,
+					customJS: newJS,
+				},
+				callback,
+			);
 		});
 	},
 };

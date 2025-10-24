@@ -1,4 +1,3 @@
-
 'use strict';
 
 const path = require('path');
@@ -27,24 +26,26 @@ Upgrade.getAll = async function () {
 	let files = await file.walk(path.join(__dirname, './upgrades'));
 
 	// Sort the upgrade scripts based on version
-	files = files.filter(file => path.basename(file) !== 'TEMPLATE').sort((a, b) => {
-		const versionA = path.dirname(a).split(path.sep).pop();
-		const versionB = path.dirname(b).split(path.sep).pop();
-		const semverCompare = semver.compare(versionA, versionB);
-		if (semverCompare) {
-			return semverCompare;
-		}
-		const timestampA = require(a).timestamp;
-		const timestampB = require(b).timestamp;
-		return timestampA - timestampB;
-	});
+	files = files
+		.filter(file => path.basename(file) !== 'TEMPLATE')
+		.sort((a, b) => {
+			const versionA = path.dirname(a).split(path.sep).pop();
+			const versionB = path.dirname(b).split(path.sep).pop();
+			const semverCompare = semver.compare(versionA, versionB);
+			if (semverCompare) {
+				return semverCompare;
+			}
+			const timestampA = require(a).timestamp;
+			const timestampB = require(b).timestamp;
+			return timestampA - timestampB;
+		});
 
 	await Upgrade.appendPluginScripts(files);
 
 	// check duplicates and error
 	const seen = {};
 	const dupes = [];
-	files.forEach((file) => {
+	files.forEach(file => {
 		if (seen[file]) {
 			dupes.push(file);
 		} else {
@@ -62,12 +63,12 @@ Upgrade.getAll = async function () {
 Upgrade.appendPluginScripts = async function (files) {
 	// Find all active plugins
 	const activePlugins = await plugins.getActive();
-	activePlugins.forEach((plugin) => {
+	activePlugins.forEach(plugin => {
 		const configPath = path.join(paths.nodeModules, plugin, 'plugin.json');
 		try {
 			const pluginConfig = require(configPath);
 			if (pluginConfig.hasOwnProperty('upgrades') && Array.isArray(pluginConfig.upgrades)) {
-				pluginConfig.upgrades.forEach((script) => {
+				pluginConfig.upgrades.forEach(script => {
 					files.push(path.join(path.dirname(configPath), script));
 				});
 			}
@@ -99,7 +100,7 @@ Upgrade.run = async function () {
 	]);
 
 	let skipped = 0;
-	const queue = available.filter((cur) => {
+	const queue = available.filter(cur => {
 		const upgradeRan = completed.includes(path.basename(cur, '.js'));
 		if (upgradeRan) {
 			skipped += 1;
@@ -119,7 +120,9 @@ Upgrade.runParticular = async function (names) {
 };
 
 Upgrade.process = async function (files, skipCount) {
-	console.log(`${chalk.green('OK')} | ${chalk.cyan(`${files.length} script(s) found`)}${skipCount > 0 ? chalk.cyan(`, ${skipCount} skipped`) : ''}`);
+	console.log(
+		`${chalk.green('OK')} | ${chalk.cyan(`${files.length} script(s) found`)}${skipCount > 0 ? chalk.cyan(`, ${skipCount} skipped`) : ''}`,
+	);
 	const [schemaDate, schemaLogCount] = await Promise.all([
 		db.get('schemaDate'),
 		db.sortedSetCard('schemaLog'),
@@ -139,10 +142,15 @@ Upgrade.process = async function (files, skipCount) {
 			date: date,
 		};
 
-		process.stdout.write(`${chalk.white('  → ') + chalk.gray(`[${[date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate()].join('/')}] `) + scriptExport.name}...`);
+		process.stdout.write(
+			`${chalk.white('  → ') + chalk.gray(`[${[date.getUTCFullYear(), date.getUTCMonth() + 1, date.getUTCDate()].join('/')}] `) + scriptExport.name}...`,
+		);
 
 		// For backwards compatibility, cross-reference with schemaDate (if found). If a script's date is older, skip it
-		if ((!schemaDate && !schemaLogCount) || (scriptExport.timestamp <= schemaDate && semver.lt(version, '1.5.0'))) {
+		if (
+			(!schemaDate && !schemaLogCount) ||
+			(scriptExport.timestamp <= schemaDate && semver.lt(version, '1.5.0'))
+		) {
 			process.stdout.write(chalk.grey(' skipped\n'));
 
 			await db.sortedSetAdd('schemaLog', Date.now(), path.basename(file, '.js'));
@@ -150,7 +158,10 @@ Upgrade.process = async function (files, skipCount) {
 		}
 
 		// Promisify method if necessary
-		if (scriptExport.method.constructor && scriptExport.method.constructor.name !== 'AsyncFunction') {
+		if (
+			scriptExport.method.constructor &&
+			scriptExport.method.constructor.name !== 'AsyncFunction'
+		) {
 			scriptExport.method = util.promisify(scriptExport.method);
 		}
 
@@ -182,7 +193,7 @@ Upgrade.incrementProgress = function (value) {
 
 	this.current += value || 1;
 	this.counter += value || 1;
-	const step = (this.total ? Math.floor(this.total / 100) : 100);
+	const step = this.total ? Math.floor(this.total / 100) : 100;
 
 	if (this.counter > step || this.current >= this.total) {
 		this.counter -= step;
@@ -196,7 +207,9 @@ Upgrade.incrementProgress = function (value) {
 		}
 
 		readline.cursorTo(process.stdout, 0);
-		process.stdout.write(`    [${filled ? new Array(filled).join('#') : ''}${new Array(unfilled).join(' ')}] (${this.current}/${this.total || '??'}) ${percentage} `);
+		process.stdout.write(
+			`    [${filled ? new Array(filled).join('#') : ''}${new Array(unfilled).join(' ')}] (${this.current}/${this.total || '??'}) ${percentage} `,
+		);
 	}
 };
 

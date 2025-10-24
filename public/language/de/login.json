@@ -1,12 +1,12 @@
 {
-    "username-email": "Benutzername / E-Mail-Adresse",
-    "username": "Benutzername",
-    "remember-me": "Eingeloggt bleiben?",
-    "forgot-password": "Passwort vergessen?",
-    "alternative-logins": "Alternative Logins",
-    "failed-login-attempt": "Login fehlgeschlagen",
-    "login-successful": "Du hast dich erfolgreich eingeloggt!",
-    "dont-have-account": "Du hast noch kein Konto?",
-    "logged-out-due-to-inactivity": "Du wurdest aufgrund von Inaktivität aus dem Adminbereich ausgeloggt",
-    "caps-lock-enabled": "Die Feststelltaste ist aktiviert"
+  "username-email": "Benutzername / E-Mail-Adresse",
+  "username": "Benutzername",
+  "remember-me": "Eingeloggt bleiben?",
+  "forgot-password": "Passwort vergessen?",
+  "alternative-logins": "Alternative Logins",
+  "failed-login-attempt": "Login fehlgeschlagen",
+  "login-successful": "Du hast dich erfolgreich eingeloggt!",
+  "dont-have-account": "Du hast noch kein Konto?",
+  "logged-out-due-to-inactivity": "Du wurdest aufgrund von Inaktivität aus dem Adminbereich ausgeloggt",
+  "caps-lock-enabled": "Die Feststelltaste ist aktiviert"
 }

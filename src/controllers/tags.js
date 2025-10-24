@@ -27,15 +27,16 @@ tagsController.getTag = async function (req, res) {
 		breadcrumbs: helpers.buildBreadcrumbs([{ text: '[[tags:tags]]', url: '/tags' }, { text: tag }]),
 		title: `[[pages:tag, ${tag}]]`,
 	};
-	const [settings, cids, categoryData, canPost, isPrivileged, rssToken, isFollowing] = await Promise.all([
-		user.getSettings(req.uid),
-		cid || categories.getCidsByPrivilege('categories:cid', req.uid, 'topics:read'),
-		helpers.getSelectedCategory(cid),
-		privileges.categories.canPostTopic(req.uid),
-		user.isPrivileged(req.uid),
-		user.auth.getFeedToken(req.uid),
-		topics.isFollowingTag(req.params.tag, req.uid),
-	]);
+	const [settings, cids, categoryData, canPost, isPrivileged, rssToken, isFollowing] =
+		await Promise.all([
+			user.getSettings(req.uid),
+			cid || categories.getCidsByPrivilege('categories:cid', req.uid, 'topics:read'),
+			helpers.getSelectedCategory(cid),
+			privileges.categories.canPostTopic(req.uid),
+			user.isPrivileged(req.uid),
+			user.auth.getFeedToken(req.uid),
+			topics.isFollowingTag(req.params.tag, req.uid),
+		]);
 
 	const start = Math.max(0, (page - 1) * settings.topicsPerPage);
 	const stop = start + settings.topicsPerPage - 1;

@@ -50,7 +50,9 @@ helpers.getUserDataByUserSlug = async function (userslug, callerUID, query = {})
 
 	userData.age = Math.max(
 		0,
-		userData.birthday ? Math.floor((new Date().getTime() - new Date(userData.birthday).getTime()) / 31536000000) : 0
+		userData.birthday
+			? Math.floor((new Date().getTime() - new Date(userData.birthday).getTime()) / 31536000000)
+			: 0,
 	);
 
 	userData = await user.hidePrivateData(userData, callerUID);
@@ -93,13 +95,25 @@ helpers.getUserDataByUserSlug = async function (userslug, callerUID, query = {})
 	userData.hasPrivateChat = results.hasPrivateChat;
 	userData.iconBackgrounds = results.iconBackgrounds;
 	userData.showHidden = results.canEdit; // remove in v1.19.0
-	userData.allowProfilePicture = !userData.isSelf || !!meta.config['reputation:disabled'] || userData.reputation >= meta.config['min:rep:profile-picture'];
-	userData.allowCoverPicture = !userData.isSelf || !!meta.config['reputation:disabled'] || userData.reputation >= meta.config['min:rep:cover-picture'];
+	userData.allowProfilePicture =
+		!userData.isSelf ||
+		!!meta.config['reputation:disabled'] ||
+		userData.reputation >= meta.config['min:rep:profile-picture'];
+	userData.allowCoverPicture =
+		!userData.isSelf ||
+		!!meta.config['reputation:disabled'] ||
+		userData.reputation >= meta.config['min:rep:cover-picture'];
 	userData.allowProfileImageUploads = meta.config.allowProfileImageUploads;
-	userData.allowedProfileImageExtensions = user.getAllowedProfileImageExtensions().map(ext => `.${ext}`).join(', ');
+	userData.allowedProfileImageExtensions = user
+		.getAllowedProfileImageExtensions()
+		.map(ext => `.${ext}`)
+		.join(', ');
 	userData.groups = Array.isArray(results.groups) && results.groups.length ? results.groups[0] : [];
-	userData.selectedGroup = userData.groups.filter(group => group && userData.groupTitleArray.includes(group.name))
-		.sort((a, b) => userData.groupTitleArray.indexOf(a.name) - userData.groupTitleArray.indexOf(b.name));
+	userData.selectedGroup = userData.groups
+		.filter(group => group && userData.groupTitleArray.includes(group.name))
+		.sort(
+			(a, b) => userData.groupTitleArray.indexOf(a.name) - userData.groupTitleArray.indexOf(b.name),
+		);
 	userData.disableSignatures = meta.config.disableSignatures === 1;
 	userData['reputation:disabled'] = meta.config['reputation:disabled'] === 1;
 	userData['downvote:disabled'] = meta.config['downvote:disabled'] === 1;
@@ -121,7 +135,9 @@ helpers.getUserDataByUserSlug = async function (userslug, callerUID, query = {})
 	userData.moderationNote = validator.escape(String(userData.moderationNote || ''));
 
 	if (userData['cover:url']) {
-		userData['cover:url'] = userData['cover:url'].startsWith('http') ? userData['cover:url'] : (nconf.get('relative_path') + userData['cover:url']);
+		userData['cover:url'] = userData['cover:url'].startsWith('http')
+			? userData['cover:url']
+			: nconf.get('relative_path') + userData['cover:url'];
 	} else {
 		userData['cover:url'] = require('../../coverPhoto').getDefaultProfileCover(userData.uid);
 	}
@@ -144,22 +160,20 @@ helpers.getCustomUserFields = async function (callerUID, userData) {
 	// Remote users' fields are serialized in hash
 	if (!utils.isNumber(userData.uid)) {
 		const customFields = await user.getUserField(userData.uid, 'customFields');
-		const fields = Array
-			.from(new URLSearchParams(customFields))
-			.reduce((memo, [name, value]) => {
-				const isUrl = validator.isURL(value);
-				memo.push({
-					key: slugify(name),
-					name,
-					value,
-					linkValue: validator.escape(String(value.replace('http://', '').replace('https://', ''))),
-					type: isUrl ? 'input-link' : 'input-text',
-					'min-rep': '',
-					icon: 'fa-solid fa-circle-info',
-				});
+		const fields = Array.from(new URLSearchParams(customFields)).reduce((memo, [name, value]) => {
+			const isUrl = validator.isURL(value);
+			memo.push({
+				key: slugify(name),
+				name,
+				value,
+				linkValue: validator.escape(String(value.replace('http://', '').replace('https://', ''))),
+				type: isUrl ? 'input-link' : 'input-text',
+				'min-rep': '',
+				icon: 'fa-solid fa-circle-info',
+			});
 
-				return memo;
-			}, []);
+			return memo;
+		}, []);
 
 		return fields;
 	}
@@ -173,39 +187,37 @@ helpers.getCustomUserFields = async function (callerUID, userData) {
 		user.isModeratorOfAnyCategory(callerUID),
 	]);
 
-	const fields = allFields.filter((field) => {
+	const fields = allFields.filter(field => {
 		const visibility = field.visibility || 'all';
-		const visibilityCheck = isAdmin || isModOfAny || isSelf || visibility === 'all' ||
-			(
-				visibility === 'loggedin' &&
-				String(callerUID) !== '0' &&
-				String(callerUID) !== '-1'
-			);
+		const visibilityCheck =
+			isAdmin ||
+			isModOfAny ||
+			isSelf ||
+			visibility === 'all' ||
+			(visibility === 'loggedin' && String(callerUID) !== '0' && String(callerUID) !== '-1');
 		const minRep = field['min:rep'] || 0;
 		const repCheck = userData.reputation >= minRep || meta.config['reputation:disabled'];
 		return visibilityCheck && repCheck;
 	});
 
-	fields.forEach((f) => {
+	fields.forEach(f => {
 		let userValue = userData[f.key];
 		if (f.type === 'select-multi' && userValue) {
 			userValue = JSON.parse(userValue || '[]');
 		}
 		if (f.type === 'input-link' && userValue) {
-			f.linkValue = validator.escape(String(userValue.replace('http://', '').replace('https://', '')));
+			f.linkValue = validator.escape(
+				String(userValue.replace('http://', '').replace('https://', '')),
+			);
 		}
 		f['select-options'] = (f['select-options'] || '').split('\n').filter(Boolean);
 		if (f.type === 'select') {
 			f['select-options'].unshift('');
 		}
-		f['select-options'] = f['select-options'].map(
-			opt => ({
-				value: opt,
-				selected: Array.isArray(userValue) ?
-					userValue.includes(opt) :
-					opt === userValue,
-			})
-		);
+		f['select-options'] = f['select-options'].map(opt => ({
+			value: opt,
+			selected: Array.isArray(userValue) ? userValue.includes(opt) : opt === userValue,
+		}));
 		if (userValue) {
 			if (Array.isArray(userValue)) {
 				userValue = userValue.join(', ');
@@ -288,33 +300,36 @@ async function getCounts(userData, callerUID) {
 }
 
 async function getProfileMenu(uid, callerUID) {
-	const links = [{
-		id: 'info',
-		route: 'info',
-		name: '[[user:account-info]]',
-		icon: 'fa-info',
-		visibility: {
-			self: false,
-			other: false,
-			moderator: false,
-			globalMod: false,
-			admin: true,
-			canViewInfo: true,
+	const links = [
+		{
+			id: 'info',
+			route: 'info',
+			name: '[[user:account-info]]',
+			icon: 'fa-info',
+			visibility: {
+				self: false,
+				other: false,
+				moderator: false,
+				globalMod: false,
+				admin: true,
+				canViewInfo: true,
+			},
 		},
-	}, {
-		id: 'sessions',
-		route: 'sessions',
-		name: '[[pages:account/sessions]]',
-		icon: 'fa-group',
-		visibility: {
-			self: true,
-			other: false,
-			moderator: false,
-			globalMod: false,
-			admin: false,
-			canViewInfo: false,
+		{
+			id: 'sessions',
+			route: 'sessions',
+			name: '[[pages:account/sessions]]',
+			icon: 'fa-group',
+			visibility: {
+				self: true,
+				other: false,
+				moderator: false,
+				globalMod: false,
+				admin: false,
+				canViewInfo: false,
+			},
 		},
-	}];
+	];
 
 	if (meta.config.gdpr_enabled) {
 		links.push({
@@ -339,7 +354,7 @@ async function getProfileMenu(uid, callerUID) {
 		links: links,
 	});
 	const userslug = await user.getUserField(uid, 'userslug');
-	data.links.forEach((link) => {
+	data.links.forEach(link => {
 		if (!link.hasOwnProperty('url')) {
 			link.url = `${relative_path}/user/${userslug}/${link.route}`;
 		}

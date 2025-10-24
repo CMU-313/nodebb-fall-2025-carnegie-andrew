@@ -1,9 +1,10 @@
 'use strict';
 
-
-define('forum/chats/message-search', [
-	'components', 'alerts', 'forum/chats/messages',
-], function (components, alerts, messages) {
+define('forum/chats/message-search', ['components', 'alerts', 'forum/chats/messages'], function (
+	components,
+	alerts,
+	messages,
+) {
 	const messageSearch = {};
 	let roomId = 0;
 	let searchInputEl;
@@ -22,12 +23,11 @@ define('forum/chats/message-search', [
 		toggleEl = containerEl.find('[component="chat/room/search/toggle"');
 
 		searchInputEl = containerEl.find('[component="chat/room/search"]');
-		searchInputEl.on('keyup', utils.debounce(doSearch, 250))
-			.on('focus', () => {
-				if (searchInputEl.val()) {
-					doSearch();
-				}
-			});
+		searchInputEl.on('keyup', utils.debounce(doSearch, 250)).on('focus', () => {
+			if (searchInputEl.val()) {
+				doSearch();
+			}
+		});
 
 		containerEl.find('[component="chat/input"]').on('focus', () => {
 			resultListEl.addClass('hidden');
@@ -63,10 +63,12 @@ define('forum/chats/message-search', [
 			return;
 		}
 		clearEl.removeClass('hidden');
-		socket.emit('modules.chats.searchMessages', {
-			content: query,
-			roomId: roomId,
-		}).then(displayResults)
+		socket
+			.emit('modules.chats.searchMessages', {
+				content: query,
+				roomId: roomId,
+			})
+			.then(displayResults)
 			.catch(alerts.error);
 	}
 
@@ -80,7 +82,9 @@ define('forum/chats/message-search', [
 		if (!data.messages.length) {
 			resultListEl.removeClass('hidden');
 			chatContent.addClass('hidden');
-			return resultListEl.find('[component="chat/message/search/no-results"]').removeClass('hidden');
+			return resultListEl
+				.find('[component="chat/message/search/no-results"]')
+				.removeClass('hidden');
 		}
 		resultListEl.find('[component="chat/message/search/no-results"]').addClass('hidden');
 

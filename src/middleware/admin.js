@@ -1,6 +1,5 @@
 'use strict';
 
-
 const nconf = require('nconf');
 
 const user = require('../user');
@@ -36,7 +35,7 @@ middleware.checkPrivileges = helpers.try(async (req, res, next) => {
 	const path = req.path.replace(/^(\/api)?(\/v3)?\/admin\/?/g, '');
 	if (path) {
 		const privilege = privileges.admin.resolve(path);
-		if (!await privileges.admin.can(privilege, req.uid)) {
+		if (!(await privileges.admin.can(privilege, req.uid))) {
 			return controllers.helpers.notAllowed(req, res);
 		}
 	} else {

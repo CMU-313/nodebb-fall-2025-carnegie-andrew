@@ -23,19 +23,22 @@ module.exports = function (SocketTopics) {
 		});
 	};
 
-
 	SocketTopics.moveAll = async function (socket, data) {
 		if (!data || !data.cid || !data.currentCid) {
 			throw new Error('[[error:invalid-data]]');
 		}
-		const canMove = await privileges.categories.canMoveAllTopics(data.currentCid, data.cid, socket.uid);
+		const canMove = await privileges.categories.canMoveAllTopics(
+			data.currentCid,
+			data.cid,
+			socket.uid,
+		);
 		if (!canMove) {
 			throw new Error('[[error:no-privileges]]');
 		}
 
 		const tids = await categories.getAllTopicIds(data.currentCid, 0, -1);
 		data.uid = socket.uid;
-		await async.eachLimit(tids, 50, async (tid) => {
+		await async.eachLimit(tids, 50, async tid => {
 			await topics.tools.move(tid, data);
 		});
 		await categories.onTopicsMoved([data.currentCid, data.cid]);

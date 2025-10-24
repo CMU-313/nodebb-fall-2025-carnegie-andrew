@@ -9,7 +9,7 @@ const user = require('../user');
 const utils = require('../utils');
 
 module.exports = function (Messaging) {
-	Messaging.sendMessage = async (data) => {
+	Messaging.sendMessage = async data => {
 		await Messaging.checkContent(data.content, utils.isNumber(data.uid));
 		const inRoom = await Messaging.isUserInRoom(data.uid, data.roomId);
 		if (!inRoom) {
@@ -24,10 +24,14 @@ module.exports = function (Messaging) {
 			throw new Error('[[error:invalid-chat-message]]');
 		}
 
-		const maximum = meta.config[local ? 'maximumChatMessageLength' : 'maximumRemoteChatMessageLength'];
+		const maximum =
+			meta.config[local ? 'maximumChatMessageLength' : 'maximumRemoteChatMessageLength'];
 		content = String(content).trim();
 		let { length } = content;
-		({ content, length } = await plugins.hooks.fire('filter:messaging.checkContent', { content, length }));
+		({ content, length } = await plugins.hooks.fire('filter:messaging.checkContent', {
+			content,
+			length,
+		}));
 		if (!content) {
 			throw new Error('[[error:invalid-chat-message]]');
 		}
@@ -36,21 +40,21 @@ module.exports = function (Messaging) {
 		}
 	};
 
-	Messaging.addMessage = async (data) => {
+	Messaging.addMessage = async data => {
 		const { uid, roomId } = data;
 		const roomData = await Messaging.getRoomData(roomId);
 		if (!roomData) {
 			throw new Error('[[error:no-room]]');
 		}
 		if (data.toMid) {
-			if (!await Messaging.messageExists(data.toMid)) {
+			if (!(await Messaging.messageExists(data.toMid))) {
 				throw new Error('[[error:invalid-mid]]');
 			}
-			if (!await Messaging.canViewMessage(data.toMid, roomId, uid)) {
+			if (!(await Messaging.canViewMessage(data.toMid, roomId, uid))) {
 				throw new Error('[[error:no-privileges]]');
 			}
 		}
-		const mid = data.mid || await db.incrObjectField('global', 'nextMid');
+		const mid = data.mid || (await db.incrObjectField('global', 'nextMid'));
 		const timestamp = data.timestamp || Date.now();
 		let message = {
 			mid: mid,
@@ -84,15 +88,16 @@ module.exports = function (Messaging) {
 			tasks.push(db.sortedSetAdd(`mid:${data.toMid}:replies`, timestamp, mid));
 		}
 		if (roomData.public) {
-			tasks.push(
-				db.sortedSetAdd('chat:rooms:public:lastpost', timestamp, roomId)
-			);
+			tasks.push(db.sortedSetAdd('chat:rooms:public:lastpost', timestamp, roomId));
 		} else {
 			let uids = await Messaging.getUidsInRoom(roomId, 0, -1);
 			uids = await user.blocks.filterUids(uid, uids);
 			tasks.push(
 				Messaging.addRoomToUsers(roomId, uids, timestamp),
-				Messaging.markUnread(uids.filter(uid => uid !== String(data.uid)), roomId),
+				Messaging.markUnread(
+					uids.filter(uid => uid !== String(data.uid)),
+					roomId,
+				),
 			);
 		}
 		await Promise.all(tasks);
@@ -103,7 +108,10 @@ module.exports = function (Messaging) {
 		}
 
 		messages[0].newSet = isNewSet;
-		plugins.hooks.fire('action:messaging.save', { message: message, data: data });
+		plugins.hooks.fire('action:messaging.save', {
+			message: message,
+			data: data,
+		});
 		return messages[0];
 	};
 

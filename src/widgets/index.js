@@ -27,7 +27,9 @@ widgets.render = async function (uid, options) {
 		config = await apiController.loadConfig(options.req);
 	}
 
-	const widgetData = await Promise.all(locations.map(location => renderLocation(location, data, uid, options, config)));
+	const widgetData = await Promise.all(
+		locations.map(location => renderLocation(location, data, uid, options, config)),
+	);
 
 	const returnData = {};
 	locations.forEach((location, i) => {
@@ -40,14 +42,16 @@ widgets.render = async function (uid, options) {
 };
 
 async function renderLocation(location, data, uid, options, config) {
-	const widgetsAtLocation = (data[options.template][location] || []).concat(data.global[location] || []);
+	const widgetsAtLocation = (data[options.template][location] || []).concat(
+		data.global[location] || [],
+	);
 
 	if (!widgetsAtLocation.length) {
 		return [];
 	}
 
 	const renderedWidgets = await Promise.all(
-		widgetsAtLocation.map(widget => renderWidget(widget, uid, options, config, location))
+		widgetsAtLocation.map(widget => renderWidget(widget, uid, options, config, location)),
 	);
 	return renderedWidgets;
 }
@@ -62,7 +66,7 @@ async function renderWidget(widget, uid, options, config, location) {
 		return;
 	}
 
-	const templateData = _.assign({ }, options.templateData, { config: config });
+	const templateData = _.assign({}, options.templateData, { config: config });
 	try {
 		const data = await plugins.hooks.fire(`filter:widget.render:${widget.widget}`, {
 			uid: uid,
@@ -89,7 +93,10 @@ async function renderWidget(widget, uid, options, config, location) {
 		}
 
 		if (html) {
-			html = await translator.translate(html, config.userLang || meta.config.defaultLang || 'en-GB');
+			html = await translator.translate(
+				html,
+				config.userLang || meta.config.defaultLang || 'en-GB',
+			);
 		}
 
 		return { html };
@@ -109,10 +116,9 @@ widgets.checkVisibility = async function (data, uid) {
 		isHidden = await groups.isMemberOfAny(uid, data.groupsHideFrom);
 	}
 
-	const isExpired = (
+	const isExpired =
 		(data.startDate && Date.now() < new Date(data.startDate).getTime()) ||
-		(data.endDate && Date.now() > new Date(data.endDate).getTime())
-	);
+		(data.endDate && Date.now() > new Date(data.endDate).getTime());
 
 	return isVisible && !isHidden && !isExpired;
 };
@@ -129,12 +135,14 @@ widgets.getWidgetDataForTemplates = async function (templates) {
 		const templateWidgetData = data[index] || {};
 		const locations = Object.keys(templateWidgetData);
 
-		locations.forEach((location) => {
+		locations.forEach(location => {
 			if (templateWidgetData && templateWidgetData[location]) {
 				try {
 					returnData[template][location] = parseWidgetData(templateWidgetData[location]);
 				} catch (err) {
-					winston.error(`can not parse widget data. template:  ${template} location: ${location}\n${err.stack}`);
+					winston.error(
+						`can not parse widget data. template:  ${template} location: ${location}\n${err.stack}`,
+					);
 					returnData[template][location] = [];
 				}
 			} else {
@@ -156,7 +164,7 @@ widgets.getArea = async function (template, location) {
 
 function parseWidgetData(data) {
 	const widgets = JSON.parse(data);
-	widgets.forEach((widget) => {
+	widgets.forEach(widget => {
 		if (widget) {
 			widget.data.groups = widget.data.groups || [];
 			if (widget.data.groups && !Array.isArray(widget.data.groups)) {
@@ -182,7 +190,7 @@ widgets.setArea = async function (area) {
 
 widgets.setAreas = async function (areas) {
 	const templates = {};
-	areas.forEach((area) => {
+	areas.forEach(area => {
 		if (!area.location || !area.template) {
 			throw new Error('Missing location and template data');
 		}
@@ -190,9 +198,7 @@ widgets.setAreas = async function (areas) {
 		templates[area.template][area.location] = JSON.stringify(area.widgets);
 	});
 
-	await db.setObjectBulk(
-		Object.keys(templates).map(tpl => [`widgets:${tpl}`, templates[tpl]])
-	);
+	await db.setObjectBulk(Object.keys(templates).map(tpl => [`widgets:${tpl}`, templates[tpl]]));
 };
 
 widgets.getAvailableAreas = async function () {
@@ -201,8 +207,16 @@ widgets.getAvailableAreas = async function () {
 		{ name: 'Global Footer', template: 'global', location: 'footer' },
 		{ name: 'Global Sidebar', template: 'global', location: 'sidebar' },
 
-		{ name: 'Group Page (Left)', template: 'groups/details.tpl', location: 'left' },
-		{ name: 'Group Page (Right)', template: 'groups/details.tpl', location: 'right' },
+		{
+			name: 'Group Page (Left)',
+			template: 'groups/details.tpl',
+			location: 'left',
+		},
+		{
+			name: 'Group Page (Right)',
+			template: 'groups/details.tpl',
+			location: 'right',
+		},
 
 		{ name: 'Chat Header', template: 'chats.tpl', location: 'header' },
 		{ name: 'Chat Sidebar', template: 'chats.tpl', location: 'sidebar' },
@@ -245,7 +259,7 @@ widgets.moveMissingAreasToDrafts = async function () {
 		for (const [template, tplLocations] of Object.entries(locations)) {
 			for (const location of tplLocations) {
 				const locationExists = available.find(
-					area => area.template === template && area.location === location
+					area => area.template === template && area.location === location,
 				);
 				if (!locationExists) {
 					const widgetsAtLocation = await widgets.getArea(template, location);

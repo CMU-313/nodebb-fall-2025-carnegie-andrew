@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/search', [
 	'search',
 	'storage',
@@ -25,14 +24,16 @@ define('forum/search', [
 		const searchQuery = $('#results').attr('data-search-query');
 		searchModule.highlightMatches(
 			searchQuery,
-			$('.search-results .content p, .search-results .topic-title')
+			$('.search-results .content p, .search-results .topic-title'),
 		);
 
-		$('#advanced-search form').off('submit').on('submit', function (e) {
-			e.preventDefault();
-			searchModule.query(getSearchDataFromDOM());
-			return false;
-		});
+		$('#advanced-search form')
+			.off('submit')
+			.on('submit', function (e) {
+				e.preventDefault();
+				searchModule.query(getSearchDataFromDOM());
+				return false;
+			});
 
 		handleSavePreferences();
 
@@ -71,46 +72,49 @@ define('forum/search', [
 		const isActive = selectedTags.length > 0;
 		let labelText = '[[search:tags]]';
 		if (selectedTags.length) {
-			labelText = translator.compile(
-				'search:tags-x', selectedTags.map(u => u.value).join(', ')
-			);
+			labelText = translator.compile('search:tags-x', selectedTags.map(u => u.value).join(', '));
 		}
-		$('[component="tag/filter/button"]').toggleClass(
-			'active-filter', isActive
-		).find('.filter-label').translateHtml(labelText);
+		$('[component="tag/filter/button"]')
+			.toggleClass('active-filter', isActive)
+			.find('.filter-label')
+			.translateHtml(labelText);
 	}
 
 	function updateTimeFilter() {
 		const isActive = $('#post-time-range').val() > 0;
-		$('#post-time-button').toggleClass(
-			'active-filter', isActive
-		).find('.filter-label').translateText(
-			isActive ?
-				`[[search:time-${$('#post-time-filter').val()}-than-${$('#post-time-range').val()}]]` :
-				`[[search:time]]`
-		);
+		$('#post-time-button')
+			.toggleClass('active-filter', isActive)
+			.find('.filter-label')
+			.translateText(
+				isActive
+					? `[[search:time-${$('#post-time-filter').val()}-than-${$('#post-time-range').val()}]]`
+					: `[[search:time]]`,
+			);
 	}
 
 	function updateSortFilter() {
-		const isActive = $('#post-sort-by').val() !== 'relevance' || $('#post-sort-direction').val() !== 'desc';
-		$('#sort-by-button').toggleClass(
-			'active-filter', isActive
-		).find('.filter-label').translateText(
-			isActive ?
-				`[[search:sort-by-${$('#post-sort-by').val()}-${$('#post-sort-direction').val()}]]` :
-				`[[search:sort]]`
-		);
+		const isActive =
+			$('#post-sort-by').val() !== 'relevance' || $('#post-sort-direction').val() !== 'desc';
+		$('#sort-by-button')
+			.toggleClass('active-filter', isActive)
+			.find('.filter-label')
+			.translateText(
+				isActive
+					? `[[search:sort-by-${$('#post-sort-by').val()}-${$('#post-sort-direction').val()}]]`
+					: `[[search:sort]]`,
+			);
 	}
 
 	function updateReplyCountFilter() {
 		const isActive = $('#reply-count').val() > 0;
-		$('#reply-count-button').toggleClass(
-			'active-filter', isActive
-		).find('.filter-label').translateText(
-			isActive ?
-				`[[search:replies-${$('#reply-count-filter').val()}-count, ${$('#reply-count').val()}]]` :
-				`[[search:replies]]`
-		);
+		$('#reply-count-button')
+			.toggleClass('active-filter', isActive)
+			.find('.filter-label')
+			.translateText(
+				isActive
+					? `[[search:replies-${$('#reply-count-filter').val()}-count, ${$('#reply-count').val()}]]`
+					: `[[search:replies]]`,
+			);
 	}
 
 	function getSearchDataFromDOM() {
@@ -143,7 +147,9 @@ define('forum/search', [
 	}
 
 	function updateFormItemVisiblity(searchIn) {
-		const hideTitlePostFilters = !['posts', 'titles', 'bookmarks'].some(token => searchIn.includes(token));
+		const hideTitlePostFilters = !['posts', 'titles', 'bookmarks'].some(token =>
+			searchIn.includes(token),
+		);
 		$('.post-search-item').toggleClass('hidden', hideTitlePostFilters);
 	}
 
@@ -218,13 +224,18 @@ define('forum/search', [
 		$('#save-preferences').on('click', function () {
 			const data = getSearchDataFromDOM();
 			const fieldsToSave = [
-				'matchWords', 'in', 'showAs',
-				'replies', 'repliesFilter',
-				'timeFilter', 'timeRange',
-				'sortBy', 'sortDirection',
+				'matchWords',
+				'in',
+				'showAs',
+				'replies',
+				'repliesFilter',
+				'timeFilter',
+				'timeRange',
+				'sortBy',
+				'sortDirection',
 			];
 			const saveData = {};
-			fieldsToSave.forEach((key) => {
+			fieldsToSave.forEach(key => {
 				saveData[key] = data[key];
 			});
 			storage.setItem('search-preferences', JSON.stringify(saveData));
@@ -248,7 +259,6 @@ define('forum/search', [
 			return false;
 		});
 	}
-
 
 	function categoryFilterDropdown(_selectedCids) {
 		ajaxify.data.allCategoriesUrl = '';
@@ -276,9 +286,10 @@ define('forum/search', [
 					labelText = `[[search:categories-x, ${data.selectedCids.length}]]`;
 				}
 
-				$('[component="category/filter/button"]').toggleClass(
-					'active-filter', isActive
-				).find('.filter-label').translateText(labelText);
+				$('[component="category/filter/button"]')
+					.toggleClass('active-filter', isActive)
+					.find('.filter-label')
+					.translateText(labelText);
 			},
 			localCategories: [
 				{
@@ -303,12 +314,14 @@ define('forum/search', [
 				let labelText = '[[search:posted-by]]';
 				if (isActive) {
 					labelText = translator.compile(
-						'search:posted-by-usernames', selectedUsers.map(u => u.username).join(', ')
+						'search:posted-by-usernames',
+						selectedUsers.map(u => u.username).join(', '),
 					);
 				}
-				el.find('[component="user/filter/button"]').toggleClass(
-					'active-filter', isActive
-				).find('.filter-label').translateText(labelText);
+				el.find('[component="user/filter/button"]')
+					.toggleClass('active-filter', isActive)
+					.find('.filter-label')
+					.translateText(labelText);
 			},
 		});
 	}
@@ -345,14 +358,12 @@ define('forum/search', [
 			}
 
 			if (!result.tags.length) {
-				el.find('[component="tag/filter/results"]').translateHtml(
-					'[[tags:no-tags-found]]'
-				);
+				el.find('[component="tag/filter/results"]').translateHtml('[[tags:no-tags-found]]');
 				return;
 			}
 			result.tags = result.tags.slice(0, 20);
 			const tagMap = {};
-			result.tags.forEach((tag) => {
+			result.tags.forEach(tag => {
 				tagMap[tag.value] = tag;
 			});
 
@@ -366,11 +377,14 @@ define('forum/search', [
 			});
 		}
 
-		el.find('[component="tag/filter/search"]').on('keyup', utils.debounce(function () {
-			if (app.user.privileges['search:tags']) {
-				doSearch();
-			}
-		}, 1000));
+		el.find('[component="tag/filter/search"]').on(
+			'keyup',
+			utils.debounce(function () {
+				if (app.user.privileges['search:tags']) {
+					doSearch();
+				}
+			}, 1000),
+		);
 
 		el.on('click', '[component="tag/filter/delete"]', function () {
 			const deleteTag = $(this).attr('data-tag');
@@ -378,7 +392,7 @@ define('forum/search', [
 			renderSelectedTags();
 		});
 
-		el.find('[component="tag/filter/search"]').on('keyup', (e) => {
+		el.find('[component="tag/filter/search"]').on('keyup', e => {
 			if (e.key === 'Enter' && !app.user.privileges['search:tags']) {
 				const value = el.find('[component="tag/filter/search"]').val();
 				if (value && selectedTags.every(tag => tag.value !== value)) {

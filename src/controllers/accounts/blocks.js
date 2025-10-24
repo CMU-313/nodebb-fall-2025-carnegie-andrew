@@ -30,7 +30,10 @@ blocksController.getBlocks = async function (req, res) {
 	const pageCount = Math.ceil(blocksCount / resultsPerPage);
 	payload.pagination = pagination.create(page, pageCount);
 
-	payload.breadcrumbs = helpers.buildBreadcrumbs([{ text: username, url: `/user/${userslug}` }, { text: '[[user:blocks]]' }]);
+	payload.breadcrumbs = helpers.buildBreadcrumbs([
+		{ text: username, url: `/user/${userslug}` },
+		{ text: '[[user:blocks]]' },
+	]);
 
 	res.render('account/blocks', payload);
 };

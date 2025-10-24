@@ -1,11 +1,11 @@
 'use strict';
 
-define('handleBack', [
-	'components',
-	'storage',
-	'navigator',
-	'forum/pagination',
-], function (components, storage, navigator, pagination) {
+define('handleBack', ['components', 'storage', 'navigator', 'forum/pagination'], function (
+	components,
+	storage,
+	navigator,
+	pagination,
+) {
 	const handleBack = {};
 	let loadTopicsMethod;
 

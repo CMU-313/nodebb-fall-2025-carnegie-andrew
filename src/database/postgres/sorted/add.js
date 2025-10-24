@@ -18,7 +18,7 @@ module.exports = function (module) {
 		value = helpers.valueToString(value);
 		score = parseFloat(score);
 
-		await module.transaction(async (client) => {
+		await module.transaction(async client => {
 			await helpers.ensureLegacyObjectType(client, key, 'zset');
 			await client.query({
 				name: 'sortedSetAdd',
@@ -49,7 +49,7 @@ module.exports = function (module) {
 
 		helpers.removeDuplicateValues(values, scores);
 
-		await module.transaction(async (client) => {
+		await module.transaction(async client => {
 			await helpers.ensureLegacyObjectType(client, key, 'zset');
 			await client.query({
 				name: 'sortedSetAddBulk',
@@ -69,8 +69,10 @@ DO UPDATE SET "score" = EXCLUDED."score"`,
 			return;
 		}
 		const isArrayOfScores = Array.isArray(scores);
-		if ((!isArrayOfScores && !utils.isNumber(scores)) ||
-			(isArrayOfScores && scores.map(s => utils.isNumber(s)).includes(false))) {
+		if (
+			(!isArrayOfScores && !utils.isNumber(scores)) ||
+			(isArrayOfScores && scores.map(s => utils.isNumber(s)).includes(false))
+		) {
 			throw new Error(`[[error:invalid-score, ${scores}]]`);
 		}
 
@@ -81,16 +83,18 @@ DO UPDATE SET "score" = EXCLUDED."score"`,
 		value = helpers.valueToString(value);
 		scores = isArrayOfScores ? scores.map(score => parseFloat(score)) : parseFloat(scores);
 
-		await module.transaction(async (client) => {
+		await module.transaction(async client => {
 			await helpers.ensureLegacyObjectsType(client, keys, 'zset');
 			await client.query({
 				name: isArrayOfScores ? 'sortedSetsAddScores' : 'sortedSetsAdd',
-				text: isArrayOfScores ? `
+				text: isArrayOfScores
+					? `
 INSERT INTO "legacy_zset" ("_key", "value", "score")
 SELECT k, $2::TEXT, s
 FROM UNNEST($1::TEXT[], $3::NUMERIC[]) vs(k, s)
 ON CONFLICT ("_key", "value")
-	DO UPDATE SET "score" = EXCLUDED."score"` : `
+	DO UPDATE SET "score" = EXCLUDED."score"`
+					: `
 INSERT INTO "legacy_zset" ("_key", "value", "score")
 	SELECT k, $2::TEXT, $3::NUMERIC
 		FROM UNNEST($1::TEXT[]) k
@@ -108,7 +112,7 @@ INSERT INTO "legacy_zset" ("_key", "value", "score")
 		const keys = [];
 		const values = [];
 		const scores = [];
-		data.forEach((item) => {
+		data.forEach(item => {
 			if (!utils.isNumber(item[1])) {
 				throw new Error(`[[error:invalid-score, ${item[1]}]]`);
 			}
@@ -116,7 +120,7 @@ INSERT INTO "legacy_zset" ("_key", "value", "score")
 			scores.push(item[1]);
 			values.push(item[2]);
 		});
-		await module.transaction(async (client) => {
+		await module.transaction(async client => {
 			await helpers.ensureLegacyObjectsType(client, keys, 'zset');
 			await client.query({
 				name: 'sortedSetAddBulk2',

@@ -1,96 +1,106 @@
 .dashboard {
-	.card {
-		max-width: 100% !important;
-	}
+  .card {
+    max-width: 100% !important;
+  }
 
-	.graph-container {
-		position: relative;
-		background: var(--bg-body-bg);
+  .graph-container {
+    position: relative;
+    background: var(--bg-body-bg);
 
-		&.pie-chart {
-			max-height: 180px;
-		}
+    &.pie-chart {
+      max-height: 180px;
+    }
 
-		&.fullscreen {
-			width: 100%;
-			padding: 40px;
-		}
-	}
+    &.fullscreen {
+      width: 100%;
+      padding: 40px;
+    }
+  }
 
-	.graph-legend {
-		@include box-header-font;
-		margin: 0;
+  .graph-legend {
+    @include box-header-font;
+    margin: 0;
 
-		li {
-			display: flex;
-			word-wrap: break-word;
-			word-break: break-word;
-			gap: 0.5rem;
-			span {
-				flex: 1;
-			}
-			div {
-				border: 1px solid;
-				margin-top: 2px;
-				width: 12px;
-				min-width: 12px;
-				height: 12px;
+    li {
+      display: flex;
+      word-wrap: break-word;
+      word-break: break-word;
+      gap: 0.5rem;
+      span {
+        flex: 1;
+      }
+      div {
+        border: 1px solid;
+        margin-top: 2px;
+        width: 12px;
+        min-width: 12px;
+        height: 12px;
 
-				&.page-views {
-					border-color: rgba(220,220,220,1);
-					background-color: rgba(220,220,220,0.2);
-				}
-				&.unique-visitors {
-					border-color: rgba(151,187,205,1);
-					background-color: rgba(151,187,205,0.2);
-				}
-				&.guest {
-					border-color: #46BFBD;
-					background-color: #5AD3D1;
-				}
-				&.registered {
-					border-color: #F7464A;
-					background-color: #FF5A5E;
-				}
-				&.reading-posts {
-					border-color: #46BFBD;
-					background-color: #5AD3D1;
-				}
-				&.on-categories {
-					border-color: #F7464A;
-					background-color: #FF5A5E;
-				}
-				&.browsing-topics {
-					border-color: #FDB45C;
-					background-color: #FFC870;
-				}
-				&.recent {
-					border-color: #949FB1;
-					background-color: #A8B3C5;
-				}
-				&.unread {
-					border-color: #949FB1;
-					background-color: #9FB194;
-				}
-			}
-		}
-	}
+        &.page-views {
+          border-color: rgba(220, 220, 220, 1);
+          background-color: rgba(220, 220, 220, 0.2);
+        }
+        &.unique-visitors {
+          border-color: rgba(151, 187, 205, 1);
+          background-color: rgba(151, 187, 205, 0.2);
+        }
+        &.guest {
+          border-color: #46bfbd;
+          background-color: #5ad3d1;
+        }
+        &.registered {
+          border-color: #f7464a;
+          background-color: #ff5a5e;
+        }
+        &.reading-posts {
+          border-color: #46bfbd;
+          background-color: #5ad3d1;
+        }
+        &.on-categories {
+          border-color: #f7464a;
+          background-color: #ff5a5e;
+        }
+        &.browsing-topics {
+          border-color: #fdb45c;
+          background-color: #ffc870;
+        }
+        &.recent {
+          border-color: #949fb1;
+          background-color: #a8b3c5;
+        }
+        &.unread {
+          border-color: #949fb1;
+          background-color: #9fb194;
+        }
+      }
+    }
+  }
 
-	.version-check {
-		-webkit-transition: background, color 500ms ease-in;
-		-moz-transition: background, color 500ms ease-in;
-		-ms-transition: background, color 500ms ease-in;
-		-o-transition: background, color 500ms ease-in;
-		transition: background, color 500ms ease-in;
-	}
+  .version-check {
+    -webkit-transition:
+      background,
+      color 500ms ease-in;
+    -moz-transition:
+      background,
+      color 500ms ease-in;
+    -ms-transition:
+      background,
+      color 500ms ease-in;
+    -o-transition:
+      background,
+      color 500ms ease-in;
+    transition:
+      background,
+      color 500ms ease-in;
+  }
 
-	.pageview-stats {
-		strong {
-			font-size: 22px;
-		}
-	}
+  .pageview-stats {
+    strong {
+      font-size: 22px;
+    }
+  }
 
-	.updatePageviewsGraph.active {
-		font-weight: bold;
-	}
+  .updatePageviewsGraph.active {
+    font-weight: bold;
+  }
 }

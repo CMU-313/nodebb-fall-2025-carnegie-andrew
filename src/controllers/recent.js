@@ -1,4 +1,3 @@
-
 'use strict';
 
 const nconf = require('nconf');
@@ -58,7 +57,10 @@ recentController.getData = async function (req, url, sort) {
 		query: req.query,
 	});
 
-	const isDisplayedAsHome = !(req.originalUrl.startsWith(`${relative_path}/api/${url}`) || req.originalUrl.startsWith(`${relative_path}/${url}`));
+	const isDisplayedAsHome = !(
+		req.originalUrl.startsWith(`${relative_path}/api/${url}`) ||
+		req.originalUrl.startsWith(`${relative_path}/${url}`)
+	);
 	const baseUrl = isDisplayedAsHome ? '' : url;
 
 	if (isDisplayedAsHome) {
@@ -101,6 +103,5 @@ recentController.getData = async function (req, url, sort) {
 	});
 	return data;
 };
-
 
 require('../promisify')(recentController, ['get']);

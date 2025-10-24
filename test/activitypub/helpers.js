@@ -17,12 +17,8 @@ Helpers.mocks.person = (override = {}) => {
 		id = override.id;
 	}
 
-
 	const actor = {
-		'@context': [
-			'https://www.w3.org/ns/activitystreams',
-			'https://w3id.org/security/v1',
-		],
+		'@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
 		id,
 		url: `${id}`,
 		inbox: `${id}/inbox`,
@@ -95,7 +91,7 @@ Helpers.mocks.note = (override = {}) => {
 	return { id, note };
 };
 
-Helpers.mocks.create = (object) => {
+Helpers.mocks.create = object => {
 	// object is optional, will generate a public note if undefined
 	const uuid = utils.generateUUID();
 	const id = `${Helpers.mocks._baseUrl}/activity/${uuid}`;
@@ -224,4 +220,3 @@ Helpers.mocks.delete = (override = {}) => {
 
 	return { activity };
 };
-

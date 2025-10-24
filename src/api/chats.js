@@ -42,7 +42,9 @@ chatsAPI.list = async (caller, { uid = caller.uid, start, stop, page, perPage } 
 	}
 
 	if (!start && !stop && page) {
-		winston.warn('[api/chats] Sending `page` and `perPage` to .list() is deprecated in favour of `start` and `stop`. The deprecated parameters will be removed in v4.');
+		winston.warn(
+			'[api/chats] Sending `page` and `perPage` to .list() is deprecated in favour of `start` and `stop`. The deprecated parameters will be removed in v4.',
+		);
 		start = Math.max(0, page - 1) * perPage;
 		stop = start + perPage - 1;
 	}
@@ -75,9 +77,9 @@ chatsAPI.create = async function (caller, data) {
 		throw new Error('[[error:no-groups-selected]]');
 	}
 
-	data.notificationSetting = isPublic ?
-		messaging.notificationSettings.ATMENTION :
-		messaging.notificationSettings.ALLMESSAGES;
+	data.notificationSetting = isPublic
+		? messaging.notificationSettings.ATMENTION
+		: messaging.notificationSettings.ALLMESSAGES;
 
 	await Promise.all(data.uids.map(uid => messaging.canMessageUser(caller.uid, uid)));
 	const roomId = await messaging.newRoom(caller.uid, data);
@@ -85,13 +87,13 @@ chatsAPI.create = async function (caller, data) {
 	return await messaging.getRoomData(roomId);
 };
 
-chatsAPI.getUnread = async (caller) => {
+chatsAPI.getUnread = async caller => {
 	const count = await messaging.getUnreadCount(caller.uid);
 	return { count };
 };
 
 chatsAPI.sortPublicRooms = async (caller, { roomIds, scores }) => {
-	[roomIds, scores].forEach((arr) => {
+	[roomIds, scores].forEach(arr => {
 		if (!Array.isArray(arr) || !arr.every(value => isFinite(value))) {
 			throw new Error('[[error:invalid-data]]');
 		}
@@ -106,7 +108,8 @@ chatsAPI.sortPublicRooms = async (caller, { roomIds, scores }) => {
 	require('../cache').del(`chat:rooms:public:order:all`);
 };
 
-chatsAPI.get = async (caller, { uid, roomId }) => await messaging.loadRoom(caller.uid, { uid, roomId });
+chatsAPI.get = async (caller, { uid, roomId }) =>
+	await messaging.loadRoom(caller.uid, { uid, roomId });
 
 chatsAPI.post = async (caller, data) => {
 	if (!data || !data.roomId || !caller.uid) {
@@ -163,7 +166,11 @@ chatsAPI.update = async (caller, data) => {
 		}
 	}
 	if (data.hasOwnProperty('notificationSetting') && isAdmin) {
-		await db.setObjectField(`chat:room:${data.roomId}`, 'notificationSetting', data.notificationSetting);
+		await db.setObjectField(
+			`chat:room:${data.roomId}`,
+			'notificationSetting',
+			data.notificationSetting,
+		);
 	}
 	const loadedRoom = await messaging.loadRoom(caller.uid, {
 		roomId: data.roomId,
@@ -245,7 +252,11 @@ chatsAPI.users = async (caller, data) => {
 		messaging.isRoomOwner(caller.uid, data.roomId),
 		messaging.isUserInRoom(caller.uid, data.roomId),
 		messaging.getUsersInRoomFromSet(
-			`chat:room:${data.roomId}:uids:online`, data.roomId, start, stop, true
+			`chat:room:${data.roomId}:uids:online`,
+			data.roomId,
+			start,
+			stop,
+			true,
 		),
 		user.isAdministrator(caller.uid),
 		io.getUidsInRoom(`chat_room_${data.roomId}`),
@@ -253,11 +264,12 @@ chatsAPI.users = async (caller, data) => {
 	if (!isUserInRoom) {
 		throw new Error('[[error:no-privileges]]');
 	}
-	users.forEach((user) => {
+	users.forEach(user => {
 		const isSelf = parseInt(user.uid, 10) === parseInt(caller.uid, 10);
 		user.canKick = isOwner && !isSelf;
 		user.canToggleOwner = utils.isNumber(user.uid) && (isAdmin || isOwner) && !isSelf;
-		user.online = parseInt(user.uid, 10) === parseInt(caller.uid, 10) || onlineUids.includes(String(user.uid));
+		user.online =
+			parseInt(user.uid, 10) === parseInt(caller.uid, 10) || onlineUids.includes(String(user.uid));
 	});
 	return { users };
 };
@@ -322,7 +334,10 @@ chatsAPI.toggleOwner = async (caller, { roomId, uid, state }) => {
 	return await messaging.toggleOwner(uid, roomId, state);
 };
 
-chatsAPI.listMessages = async (caller, { uid = caller.uid, roomId, start = 0, direction = null } = {}) => {
+chatsAPI.listMessages = async (
+	caller,
+	{ uid = caller.uid, roomId, start = 0, direction = null } = {},
+) => {
 	if (!roomId) {
 		throw new Error('[[error:invalid-data]]');
 	}

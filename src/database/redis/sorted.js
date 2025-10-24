@@ -95,7 +95,7 @@ module.exports = function (module) {
 		if (parseInt(count, 10) === 0) {
 			return [];
 		}
-		const stop = (parseInt(count, 10) === -1) ? -1 : (start + count - 1);
+		const stop = parseInt(count, 10) === -1 ? -1 : start + count - 1;
 		return await sortedSetRange(method, key, start, stop, min, max, withScores);
 	}
 
@@ -232,9 +232,7 @@ module.exports = function (module) {
 	};
 
 	module.getSortedSetMembersWithScores = async function (key) {
-		return helpers.zsetToObjectArray(
-			await module.client.zrange(key, 0, -1, 'WITHSCORES')
-		);
+		return helpers.zsetToObjectArray(await module.client.zrange(key, 0, -1, 'WITHSCORES'));
 	};
 
 	module.getSortedSetsMembers = async function (keys) {
@@ -263,7 +261,7 @@ module.exports = function (module) {
 
 	module.sortedSetIncrByBulk = async function (data) {
 		const multi = module.client.multi();
-		data.forEach((item) => {
+		data.forEach(item => {
 			multi.zincrby(item[0], item[1], item[2]);
 		});
 		const result = await multi.exec();
@@ -318,7 +316,14 @@ module.exports = function (module) {
 		const seen = Object.create(null);
 		do {
 			/* eslint-disable no-await-in-loop */
-			const res = await module.client.zscan(params.key, cursor, 'MATCH', params.match, 'COUNT', 5000);
+			const res = await module.client.zscan(
+				params.key,
+				cursor,
+				'MATCH',
+				params.match,
+				'COUNT',
+				5000,
+			);
 			cursor = res[0];
 			done = cursor === '0';
 			const data = res[1];

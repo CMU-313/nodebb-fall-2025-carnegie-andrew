@@ -15,16 +15,14 @@ const util = require('util');
 process.env.NODE_ENV = process.env.TEST_ENV || 'production';
 global.env = process.env.NODE_ENV || 'production';
 
-
 const winston = require('winston');
 const packageInfo = require('../../package.json');
 
-winston.add(new winston.transports.Console({
-	format: winston.format.combine(
-		winston.format.splat(),
-		winston.format.simple()
-	),
-}));
+winston.add(
+	new winston.transports.Console({
+		format: winston.format.combine(winston.format.splat(), winston.format.simple()),
+	}),
+);
 
 try {
 	const fs = require('fs');
@@ -55,7 +53,13 @@ nconf.set('url_parsed', urlObject);
 nconf.set('base_url', `${urlObject.protocol}//${urlObject.host}`);
 nconf.set('secure', urlObject.protocol === 'https:');
 nconf.set('use_port', !!urlObject.port);
-nconf.set('port', urlObject.port || nconf.get('port') || (nconf.get('PORT_ENV_VAR') ? nconf.get(nconf.get('PORT_ENV_VAR')) : false) || 4567);
+nconf.set(
+	'port',
+	urlObject.port ||
+		nconf.get('port') ||
+		(nconf.get('PORT_ENV_VAR') ? nconf.get(nconf.get('PORT_ENV_VAR')) : false) ||
+		4567,
+);
 
 // cookies don't provide isolation by port: http://stackoverflow.com/a/16328399/122353
 const domain = nconf.get('cookieDomain') || urlObject.hostname;
@@ -76,46 +80,48 @@ if (!testDbConfig) {
 	const errorText = 'test_database is not defined';
 	winston.info(
 		'\n===========================================================\n' +
-		'Please, add parameters for test database in config.json\n' +
-		'For example (redis):\n' +
-		'"test_database": {\n' +
-		'    "host": "127.0.0.1",\n' +
-		'    "port": "6379",\n' +
-		'    "password": "",\n' +
-		'    "database": "1"\n' +
-		'}\n' +
-		' or (mongo):\n' +
-		'"test_database": {\n' +
-		'    "host": "127.0.0.1",\n' +
-		'    "port": "27017",\n' +
-		'    "password": "",\n' +
-		'    "database": "1"\n' +
-		'}\n' +
-		' or (mongo) in a replicaset\n' +
-		'"test_database": {\n' +
-		'    "host": "127.0.0.1,127.0.0.1,127.0.0.1",\n' +
-		'    "port": "27017,27018,27019",\n' +
-		'    "username": "",\n' +
-		'    "password": "",\n' +
-		'    "database": "nodebb_test"\n' +
-		'}\n' +
-		' or (postgres):\n' +
-		'"test_database": {\n' +
-		'    "host": "127.0.0.1",\n' +
-		'    "port": "5432",\n' +
-		'    "username": "postgres",\n' +
-		'    "password": "",\n' +
-		'    "database": "nodebb_test"\n' +
-		'}\n' +
-		'==========================================================='
+			'Please, add parameters for test database in config.json\n' +
+			'For example (redis):\n' +
+			'"test_database": {\n' +
+			'    "host": "127.0.0.1",\n' +
+			'    "port": "6379",\n' +
+			'    "password": "",\n' +
+			'    "database": "1"\n' +
+			'}\n' +
+			' or (mongo):\n' +
+			'"test_database": {\n' +
+			'    "host": "127.0.0.1",\n' +
+			'    "port": "27017",\n' +
+			'    "password": "",\n' +
+			'    "database": "1"\n' +
+			'}\n' +
+			' or (mongo) in a replicaset\n' +
+			'"test_database": {\n' +
+			'    "host": "127.0.0.1,127.0.0.1,127.0.0.1",\n' +
+			'    "port": "27017,27018,27019",\n' +
+			'    "username": "",\n' +
+			'    "password": "",\n' +
+			'    "database": "nodebb_test"\n' +
+			'}\n' +
+			' or (postgres):\n' +
+			'"test_database": {\n' +
+			'    "host": "127.0.0.1",\n' +
+			'    "port": "5432",\n' +
+			'    "username": "postgres",\n' +
+			'    "password": "",\n' +
+			'    "database": "nodebb_test"\n' +
+			'}\n' +
+			'===========================================================',
 	);
 	winston.error(errorText);
 	throw new Error(errorText);
 }
 
-if (testDbConfig.database === productionDbConfig.database &&
+if (
+	testDbConfig.database === productionDbConfig.database &&
 	testDbConfig.host === productionDbConfig.host &&
-	testDbConfig.port === productionDbConfig.port) {
+	testDbConfig.port === productionDbConfig.port
+) {
 	const errorText = 'test_database has the same config as production db';
 	winston.error(errorText);
 	throw new Error(errorText);
@@ -137,15 +143,20 @@ before(async function () {
 	const urlObject = url.parse(nconf.get('url'));
 
 	nconf.set('core_templates_path', path.join(__dirname, '../../src/views'));
-	nconf.set('base_templates_path', path.join(nconf.get('themes_path'), 'nodebb-theme-persona/templates'));
-	nconf.set('theme_config', path.join(nconf.get('themes_path'), 'nodebb-theme-persona', 'theme.json'));
+	nconf.set(
+		'base_templates_path',
+		path.join(nconf.get('themes_path'), 'nodebb-theme-persona/templates'),
+	);
+	nconf.set(
+		'theme_config',
+		path.join(nconf.get('themes_path'), 'nodebb-theme-persona', 'theme.json'),
+	);
 	nconf.set('bcrypt_rounds', 1);
 	nconf.set('socket.io:origins', '*:*');
 	nconf.set('version', packageInfo.version);
 	nconf.set('runJobs', false);
 	nconf.set('jobsDisabled', false);
 	nconf.set('acpPluginInstallDisabled', false);
-
 
 	await db.init();
 	if (db.hasOwnProperty('createIndices')) {
@@ -155,7 +166,12 @@ before(async function () {
 	await db.initSessionStore();
 
 	const meta = require('../../src/meta');
-	nconf.set('theme_templates_path', meta.config['theme:templates'] ? path.join(nconf.get('themes_path'), meta.config['theme:id'], meta.config['theme:templates']) : nconf.get('base_templates_path'));
+	nconf.set(
+		'theme_templates_path',
+		meta.config['theme:templates']
+			? path.join(nconf.get('themes_path'), meta.config['theme:id'], meta.config['theme:templates'])
+			: nconf.get('base_templates_path'),
+	);
 	// nconf defaults, if not set in config
 	if (!nconf.get('sessionKey')) {
 		nconf.set('sessionKey', 'express.sid');
@@ -173,7 +189,7 @@ before(async function () {
 	await webserver.listen();
 
 	// Iterate over all of the test suites/contexts
-	this.test.parent.suites.forEach((suite) => {
+	this.test.parent.suites.forEach(suite => {
 		// Attach an afterAll listener that resets the defaults
 		suite.afterAll(async () => {
 			await setupMockDefaults();
@@ -210,7 +226,6 @@ async function setupMockDefaults() {
 	const fs = require('fs');
 	await fs.promises.rm('test/uploads', { recursive: true, force: true });
 
-
 	const { mkdirp } = require('mkdirp');
 
 	const folders = [
@@ -239,14 +254,25 @@ async function setupDefaultConfigs(meta) {
 async function giveDefaultGlobalPrivileges() {
 	winston.info('Giving default global privileges...\n');
 	const privileges = require('../../src/privileges');
-	await privileges.global.give([
-		'groups:chat', 'groups:upload:post:image', 'groups:signature', 'groups:search:content',
-		'groups:search:users', 'groups:search:tags', 'groups:local:login', 'groups:view:users',
-		'groups:view:tags', 'groups:view:groups',
-	], 'registered-users');
-	await privileges.global.give([
-		'groups:view:users', 'groups:view:tags', 'groups:view:groups',
-	], 'guests');
+	await privileges.global.give(
+		[
+			'groups:chat',
+			'groups:upload:post:image',
+			'groups:signature',
+			'groups:search:content',
+			'groups:search:users',
+			'groups:search:tags',
+			'groups:local:login',
+			'groups:view:users',
+			'groups:view:tags',
+			'groups:view:groups',
+		],
+		'registered-users',
+	);
+	await privileges.global.give(
+		['groups:view:users', 'groups:view:tags', 'groups:view:groups'],
+		'guests',
+	);
 	await privileges.global.give(['groups:view:users'], 'fediverse');
 }
 

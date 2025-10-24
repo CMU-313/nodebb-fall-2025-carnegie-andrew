@@ -1,6 +1,6 @@
 {
-    "reconnection": "Gjenoppretting av tilkopling",
-    "max-attempts": "Maksimalt tal forsøk",
-    "default-placeholder": "Standardverdi",
-    "delay": "Forseinking"
+  "reconnection": "Gjenoppretting av tilkopling",
+  "max-attempts": "Maksimalt tal forsøk",
+  "default-placeholder": "Standardverdi",
+  "delay": "Forseinking"
 }

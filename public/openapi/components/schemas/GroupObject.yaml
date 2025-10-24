@@ -57,7 +57,7 @@ GroupFullObject:
       description: A FontAwesome icon string
     createtimeISO:
       type: string
-      description: "`createtime` rendered as an ISO 8601 format"
+      description: '`createtime` rendered as an ISO 8601 format'
     cover:thumb:url:
       type: string
     cover:url:
@@ -205,7 +205,7 @@ GroupDataObject:
       description: A FontAwesome icon string
     createtimeISO:
       type: string
-      description: "`createtime` rendered as an ISO 8601 format"
+      description: '`createtime` rendered as an ISO 8601 format'
     cover:position:
       type: string
     memberPostCids:

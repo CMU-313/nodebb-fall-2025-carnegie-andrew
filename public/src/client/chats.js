@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/chats', [
 	'components',
 	'mousetrap',
@@ -19,10 +18,22 @@ define('forum/chats', [
 	'api',
 	'uploadHelpers',
 ], function (
-	components, mousetrap, recentChats, create,
-	manage, messages, userList, messageSearch, pinnedMessages,
-	autocomplete, hooks, bootbox, alerts, chatModule, api,
-	uploadHelpers
+	components,
+	mousetrap,
+	recentChats,
+	create,
+	manage,
+	messages,
+	userList,
+	messageSearch,
+	pinnedMessages,
+	autocomplete,
+	hooks,
+	bootbox,
+	alerts,
+	chatModule,
+	api,
+	uploadHelpers,
 ) {
 	const Chats = {
 		initialised: false,
@@ -39,7 +50,10 @@ define('forum/chats', [
 				socket.emit('modules.chats.leave', ajaxify.data.roomId);
 			}
 			if (ajaxify.data.publicRooms) {
-				socket.emit('modules.chats.leavePublic', ajaxify.data.publicRooms.map(r => r.roomId));
+				socket.emit(
+					'modules.chats.leavePublic',
+					ajaxify.data.publicRooms.map(r => r.roomId),
+				);
 			}
 		}
 	});
@@ -51,7 +65,10 @@ define('forum/chats', [
 				container: '#content',
 			});
 		}
-		socket.emit('modules.chats.enterPublic', ajaxify.data.publicRooms.map(r => r.roomId));
+		socket.emit(
+			'modules.chats.enterPublic',
+			ajaxify.data.publicRooms.map(r => r.roomId),
+		);
 		const env = utils.findBootstrapEnvironment();
 		chatNavWrapper = $('[component="chat/nav-wrapper"]');
 		if (!Chats.initialised) {
@@ -76,7 +93,7 @@ define('forum/chats', [
 			const scrollToEl = chatContentEl.find(`[data-index="${ajaxify.data.scrollToIndex - 1}"]`);
 			if (scrollToEl.length) {
 				chatContentEl.scrollTop(
-					chatContentEl.scrollTop() - chatContentEl.offset().top + scrollToEl.offset().top
+					chatContentEl.scrollTop() - chatContentEl.offset().top + scrollToEl.offset().top,
 				);
 			}
 		} else {
@@ -153,19 +170,24 @@ define('forum/chats', [
 			return;
 		}
 
-		containerEl.find('[data-manual-tooltip]').tooltip({
-			trigger: 'manual',
-			animation: false,
-			placement: 'bottom',
-		}).on('mouseenter', function (ev) {
-			const target = $(ev.target);
-			const isDropdown = target.hasClass('dropdown-menu') || !!target.parents('.dropdown-menu').length;
-			if (!isDropdown) {
-				$(this).tooltip('show');
-			}
-		}).on('click mouseleave', function () {
-			$(this).tooltip('hide');
-		});
+		containerEl
+			.find('[data-manual-tooltip]')
+			.tooltip({
+				trigger: 'manual',
+				animation: false,
+				placement: 'bottom',
+			})
+			.on('mouseenter', function (ev) {
+				const target = $(ev.target);
+				const isDropdown =
+					target.hasClass('dropdown-menu') || !!target.parents('.dropdown-menu').length;
+				if (!isDropdown) {
+					$(this).tooltip('show');
+				}
+			})
+			.on('click mouseleave', function () {
+				$(this).tooltip('hide');
+			});
 
 		containerEl.tooltip({
 			selector: '[component="chat/message/controls"] > .btn-group > button',
@@ -183,7 +205,9 @@ define('forum/chats', [
 			notifSettingEl.find('i.fa-check').addClass('hidden');
 			const $this = $(this);
 			$this.find('i.fa-check').removeClass('hidden');
-			notifSettingEl.find('[component="chat/notification/setting/icon"]').attr('class', `fa ${$this.attr('data-icon')}`);
+			notifSettingEl
+				.find('[component="chat/notification/setting/icon"]')
+				.attr('class', `fa ${$this.attr('data-icon')}`);
 			await api.put(`/chats/${roomId}/watch`, {
 				value: $this.attr('data-value'),
 			});
@@ -191,7 +215,8 @@ define('forum/chats', [
 	};
 
 	Chats.addParentHandler = function (mainWrapper) {
-		mainWrapper.off('click', '[component="chat/message/parent"]')
+		mainWrapper
+			.off('click', '[component="chat/message/parent"]')
 			.on('click', '[component="chat/message/parent"]', function () {
 				const parentEl = $(this);
 				parentEl.find('[component="chat/message/parent/content"]').toggleClass('line-clamp-1');
@@ -204,7 +229,6 @@ define('forum/chats', [
 			});
 	};
 
-
 	Chats.addUploadHandler = function (options) {
 		uploadHelpers.init({
 			dragDropAreaEl: options.dragDropAreaEl,
@@ -215,8 +239,12 @@ define('forum/chats', [
 			callback: function (uploads) {
 				const inputEl = options.inputEl;
 				let text = inputEl.val();
-				uploads.forEach((upload) => {
-					text = text + (!text.endsWith('\n') ? '\n' : '') + (upload.isImage ? '!' : '') + `[${upload.filename}](${upload.url})\n`;
+				uploads.forEach(upload => {
+					text =
+						text +
+						(!text.endsWith('\n') ? '\n' : '') +
+						(upload.isImage ? '!' : '') +
+						`[${upload.filename}](${upload.url})\n`;
 				});
 				inputEl.val(text).trigger('input');
 			},
@@ -224,25 +252,24 @@ define('forum/chats', [
 	};
 
 	Chats.addIPHandler = function (container) {
-		container.off('click', '.chat-ip-button')
-			.on('click', '.chat-ip-button', async function (ev) {
-				ev.stopPropagation();
-				const ipEl = $(this);
-				const ipCopyText = ipEl.find('.copy .copy-ip-text');
-				let ip = ipEl.attr('data-ip');
-				if (ip) {
-					navigator.clipboard.writeText(ip);
-					ipCopyText.translateText('[[global:copied]]');
-					setTimeout(() => ipCopyText.text(ip), 2000);
-					return;
-				}
-				const mid = ipEl.parents('[data-mid]').attr('data-mid');
-				({ ip } = await api.get(`/chats/${ajaxify.data.roomId}/messages/${mid}/ip`));
-				ipEl.attr('data-ip', ip);
-				ipEl.find('.show').addClass('hidden');
-				ipEl.find('.copy').removeClass('hidden');
-				ipCopyText.text(ip);
-			});
+		container.off('click', '.chat-ip-button').on('click', '.chat-ip-button', async function (ev) {
+			ev.stopPropagation();
+			const ipEl = $(this);
+			const ipCopyText = ipEl.find('.copy .copy-ip-text');
+			let ip = ipEl.attr('data-ip');
+			if (ip) {
+				navigator.clipboard.writeText(ip);
+				ipCopyText.translateText('[[global:copied]]');
+				setTimeout(() => ipCopyText.text(ip), 2000);
+				return;
+			}
+			const mid = ipEl.parents('[data-mid]').attr('data-mid');
+			({ ip } = await api.get(`/chats/${ajaxify.data.roomId}/messages/${mid}/ip`));
+			ipEl.attr('data-ip', ip);
+			ipEl.find('.show').addClass('hidden');
+			ipEl.find('.copy').removeClass('hidden');
+			ipCopyText.text(ip);
+		});
 	};
 
 	Chats.addCopyTextLinkHandler = function (container) {
@@ -252,7 +279,8 @@ define('forum/chats', [
 			setTimeout(() => copyEl.find('i').removeClass('fa-check').addClass('fa-link'), 2000);
 		}
 
-		container.off('click', '[data-action="copy-link"]')
+		container
+			.off('click', '[data-action="copy-link"]')
 			.on('click', '[data-action="copy-link"]', function (ev) {
 				ev.stopPropagation();
 				const copyEl = $(this);
@@ -262,7 +290,8 @@ define('forum/chats', [
 				}
 			});
 
-		container.off('click', '[data-action="copy-text"]')
+		container
+			.off('click', '[data-action="copy-text"]')
 			.on('click', '[data-action="copy-text"]', function (ev) {
 				ev.stopPropagation();
 				const copyEl = $(this);
@@ -279,9 +308,13 @@ define('forum/chats', [
 			const roomId = ajaxify.data.roomId;
 
 			if (app.previousUrl && app.previousUrl.match(/chats/)) {
-				ajaxify.go('user/' + ajaxify.data.userslug + '/chats', function () {
-					chatModule.openChat(roomId, ajaxify.data.uid);
-				}, true);
+				ajaxify.go(
+					'user/' + ajaxify.data.userslug + '/chats',
+					function () {
+						chatModule.openChat(roomId, ajaxify.data.uid);
+					},
+					true,
+				);
 			} else {
 				window.history.go(-1);
 				chatModule.openChat(roomId, ajaxify.data.uid);
@@ -297,76 +330,92 @@ define('forum/chats', [
 		let loading = false;
 		let previousScrollTop = el.scrollTop();
 		let currentScrollTop = previousScrollTop;
-		el.off('scroll').on('scroll', utils.debounce(function () {
-			if (parseInt(el.attr('data-ignore-next-scroll'), 10) === 1) {
-				el.removeAttr('data-ignore-next-scroll');
-				previousScrollTop = el.scrollTop();
-				return;
-			}
-			messages.toggleScrollUpAlert(el);
-			if (loading) {
-				return;
-			}
-			currentScrollTop = el.scrollTop();
+		el.off('scroll').on(
+			'scroll',
+			utils.debounce(function () {
+				if (parseInt(el.attr('data-ignore-next-scroll'), 10) === 1) {
+					el.removeAttr('data-ignore-next-scroll');
+					previousScrollTop = el.scrollTop();
+					return;
+				}
+				messages.toggleScrollUpAlert(el);
+				if (loading) {
+					return;
+				}
+				currentScrollTop = el.scrollTop();
 
-			const direction = currentScrollTop > previousScrollTop ? 1 : -1;
-			previousScrollTop = currentScrollTop;
-			const scrollPercent = 100 * (currentScrollTop / (el[0].scrollHeight - el.height()));
-			const top = 15;
-			const bottom = 85;
+				const direction = currentScrollTop > previousScrollTop ? 1 : -1;
+				previousScrollTop = currentScrollTop;
+				const scrollPercent = 100 * (currentScrollTop / (el[0].scrollHeight - el.height()));
+				const top = 15;
+				const bottom = 85;
 
-			if (direction === 1 && !ajaxify.data.scrollToIndex) {
-				// dont trigger infinitescroll if there is no /index in url
-				return;
-			}
+				if (direction === 1 && !ajaxify.data.scrollToIndex) {
+					// dont trigger infinitescroll if there is no /index in url
+					return;
+				}
 
-			if ((scrollPercent < top && direction === -1) || (scrollPercent > bottom && direction === 1)) {
-				loading = true;
+				if (
+					(scrollPercent < top && direction === -1) ||
+					(scrollPercent > bottom && direction === 1)
+				) {
+					loading = true;
 
-				const msgEls = el.children('[data-mid]').not('.new');
-				const afterEl = direction > 0 ? msgEls.last() : msgEls.first();
-				const start = parseInt(afterEl.attr('data-index'), 10) || 0;
+					const msgEls = el.children('[data-mid]').not('.new');
+					const afterEl = direction > 0 ? msgEls.last() : msgEls.first();
+					const start = parseInt(afterEl.attr('data-index'), 10) || 0;
 
-				api.get(`/chats/${roomId}/messages`, { uid, start, direction }).then((data) => {
-					let messageData = data.messages;
-					if (!messageData) {
-						loading = false;
-						return;
-					}
-					messageData = messageData.filter(function (chatMsg) {
-						const msgOnDom = el.find('[component="chat/message"][data-mid="' + chatMsg.messageId + '"]');
-						msgOnDom.removeClass('new');
-						return !msgOnDom.length;
-					});
-					if (!messageData.length) {
-						loading = false;
-						return;
-					}
-					messages.parseMessage(messageData, function (html) {
-						el.attr('data-ignore-next-scroll', 1);
-						if (direction > 0) {
-							html.insertAfter(afterEl);
-							messages.onMessagesAddedToDom(html);
-						} else {
-							const currentScrollTop = el.scrollTop();
-							const previousHeight = el[0].scrollHeight;
-							el.prepend(html);
-							messages.onMessagesAddedToDom(html);
-							el.scrollTop((el[0].scrollHeight - previousHeight) + currentScrollTop);
-						}
+					api
+						.get(`/chats/${roomId}/messages`, { uid, start, direction })
+						.then(data => {
+							let messageData = data.messages;
+							if (!messageData) {
+								loading = false;
+								return;
+							}
+							messageData = messageData.filter(function (chatMsg) {
+								const msgOnDom = el.find(
+									'[component="chat/message"][data-mid="' + chatMsg.messageId + '"]',
+								);
+								msgOnDom.removeClass('new');
+								return !msgOnDom.length;
+							});
+							if (!messageData.length) {
+								loading = false;
+								return;
+							}
+							messages.parseMessage(messageData, function (html) {
+								el.attr('data-ignore-next-scroll', 1);
+								if (direction > 0) {
+									html.insertAfter(afterEl);
+									messages.onMessagesAddedToDom(html);
+								} else {
+									const currentScrollTop = el.scrollTop();
+									const previousHeight = el[0].scrollHeight;
+									el.prepend(html);
+									messages.onMessagesAddedToDom(html);
+									el.scrollTop(el[0].scrollHeight - previousHeight + currentScrollTop);
+								}
 
-						loading = false;
-					});
-				}).catch(alerts.error);
-			}
-		}, 100));
+								loading = false;
+							});
+						})
+						.catch(alerts.error);
+				}
+			}, 100),
+		);
 	};
 
 	Chats.addScrollBottomHandler = function (roomId, chatContent) {
-		chatContent.parents('[component="chat/message/window"]')
+		chatContent
+			.parents('[component="chat/message/window"]')
 			.find('[component="chat/messages/scroll-up-alert"]')
-			.off('click').on('click', function () {
-				if (ajaxify.data.scrollToIndex && parseInt(ajaxify.data.roomId, 10) === parseInt(roomId, 10)) {
+			.off('click')
+			.on('click', function () {
+				if (
+					ajaxify.data.scrollToIndex &&
+					parseInt(ajaxify.data.roomId, 10) === parseInt(roomId, 10)
+				) {
 					Chats.switchChat(roomId);
 				} else {
 					messages.scrollToBottom(chatContent);
@@ -488,19 +537,23 @@ define('forum/chats', [
 			bootbox.confirm({
 				size: 'small',
 				title: '[[modules:chat.leave]]',
-				message: '<p>[[modules:chat.leave-prompt]]</p><p class="form-text">[[modules:chat.leave-help]]</p>',
+				message:
+					'<p>[[modules:chat.leave-prompt]]</p><p class="form-text">[[modules:chat.leave-help]]</p>',
 				callback: function (ok) {
 					if (ok) {
-						api.del(`/chats/${roomId}/users/${app.user.uid}`, {}).then(() => {
-							// Return user to chats page. If modal, close modal.
-							const modal = buttonEl.parents('.chat-modal');
-							if (modal.length) {
-								chatModule.close(modal);
-							} else {
-								Chats.destroyAutoComplete(roomId);
-								ajaxify.go('chats');
-							}
-						}).catch(alerts.error);
+						api
+							.del(`/chats/${roomId}/users/${app.user.uid}`, {})
+							.then(() => {
+								// Return user to chats page. If modal, close modal.
+								const modal = buttonEl.parents('.chat-modal');
+								if (modal.length) {
+									chatModule.close(modal);
+								} else {
+									Chats.destroyAutoComplete(roomId);
+									ajaxify.go('chats');
+								}
+							})
+							.catch(alerts.error);
 					}
 				},
 			});
@@ -515,16 +568,19 @@ define('forum/chats', [
 				message: '<p>[[modules:chat.delete-prompt]]</p>',
 				callback: function (ok) {
 					if (ok) {
-						api.del(`/admin/chats/${roomId}`, {}).then(() => {
-							// Return user to chats page. If modal, close modal.
-							const modal = buttonEl.parents('.chat-modal');
-							if (modal.length) {
-								chatModule.close(modal);
-							} else {
-								Chats.destroyAutoComplete(roomId);
-								ajaxify.go('chats');
-							}
-						}).catch(alerts.error);
+						api
+							.del(`/admin/chats/${roomId}`, {})
+							.then(() => {
+								// Return user to chats page. If modal, close modal.
+								const modal = buttonEl.parents('.chat-modal');
+								if (modal.length) {
+									chatModule.close(modal);
+								} else {
+									Chats.destroyAutoComplete(roomId);
+									ajaxify.go('chats');
+								}
+							})
+							.catch(alerts.error);
 					}
 				},
 			});
@@ -546,11 +602,14 @@ define('forum/chats', [
 						label: '[[global:save]]',
 						className: 'btn-primary',
 						callback: function () {
-							api.put(`/chats/${roomId}`, {
-								name: modal.find('#roomName').val(),
-							}).then(() => {
-								modal.modal('hide');
-							}).catch(alerts.error);
+							api
+								.put(`/chats/${roomId}`, {
+									name: modal.find('#roomName').val(),
+								})
+								.then(() => {
+									modal.modal('hide');
+								})
+								.catch(alerts.error);
 							return false;
 						},
 					},
@@ -615,18 +674,21 @@ define('forum/chats', [
 
 	Chats.leave = function (el) {
 		const roomId = el.attr('data-roomid');
-		api.del(`/chats/${roomId}/users/${app.user.uid}`, {}).then(() => {
-			if (parseInt(roomId, 10) === parseInt(ajaxify.data.roomId, 10)) {
-				ajaxify.go('user/' + ajaxify.data.userslug + '/chats');
-			} else {
-				el.remove();
-			}
-			Chats.destroyAutoComplete(roomId);
-			const modal = chatModule.getModal(roomId);
-			if (modal.length) {
-				chatModule.close(modal);
-			}
-		}).catch(alerts.error);
+		api
+			.del(`/chats/${roomId}/users/${app.user.uid}`, {})
+			.then(() => {
+				if (parseInt(roomId, 10) === parseInt(ajaxify.data.roomId, 10)) {
+					ajaxify.go('user/' + ajaxify.data.userslug + '/chats');
+				} else {
+					el.remove();
+				}
+				Chats.destroyAutoComplete(roomId);
+				const modal = chatModule.getModal(roomId);
+				if (modal.length) {
+					chatModule.close(modal);
+				}
+			})
+			.catch(alerts.error);
 	};
 
 	Chats.switchChat = function (roomId) {
@@ -658,15 +720,28 @@ define('forum/chats', [
 				ajaxify.data = { ...ajaxify.data, ...payload, roomId: roomId };
 				ajaxify.updateTitle(ajaxify.data.title);
 				$('body').toggleClass('chat-loaded', !!roomId);
-				mainWrapper.find('[data-bs-toggle="tooltip"]').tooltip({ trigger: 'hover', container: '#content' });
+				mainWrapper
+					.find('[data-bs-toggle="tooltip"]')
+					.tooltip({ trigger: 'hover', container: '#content' });
 				Chats.setActive(roomId);
 				Chats.addEventListeners();
 				hooks.fire('action:chat.loaded', $('.chats-full'));
-				messages.scrollToBottomAfterImageLoad(mainWrapper.find('[component="chat/message/content"]'));
+				messages.scrollToBottomAfterImageLoad(
+					mainWrapper.find('[component="chat/message/content"]'),
+				);
 				if (history.pushState) {
-					history.pushState({
-						url: url,
-					}, null, window.location.protocol + '//' + window.location.host + config.relative_path + '/' + url);
+					history.pushState(
+						{
+							url: url,
+						},
+						null,
+						window.location.protocol +
+							'//' +
+							window.location.host +
+							config.relative_path +
+							'/' +
+							url,
+					);
 				}
 			})
 			.catch(function (error) {
@@ -719,7 +794,10 @@ define('forum/chats', [
 		});
 
 		socket.on('event:user_status_change', function (data) {
-			app.updateUserStatus($('.chats-list [data-uid="' + data.uid + '"] [component="user/status"]'), data.status);
+			app.updateUserStatus(
+				$('.chats-list [data-uid="' + data.uid + '"] [component="user/status"]'),
+				data.status,
+			);
 		});
 
 		messages.addSocketListeners();
@@ -731,18 +809,22 @@ define('forum/chats', [
 				ajaxify.data.roomName = data.newName;
 				titleEl.translateText(data.newName ? data.newName : ajaxify.data.usernames);
 			}
-			const titleEl = $(`[component="chat/main-wrapper"][data-roomid="${data.roomId}"] [component="chat/header/title"]`);
+			const titleEl = $(
+				`[component="chat/main-wrapper"][data-roomid="${data.roomId}"] [component="chat/header/title"]`,
+			);
 			if (titleEl.length) {
 				titleEl.html(
-					data.newName ?
-						`<i class="fa ${ajaxify.data.icon} text-muted"></i> ${data.newName}` :
-						ajaxify.data.chatWithMessage
+					data.newName
+						? `<i class="fa ${ajaxify.data.icon} text-muted"></i> ${data.newName}`
+						: ajaxify.data.chatWithMessage,
 				);
 			}
 		});
 
 		socket.on('event:chats.mark', ({ roomId, state }) => {
-			const roomEls = $(`[component="chat/recent"] [data-roomid="${roomId}"], [component="chat/list"] [data-roomid="${roomId}"], [component="chat/public"] [data-roomid="${roomId}"]`);
+			const roomEls = $(
+				`[component="chat/recent"] [data-roomid="${roomId}"], [component="chat/list"] [data-roomid="${roomId}"], [component="chat/public"] [data-roomid="${roomId}"]`,
+			);
 			roomEls.each((idx, el) => {
 				const roomEl = $(el);
 				chatModule.markChatElUnread(roomEl, state === 1);
@@ -752,11 +834,14 @@ define('forum/chats', [
 			});
 		});
 
-		socket.on('event:chats.typing', async (data) => {
+		socket.on('event:chats.typing', async data => {
 			if (data.uid === app.user.uid || chatModule.isFromBlockedUser(data.uid)) {
 				return;
 			}
-			chatModule.updateTypingUserList($(`[component="chat/main-wrapper"][data-roomid="${data.roomId}"]`), data);
+			chatModule.updateTypingUserList(
+				$(`[component="chat/main-wrapper"][data-roomid="${data.roomId}"]`),
+				data,
+			);
 		});
 	};
 
@@ -803,7 +888,10 @@ define('forum/chats', [
 	Chats.updatePublicRoomUnreadCount = function (roomEl, count) {
 		const unreadCountEl = roomEl.find('[component="chat/public/room/unread/count"]');
 		const countText = count > 50 ? '50+' : count;
-		unreadCountEl.toggleClass('hidden', count <= 0).text(countText).attr('data-count', count);
+		unreadCountEl
+			.toggleClass('hidden', count <= 0)
+			.text(countText)
+			.attr('data-count', count);
 	};
 
 	Chats.setActive = function (roomId) {
@@ -828,4 +916,3 @@ define('forum/chats', [
 
 	return Chats;
 });
-

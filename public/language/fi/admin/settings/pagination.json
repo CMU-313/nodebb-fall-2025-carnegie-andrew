@@ -1,12 +1,12 @@
 {
-	"pagination": "Pagination Settings",
-	"enable": "Erota aiheet ja viestit sivuille päättymättömän vierityksen sijaan",
-	"posts": "Post Pagination",
-	"topics": "Aiheiden sivutus",
-	"posts-per-page": "Posts per Page",
-	"max-posts-per-page": "Viestien sivukohtainen enimmäismäärä",
-	"categories": "Category Pagination",
-	"topics-per-page": "Aiheita sivulla",
-	"max-topics-per-page": "Aiheiden sivukohtainen enimmäismäärä",
-	"categories-per-page": "Categories per page"
+  "pagination": "Pagination Settings",
+  "enable": "Erota aiheet ja viestit sivuille päättymättömän vierityksen sijaan",
+  "posts": "Post Pagination",
+  "topics": "Aiheiden sivutus",
+  "posts-per-page": "Posts per Page",
+  "max-posts-per-page": "Viestien sivukohtainen enimmäismäärä",
+  "categories": "Category Pagination",
+  "topics-per-page": "Aiheita sivulla",
+  "max-topics-per-page": "Aiheiden sivukohtainen enimmäismäärä",
+  "categories-per-page": "Categories per page"
 }

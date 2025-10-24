@@ -23,7 +23,11 @@ describe('feeds', () => {
 			description: 'Test category created by testing script',
 		});
 		cid = category.cid;
-		fooUid = await user.create({ username: 'foo', password: 'barbar', email: 'foo@test.com' });
+		fooUid = await user.create({
+			username: 'foo',
+			password: 'barbar',
+			email: 'foo@test.com',
+		});
 
 		const result = await topics.post({
 			cid: cid,
@@ -102,12 +106,11 @@ describe('feeds', () => {
 			assert(body);
 		});
 
-
 		it('should not allow access if uid or token is missing', async () => {
 			await privileges.categories.rescind(['groups:read'], cid, 'guests');
 			const [test1, test2] = await Promise.all([
-				request.get(`${nconf.get('url')}/category/${cid}.rss?uid=${fooUid}`, { }),
-				request.get(`${nconf.get('url')}/category/${cid}.rss?token=sometoken`, { }),
+				request.get(`${nconf.get('url')}/category/${cid}.rss?uid=${fooUid}`, {}),
+				request.get(`${nconf.get('url')}/category/${cid}.rss?token=sometoken`, {}),
 			]);
 
 			assert.equal(test1.response.statusCode, 200);
@@ -117,7 +120,9 @@ describe('feeds', () => {
 		});
 
 		it('should not allow access if token is wrong', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/category/${cid}.rss?uid=${fooUid}&token=sometoken`);
+			const { response, body } = await request.get(
+				`${nconf.get('url')}/category/${cid}.rss?uid=${fooUid}&token=sometoken`,
+			);
 			assert.equal(response.statusCode, 200);
 			assert(body.includes('Login to your account'));
 		});
@@ -125,14 +130,18 @@ describe('feeds', () => {
 		it('should allow access if token is correct', async () => {
 			const { body: body1 } = await request.get(`${nconf.get('url')}/api/category/${cid}`, { jar });
 			rssToken = body1.rssFeedUrl.split('token')[1].slice(1);
-			const { response, body: body2 } = await request.get(`${nconf.get('url')}/category/${cid}.rss?uid=${fooUid}&token=${rssToken}`);
+			const { response, body: body2 } = await request.get(
+				`${nconf.get('url')}/category/${cid}.rss?uid=${fooUid}&token=${rssToken}`,
+			);
 			assert.equal(response.statusCode, 200);
 			assert(body2.startsWith('<?xml version="1.0"'));
 		});
 
 		it('should not allow access if token is correct but has no privilege', async () => {
 			await privileges.categories.rescind(['groups:read'], cid, 'registered-users');
-			const { response, body } = await request.get(`${nconf.get('url')}/category/${cid}.rss?uid=${fooUid}&token=${rssToken}`);
+			const { response, body } = await request.get(
+				`${nconf.get('url')}/category/${cid}.rss?uid=${fooUid}&token=${rssToken}`,
+			);
 			assert.equal(response.statusCode, 200);
 			assert(body.includes('Login to your account'));
 		});

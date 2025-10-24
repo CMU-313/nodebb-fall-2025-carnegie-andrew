@@ -18,10 +18,19 @@ const meta = require('../../src/meta');
 const file = require('../../src/file');
 const utils = require('../../src/utils');
 
-const _filenames = ['abracadabra.png', 'shazam.jpg', 'whoa.gif', 'amazeballs.jpg', 'wut.txt', 'test.bmp'];
+const _filenames = [
+	'abracadabra.png',
+	'shazam.jpg',
+	'whoa.gif',
+	'amazeballs.jpg',
+	'wut.txt',
+	'test.bmp',
+];
 const _recreateFiles = () => {
 	// Create stub files for testing
-	_filenames.forEach(filename => fs.closeSync(fs.openSync(path.join(nconf.get('upload_path'), 'files', filename), 'w')));
+	_filenames.forEach(filename =>
+		fs.closeSync(fs.openSync(path.join(nconf.get('upload_path'), 'files', filename), 'w')),
+	);
 };
 
 describe('upload methods', () => {
@@ -48,7 +57,8 @@ describe('upload methods', () => {
 			uid,
 			cid,
 			title: 'topic with some images',
-			content: 'here is an image [alt text](/assets/uploads/files/abracadabra.png) and another [alt text](/assets/uploads/files/shazam.jpg)',
+			content:
+				'here is an image [alt text](/assets/uploads/files/abracadabra.png) and another [alt text](/assets/uploads/files/shazam.jpg)',
 		});
 		pid = topicPostData.postData.pid;
 
@@ -56,14 +66,15 @@ describe('upload methods', () => {
 			uid,
 			cid,
 			title: 'topic with some images, to be purged',
-			content: 'here is an image [alt text](/assets/uploads/files/whoa.gif) and another [alt text](/assets/uploads/files/amazeballs.jpg)',
+			content:
+				'here is an image [alt text](/assets/uploads/files/whoa.gif) and another [alt text](/assets/uploads/files/amazeballs.jpg)',
 		});
 		purgePid = purgePostData.postData.pid;
 	});
 
 	describe('.sync()', () => {
-		it('should properly add new images to the post\'s zset', (done) => {
-			posts.uploads.sync(pid, (err) => {
+		it("should properly add new images to the post's zset", done => {
+			posts.uploads.sync(pid, err => {
 				assert.ifError(err);
 
 				db.sortedSetCard(`post:${pid}:uploads`, (err, length) => {
@@ -78,7 +89,8 @@ describe('upload methods', () => {
 			await posts.edit({
 				pid: pid,
 				uid,
-				content: 'here is an image [alt text](/assets/uploads/files/abracadabra.png)... AND NO MORE!',
+				content:
+					'here is an image [alt text](/assets/uploads/files/abracadabra.png)... AND NO MORE!',
 			});
 			await posts.uploads.sync(pid);
 			const length = await db.sortedSetCard(`post:${pid}:uploads`);
@@ -87,7 +99,7 @@ describe('upload methods', () => {
 	});
 
 	describe('.list()', () => {
-		it('should display the uploaded files for a specific post', (done) => {
+		it('should display the uploaded files for a specific post', done => {
 			posts.uploads.list(pid, (err, uploads) => {
 				assert.ifError(err);
 				assert.equal(true, Array.isArray(uploads));
@@ -99,7 +111,7 @@ describe('upload methods', () => {
 	});
 
 	describe('.isOrphan()', () => {
-		it('should return false if upload is not an orphan', (done) => {
+		it('should return false if upload is not an orphan', done => {
 			posts.uploads.isOrphan('/files/abracadabra.png', (err, isOrphan) => {
 				assert.ifError(err);
 				assert.strictEqual(isOrphan, false);
@@ -107,7 +119,7 @@ describe('upload methods', () => {
 			});
 		});
 
-		it('should return true if upload is an orphan', (done) => {
+		it('should return true if upload is an orphan', done => {
 			posts.uploads.isOrphan('/files/shazam.jpg', (err, isOrphan) => {
 				assert.ifError(err);
 				assert.strictEqual(isOrphan, true);
@@ -117,7 +129,7 @@ describe('upload methods', () => {
 	});
 
 	describe('.associate()', () => {
-		it('should add an image to the post\'s maintained list of uploads', async () => {
+		it("should add an image to the post's maintained list of uploads", async () => {
 			await posts.uploads.associate(pid, '/files/whoa.gif');
 			const uploads = await posts.uploads.list(pid);
 			assert.strictEqual(2, uploads.length);
@@ -150,7 +162,7 @@ describe('upload methods', () => {
 	});
 
 	describe('.dissociate()', () => {
-		it('should remove an image from the post\'s maintained list of uploads', async () => {
+		it("should remove an image from the post's maintained list of uploads", async () => {
 			await posts.uploads.dissociate(pid, '/files/whoa.gif');
 			const uploads = await posts.uploads.list(pid);
 			assert.strictEqual(4, uploads.length, uploads);
@@ -165,7 +177,7 @@ describe('upload methods', () => {
 			assert.strictEqual(false, uploads.includes('/files/wut.txt'));
 		});
 
-		it('should remove the image\'s user association, if present', async () => {
+		it("should remove the image's user association, if present", async () => {
 			_recreateFiles();
 			await posts.uploads.associate(pid, '/files/wut.txt');
 			await user.associateUpload(uid, '/files/wut.txt');
@@ -177,7 +189,7 @@ describe('upload methods', () => {
 	});
 
 	describe('.dissociateAll()', () => {
-		it('should remove all images from a post\'s maintained list of uploads', async () => {
+		it("should remove all images from a post's maintained list of uploads", async () => {
 			await posts.uploads.dissociateAll(pid);
 			const uploads = await posts.uploads.list(pid);
 
@@ -211,7 +223,8 @@ describe('upload methods', () => {
 				uid,
 				cid,
 				title: 'Testing deletion from disk on purge',
-				content: 'these images: ![alt text](/assets/uploads/files/abracadabra.png) and another ![alt text](/assets/uploads/files/test.bmp)',
+				content:
+					'these images: ![alt text](/assets/uploads/files/abracadabra.png) and another ![alt text](/assets/uploads/files/test.bmp)',
 			}));
 		});
 
@@ -221,16 +234,28 @@ describe('upload methods', () => {
 
 		it('should purge the images from disk if the post is purged', async () => {
 			await posts.purge(postData.pid, uid);
-			assert.strictEqual(await file.exists(path.resolve(nconf.get('upload_path'), 'files', 'abracadabra.png')), false);
-			assert.strictEqual(await file.exists(path.resolve(nconf.get('upload_path'), 'files', 'test.bmp')), false);
+			assert.strictEqual(
+				await file.exists(path.resolve(nconf.get('upload_path'), 'files', 'abracadabra.png')),
+				false,
+			);
+			assert.strictEqual(
+				await file.exists(path.resolve(nconf.get('upload_path'), 'files', 'test.bmp')),
+				false,
+			);
 		});
 
 		it('should leave the images behind if `preserveOrphanedUploads` is enabled', async () => {
 			meta.config.preserveOrphanedUploads = 1;
 
 			await posts.purge(postData.pid, uid);
-			assert.strictEqual(await file.exists(path.resolve(nconf.get('upload_path'), 'files', 'abracadabra.png')), true);
-			assert.strictEqual(await file.exists(path.resolve(nconf.get('upload_path'), 'files', 'test.bmp')), true);
+			assert.strictEqual(
+				await file.exists(path.resolve(nconf.get('upload_path'), 'files', 'abracadabra.png')),
+				true,
+			);
+			assert.strictEqual(
+				await file.exists(path.resolve(nconf.get('upload_path'), 'files', 'test.bmp')),
+				true,
+			);
 
 			delete meta.config.preserveOrphanedUploads;
 		});
@@ -244,7 +269,10 @@ describe('upload methods', () => {
 			});
 
 			await posts.purge(secondPost.pid, uid);
-			assert.strictEqual(await file.exists(path.resolve(nconf.get('upload_path'), 'files', 'abracadabra.png')), true);
+			assert.strictEqual(
+				await file.exists(path.resolve(nconf.get('upload_path'), 'files', 'abracadabra.png')),
+				true,
+			);
 		});
 	});
 
@@ -255,7 +283,10 @@ describe('upload methods', () => {
 
 		it('should work if you pass in a string path', async () => {
 			await posts.uploads.deleteFromDisk('/files/abracadabra.png');
-			assert.strictEqual(await file.exists(path.resolve(nconf.get('upload_path'), 'files/abracadabra.png')), false);
+			assert.strictEqual(
+				await file.exists(path.resolve(nconf.get('upload_path'), 'files/abracadabra.png')),
+				false,
+			);
 		});
 
 		it('should throw an error if a non-string or non-array is passed', async () => {
@@ -272,10 +303,12 @@ describe('upload methods', () => {
 		it('should delete the files passed in, from disk', async () => {
 			await posts.uploads.deleteFromDisk(['/files/abracadabra.png', '/files/shazam.jpg']);
 
-			const existsOnDisk = await Promise.all(_filenames.map(async (filename) => {
-				const fullPath = path.resolve(nconf.get('upload_path'), 'files', filename);
-				return file.exists(fullPath);
-			}));
+			const existsOnDisk = await Promise.all(
+				_filenames.map(async filename => {
+					const fullPath = path.resolve(nconf.get('upload_path'), 'files', filename);
+					return file.exists(fullPath);
+				}),
+			);
 
 			assert.deepStrictEqual(existsOnDisk, [false, false, true, true, true, true]);
 		});
@@ -285,7 +318,10 @@ describe('upload methods', () => {
 			await fs.promises.appendFile(tmpFilePath, '');
 			await posts.uploads.deleteFromDisk(['../files/503.html', tmpFilePath]);
 
-			assert.strictEqual(await file.exists(path.resolve(nconf.get('upload_path'), '../files/503.html')), true);
+			assert.strictEqual(
+				await file.exists(path.resolve(nconf.get('upload_path'), '../files/503.html')),
+				true,
+			);
 			assert.strictEqual(await file.exists(tmpFilePath), true);
 
 			await file.delete(tmpFilePath);
@@ -302,7 +338,10 @@ describe('upload methods', () => {
 			assert.strictEqual(await posts.uploads.isOrphan('/files/wut.txt'), false);
 			await posts.uploads.deleteFromDisk(['/files/wut.txt']);
 
-			assert.strictEqual(await file.exists(path.resolve(nconf.get('upload_path'), '/files/wut.txt')), false);
+			assert.strictEqual(
+				await file.exists(path.resolve(nconf.get('upload_path'), '/files/wut.txt')),
+				false,
+			);
 		});
 	});
 });
@@ -345,13 +384,16 @@ describe('post uploads management', () => {
 		reply = replyData;
 	});
 
-	it('should automatically sync uploads on topic create and reply', (done) => {
-		db.sortedSetsCard([`post:${topic.topicData.mainPid}:uploads`, `post:${reply.pid}:uploads`], (err, lengths) => {
-			assert.ifError(err);
-			assert.strictEqual(lengths[0], 1);
-			assert.strictEqual(lengths[1], 1);
-			done();
-		});
+	it('should automatically sync uploads on topic create and reply', done => {
+		db.sortedSetsCard(
+			[`post:${topic.topicData.mainPid}:uploads`, `post:${reply.pid}:uploads`],
+			(err, lengths) => {
+				assert.ifError(err);
+				assert.strictEqual(lengths[0], 1);
+				assert.strictEqual(lengths[1], 1);
+				done();
+			},
+		);
 	});
 
 	it('should automatically sync uploads on post edit', async () => {

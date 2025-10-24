@@ -76,11 +76,13 @@ SocketUser.reset.commit = async function (socket, data) {
 	const username = await user.getUserField(uid, 'username');
 	const now = new Date();
 	const parsedDate = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`;
-	emailer.send('reset_notify', uid, {
-		username: username,
-		date: parsedDate,
-		subject: '[[email:reset.notify.subject]]',
-	}).catch(err => winston.error(`[emailer.send] ${err.stack}`));
+	emailer
+		.send('reset_notify', uid, {
+			username: username,
+			date: parsedDate,
+			subject: '[[email:reset.notify.subject]]',
+		})
+		.catch(err => winston.error(`[emailer.send] ${err.stack}`));
 };
 
 SocketUser.isFollowing = async function (socket, data) {

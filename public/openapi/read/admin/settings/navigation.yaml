@@ -3,7 +3,7 @@ get:
     - admin
   summary: Get navigation bar settings
   responses:
-    "200":
+    '200':
       description: A JSON object containing navigation settings
       content:
         application/json:

@@ -83,7 +83,7 @@ if (typeof window !== 'undefined') {
 				});
 			});
 		};
-	}(jQuery || { fn: {} }));
+	})(jQuery || { fn: {} });
 
 	let timeagoFn;
 	overrides.overrideTimeagoCutoff = function () {
@@ -104,7 +104,13 @@ if (typeof window !== 'undefined') {
 
 		$.timeago.settings.allowFuture = true;
 		const userLang = config.userLang.replace('_', '-');
-		const options = { year: 'numeric', month: 'short', day: 'numeric', hour: 'numeric', minute: 'numeric' };
+		const options = {
+			year: 'numeric',
+			month: 'short',
+			day: 'numeric',
+			hour: 'numeric',
+			minute: 'numeric',
+		};
 		let formatFn = function (date) {
 			return date.toLocaleString(userLang, options);
 		};

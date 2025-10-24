@@ -1,4 +1,3 @@
-
 'use strict';
 
 const db = require('../database');
@@ -28,7 +27,12 @@ module.exports = function (Topics) {
 	/* not an orphan method, used in widget-essentials */
 	Topics.getLatestTopics = async function (options) {
 		// uid, start, stop, term
-		const tids = await Topics.getLatestTidsFromSet('topics:recent', options.start, options.stop, options.term);
+		const tids = await Topics.getLatestTidsFromSet(
+			'topics:recent',
+			options.start,
+			options.stop,
+			options.term,
+		);
 		const topics = await Topics.getTopics(tids, options);
 		return { topics: topics, nextStart: options.stop + 1 };
 	};

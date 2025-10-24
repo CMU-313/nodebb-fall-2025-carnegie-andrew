@@ -50,14 +50,14 @@ SocketMeta.rooms.enter = async function (socket, data) {
 
 	if (data.enter && data.enter.startsWith('topic_')) {
 		const tid = data.enter.split('_').pop();
-		if (!await privileges.topics.can('topics:read', tid, socket.uid)) {
+		if (!(await privileges.topics.can('topics:read', tid, socket.uid))) {
 			throw new Error('[[error:no-privileges]]');
 		}
 	}
 
 	if (data.enter && data.enter.startsWith('category_')) {
 		const cid = data.enter.split('_').pop();
-		if (!await privileges.categories.can('read', cid, socket.uid)) {
+		if (!(await privileges.categories.can('read', cid, socket.uid))) {
 			throw new Error('[[error:no-privileges]]');
 		}
 	}

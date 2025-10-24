@@ -62,10 +62,12 @@ const templateToData = {
 		getTopics: async (sets, req, start, stop) => {
 			let pids = await db.getSortedSetRevRangeByScore(sets, start, stop - start + 1, '+inf', 1);
 			pids = await privileges.posts.filter('topics:read', pids, req.uid);
-			const postObjs = await posts.getPostSummaryByPids(pids, req.uid, { stripTags: false });
+			const postObjs = await posts.getPostSummaryByPids(pids, req.uid, {
+				stripTags: false,
+			});
 			return { posts: postObjs, nextStart: stop + 1 };
 		},
-		getItemCount: async (sets) => {
+		getItemCount: async sets => {
 			const counts = await Promise.all(sets.map(set => db.sortedSetCount(set, 1, '+inf')));
 			return counts.reduce((acc, val) => acc + val, 0);
 		},
@@ -81,10 +83,12 @@ const templateToData = {
 		getTopics: async (sets, req, start, stop) => {
 			let pids = await db.getSortedSetRangeByScore(sets, start, stop - start + 1, '-inf', -1);
 			pids = await privileges.posts.filter('topics:read', pids, req.uid);
-			const postObjs = await posts.getPostSummaryByPids(pids, req.uid, { stripTags: false });
+			const postObjs = await posts.getPostSummaryByPids(pids, req.uid, {
+				stripTags: false,
+			});
 			return { posts: postObjs, nextStart: stop + 1 };
 		},
-		getItemCount: async (sets) => {
+		getItemCount: async sets => {
 			const counts = await Promise.all(sets.map(set => db.sortedSetCount(set, '-inf', -1)));
 			return counts.reduce((acc, val) => acc + val, 0);
 		},
@@ -112,7 +116,8 @@ const templateToData = {
 			const sortSet = map[sort];
 			let tids = await db.getSortedSetRevRange(set, 0, -1);
 			const scores = await db.sortedSetScores(sortSet, tids);
-			tids = tids.map((tid, i) => ({ tid: tid, score: scores[i] }))
+			tids = tids
+				.map((tid, i) => ({ tid: tid, score: scores[i] }))
 				.sort((a, b) => b.score - a.score)
 				.slice(start, stop + 1)
 				.map(t => t.tid);
@@ -211,9 +216,8 @@ async function getPostsFromUserSet(template, req, res) {
 	}
 
 	const payload = res.locals.userData;
-	const { username, userslug } = uid === -2 ?
-		await user.getUserFields(uid, ['username', 'userslug']) :
-		payload;
+	const { username, userslug } =
+		uid === -2 ? await user.getUserFields(uid, ['username', 'userslug']) : payload;
 	const settings = await user.getSettings(req.uid);
 
 	const itemsPerPage = data.type === 'topics' ? settings.topicsPerPage : settings.postsPerPage;
@@ -249,9 +253,12 @@ async function getPostsFromUserSet(template, req, res) {
 
 	payload.noItemsFoundKey = data.noItemsFoundKey;
 	payload.title = `[[pages:${template}, ${username}]]`;
-	payload.breadcrumbs = helpers.buildBreadcrumbs([{ text: username, url: `/user/${userslug}` }, { text: data.crumb }]);
+	payload.breadcrumbs = helpers.buildBreadcrumbs([
+		{ text: username, url: `/user/${userslug}` },
+		{ text: data.crumb },
+	]);
 	payload.showSort = template === 'account/watched';
-	const baseUrl = (req.baseUrl + req.path.replace(/^\/api/, ''));
+	const baseUrl = req.baseUrl + req.path.replace(/^\/api/, '');
 	payload.sortOptions = [
 		{ url: `${baseUrl}?sort=votes`, name: '[[global:votes]]' },
 		{ url: `${baseUrl}?sort=posts`, name: '[[global:posts]]' },
@@ -259,7 +266,7 @@ async function getPostsFromUserSet(template, req, res) {
 		{ url: `${baseUrl}?sort=lastpost`, name: '[[global:lastpost]]' },
 		{ url: `${baseUrl}?sort=firstpost`, name: '[[global:firstpost]]' },
 	];
-	payload.sortOptions.forEach((option) => {
+	payload.sortOptions.forEach(option => {
 		option.selected = option.url.includes(`sort=${req.query.sort}`);
 	});
 

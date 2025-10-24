@@ -1,7 +1,7 @@
 {
-    "success": "Lyckat",
-    "topic-post": "Du har nu gjort ett inlägg.",
-    "post-queued": "Your post is queued for approval. You will get a notification when it is accepted or rejected.",
-    "authentication-successful": "Autentisering lyckades",
-    "settings-saved": "Inställningarna sparades."
+  "success": "Lyckat",
+  "topic-post": "Du har nu gjort ett inlägg.",
+  "post-queued": "Your post is queued for approval. You will get a notification when it is accepted or rejected.",
+  "authentication-successful": "Autentisering lyckades",
+  "settings-saved": "Inställningarna sparades."
 }

@@ -66,10 +66,7 @@ async function profile(uid, response) {
 	}
 	const slug = await user.getUserField(uid, 'userslug');
 
-	response.aliases = [
-		`${nconf.get('url')}/uid/${uid}`,
-		`${nconf.get('url')}/user/${slug}`,
-	];
+	response.aliases = [`${nconf.get('url')}/uid/${uid}`, `${nconf.get('url')}/user/${slug}`];
 
 	response.links = [
 		{

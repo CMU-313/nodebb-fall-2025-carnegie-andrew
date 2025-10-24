@@ -2,12 +2,8 @@
 
 const { csrfSync } = require('csrf-sync');
 
-const {
-	generateToken,
-	csrfSynchronisedProtection,
-	isRequestValid,
-} = csrfSync({
-	getTokenFromRequest: (req) => {
+const { generateToken, csrfSynchronisedProtection, isRequestValid } = csrfSync({
+	getTokenFromRequest: req => {
 		if (req.headers['x-csrf-token']) {
 			return req.headers['x-csrf-token'];
 		} else if (req.body && req.body.csrf_token) {

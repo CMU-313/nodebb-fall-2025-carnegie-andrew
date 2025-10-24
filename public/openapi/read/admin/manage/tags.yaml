@@ -3,8 +3,8 @@ get:
     - admin
   summary: Get tag settings
   responses:
-    "200":
-      description: "A JSON object containing tag settings"
+    '200':
+      description: 'A JSON object containing tag settings'
       content:
         application/json:
           schema:

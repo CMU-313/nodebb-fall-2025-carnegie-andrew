@@ -44,7 +44,11 @@ module.exports = function (User) {
 				return await User.updateCoverPosition(data.uid, data.position);
 			}
 
-			validateUpload(data, meta.config.maximumCoverImageSize, ['image/png', 'image/jpeg', 'image/bmp']);
+			validateUpload(data, meta.config.maximumCoverImageSize, [
+				'image/png',
+				'image/jpeg',
+				'image/bmp',
+			]);
 
 			picture.path = await image.writeImageDataToTempFile(data.imageData);
 
@@ -103,11 +107,15 @@ module.exports = function (User) {
 		});
 
 		await deleteCurrentPicture(data.uid, 'uploadedpicture');
-		await User.updateProfile(data.callerUid, {
-			uid: data.uid,
-			uploadedpicture: uploadedImage.url,
-			picture: uploadedImage.url,
-		}, ['uploadedpicture', 'picture']);
+		await User.updateProfile(
+			data.callerUid,
+			{
+				uid: data.uid,
+				uploadedpicture: uploadedImage.url,
+				picture: uploadedImage.url,
+			},
+			['uploadedpicture', 'picture'],
+		);
 		return uploadedImage;
 	};
 
@@ -143,11 +151,15 @@ module.exports = function (User) {
 			const uploadedImage = await image.uploadImage(filename, `profile/uid-${data.uid}`, picture);
 
 			await deleteCurrentPicture(data.uid, 'uploadedpicture');
-			await User.updateProfile(data.callerUid, {
-				uid: data.uid,
-				uploadedpicture: uploadedImage.url,
-				picture: uploadedImage.url,
-			}, ['uploadedpicture', 'picture']);
+			await User.updateProfile(
+				data.callerUid,
+				{
+					uid: data.uid,
+					uploadedpicture: uploadedImage.url,
+					picture: uploadedImage.url,
+				},
+				['uploadedpicture', 'picture'],
+			);
 			return uploadedImage;
 		} finally {
 			await file.delete(picture.path);
@@ -224,7 +236,10 @@ module.exports = function (User) {
 
 	async function getPicturePath(uid, field) {
 		const value = await User.getUserField(uid, field);
-		if (!value || !value.startsWith(`${nconf.get('relative_path')}/assets/uploads/profile/uid-${uid}`)) {
+		if (
+			!value ||
+			!value.startsWith(`${nconf.get('relative_path')}/assets/uploads/profile/uid-${uid}`)
+		) {
 			return false;
 		}
 		const filename = value.split('/').pop();

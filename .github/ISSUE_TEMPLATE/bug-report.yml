@@ -1,6 +1,6 @@
 name: Bug Report
 description: File a bug report
-labels: ["bug"]
+labels: ['bug']
 body:
   - type: markdown
     attributes:
@@ -53,7 +53,7 @@ body:
   - type: input
     attributes:
       label: Database version
-      description: "`mongod --version`, `redis-server --version`, or `postgres --version`"
+      description: '`mongod --version`, `redis-server --version`, or `postgres --version`'
       placeholder: e.g. v5.0.9
   - type: textarea
     attributes:
@@ -78,4 +78,4 @@ body:
       description: Any additional context about the issue you're encountering
   - type: markdown
     attributes:
-      value: "**Thank you!**"
+      value: '**Thank you!**'

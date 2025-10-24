@@ -21,7 +21,7 @@ describe('Password reset (library methods)', () => {
 		await user.email.confirmByUid(uid);
 	});
 
-	it('.generate() should generate a new reset code', (done) => {
+	it('.generate() should generate a new reset code', done => {
 		user.reset.generate(uid, (err, _code) => {
 			assert.ifError(err);
 			assert(_code);
@@ -39,7 +39,7 @@ describe('Password reset (library methods)', () => {
 		code = _code;
 	});
 
-	it('.validate() should ensure that this new code is valid', (done) => {
+	it('.validate() should ensure that this new code is valid', done => {
 		user.reset.validate(code, (err, valid) => {
 			assert.ifError(err);
 			assert.strictEqual(valid, true);
@@ -47,7 +47,7 @@ describe('Password reset (library methods)', () => {
 		});
 	});
 
-	it('.validate() should correctly identify an invalid code', (done) => {
+	it('.validate() should correctly identify an invalid code', done => {
 		user.reset.validate(`${code}abcdef`, (err, valid) => {
 			assert.ifError(err);
 			assert.strictEqual(valid, false);
@@ -59,31 +59,38 @@ describe('Password reset (library methods)', () => {
 		code = await user.reset.send('reset@me.com');
 	});
 
-	it('.commit() should update the user\'s password and confirm their email', (done) => {
-		user.reset.commit(code, 'newpassword', (err) => {
+	it(".commit() should update the user's password and confirm their email", done => {
+		user.reset.commit(code, 'newpassword', err => {
 			assert.ifError(err);
 
-			async.parallel({
-				userData: function (next) {
-					user.getUserData(uid, next);
+			async.parallel(
+				{
+					userData: function (next) {
+						user.getUserData(uid, next);
+					},
+					password: function (next) {
+						db.getObjectField(`user:${uid}`, 'password', next);
+					},
 				},
-				password: function (next) {
-					db.getObjectField(`user:${uid}`, 'password', next);
-				},
-			}, (err, results) => {
-				assert.ifError(err);
-				password.compare('newpassword', results.password, true, (err, match) => {
+				(err, results) => {
 					assert.ifError(err);
-					assert(match);
-					assert.strictEqual(results.userData['email:confirmed'], 1);
-					done();
-				});
-			});
+					password.compare('newpassword', results.password, true, (err, match) => {
+						assert.ifError(err);
+						assert(match);
+						assert.strictEqual(results.userData['email:confirmed'], 1);
+						done();
+					});
+				},
+			);
 		});
 	});
 
 	it('.should error if same password is used for reset', async () => {
-		const uid = await user.create({ username: 'badmemory', email: 'bad@memory.com', password: '123456' });
+		const uid = await user.create({
+			username: 'badmemory',
+			email: 'bad@memory.com',
+			password: '123456',
+		});
 		const code = await user.reset.generate(uid);
 		let err;
 		try {
@@ -95,9 +102,16 @@ describe('Password reset (library methods)', () => {
 	});
 
 	it('should not validate email if password reset is due to expiry', async () => {
-		const uid = await user.create({ username: 'resetexpiry', email: 'reset@expiry.com', password: '123456' });
+		const uid = await user.create({
+			username: 'resetexpiry',
+			email: 'reset@expiry.com',
+			password: '123456',
+		});
 		let confirmed = await user.getUserField(uid, 'email:confirmed');
-		let [verified, unverified] = await groups.isMemberOfGroups(uid, ['verified-users', 'unverified-users']);
+		let [verified, unverified] = await groups.isMemberOfGroups(uid, [
+			'verified-users',
+			'unverified-users',
+		]);
 		assert.strictEqual(confirmed, 0);
 		assert.strictEqual(verified, false);
 		assert.strictEqual(unverified, true);
@@ -105,7 +119,10 @@ describe('Password reset (library methods)', () => {
 		const code = await user.reset.generate(uid);
 		await user.reset.commit(code, '654321');
 		confirmed = await user.getUserField(uid, 'email:confirmed');
-		[verified, unverified] = await groups.isMemberOfGroups(uid, ['verified-users', 'unverified-users']);
+		[verified, unverified] = await groups.isMemberOfGroups(uid, [
+			'verified-users',
+			'unverified-users',
+		]);
 		assert.strictEqual(confirmed, 0);
 		assert.strictEqual(verified, false);
 		assert.strictEqual(unverified, true);
@@ -131,21 +148,21 @@ describe('locks', () => {
 	});
 
 	it('should not allow multiple calls to the reset method at the same time', async () => {
-		await assert.rejects(Promise.all([
-			user.reset.send(email),
-			user.reset.send(email),
-		]), {
+		await assert.rejects(Promise.all([user.reset.send(email), user.reset.send(email)]), {
 			message: '[[error:reset-rate-limited]]',
 		});
 	});
 
 	it('should not allow multiple socket calls to the reset method either', async () => {
-		await assert.rejects(Promise.all([
-			socketUser.reset.send({ uid: 0 }, email),
-			socketUser.reset.send({ uid: 0 }, email),
-		]), {
-			message: '[[error:reset-rate-limited]]',
-		});
+		await assert.rejects(
+			Promise.all([
+				socketUser.reset.send({ uid: 0 }, email),
+				socketUser.reset.send({ uid: 0 }, email),
+			]),
+			{
+				message: '[[error:reset-rate-limited]]',
+			},
+		);
 	});
 
 	it('should properly unlock user reset', async () => {

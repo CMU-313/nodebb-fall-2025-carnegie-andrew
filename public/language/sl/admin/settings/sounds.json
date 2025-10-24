@@ -1,9 +1,9 @@
 {
-	"notifications": "Obvestila",
-	"chat-messages": "Sporočila klepeta",
-	"play-sound": "Predvajaj",
-	"incoming-message": "Dohodno sporočilo",
-	"outgoing-message": "Odhodno sporočilo",
-	"upload-new-sound": "Naloži nov zvok",
-	"saved": "Nastavitve so shranjene"
+  "notifications": "Obvestila",
+  "chat-messages": "Sporočila klepeta",
+  "play-sound": "Predvajaj",
+  "incoming-message": "Dohodno sporočilo",
+  "outgoing-message": "Odhodno sporočilo",
+  "upload-new-sound": "Naloži nov zvok",
+  "saved": "Nastavitve so shranjene"
 }

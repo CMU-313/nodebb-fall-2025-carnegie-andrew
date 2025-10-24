@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/popular', ['topicList'], function (topicList) {
 	const Popular = {};
 

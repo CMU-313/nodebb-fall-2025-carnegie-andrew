@@ -24,7 +24,10 @@ groupsController.get = async function (req, res) {
 	});
 	payload.groups = groupsData;
 	payload.title = `[[pages:account/groups, ${username}]]`;
-	payload.breadcrumbs = helpers.buildBreadcrumbs([{ text: username, url: `/user/${userslug}` }, { text: '[[global:header.groups]]' }]);
+	payload.breadcrumbs = helpers.buildBreadcrumbs([
+		{ text: username, url: `/user/${userslug}` },
+		{ text: '[[global:header.groups]]' },
+	]);
 	res.locals.linkTags = [
 		{
 			rel: 'canonical',

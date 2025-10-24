@@ -22,8 +22,7 @@ categoriesController.get = async function (req, res) {
 	const stop = start + meta.config.categoriesPerPage - 1;
 	const categoriesData = watchCategories.slice(start, stop + 1);
 
-
-	categoriesData.forEach((category) => {
+	categoriesData.forEach(category => {
 		if (category) {
 			category.isWatched = states[category.cid] === categories.watchStates.watching;
 			category.isTracked = states[category.cid] === categories.watchStates.tracking;

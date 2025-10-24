@@ -10,7 +10,8 @@ const { paths } = require('../constants');
 
 try {
 	fs.accessSync(paths.currentPackage, fs.constants.R_OK); // throw on missing package.json
-	try { // handle missing node_modules/ directory
+	try {
+		// handle missing node_modules/ directory
 		fs.accessSync(paths.nodeModules, fs.constants.R_OK);
 	} catch (e) {
 		if (e.code === 'ENOENT') {
@@ -26,7 +27,9 @@ try {
 	const defaultPackage = require('../../install/package.json');
 
 	const checkVersion = function (packageName) {
-		const { version } = JSON.parse(fs.readFileSync(path.join(paths.nodeModules, packageName, 'package.json'), 'utf8'));
+		const { version } = JSON.parse(
+			fs.readFileSync(path.join(paths.nodeModules, packageName, 'package.json'), 'utf8'),
+		);
 		if (!semver.satisfies(version, defaultPackage.dependencies[packageName])) {
 			const e = new TypeError(`Incorrect dependency version: ${packageName}`);
 			e.code = 'DEP_WRONG_VERSION';
@@ -52,7 +55,7 @@ try {
 		// delete the module from require cache so it doesn't break rest of the upgrade
 		// https://github.com/NodeBB/NodeBB/issues/11173
 		const packages = ['nconf', 'async', 'commander', 'chalk', 'lodash', 'lru-cache'];
-		packages.forEach((packageName) => {
+		packages.forEach(packageName => {
 			const resolvedModule = require.resolve(packageName);
 			if (require.cache[resolvedModule]) {
 				delete require.cache[resolvedModule];
@@ -103,7 +106,8 @@ prestart.setupWinston();
 
 // Alternate configuration file support
 const configFile = path.resolve(paths.baseDir, nconf.get('config') || 'config.json');
-const configExists = file.existsSync(configFile) || (nconf.get('url') && nconf.get('secret') && nconf.get('database'));
+const configExists =
+	file.existsSync(configFile) || (nconf.get('url') && nconf.get('secret') && nconf.get('database'));
 
 prestart.loadConfig(configFile);
 prestart.versionCheck();
@@ -172,7 +176,7 @@ program
 	.command('setup [config]')
 	.description('Run the NodeBB setup script, or setup with an initial config')
 	.option('--skip-build', 'Run setup without building assets')
-	.action((initConfig) => {
+	.action(initConfig => {
 		if (initConfig) {
 			try {
 				initConfig = JSON.parse(initConfig);
@@ -189,7 +193,10 @@ program
 program
 	.command('install [plugin]')
 	.description('Launch the NodeBB web installer for configuration setup or install a plugin')
-	.option('-f, --force', 'Force plugin installation even if it may be incompatible with currently installed NodeBB version')
+	.option(
+		'-f, --force',
+		'Force plugin installation even if it may be incompatible with currently installed NodeBB version',
+	)
 	.action((plugin, options) => {
 		if (plugin) {
 			require('./manage').install(plugin, options);
@@ -215,8 +222,10 @@ program
 	});
 program
 	.command('activate [plugin]')
-	.description('Activate a plugin for the next startup of NodeBB (nodebb-plugin- prefix is optional)')
-	.action((plugin) => {
+	.description(
+		'Activate a plugin for the next startup of NodeBB (nodebb-plugin- prefix is optional)',
+	)
+	.action(plugin => {
 		require('./manage').activate(plugin);
 	});
 program
@@ -228,7 +237,7 @@ program
 program
 	.command('events [count]')
 	.description('Outputs the most recent administrative events recorded by NodeBB')
-	.action((count) => {
+	.action(count => {
 		require('./manage').listEvents(count);
 	});
 program
@@ -240,7 +249,7 @@ program
 program
 	.command('maintenance <toggle>')
 	.description('Toggle maintenance mode true/false')
-	.action((toggle) => {
+	.action(toggle => {
 		require('./manage').maintenance(toggle);
 	});
 
@@ -254,14 +263,14 @@ resetCommand
 	.option('-w, --widgets', 'Disable all widgets')
 	.option('-s, --settings', 'Reset settings to their default values')
 	.option('-a, --all', 'All of the above')
-	.action((options) => {
+	.action(options => {
 		const valid = ['theme', 'plugin', 'widgets', 'settings', 'all'].some(x => options[x]);
 		if (!valid) {
 			console.warn(`\n${chalk.red('No valid options passed in, so nothing was reset.')}`);
 			resetCommand.help();
 		}
 
-		require('./reset').reset(options, (err) => {
+		require('./reset').reset(options, err => {
 			if (err) {
 				return process.exit(1);
 			}
@@ -271,26 +280,29 @@ resetCommand
 	});
 
 // user
-program
-	.addCommand(require('./user')());
+program.addCommand(require('./user')());
 
 // upgrades
 program
 	.command('upgrade [scripts...]')
-	.description('Run NodeBB upgrade scripts and ensure packages are up-to-date, or run a particular upgrade script')
+	.description(
+		'Run NodeBB upgrade scripts and ensure packages are up-to-date, or run a particular upgrade script',
+	)
 	.option('-m, --package', 'Update package.json from defaults', false)
 	.option('-i, --install', 'Bringing base dependencies up to date', false)
 	.option('-p, --plugins', 'Check installed plugins for updates', false)
 	.option('-s, --schema', 'Update NodeBB data store schema', false)
 	.option('-b, --build', 'Rebuild assets', false)
 	.on('--help', () => {
-		console.log(`\n${[
-			'When running particular upgrade scripts, options are ignored.',
-			'By default all options are enabled. Passing any options disables that default.',
-			'\nExamples:',
-			`  Only package and dependency updates: ${chalk.yellow('./nodebb upgrade -mi')}`,
-			`  Only database update: ${chalk.yellow('./nodebb upgrade -s')}`,
-		].join('\n')}`);
+		console.log(
+			`\n${[
+				'When running particular upgrade scripts, options are ignored.',
+				'By default all options are enabled. Passing any options disables that default.',
+				'\nExamples:',
+				`  Only package and dependency updates: ${chalk.yellow('./nodebb upgrade -mi')}`,
+				`  Only database update: ${chalk.yellow('./nodebb upgrade -s')}`,
+			].join('\n')}`,
+		);
 	})
 	.action((scripts, options) => {
 		options.unattended = program.opts().unattended;
@@ -309,7 +321,7 @@ program
 	.description('Upgrade plugins')
 	.action(() => {
 		const { unattended } = program.opts();
-		require('./upgrade-plugins').upgradePlugins(unattended, (err) => {
+		require('./upgrade-plugins').upgradePlugins(unattended, err => {
 			if (err) {
 				throw err;
 			}
@@ -321,7 +333,7 @@ program
 program
 	.command('help [command]')
 	.description('Display help for [command]')
-	.action((name) => {
+	.action(name => {
 		if (!name) {
 			return program.help();
 		}

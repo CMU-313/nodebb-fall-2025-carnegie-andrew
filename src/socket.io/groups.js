@@ -30,7 +30,8 @@ SocketGroups.search = async (socket, data) => {
 		const groupData = await groups.getGroupsBySort(data.options.sort, 0, groupsPerPage - 1);
 		return groupData;
 	}
-	data.options.filterHidden = data.options.filterHidden || !await user.isAdministrator(socket.uid);
+	data.options.filterHidden =
+		data.options.filterHidden || !(await user.isAdministrator(socket.uid));
 	return await groups.search(data.query, data.options);
 };
 
@@ -69,7 +70,7 @@ SocketGroups.loadMoreMembers = async (socket, data) => {
 	return api.groups.listMembers(socket, data);
 };
 
-SocketGroups.getChatGroups = async (socket) => {
+SocketGroups.getChatGroups = async socket => {
 	sockets.warnDeprecated(socket, 'GET /api/v3/admin/groups');
 
 	const isAdmin = await user.isAdministrator(socket.uid);

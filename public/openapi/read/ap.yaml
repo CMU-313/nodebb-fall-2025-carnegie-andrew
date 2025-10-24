@@ -17,13 +17,13 @@ get:
       description: A URL to query for potential ActivityPub resource
       example: 'https://example.org/ap'
   responses:
-    "200":
+    '200':
       description: Sent if the `/api` prefix is used. The `X-Redirect` header is sent with the redirection target.
       headers:
         'X-Redirect':
           schema:
             type: string
-    "307":
+    '307':
       description: Redirect the user to the local representation or original URL.
       headers:
         Location:

@@ -15,8 +15,10 @@ uploads.upload = async function (socket, data) {
 		throw new Error('[[error:invalid-data]]');
 	}
 	const { method } = data.params;
-	const defaultMaxSize = method === 'user.uploadCroppedPicture' ?
-		meta.config.maximumProfileImageSize : meta.config.maximumCoverImageSize;
+	const defaultMaxSize =
+		method === 'user.uploadCroppedPicture'
+			? meta.config.maximumProfileImageSize
+			: meta.config.maximumCoverImageSize;
 
 	const { methods, maxSize } = await plugins.hooks.fire('filter:uploads.upload', {
 		methods: {

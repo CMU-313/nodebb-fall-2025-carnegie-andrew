@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('taskbar', ['translator', 'hooks'], function (translator, hooks) {
 	const taskbar = {};
 	let noTaskbar = false;
@@ -176,14 +175,28 @@ define('taskbar', ['translator', 'hooks'], function (translator, hooks) {
 			return callback();
 		}
 		translator.translate(data.options.title, function (taskTitle) {
-			const title = $('<div></div>').text(taskTitle || 'NodeBB Task').html();
+			const title = $('<div></div>')
+				.text(taskTitle || 'NodeBB Task')
+				.html();
 
 			const taskbarEl = $('<li></li>')
 				.addClass(data.options.className)
-				.html('<a href="#"' + (data.options.image ? ' style="background-image: url(\'' + data.options.image.replace(/&#x2F;/g, '/') + '\'); background-size: cover;"' : '') + '>' +
-					(data.options.icon ? '<i class="fa ' + data.options.icon + '"></i> ' : '') +
-					'<span aria-label="' + title + '" component="taskbar/title">' + title + '</span>' +
-					'</a>')
+				.html(
+					'<a href="#"' +
+						(data.options.image
+							? ' style="background-image: url(\'' +
+								data.options.image.replace(/&#x2F;/g, '/') +
+								'\'); background-size: cover;"'
+							: '') +
+						'>' +
+						(data.options.icon ? '<i class="fa ' + data.options.icon + '"></i> ' : '') +
+						'<span aria-label="' +
+						title +
+						'" component="taskbar/title">' +
+						title +
+						'</span>' +
+						'</a>',
+				)
 				.attr({
 					title: title,
 					'data-module': data.module,
@@ -215,7 +228,9 @@ define('taskbar', ['translator', 'hooks'], function (translator, hooks) {
 				element.find('i').attr('class', 'fa fa-' + value);
 				break;
 			case 'image':
-				element.find('a').css('background-image', value ? 'url("' + value.replace(/&#x2F;/g, '/') + '")' : '');
+				element
+					.find('a')
+					.css('background-image', value ? 'url("' + value.replace(/&#x2F;/g, '/') + '")' : '');
 				break;
 			case 'background-color':
 				element.find('a').css('background-color', value);
@@ -230,7 +245,9 @@ define('taskbar', ['translator', 'hooks'], function (translator, hooks) {
 		if (noTaskbar) {
 			return;
 		}
-		const element = taskbar.tasklist.find('[data-module="' + module + '"][data-uuid="' + uuid + '"]');
+		const element = taskbar.tasklist.find(
+			'[data-module="' + module + '"][data-uuid="' + uuid + '"]',
+		);
 		if (!element.length) {
 			return;
 		}

@@ -20,7 +20,8 @@ module.exports = function (Topics) {
 			mergeIntoTid = await createNewTopic(options.newTopicTitle, oldestTid);
 		}
 
-		const otherTids = tids.sort((a, b) => a - b)
+		const otherTids = tids
+			.sort((a, b) => a - b)
 			.filter(tid => tid && String(tid) !== String(mergeIntoTid));
 
 		for (const tid of otherTids) {
@@ -71,7 +72,8 @@ module.exports = function (Topics) {
 	async function updateViewCount(mergeIntoTid, tids) {
 		const topicData = await Topics.getTopicsFields(tids, ['viewcount']);
 		const totalViewCount = topicData.reduce(
-			(count, topic) => count + parseInt(topic.viewcount, 10), 0
+			(count, topic) => count + parseInt(topic.viewcount, 10),
+			0,
 		);
 		await Topics.setTopicField(mergeIntoTid, 'viewcount', totalViewCount);
 	}

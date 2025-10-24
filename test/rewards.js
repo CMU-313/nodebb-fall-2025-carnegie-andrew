@@ -13,36 +13,42 @@ describe('rewards', () => {
 	let bazUid;
 	let herpUid;
 
-	before((done) => {
+	before(done => {
 		// Create 3 users: 1 admin, 2 regular
-		async.series([
-			async.apply(User.create, { username: 'foo' }),
-			async.apply(User.create, { username: 'baz' }),
-			async.apply(User.create, { username: 'herp' }),
-		], (err, uids) => {
-			if (err) {
-				return done(err);
-			}
+		async.series(
+			[
+				async.apply(User.create, { username: 'foo' }),
+				async.apply(User.create, { username: 'baz' }),
+				async.apply(User.create, { username: 'herp' }),
+			],
+			(err, uids) => {
+				if (err) {
+					return done(err);
+				}
 
-			adminUid = uids[0];
-			bazUid = uids[1];
-			herpUid = uids[2];
+				adminUid = uids[0];
+				bazUid = uids[1];
+				herpUid = uids[2];
 
-			async.series([
-				function (next) {
-					Groups.join('administrators', adminUid, next);
-				},
-				function (next) {
-					Groups.join('rewardGroup', adminUid, next);
-				},
-			], done);
-		});
+				async.series(
+					[
+						function (next) {
+							Groups.join('administrators', adminUid, next);
+						},
+						function (next) {
+							Groups.join('rewardGroup', adminUid, next);
+						},
+					],
+					done,
+				);
+			},
+		);
 	});
 
 	describe('rewards create', () => {
 		const socketAdmin = require('../src/socket.io/admin');
 		const rewards = require('../src/rewards');
-		it('it should save a reward', (done) => {
+		it('it should save a reward', done => {
 			const data = [
 				{
 					rewards: { groupname: 'Gamers' },
@@ -56,24 +62,27 @@ describe('rewards', () => {
 				},
 			];
 
-			socketAdmin.rewards.save({ uid: adminUid }, data, (err) => {
+			socketAdmin.rewards.save({ uid: adminUid }, data, err => {
 				assert.ifError(err);
 				done();
 			});
 		});
 
-		it('should check condition', (done) => {
+		it('should check condition', done => {
 			function method(next) {
 				next(null, 1);
 			}
-			rewards.checkConditionAndRewardUser({
-				uid: adminUid,
-				condition: 'essentials/user.postcount',
-				method: method,
-			}, (err, data) => {
-				assert.ifError(err);
-				done();
-			});
+			rewards.checkConditionAndRewardUser(
+				{
+					uid: adminUid,
+					condition: 'essentials/user.postcount',
+					method: method,
+				},
+				(err, data) => {
+					assert.ifError(err);
+					done();
+				},
+			);
 		});
 	});
 });

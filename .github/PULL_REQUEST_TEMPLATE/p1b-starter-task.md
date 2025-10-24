@@ -15,13 +15,13 @@ Feel free to delete this text at the top after filling out the template.
 **Full path to the refactored file:**
 
 **What do you think this file does?**
-*(Your answer does not have to be 100% correct; give a reasonable, evidence‑based guess.)*
+_(Your answer does not have to be 100% correct; give a reasonable, evidence‑based guess.)_
 
 **What is the scope of your refactoring within that file?**
-*(Name specific functions/blocks/regions touched.)*
+_(Name specific functions/blocks/regions touched.)_
 
 **Which Qlty‑reported issue did you address?**
-*(Name the rule/metric and include the BEFORE value; e.g., “Cognitive Complexity 18 in render()”.)*
+_(Name the rule/metric and include the BEFORE value; e.g., “Cognitive Complexity 18 in render()”.)_
 
 ## 2. Refactoring
 
@@ -36,6 +36,6 @@ Feel free to delete this text at the top after filling out the template.
 **How did you trigger the refactored code path from the UI?**
 
 **Attach a screenshot of the logs and UI demonstrating the trigger.**
-*(Run `./nodebb log`; include the relevant UI view. Temporary logs should be removed before final commit.)*
+_(Run `./nodebb log`; include the relevant UI view. Temporary logs should be removed before final commit.)_
 
 **Attach a screenshot of `qlty smells --no-snippets <full/path/to/file.js>` showing fewer reported issues after the changes.**

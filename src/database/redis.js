@@ -23,7 +23,10 @@ redisModule.questions = [
 		description: 'Password of your Redis database',
 		hidden: true,
 		default: nconf.get('redis:password') || nconf.get('defaults:redis:password') || '',
-		before: function (value) { value = value || nconf.get('redis:password') || ''; return value; },
+		before: function (value) {
+			value = value || nconf.get('redis:password') || '';
+			return value;
+		},
 	},
 	{
 		name: 'redis:database',
@@ -31,7 +34,6 @@ redisModule.questions = [
 		default: nconf.get('redis:database') || nconf.get('defaults:redis:database') || 0,
 	},
 ];
-
 
 redisModule.init = async function (opts) {
 	redisModule.client = await connection.connect(opts || nconf.get('redis'));
@@ -55,7 +57,11 @@ redisModule.checkCompatibility = async function () {
 
 redisModule.checkCompatibilityVersion = function (version, callback) {
 	if (semver.lt(version, '2.8.9')) {
-		callback(new Error('Your Redis version is not new enough to support NodeBB, please upgrade Redis to v2.8.9 or higher.'));
+		callback(
+			new Error(
+				'Your Redis version is not new enough to support NodeBB, please upgrade Redis to v2.8.9 or higher.',
+			),
+		);
 	}
 	callback();
 };
@@ -75,7 +81,7 @@ redisModule.info = async function (cxn) {
 	const data = await cxn.info();
 	const lines = data.toString().split('\r\n').sort();
 	const redisData = {};
-	lines.forEach((line) => {
+	lines.forEach(line => {
 		const parts = line.split(':');
 		if (parts[1]) {
 			redisData[parts[0]] = parts[1];

@@ -1,13 +1,11 @@
 'use strict';
 
-define('forum/header/chat', [
-	'components', 'hooks', 'api',
-], function (components, hooks, api) {
+define('forum/header/chat', ['components', 'hooks', 'api'], function (components, hooks, api) {
 	const chat = {};
 
 	chat.prepareDOM = function () {
 		const chatsToggleEl = $('[component="chat/dropdown"]');
-		chatsToggleEl.on('show.bs.dropdown', (ev) => {
+		chatsToggleEl.on('show.bs.dropdown', ev => {
 			requireAndCall('loadChatsDropdown', $(ev.target).parent().find('[component="chat/list"]'));
 		});
 
@@ -44,14 +42,17 @@ define('forum/header/chat', [
 			let { count } = await api.get('/chats/unread');
 			const chatIcon = components.get('chat/icon');
 			count = Math.max(0, count);
-			chatIcon.toggleClass('fa-comment', count > 0)
-				.toggleClass('fa-comment-o', count <= 0);
+			chatIcon.toggleClass('fa-comment', count > 0).toggleClass('fa-comment-o', count <= 0);
 
 			const countText = count > 99 ? '99+' : count;
-			components.get('chat/icon')
+			components
+				.get('chat/icon')
 				.toggleClass('unread-count', count > 0)
 				.attr('data-content', countText);
-			components.get('chat/count').toggleClass('hidden', count <= 0).text(countText);
+			components
+				.get('chat/count')
+				.toggleClass('hidden', count <= 0)
+				.text(countText);
 			hooks.fire('action:chat.updateCount', { count });
 		});
 	};

@@ -1,4 +1,3 @@
-
 'use strict';
 
 const async = require('async');
@@ -120,7 +119,9 @@ module.exports = function (User) {
 			await Promise.all(uids.map(uid => deleteFromReferenceList(uid, registrationEmail)));
 			// Delete all invites to an email address if it has joined
 			const tokens = await db.getSetMembers(`invitation:invited:${registrationEmail}`);
-			const keysToDelete = [`invitation:invited:${registrationEmail}`].concat(tokens.map(token => `invitation:token:${token}`));
+			const keysToDelete = [`invitation:invited:${registrationEmail}`].concat(
+				tokens.map(token => `invitation:token:${token}`),
+			);
 			await db.deleteAll(keysToDelete);
 		}
 		if (token) {
@@ -129,10 +130,7 @@ module.exports = function (User) {
 				return;
 			}
 			await deleteFromReferenceList(invite.inviter, invite.email);
-			await db.deleteAll([
-				`invitation:invited:${invite.email}`,
-				`invitation:token:${token}`,
-			]);
+			await db.deleteAll([`invitation:invited:${invite.email}`, `invitation:token:${token}`]);
 		}
 	};
 
@@ -175,7 +173,10 @@ module.exports = function (User) {
 
 		const username = await User.getUserField(uid, 'username');
 		const title = meta.config.title || meta.config.browserTitle || 'NodeBB';
-		const subject = await translator.translate(`[[email:invite, ${title}]]`, meta.config.defaultLang);
+		const subject = await translator.translate(
+			`[[email:invite, ${title}]]`,
+			meta.config.defaultLang,
+		);
 
 		return {
 			...emailer._defaultPayload, // Append default data to this email payload

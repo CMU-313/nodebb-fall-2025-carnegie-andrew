@@ -1,8 +1,13 @@
 'use strict';
 
-
 define('forum/register', [
-	'translator', 'slugify', 'api', 'bootbox', 'forum/login', 'zxcvbn', 'jquery-form',
+	'translator',
+	'slugify',
+	'api',
+	'bootbox',
+	'forum/login',
+	'zxcvbn',
+	'jquery-form',
 ], function (translator, slugify, api, bootbox, Login, zxcvbn) {
 	const Register = {};
 	let validationError = false;
@@ -56,7 +61,10 @@ define('forum/register', [
 		}
 
 		// Guard against caps lock
-		Login.capsLockCheck(document.querySelector('#password'), document.querySelector('#caps-lock-warning'));
+		Login.capsLockCheck(
+			document.querySelector('#password'),
+			document.querySelector('#caps-lock-warning'),
+		);
 
 		register.on('click', function (e) {
 			const registerBtn = $(this);
@@ -121,7 +129,10 @@ define('forum/register', [
 		username_notify.text('');
 		const usernameInput = $('#username');
 		const userslug = slugify(username);
-		if (username.length < ajaxify.data.minimumUsernameLength || userslug.length < ajaxify.data.minimumUsernameLength) {
+		if (
+			username.length < ajaxify.data.minimumUsernameLength ||
+			userslug.length < ajaxify.data.minimumUsernameLength
+		) {
 			showError(usernameInput, username_notify, '[[error:username-too-short]]');
 		} else if (username.length > ajaxify.data.maximumUsernameLength) {
 			showError(usernameInput, username_notify, '[[error:username-too-long]]');
@@ -131,7 +142,7 @@ define('forum/register', [
 			Promise.allSettled([
 				api.head(`/users/bySlug/${userslug}`, {}),
 				api.head(`/groups/${username}`, {}),
-			]).then((results) => {
+			]).then(results => {
 				if (results.every(obj => obj.status === 'rejected')) {
 					showSuccess(usernameInput, username_notify, successIcon);
 				} else {
@@ -176,7 +187,11 @@ define('forum/register', [
 		}
 
 		if (password !== password_confirm) {
-			showError(passwordConfirmInput, password_confirm_notify, '[[user:change-password-error-match]]');
+			showError(
+				passwordConfirmInput,
+				password_confirm_notify,
+				'[[user:change-password-error-match]]',
+			);
 		} else {
 			showSuccess(passwordConfirmInput, password_confirm_notify, successIcon);
 		}
@@ -186,9 +201,7 @@ define('forum/register', [
 		translator.translate(msg, function (msg) {
 			input.attr('aria-invalid', 'true');
 			element.html(msg);
-			element.parent()
-				.removeClass('register-success')
-				.addClass('register-danger');
+			element.parent().removeClass('register-success').addClass('register-danger');
 			element.show();
 		});
 		validationError = true;
@@ -198,9 +211,7 @@ define('forum/register', [
 		translator.translate(msg, function (msg) {
 			input.removeAttr('aria-invalid');
 			element.html(msg);
-			element.parent()
-				.removeClass('register-danger')
-				.addClass('register-success');
+			element.parent().removeClass('register-danger').addClass('register-success');
 			element.show();
 		});
 	}

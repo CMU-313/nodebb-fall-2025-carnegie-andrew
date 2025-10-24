@@ -50,25 +50,42 @@ categoriesController.getAll = async function (req, res) {
 	const rootCid = parseInt(req.query.cid, 10) || 0;
 	async function getRootAndChildren() {
 		const rootChildren = await categories.getAllCidsFromSet(`cid:${rootCid}:children`);
-		const childCids = _.flatten(await Promise.all(rootChildren.map(cid => categories.getChildrenCids(cid))));
+		const childCids = _.flatten(
+			await Promise.all(rootChildren.map(cid => categories.getChildrenCids(cid))),
+		);
 		return [rootCid].concat(rootChildren.concat(childCids));
 	}
 
 	// Categories list will be rendered on client side with recursion, etc.
-	const cids = await (rootCid ? getRootAndChildren() : categories.getAllCidsFromSet('categories:cid'));
+	const cids = await (rootCid
+		? getRootAndChildren()
+		: categories.getAllCidsFromSet('categories:cid'));
 
 	let rootParent = 0;
 	if (rootCid) {
-		rootParent = await categories.getCategoryField(rootCid, 'parentCid') || 0;
+		rootParent = (await categories.getCategoryField(rootCid, 'parentCid')) || 0;
 	}
 
 	const fields = [
-		'cid', 'name', 'icon', 'parentCid', 'disabled', 'link',
-		'order', 'color', 'bgColor', 'backgroundImage', 'imageClass',
-		'subCategoriesPerPage', 'description',
+		'cid',
+		'name',
+		'icon',
+		'parentCid',
+		'disabled',
+		'link',
+		'order',
+		'color',
+		'bgColor',
+		'backgroundImage',
+		'imageClass',
+		'subCategoriesPerPage',
+		'description',
 	];
 	const categoriesData = await categories.getCategoriesFields(cids, fields);
-	const result = await plugins.hooks.fire('filter:admin.categories.get', { categories: categoriesData, fields: fields });
+	const result = await plugins.hooks.fire('filter:admin.categories.get', {
+		categories: categoriesData,
+		fields: fields,
+	});
 	let tree = categories.getTree(result.categories, rootParent);
 	const cidsCount = rootCid && tree[0] ? tree[0].children.length : tree.length;
 
@@ -123,7 +140,7 @@ async function buildBreadcrumbs(categoryData, url) {
 	const allCrumbs = await helpers.buildCategoryBreadcrumbs(categoryData.parentCid);
 	const crumbs = allCrumbs.filter(c => c.cid);
 
-	crumbs.forEach((c) => {
+	crumbs.forEach(c => {
 		c.url = `${url}?cid=${c.cid}`;
 	});
 	crumbs.unshift({

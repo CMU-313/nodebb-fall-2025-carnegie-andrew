@@ -40,13 +40,13 @@ post:
 
     **Note**: The confirmation bypass can only be called by super administrators or users with the `admin:users` privilege.
   parameters:
-  - in: path
-    name: uid
-    schema:
-      type: integer
-    required: true
-    description: uid of the account to add the email
-    example: 1
+    - in: path
+      name: uid
+      schema:
+        type: integer
+      required: true
+      description: uid of the account to add the email
+      example: 1
   requestBody:
     required: true
     content:

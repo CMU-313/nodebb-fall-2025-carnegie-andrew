@@ -1,18 +1,18 @@
 {
-	"alert.confirm-rebuild-and-restart": "Are you sure you wish to rebuild and restart NodeBB?",
-	"alert.confirm-restart": "Oled kindel, et soovid taaslaadida NodeBB?",
+  "alert.confirm-rebuild-and-restart": "Are you sure you wish to rebuild and restart NodeBB?",
+  "alert.confirm-restart": "Oled kindel, et soovid taaslaadida NodeBB?",
 
-	"acp-title": "%1 | NodeBB Administraatori kontrollpaneel",
-	"settings-header-contents": "Sisu",
-	"changes-saved": "Muudatused salvestatud",
-	"changes-saved-message": "Your changes to the NodeBB configuration have been saved.",
-	"changes-not-saved": "Changes Not Saved",
-	"changes-not-saved-message": "NodeBB-l tekkis probleem su muudatuste salvestamisel. (%1)",
-	"save-changes": "Salvesta muudatused",
-	"min": "Min:",
-	"max": "Max:",
-	"view": "Vaata",
-	"edit": "Muuda",
-	"add": "Lisa",
-	"select-icon": "Vali ikoon"
+  "acp-title": "%1 | NodeBB Administraatori kontrollpaneel",
+  "settings-header-contents": "Sisu",
+  "changes-saved": "Muudatused salvestatud",
+  "changes-saved-message": "Your changes to the NodeBB configuration have been saved.",
+  "changes-not-saved": "Changes Not Saved",
+  "changes-not-saved-message": "NodeBB-l tekkis probleem su muudatuste salvestamisel. (%1)",
+  "save-changes": "Salvesta muudatused",
+  "min": "Min:",
+  "max": "Max:",
+  "view": "Vaata",
+  "edit": "Muuda",
+  "add": "Lisa",
+  "select-icon": "Vali ikoon"
 }

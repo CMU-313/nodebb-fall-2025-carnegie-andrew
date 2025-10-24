@@ -15,7 +15,11 @@ const helpers = require('../helpers');
 const controller = module.exports;
 
 const validSorts = [
-	'recently_replied', 'recently_created', 'most_posts', 'most_votes', 'most_views',
+	'recently_replied',
+	'recently_created',
+	'most_posts',
+	'most_votes',
+	'most_views',
 ];
 
 controller.list = async function (req, res) {
@@ -34,7 +38,9 @@ controller.list = async function (req, res) {
 		user.getSettings(req.uid),
 		user.auth.getFeedToken(req.uid),
 	]);
-	const sort = validSorts.includes(req.query.sort) ? req.query.sort : userSettings.categoryTopicSort;
+	const sort = validSorts.includes(req.query.sort)
+		? req.query.sort
+		: userSettings.categoryTopicSort;
 	const targetUid = await user.getUidByUserslug(req.query.author);
 	const cidQuery = {
 		uid: req.uid,
@@ -58,7 +64,8 @@ controller.list = async function (req, res) {
 
 	// Tracked/watched categories
 	let cids = await user.getCategoriesByStates(req.uid, [
-		categories.watchStates.tracking, categories.watchStates.watching,
+		categories.watchStates.tracking,
+		categories.watchStates.watching,
 	]);
 	cids = cids.filter(cid => !utils.isNumber(cid));
 	const categoryData = await categories.getCategories(cids);
@@ -67,7 +74,7 @@ controller.list = async function (req, res) {
 		categories.getRecentTopicReplies(categoryData, req.uid, req.query),
 		categories.setUnread(data.categories, cids, req.uid),
 	]);
-	data.categories.forEach((category) => {
+	data.categories.forEach(category => {
 		if (category) {
 			helpers.trimChildren(category);
 			helpers.setCategoryTeaser(category);

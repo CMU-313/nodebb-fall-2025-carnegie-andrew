@@ -31,11 +31,15 @@ apiController.loadConfig = async function (req) {
 		asset_base_url,
 		assetBaseUrl: asset_base_url, // deprecate in 1.20.x
 		siteTitle: validator.escape(String(meta.config.title || meta.config.browserTitle || 'NodeBB')),
-		browserTitle: validator.escape(String(meta.config.browserTitle || meta.config.title || 'NodeBB')),
+		browserTitle: validator.escape(
+			String(meta.config.browserTitle || meta.config.title || 'NodeBB'),
+		),
 		description: validator.escape(String(meta.config.description || '')),
 		keywords: validator.escape(String(meta.config.keywords || '')),
 		'brand:logo': validator.escape(String(meta.config['brand:logo'])),
-		titleLayout: (meta.config.titleLayout || '{pageTitle} | {browserTitle}').replace(/{/g, '&#123;').replace(/}/g, '&#125;'),
+		titleLayout: (meta.config.titleLayout || '{pageTitle} | {browserTitle}')
+			.replace(/{/g, '&#123;')
+			.replace(/}/g, '&#125;'),
 		showSiteTitle: meta.config.showSiteTitle === 1,
 		maintenanceMode: meta.config.maintenanceMode === 1,
 		postQueue: meta.config.postQueue,
@@ -49,7 +53,8 @@ apiController.loadConfig = async function (req) {
 		maximumTagLength: meta.config.maximumTagLength || 15,
 		undoTimeout: meta.config.undoTimeout || 0,
 		useOutgoingLinksPage: meta.config.useOutgoingLinksPage === 1,
-		outgoingLinksWhitelist: meta.config.useOutgoingLinksPage === 1 ? meta.config['outgoingLinks:whitelist'] : undefined,
+		outgoingLinksWhitelist:
+			meta.config.useOutgoingLinksPage === 1 ? meta.config['outgoingLinks:whitelist'] : undefined,
 		allowGuestHandles: meta.config.allowGuestHandles === 1,
 		allowTopicsThumbnail: meta.config.allowTopicsThumbnail === 1,
 		usePagination: meta.config.usePagination === 1,
@@ -67,7 +72,9 @@ apiController.loadConfig = async function (req) {
 		'theme:id': meta.config['theme:id'],
 		'theme:src': meta.config['theme:src'],
 		defaultLang: meta.config.defaultLang || 'en-GB',
-		userLang: req.query.lang ? validator.escape(String(req.query.lang)) : (meta.config.defaultLang || 'en-GB'),
+		userLang: req.query.lang
+			? validator.escape(String(req.query.lang))
+			: meta.config.defaultLang || 'en-GB',
 		loggedIn: !!req.user,
 		uid: req.uid,
 		'cache-buster': meta.config['cache-buster'] || '',
@@ -79,14 +86,27 @@ apiController.loadConfig = async function (req) {
 		bootswatchSkin: meta.config.bootswatchSkin || '',
 		'composer:showHelpTab': meta.config['composer:showHelpTab'] === 1,
 		enablePostHistory: meta.config.enablePostHistory === 1,
-		timeagoCutoff: meta.config.timeagoCutoff !== '' ? Math.max(0, parseInt(meta.config.timeagoCutoff, 10)) : meta.config.timeagoCutoff,
+		timeagoCutoff:
+			meta.config.timeagoCutoff !== ''
+				? Math.max(0, parseInt(meta.config.timeagoCutoff, 10))
+				: meta.config.timeagoCutoff,
 		timeagoCodes: languages.timeagoCodes,
 		cookies: {
 			enabled: meta.config.cookieConsentEnabled === 1,
-			message: translator.escape(validator.escape(meta.config.cookieConsentMessage || '[[global:cookies.message]]')).replace(/\\/g, '\\\\'),
-			dismiss: translator.escape(validator.escape(meta.config.cookieConsentDismiss || '[[global:cookies.accept]]')).replace(/\\/g, '\\\\'),
-			link: translator.escape(validator.escape(meta.config.cookieConsentLink || '[[global:cookies.learn-more]]')).replace(/\\/g, '\\\\'),
-			link_url: translator.escape(validator.escape(meta.config.cookieConsentLinkUrl || 'https://www.cookiesandyou.com')).replace(/\\/g, '\\\\'),
+			message: translator
+				.escape(validator.escape(meta.config.cookieConsentMessage || '[[global:cookies.message]]'))
+				.replace(/\\/g, '\\\\'),
+			dismiss: translator
+				.escape(validator.escape(meta.config.cookieConsentDismiss || '[[global:cookies.accept]]'))
+				.replace(/\\/g, '\\\\'),
+			link: translator
+				.escape(validator.escape(meta.config.cookieConsentLink || '[[global:cookies.learn-more]]'))
+				.replace(/\\/g, '\\\\'),
+			link_url: translator
+				.escape(
+					validator.escape(meta.config.cookieConsentLinkUrl || 'https://www.cookiesandyou.com'),
+				)
+				.replace(/\\/g, '\\\\'),
 		},
 		thumbs: {
 			size: meta.config.topicThumbSize,
@@ -108,23 +128,27 @@ apiController.loadConfig = async function (req) {
 	let settings = config;
 	let isAdminOrGlobalMod;
 	if (req.loggedIn) {
-		([settings, isAdminOrGlobalMod] = await Promise.all([
+		[settings, isAdminOrGlobalMod] = await Promise.all([
 			user.getSettings(req.uid),
 			user.isAdminOrGlobalMod(req.uid),
-		]));
+		]);
 	}
 
 	// Handle old skin configs
 	const oldSkins = ['default'];
-	settings.bootswatchSkin = oldSkins.includes(settings.bootswatchSkin) ? '' : settings.bootswatchSkin;
+	settings.bootswatchSkin = oldSkins.includes(settings.bootswatchSkin)
+		? ''
+		: settings.bootswatchSkin;
 
 	config.usePagination = settings.usePagination;
 	config.topicsPerPage = settings.topicsPerPage;
 	config.postsPerPage = settings.postsPerPage;
 	config.userLang = validator.escape(
-		String((req.query.lang ? req.query.lang : null) || settings.userLang || config.defaultLang)
+		String((req.query.lang ? req.query.lang : null) || settings.userLang || config.defaultLang),
 	);
-	config.acpLang = validator.escape(String((req.query.lang ? req.query.lang : null) || settings.acpLang));
+	config.acpLang = validator.escape(
+		String((req.query.lang ? req.query.lang : null) || settings.acpLang),
+	);
 	config.openOutgoingLinksInNewTab = settings.openOutgoingLinksInNewTab;
 	config.topicPostSort = settings.topicPostSort || config.topicPostSort;
 	config.categoryTopicSort = settings.categoryTopicSort || config.categoryTopicSort;
@@ -134,7 +158,10 @@ apiController.loadConfig = async function (req) {
 	if (!config.disableCustomUserSkins && settings.bootswatchSkin) {
 		if (settings.bootswatchSkin === 'noskin') {
 			config.bootswatchSkin = '';
-		} else if (settings.bootswatchSkin !== '' && await meta.css.isSkinValid(settings.bootswatchSkin)) {
+		} else if (
+			settings.bootswatchSkin !== '' &&
+			(await meta.css.isSkinValid(settings.bootswatchSkin))
+		) {
 			config.bootswatchSkin = settings.bootswatchSkin;
 		}
 	}

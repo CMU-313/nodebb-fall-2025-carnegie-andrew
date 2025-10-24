@@ -1,12 +1,12 @@
 {
-    "username-email": "Потребителско име / е-поща",
-    "username": "Потребителско име",
-    "remember-me": "Запомнете ме?",
-    "forgot-password": "Забравена парола?",
-    "alternative-logins": "Други начини за вписване",
-    "failed-login-attempt": "Неуспешно вписване",
-    "login-successful": "Вие влязохте успешно!",
-    "dont-have-account": "Нямате регистрация?",
-    "logged-out-due-to-inactivity": "Вие излязохте автоматично от администраторския контролен панел, поради бездействие.",
-    "caps-lock-enabled": "Главните букви са включени"
+  "username-email": "Потребителско име / е-поща",
+  "username": "Потребителско име",
+  "remember-me": "Запомнете ме?",
+  "forgot-password": "Забравена парола?",
+  "alternative-logins": "Други начини за вписване",
+  "failed-login-attempt": "Неуспешно вписване",
+  "login-successful": "Вие влязохте успешно!",
+  "dont-have-account": "Нямате регистрация?",
+  "logged-out-due-to-inactivity": "Вие излязохте автоматично от администраторския контролен панел, поради бездействие.",
+  "caps-lock-enabled": "Главните букви са включени"
 }

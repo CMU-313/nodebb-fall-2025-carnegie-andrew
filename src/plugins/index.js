@@ -55,8 +55,12 @@ Plugins.requireLibrary = function (pluginData) {
 		// for backwards compatibility
 		// if that fails, fall back to `pluginData.library`
 		if (pluginData.library) {
-			winston.warn(`   [plugins/${pluginData.id}] The plugin.json field "library" is deprecated. Please use the package.json field "main" instead.`);
-			winston.verbose(`[plugins/${pluginData.id}] See https://github.com/NodeBB/NodeBB/issues/8686`);
+			winston.warn(
+				`   [plugins/${pluginData.id}] The plugin.json field "library" is deprecated. Please use the package.json field "main" instead.`,
+			);
+			winston.verbose(
+				`[plugins/${pluginData.id}] See https://github.com/NodeBB/NodeBB/issues/8686`,
+			);
 
 			libraryPath = path.join(pluginData.path, pluginData.library);
 			Plugins.libraries[pluginData.id] = require(libraryPath);
@@ -115,7 +119,9 @@ Plugins.reload = async function () {
 	// If some plugins are incompatible, throw the warning here
 	if (Plugins.versionWarning.length && nconf.get('isPrimary')) {
 		console.log('');
-		winston.warn('[plugins/load] The following plugins may not be compatible with your version of NodeBB. This may cause unintended behaviour or crashing. In the event of an unresponsive NodeBB caused by this plugin, run `./nodebb reset -p PLUGINNAME` to disable it.');
+		winston.warn(
+			'[plugins/load] The following plugins may not be compatible with your version of NodeBB. This may cause unintended behaviour or crashing. In the event of an unresponsive NodeBB caused by this plugin, run `./nodebb reset -p PLUGINNAME` to disable it.',
+		);
 		for (let x = 0, numPlugins = Plugins.versionWarning.length; x < numPlugins; x += 1) {
 			console.log(`${chalk.yellow('  * ') + Plugins.versionWarning[x]}`);
 		}
@@ -131,13 +137,17 @@ Plugins.reload = async function () {
 			return;
 		}
 
-		const replacement = deprecation.hasOwnProperty('new') ? `Please use ${chalk.yellow(deprecation.new)} instead.` : 'There is no alternative.';
-		winston.warn(`[plugins/load] ${chalk.white.bgRed.bold('DEPRECATION')} The hook ${chalk.yellow(hook)} has been deprecated as of ${deprecation.since}, and slated for removal in ${deprecation.until}. ${replacement} The following plugins are still listening for this hook:`);
+		const replacement = deprecation.hasOwnProperty('new')
+			? `Please use ${chalk.yellow(deprecation.new)} instead.`
+			: 'There is no alternative.';
+		winston.warn(
+			`[plugins/load] ${chalk.white.bgRed.bold('DEPRECATION')} The hook ${chalk.yellow(hook)} has been deprecated as of ${deprecation.since}, and slated for removal in ${deprecation.until}. ${replacement} The following plugins are still listening for this hook:`,
+		);
 		deprecation.affected.forEach(id => console.log(`  ${chalk.yellow('*')} ${id}`));
 	});
 
 	// Lower priority runs earlier
-	Object.keys(Plugins.loadedHooks).forEach((hook) => {
+	Object.keys(Plugins.loadedHooks).forEach(hook => {
 		Plugins.loadedHooks[hook].sort((a, b) => a.priority - b.priority);
 	});
 
@@ -147,7 +157,12 @@ Plugins.reload = async function () {
 
 Plugins.reloadRoutes = async function (params) {
 	const controllers = require('../controllers');
-	await Plugins.hooks.fire('static:app.load', { app: app, router: params.router, middleware: middleware, controllers: controllers });
+	await Plugins.hooks.fire('static:app.load', {
+		app: app,
+		router: params.router,
+		middleware: middleware,
+		controllers: controllers,
+	});
 	winston.verbose('[plugins] All plugins reloaded and rerouted');
 };
 
@@ -196,7 +211,7 @@ Plugins.normalise = async function (apiReturn) {
 	const pluginMap = {};
 	const { dependencies } = require(paths.currentPackage);
 	apiReturn = Array.isArray(apiReturn) ? apiReturn : [];
-	apiReturn.forEach((packageData) => {
+	apiReturn.forEach(packageData => {
 		packageData.id = packageData.name;
 		packageData.installed = false;
 		packageData.active = false;
@@ -207,7 +222,7 @@ Plugins.normalise = async function (apiReturn) {
 	let installedPlugins = await Plugins.showInstalled();
 	installedPlugins = installedPlugins.filter(plugin => plugin && !plugin.system);
 
-	installedPlugins.forEach((plugin) => {
+	installedPlugins.forEach(plugin => {
 		// If it errored out because a package.json or plugin.json couldn't be read, no need to do this stuff
 		if (plugin.error) {
 			pluginMap[plugin.id] = pluginMap[plugin.id] || {};
@@ -236,15 +251,20 @@ Plugins.normalise = async function (apiReturn) {
 			pluginMap[plugin.id].latest = pluginMap[plugin.id].latest || plugin.version;
 		}
 		try {
-			pluginMap[plugin.id].outdated = semver.gt(pluginMap[plugin.id].latest, pluginMap[plugin.id].version);
+			pluginMap[plugin.id].outdated = semver.gt(
+				pluginMap[plugin.id].latest,
+				pluginMap[plugin.id].version,
+			);
 		} catch (err) {
-			winston.error(`plugin ID=${plugin.id}, latest=${pluginMap[plugin.id].latest}, version=${pluginMap[plugin.id].version},\n${err.stack}`);
+			winston.error(
+				`plugin ID=${plugin.id}, latest=${pluginMap[plugin.id].latest}, version=${pluginMap[plugin.id].version},\n${err.stack}`,
+			);
 			throw err;
 		}
 	});
 
 	if (nconf.get('plugins:active')) {
-		nconf.get('plugins:active').forEach((id) => {
+		nconf.get('plugins:active').forEach(id => {
 			pluginMap[id] = pluginMap[id] || {};
 			pluginMap[id].active = true;
 		});
@@ -292,32 +312,36 @@ Plugins.showInstalled = async function () {
 
 async function findNodeBBModules(dirs) {
 	const pluginPaths = [];
-	await Promise.all(dirs.map(async (dirname) => {
-		const dirPath = path.join(Plugins.nodeModulesPath, dirname);
-		const isDir = await isDirectory(dirPath);
-		if (!isDir) {
-			return;
-		}
-		if (pluginNamePattern.test(dirname)) {
-			pluginPaths.push(dirname);
-			return;
-		}
+	await Promise.all(
+		dirs.map(async dirname => {
+			const dirPath = path.join(Plugins.nodeModulesPath, dirname);
+			const isDir = await isDirectory(dirPath);
+			if (!isDir) {
+				return;
+			}
+			if (pluginNamePattern.test(dirname)) {
+				pluginPaths.push(dirname);
+				return;
+			}
 
-		if (dirname[0] === '@') {
-			const subdirs = await fs.promises.readdir(dirPath);
-			await Promise.all(subdirs.map(async (subdir) => {
-				if (!pluginNamePattern.test(subdir)) {
-					return;
-				}
+			if (dirname[0] === '@') {
+				const subdirs = await fs.promises.readdir(dirPath);
+				await Promise.all(
+					subdirs.map(async subdir => {
+						if (!pluginNamePattern.test(subdir)) {
+							return;
+						}
 
-				const subdirPath = path.join(dirPath, subdir);
-				const isDir = await isDirectory(subdirPath);
-				if (isDir) {
-					pluginPaths.push(`${dirname}/${subdir}`);
-				}
-			}));
-		}
-	}));
+						const subdirPath = path.join(dirPath, subdir);
+						const isDir = await isDirectory(subdirPath);
+						if (isDir) {
+							pluginPaths.push(`${dirname}/${subdir}`);
+						}
+					}),
+				);
+			}
+		}),
+	);
 	return pluginPaths;
 }
 

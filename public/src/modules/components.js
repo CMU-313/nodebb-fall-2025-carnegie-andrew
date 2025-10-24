@@ -52,7 +52,9 @@ define('components', function () {
 		},
 
 		'chat/message/body': function (messageId) {
-			return $('[component="chat/message"][data-mid="' + messageId + '"] [component="chat/message/body"]');
+			return $(
+				'[component="chat/message"][data-mid="' + messageId + '"] [component="chat/message/body"]',
+			);
 		},
 
 		'chat/recent/room': function (roomid) {
