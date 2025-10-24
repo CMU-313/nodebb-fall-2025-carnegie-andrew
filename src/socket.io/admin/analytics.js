@@ -19,27 +19,19 @@ Analytics.get = async function (socket, data) {
 		}
 	}
 	const getStats =
-		data.units === 'days'
-			? analytics.getDailyStatsForSet
-			: analytics.getHourlyStatsForSet;
+		data.units === 'days' ? analytics.getDailyStatsForSet : analytics.getHourlyStatsForSet;
 
 	if (data.graph === 'traffic') {
 		const until = data.until || Date.now();
 		const result = await utils.promiseParallel({
 			uniqueVisitors: getStats('analytics:uniquevisitors', until, data.amount),
 			pageviews: getStats('analytics:pageviews', until, data.amount),
-			pageviewsRegistered: getStats(
-				'analytics:pageviews:registered',
-				until,
-				data.amount
-			),
+			pageviewsRegistered: getStats('analytics:pageviews:registered', until, data.amount),
 			pageviewsGuest: getStats('analytics:pageviews:guest', until, data.amount),
 			pageviewsBot: getStats('analytics:pageviews:bot', until, data.amount),
 			summary: analytics.getSummary(),
 		});
-		result.pastDay = result.pageviews.reduce(
-			(a, b) => parseInt(a, 10) + parseInt(b, 10)
-		);
+		result.pastDay = result.pageviews.reduce((a, b) => parseInt(a, 10) + parseInt(b, 10));
 		const last = result.pageviews.length - 1;
 		result.pageviews[last] =
 			parseInt(result.pageviews[last], 10) + analytics.getUnwrittenPageviews();

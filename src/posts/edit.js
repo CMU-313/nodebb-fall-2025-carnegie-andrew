@@ -15,7 +15,7 @@ const slugify = require('../slugify');
 const translator = require('../translator');
 
 module.exports = function (Posts) {
-	pubsub.on('post:edit', (pid) => Posts.clearCachedPost(pid));
+	pubsub.on('post:edit', pid => Posts.clearCachedPost(pid));
 
 	Posts.edit = async function (data) {
 		const { _activitypub } = data;
@@ -62,9 +62,7 @@ module.exports = function (Posts) {
 
 		await Posts.setPostFields(data.pid, result.post);
 		const contentChanged =
-			(data.sourceContent || data.content) !== oldContent ||
-			topic.renamed ||
-			topic.tagsupdated;
+			(data.sourceContent || data.content) !== oldContent || topic.renamed || topic.tagsupdated;
 
 		if (meta.config.enablePostHistory === 1 && contentChanged) {
 			await Posts.diffs.save({
@@ -91,11 +89,7 @@ module.exports = function (Posts) {
 
 		await topics.notifyFollowers(returnPostData, data.uid, {
 			type: 'post-edit',
-			bodyShort: translator.compile(
-				'notifications:user-edited-post',
-				editor.username,
-				topic.title
-			),
+			bodyShort: translator.compile('notifications:user-edited-post', editor.username, topic.title),
 			nid: `edit_post:${data.pid}:uid:${data.uid}`,
 		});
 		await topics.syncBacklinks(returnPostData);
@@ -139,9 +133,7 @@ module.exports = function (Posts) {
 			cid: topicData.cid,
 			uid: postData.uid,
 			mainPid: data.pid,
-			timestamp: rescheduling(data, topicData)
-				? data.timestamp
-				: topicData.timestamp,
+			timestamp: rescheduling(data, topicData) ? data.timestamp : topicData.timestamp,
 		};
 		if (title) {
 			newTopicData.title = title;
@@ -152,15 +144,11 @@ module.exports = function (Posts) {
 			Array.isArray(data.tags) &&
 			!_.isEqual(
 				data.tags,
-				topicData.tags.map((tag) => tag.value)
+				topicData.tags.map(tag => tag.value),
 			);
 
 		if (tagsupdated) {
-			const canTag = await privileges.categories.can(
-				'topics:tag',
-				topicData.cid,
-				data.uid
-			);
+			const canTag = await privileges.categories.can('topics:tag', topicData.cid, data.uid);
 			if (!canTag) {
 				throw new Error('[[error:no-privileges]]');
 			}
@@ -184,9 +172,7 @@ module.exports = function (Posts) {
 
 		newTopicData.tags = data.tags;
 		newTopicData.oldTitle = topicData.title;
-		const renamed =
-			title &&
-			translator.escape(validator.escape(String(title))) !== topicData.title;
+		const renamed = title && translator.escape(validator.escape(String(title))) !== topicData.title;
 		plugins.hooks.fire('action:topic.edit', {
 			topic: newTopicData,
 			uid: data.uid,
@@ -211,11 +197,7 @@ module.exports = function (Posts) {
 		if (!topicData.scheduled) {
 			return;
 		}
-		const canSchedule = await privileges.categories.can(
-			'topics:schedule',
-			topicData.cid,
-			data.uid
-		);
+		const canSchedule = await privileges.categories.can('topics:schedule', topicData.cid, data.uid);
 		if (!canSchedule) {
 			throw new Error('[[error:no-privileges]]');
 		}
@@ -249,8 +231,6 @@ module.exports = function (Posts) {
 
 	function rescheduling(data, topicData) {
 		const isMain = parseInt(data.pid, 10) === parseInt(topicData.mainPid, 10);
-		return (
-			isMain && topicData.scheduled && topicData.timestamp !== data.timestamp
-		);
+		return isMain && topicData.scheduled && topicData.timestamp !== data.timestamp;
 	}
 };

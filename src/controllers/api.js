@@ -17,10 +17,7 @@ const apiController = module.exports;
 const relative_path = nconf.get('relative_path');
 const upload_url = nconf.get('upload_url');
 const asset_base_url = nconf.get('asset_base_url');
-const socketioTransports = nconf.get('socket.io:transports') || [
-	'polling',
-	'websocket',
-];
+const socketioTransports = nconf.get('socket.io:transports') || ['polling', 'websocket'];
 const socketioOrigins = nconf.get('socket.io:origins');
 const websocketAddress = nconf.get('socket.io:address') || '';
 const fontawesome_pro = nconf.get('fontawesome:pro') || false;
@@ -33,11 +30,9 @@ apiController.loadConfig = async function (req) {
 		upload_url,
 		asset_base_url,
 		assetBaseUrl: asset_base_url, // deprecate in 1.20.x
-		siteTitle: validator.escape(
-			String(meta.config.title || meta.config.browserTitle || 'NodeBB')
-		),
+		siteTitle: validator.escape(String(meta.config.title || meta.config.browserTitle || 'NodeBB')),
 		browserTitle: validator.escape(
-			String(meta.config.browserTitle || meta.config.title || 'NodeBB')
+			String(meta.config.browserTitle || meta.config.title || 'NodeBB'),
 		),
 		description: validator.escape(String(meta.config.description || '')),
 		keywords: validator.escape(String(meta.config.keywords || '')),
@@ -59,9 +54,7 @@ apiController.loadConfig = async function (req) {
 		undoTimeout: meta.config.undoTimeout || 0,
 		useOutgoingLinksPage: meta.config.useOutgoingLinksPage === 1,
 		outgoingLinksWhitelist:
-			meta.config.useOutgoingLinksPage === 1
-				? meta.config['outgoingLinks:whitelist']
-				: undefined,
+			meta.config.useOutgoingLinksPage === 1 ? meta.config['outgoingLinks:whitelist'] : undefined,
 		allowGuestHandles: meta.config.allowGuestHandles === 1,
 		allowTopicsThumbnail: meta.config.allowTopicsThumbnail === 1,
 		usePagination: meta.config.usePagination === 1,
@@ -101,31 +94,17 @@ apiController.loadConfig = async function (req) {
 		cookies: {
 			enabled: meta.config.cookieConsentEnabled === 1,
 			message: translator
-				.escape(
-					validator.escape(
-						meta.config.cookieConsentMessage || '[[global:cookies.message]]'
-					)
-				)
+				.escape(validator.escape(meta.config.cookieConsentMessage || '[[global:cookies.message]]'))
 				.replace(/\\/g, '\\\\'),
 			dismiss: translator
-				.escape(
-					validator.escape(
-						meta.config.cookieConsentDismiss || '[[global:cookies.accept]]'
-					)
-				)
+				.escape(validator.escape(meta.config.cookieConsentDismiss || '[[global:cookies.accept]]'))
 				.replace(/\\/g, '\\\\'),
 			link: translator
-				.escape(
-					validator.escape(
-						meta.config.cookieConsentLink || '[[global:cookies.learn-more]]'
-					)
-				)
+				.escape(validator.escape(meta.config.cookieConsentLink || '[[global:cookies.learn-more]]'))
 				.replace(/\\/g, '\\\\'),
 			link_url: translator
 				.escape(
-					validator.escape(
-						meta.config.cookieConsentLinkUrl || 'https://www.cookiesandyou.com'
-					)
+					validator.escape(meta.config.cookieConsentLinkUrl || 'https://www.cookiesandyou.com'),
 				)
 				.replace(/\\/g, '\\\\'),
 		},
@@ -165,19 +144,14 @@ apiController.loadConfig = async function (req) {
 	config.topicsPerPage = settings.topicsPerPage;
 	config.postsPerPage = settings.postsPerPage;
 	config.userLang = validator.escape(
-		String(
-			(req.query.lang ? req.query.lang : null) ||
-				settings.userLang ||
-				config.defaultLang
-		)
+		String((req.query.lang ? req.query.lang : null) || settings.userLang || config.defaultLang),
 	);
 	config.acpLang = validator.escape(
-		String((req.query.lang ? req.query.lang : null) || settings.acpLang)
+		String((req.query.lang ? req.query.lang : null) || settings.acpLang),
 	);
 	config.openOutgoingLinksInNewTab = settings.openOutgoingLinksInNewTab;
 	config.topicPostSort = settings.topicPostSort || config.topicPostSort;
-	config.categoryTopicSort =
-		settings.categoryTopicSort || config.categoryTopicSort;
+	config.categoryTopicSort = settings.categoryTopicSort || config.categoryTopicSort;
 	config.topicSearchEnabled = settings.topicSearchEnabled || false;
 	config.disableCustomUserSkins = meta.config.disableCustomUserSkins === 1;
 	config.defaultBootswatchSkin = config.bootswatchSkin;
@@ -193,9 +167,7 @@ apiController.loadConfig = async function (req) {
 	}
 
 	// Overrides based on privilege
-	config.disableChatMessageEditing = isAdminOrGlobalMod
-		? false
-		: config.disableChatMessageEditing;
+	config.disableChatMessageEditing = isAdminOrGlobalMod ? false : config.disableChatMessageEditing;
 
 	return await plugins.hooks.fire('filter:config.get', config);
 };
@@ -210,8 +182,4 @@ apiController.getModerators = async function (req, res) {
 	res.json({ moderators: moderators });
 };
 
-require('../promisify')(apiController, [
-	'getConfig',
-	'getObject',
-	'getModerators',
-]);
+require('../promisify')(apiController, ['getConfig', 'getObject', 'getModerators']);

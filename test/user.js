@@ -34,7 +34,7 @@ describe('User', () => {
 	async function dummyEmailerHook(data) {
 		// pretend to handle sending emails
 	}
-	before((done) => {
+	before(done => {
 		// Attach an emailer hook so related requests do not error
 		plugins.hooks.register('emailer-test', {
 			hook: 'static:email.send',
@@ -54,7 +54,7 @@ describe('User', () => {
 
 				testCid = categoryObj.cid;
 				done();
-			}
+			},
 		);
 	});
 	after(() => {
@@ -91,10 +91,7 @@ describe('User', () => {
 			const uid = await User.create({ username: 'weirdemail', email: email });
 			const data = await User.getUserData(uid);
 
-			const validationPending = await User.email.isValidationPending(
-				uid,
-				email
-			);
+			const validationPending = await User.email.isValidationPending(uid, email);
 			assert.strictEqual(validationPending, true);
 
 			assert.equal(data.email, '');
@@ -106,41 +103,41 @@ describe('User', () => {
 			assert.strictEqual(data.banned, false);
 		});
 
-		it('should have a valid email, if using an email', (done) => {
+		it('should have a valid email, if using an email', done => {
 			User.create(
 				{
 					username: userData.username,
 					password: userData.password,
 					email: 'fakeMail',
 				},
-				(err) => {
+				err => {
 					assert(err);
 					assert.equal(err.message, '[[error:invalid-email]]');
 					done();
-				}
+				},
 			);
 		});
 
-		it('should error with invalid password', (done) => {
-			User.create({ username: 'test', password: '1' }, (err) => {
+		it('should error with invalid password', done => {
+			User.create({ username: 'test', password: '1' }, err => {
 				assert.equal(err.message, '[[reset_password:password-too-short]]');
 				done();
 			});
 		});
 
-		it('should error with invalid password', (done) => {
-			User.create({ username: 'test', password: {} }, (err) => {
+		it('should error with invalid password', done => {
+			User.create({ username: 'test', password: {} }, err => {
 				assert.equal(err.message, '[[error:invalid-password]]');
 				done();
 			});
 		});
 
-		it('should error with a too long password', (done) => {
+		it('should error with a too long password', done => {
 			let toolong = '';
 			for (let i = 0; i < 5000; i++) {
 				toolong += 'a';
 			}
-			User.create({ username: 'test', password: toolong }, (err) => {
+			User.create({ username: 'test', password: toolong }, err => {
 				assert.equal(err.message, '[[error:password-too-long]]');
 				done();
 			});
@@ -164,16 +161,10 @@ describe('User', () => {
 				assert.strictEqual(err.message, '[[error:username-taken]]');
 			} else {
 				const userData = await User.getUsersFields([uid1, uid2], ['username']);
-				const userNames = userData.map((u) => u.username);
+				const userNames = userData.map(u => u.username);
 				// make sure only 1 dupe1 is created
-				assert.equal(
-					userNames.filter((username) => username === 'dupe1').length,
-					1
-				);
-				assert.equal(
-					userNames.filter((username) => username === 'dupe1 0').length,
-					1
-				);
+				assert.equal(userNames.filter(username => username === 'dupe1').length, 1);
+				assert.equal(userNames.filter(username => username === 'dupe1 0').length, 1);
 			}
 		});
 
@@ -218,7 +209,7 @@ describe('User', () => {
 	});
 
 	describe('.isModerator()', () => {
-		it('should return false', (done) => {
+		it('should return false', done => {
 			User.isModerator(testUid, testCid, (err, isModerator) => {
 				assert.equal(err, null);
 				assert.equal(isModerator, false);
@@ -226,7 +217,7 @@ describe('User', () => {
 			});
 		});
 
-		it('should return two false results', (done) => {
+		it('should return two false results', done => {
 			User.isModerator([testUid, testUid], testCid, (err, isModerator) => {
 				assert.equal(err, null);
 				assert.equal(isModerator[0], false);
@@ -235,7 +226,7 @@ describe('User', () => {
 			});
 		});
 
-		it('should return two false results', (done) => {
+		it('should return two false results', done => {
 			User.isModerator(testUid, [testCid, testCid], (err, isModerator) => {
 				assert.equal(err, null);
 				assert.equal(isModerator[0], false);
@@ -246,11 +237,11 @@ describe('User', () => {
 	});
 
 	describe('.getModeratorUids()', () => {
-		before((done) => {
+		before(done => {
 			groups.join('cid:1:privileges:moderate', 1, done);
 		});
 
-		it('should retrieve all users with moderator bit in category privilege', (done) => {
+		it('should retrieve all users with moderator bit in category privilege', done => {
 			User.getModeratorUids((err, uids) => {
 				assert.ifError(err);
 				assert.strictEqual(1, uids.length);
@@ -259,7 +250,7 @@ describe('User', () => {
 			});
 		});
 
-		after((done) => {
+		after(done => {
 			groups.leave('cid:1:privileges:moderate', 1, done);
 		});
 	});
@@ -271,7 +262,7 @@ describe('User', () => {
 			await groups.join('testGroup', 1);
 		});
 
-		it('should retrieve all users with moderator bit in category privilege', (done) => {
+		it('should retrieve all users with moderator bit in category privilege', done => {
 			User.getModeratorUids((err, uids) => {
 				assert.ifError(err);
 				assert.strictEqual(1, uids.length);
@@ -287,54 +278,44 @@ describe('User', () => {
 	});
 
 	describe('.isReadyToPost()', () => {
-		it('should allow a post if the last post time is > 10 seconds', (done) => {
-			User.setUserField(
-				testUid,
-				'lastposttime',
-				+new Date() - 11 * 1000,
-				() => {
-					Topics.post(
-						{
-							uid: testUid,
-							title: 'Topic 3',
-							content: 'lorem ipsum',
-							cid: testCid,
-						},
-						(err) => {
-							assert.ifError(err);
-							done();
-						}
-					);
-				}
-			);
+		it('should allow a post if the last post time is > 10 seconds', done => {
+			User.setUserField(testUid, 'lastposttime', +new Date() - 11 * 1000, () => {
+				Topics.post(
+					{
+						uid: testUid,
+						title: 'Topic 3',
+						content: 'lorem ipsum',
+						cid: testCid,
+					},
+					err => {
+						assert.ifError(err);
+						done();
+					},
+				);
+			});
 		});
 
-		it('should error when a new user posts if the last post time is 10 < 30 seconds', (done) => {
+		it('should error when a new user posts if the last post time is 10 < 30 seconds', done => {
 			meta.config.newbiePostDelay = 30;
 			meta.config.newbieReputationThreshold = 3;
 
-			User.setUserField(
-				testUid,
-				'lastposttime',
-				+new Date() - 20 * 1000,
-				() => {
-					Topics.post(
-						{
-							uid: testUid,
-							title: 'Topic 4',
-							content: 'lorem ipsum',
-							cid: testCid,
-						},
-						(err) => {
-							assert(err);
-							done();
-						}
-					);
-				}
-			);
+			User.setUserField(testUid, 'lastposttime', +new Date() - 20 * 1000, () => {
+				Topics.post(
+					{
+						uid: testUid,
+						title: 'Topic 4',
+						content: 'lorem ipsum',
+						cid: testCid,
+					},
+					err => {
+						assert(err);
+						done();
+					},
+				);
+			});
 		});
 
-		it('should not error if a non-newbie user posts if the last post time is 10 < 30 seconds', (done) => {
+		it('should not error if a non-newbie user posts if the last post time is 10 < 30 seconds', done => {
 			User.setUserFields(
 				testUid,
 				{
@@ -349,12 +330,12 @@ describe('User', () => {
 							content: 'lorem ipsum',
 							cid: testCid,
 						},
-						(err) => {
+						err => {
 							assert.ifError(err);
 							done();
-						}
+						},
 					);
-				}
+				},
 			);
 		});
 
@@ -363,7 +344,7 @@ describe('User', () => {
 			const { jar } = await helpers.loginUser('flooder', '123456');
 			const titles = new Array(10).fill('topic title');
 			const res = await Promise.allSettled(
-				titles.map(async (title) => {
+				titles.map(async title => {
 					const { body } = await helpers.request('post', '/api/v3/topics', {
 						body: {
 							cid: testCid,
@@ -373,10 +354,10 @@ describe('User', () => {
 						jar: jar,
 					});
 					return body.status;
-				})
+				}),
 			);
-			const failed = res.filter((res) => res.value.code === 'bad-request');
-			const success = res.filter((res) => res.value.code === 'ok');
+			const failed = res.filter(res => res.value.code === 'bad-request');
+			const success = res.filter(res => res.value.code === 'ok');
 			assert.strictEqual(failed.length, 9);
 			assert.strictEqual(success.length, 1);
 		});
@@ -390,24 +371,18 @@ describe('User', () => {
 			await groups.join('administrators', adminUid);
 		});
 
-		it('should return an object containing an array of matching users', (done) => {
+		it('should return an object containing an array of matching users', done => {
 			User.search({ query: 'john' }, (err, searchData) => {
 				assert.ifError(err);
 				uid = searchData.users[0].uid;
-				assert.equal(
-					Array.isArray(searchData.users) && searchData.users.length > 0,
-					true
-				);
+				assert.equal(Array.isArray(searchData.users) && searchData.users.length > 0, true);
 				assert.equal(searchData.users[0].username, 'John Smith');
 				done();
 			});
 		});
 
 		it('should search user', async () => {
-			const searchData = await apiUser.search(
-				{ uid: testUid },
-				{ query: 'john' }
-			);
+			const searchData = await apiUser.search({ uid: testUid }, { query: 'john' });
 			assert.equal(searchData.users[0].username, 'John Smith');
 		});
 
@@ -431,10 +406,7 @@ describe('User', () => {
 
 		it('should error for unprivileged user', async () => {
 			try {
-				await apiUser.search(
-					{ uid: testUid },
-					{ searchBy: 'ip', query: '123' }
-				);
+				await apiUser.search({ uid: testUid }, { searchBy: 'ip', query: '123' });
 				assert(false);
 			} catch (err) {
 				assert.equal(err.message, '[[error:no-privileges]]');
@@ -443,10 +415,7 @@ describe('User', () => {
 
 		it('should error for unprivileged user', async () => {
 			try {
-				await apiUser.search(
-					{ uid: testUid },
-					{ filters: ['banned'], query: '123' }
-				);
+				await apiUser.search({ uid: testUid }, { filters: ['banned'], query: '123' });
 				assert(false);
 			} catch (err) {
 				assert.equal(err.message, '[[error:no-privileges]]');
@@ -455,10 +424,7 @@ describe('User', () => {
 
 		it('should error for unprivileged user', async () => {
 			try {
-				await apiUser.search(
-					{ uid: testUid },
-					{ filters: ['flagged'], query: '123' }
-				);
+				await apiUser.search({ uid: testUid }, { filters: ['flagged'], query: '123' });
 				assert(false);
 			} catch (err) {
 				assert.equal(err.message, '[[error:no-privileges]]');
@@ -468,19 +434,13 @@ describe('User', () => {
 		it('should search users by ip', async () => {
 			const uid = await User.create({ username: 'ipsearch' });
 			await db.sortedSetAdd('ip:1.1.1.1:uid', [1, 1], [testUid, uid]);
-			const data = await apiUser.search(
-				{ uid: adminUid },
-				{ query: '1.1.1.1', searchBy: 'ip' }
-			);
+			const data = await apiUser.search({ uid: adminUid }, { query: '1.1.1.1', searchBy: 'ip' });
 			assert(Array.isArray(data.users));
 			assert.equal(data.users.length, 2);
 		});
 
 		it('should search users by uid', async () => {
-			const data = await apiUser.search(
-				{ uid: testUid },
-				{ query: uid, searchBy: 'uid' }
-			);
+			const data = await apiUser.search({ uid: testUid }, { query: uid, searchBy: 'uid' });
 			assert(Array.isArray(data.users));
 			assert.equal(data.users[0].uid, uid);
 		});
@@ -490,10 +450,7 @@ describe('User', () => {
 				username: 'fullnamesearch1',
 				fullname: 'Mr. Fullname',
 			});
-			const data = await apiUser.search(
-				{ uid: adminUid },
-				{ query: 'mr', searchBy: 'fullname' }
-			);
+			const data = await apiUser.search({ uid: adminUid }, { query: 'mr', searchBy: 'fullname' });
 			assert(Array.isArray(data.users));
 			assert.equal(data.users.length, 1);
 			assert.equal(uid, data.users[0].uid);
@@ -506,7 +463,7 @@ describe('User', () => {
 			});
 			const data = await apiUser.search(
 				{ uid: adminUid },
-				{ query: 'baris:', searchBy: 'fullname' }
+				{ query: 'baris:', searchBy: 'fullname' },
 			);
 			assert(Array.isArray(data.users));
 			assert.equal(data.users.length, 1);
@@ -527,7 +484,7 @@ describe('User', () => {
 				{
 					query: 'ipsearch',
 					filters: ['online', 'banned', 'flagged'],
-				}
+				},
 			);
 			assert.equal(data.users[0].username, 'ipsearch_filter');
 		});
@@ -550,7 +507,7 @@ describe('User', () => {
 
 	describe('.delete()', () => {
 		let uid;
-		before((done) => {
+		before(done => {
 			User.create(
 				{
 					username: 'usertodelete',
@@ -561,12 +518,12 @@ describe('User', () => {
 					assert.ifError(err);
 					uid = newUid;
 					done();
-				}
+				},
 			);
 		});
 
-		it('should delete a user account', (done) => {
-			User.delete(1, uid, (err) => {
+		it('should delete a user account', done => {
+			User.delete(1, uid, err => {
 				assert.ifError(err);
 				User.existsBySlug('usertodelete', (err, exists) => {
 					assert.ifError(err);
@@ -627,7 +584,7 @@ describe('User', () => {
 	});
 
 	describe('hash methods', () => {
-		it('should return uid from email', (done) => {
+		it('should return uid from email', done => {
 			User.getUidByEmail('john@example.com', (err, uid) => {
 				assert.ifError(err);
 				assert.equal(parseInt(uid, 10), parseInt(testUid, 10));
@@ -635,7 +592,7 @@ describe('User', () => {
 			});
 		});
 
-		it('should return uid from username', (done) => {
+		it('should return uid from username', done => {
 			User.getUidByUsername('John Smith', (err, uid) => {
 				assert.ifError(err);
 				assert.equal(parseInt(uid, 10), parseInt(testUid, 10));
@@ -643,7 +600,7 @@ describe('User', () => {
 			});
 		});
 
-		it('should return uid from userslug', (done) => {
+		it('should return uid from userslug', done => {
 			User.getUidByUserslug('john-smith', (err, uid) => {
 				assert.ifError(err);
 				assert.equal(parseInt(uid, 10), parseInt(testUid, 10));
@@ -651,7 +608,7 @@ describe('User', () => {
 			});
 		});
 
-		it('should get user data even if one uid is NaN', (done) => {
+		it('should get user data even if one uid is NaN', done => {
 			User.getUsersData([NaN, testUid], (err, data) => {
 				assert.ifError(err);
 				assert(data[0]);
@@ -662,7 +619,7 @@ describe('User', () => {
 			});
 		});
 
-		it('should not return private user data', (done) => {
+		it('should not return private user data', done => {
 			User.setUserFields(
 				testUid,
 				{
@@ -670,7 +627,7 @@ describe('User', () => {
 					another_secret: 'abcde',
 					postcount: '123',
 				},
-				(err) => {
+				err => {
 					assert.ifError(err);
 					User.getUserData(testUid, (err, userData) => {
 						assert.ifError(err);
@@ -682,11 +639,11 @@ describe('User', () => {
 						assert.strictEqual(userData.uid, testUid);
 						done();
 					});
-				}
+				},
 			);
 		});
 
-		it('should not return password even if explicitly requested', (done) => {
+		it('should not return password even if explicitly requested', done => {
 			User.getUserFields(testUid, ['password'], (err, payload) => {
 				assert.ifError(err);
 				assert(!payload.hasOwnProperty('password'));
@@ -701,32 +658,23 @@ describe('User', () => {
 		});
 
 		it('should return an icon text and valid background if username and picture is explicitly requested', async () => {
-			const payload = await User.getUserFields(testUid, [
-				'username',
-				'picture',
-			]);
+			const payload = await User.getUserFields(testUid, ['username', 'picture']);
 			const validBackgrounds = await User.getIconBackgrounds();
-			assert.strictEqual(
-				payload['icon:text'],
-				userData.username.slice(0, 1).toUpperCase()
-			);
+			assert.strictEqual(payload['icon:text'], userData.username.slice(0, 1).toUpperCase());
 			assert(payload['icon:bgColor']);
 			assert(validBackgrounds.includes(payload['icon:bgColor']));
 		});
 
 		it('should return a valid background, even if an invalid background colour is set', async () => {
 			await User.setUserField(testUid, 'icon:bgColor', 'teal');
-			const payload = await User.getUserFields(testUid, [
-				'username',
-				'picture',
-			]);
+			const payload = await User.getUserFields(testUid, ['username', 'picture']);
 			const validBackgrounds = await User.getIconBackgrounds();
 
 			assert(payload['icon:bgColor']);
 			assert(validBackgrounds.includes(payload['icon:bgColor']));
 		});
 
-		it('should return private data if field is whitelisted', (done) => {
+		it('should return private data if field is whitelisted', done => {
 			function filterMethod(data, callback) {
 				data.whitelist.push('another_secret');
 				callback(null, data);
@@ -740,16 +688,12 @@ describe('User', () => {
 				assert.ifError(err);
 				assert(!userData.hasOwnProperty('fb_token'));
 				assert.equal(userData.another_secret, 'abcde');
-				plugins.hooks.unregister(
-					'test-plugin',
-					'filter:user.whitelistFields',
-					filterMethod
-				);
+				plugins.hooks.unregister('test-plugin', 'filter:user.whitelistFields', filterMethod);
 				done();
 			});
 		});
 
-		it('should return 0 as uid if username is falsy', (done) => {
+		it('should return 0 as uid if username is falsy', done => {
 			User.getUidByUsername('', (err, uid) => {
 				assert.ifError(err);
 				assert.strictEqual(uid, 0);
@@ -757,7 +701,7 @@ describe('User', () => {
 			});
 		});
 
-		it('should get username by userslug', (done) => {
+		it('should get username by userslug', done => {
 			User.getUsernameByUserslug('john-smith', (err, username) => {
 				assert.ifError(err);
 				assert.strictEqual('John Smith', username);
@@ -765,7 +709,7 @@ describe('User', () => {
 			});
 		});
 
-		it('should get uids by emails', (done) => {
+		it('should get uids by emails', done => {
 			User.getUidsByEmails(['john@example.com'], (err, uids) => {
 				assert.ifError(err);
 				assert.equal(uids[0], testUid);
@@ -773,7 +717,7 @@ describe('User', () => {
 			});
 		});
 
-		it('should not get groupTitle for guests', (done) => {
+		it('should not get groupTitle for guests', done => {
 			User.getUserData(0, (err, userData) => {
 				assert.ifError(err);
 				assert.strictEqual(userData.groupTitle, '');
@@ -782,7 +726,7 @@ describe('User', () => {
 			});
 		});
 
-		it('should load guest data', (done) => {
+		it('should load guest data', done => {
 			User.getUsersData([1, 0], (err, data) => {
 				assert.ifError(err);
 				assert.strictEqual(data[1].username, '[[global:guest]]');
@@ -794,10 +738,7 @@ describe('User', () => {
 
 		it('should return null if field or user doesn not exist', async () => {
 			assert.strictEqual(await User.getUserField('1', 'doesnotexist'), null);
-			assert.strictEqual(
-				await User.getUserField('doesnotexistkey', 'doesnotexist'),
-				null
-			);
+			assert.strictEqual(await User.getUserField('doesnotexistkey', 'doesnotexist'), null);
 			assert.strictEqual(await User.getUserField('0', 'doesnotexist'), null);
 		});
 	});
@@ -818,10 +759,7 @@ describe('User', () => {
 			await User.setUserField(uid, 'email', 'update@me.com');
 			await User.email.confirmByUid(uid);
 
-			({ jar, csrf_token } = await helpers.loginUser(
-				'updateprofile',
-				'123456'
-			));
+			({ jar, csrf_token } = await helpers.loginUser('updateprofile', '123456'));
 		});
 
 		it('should return error if not logged in', async () => {
@@ -879,14 +817,14 @@ describe('User', () => {
 						...data,
 						password: '123456',
 						invalid: 'field',
-					}
+					},
 				);
 				assert.equal(result.username, 'updatedUserName');
 				assert.equal(result.userslug, 'updatedusername');
 				assert.equal(result.fullname, 'updatedFullname');
 
 				const userData = await db.getObject(`user:${uid}`);
-				Object.keys(data).forEach((key) => {
+				Object.keys(data).forEach(key => {
 					if (key === 'email') {
 						assert.strictEqual(userData.email, 'just@for.updated'); // email remains the same until confirmed
 					} else if (key !== 'password') {
@@ -919,22 +857,16 @@ describe('User', () => {
 						...data,
 						password: '123456',
 						invalid: 'field',
-					}
+					},
 				);
-				const storedUsername = await db.getObjectField(
-					`user:${uid}`,
-					'username'
-				);
+				const storedUsername = await db.getObjectField(`user:${uid}`, 'username');
 				assert.equal(result.username, 'ex&#x27;ample_user');
 				assert.equal(storedUsername, "ex'ample_user");
 				assert.equal(result.userslug, 'ex-ample_user');
 			});
 
 			it('should also generate an email confirmation code for the changed email', async () => {
-				const confirmSent = await User.email.isValidationPending(
-					uid,
-					'updatedemail@me.com'
-				);
+				const confirmSent = await User.email.isValidationPending(uid, 'updatedemail@me.com');
 				assert.strictEqual(confirmSent, true);
 			});
 		});
@@ -946,7 +878,7 @@ describe('User', () => {
 			});
 			await apiUser.changePassword(
 				{ uid: uid },
-				{ uid: uid, newPassword: '654321', currentPassword: '123456' }
+				{ uid: uid, newPassword: '654321', currentPassword: '123456' },
 			);
 			const correct = await User.isPasswordCorrect(uid, '654321', '127.0.0.1');
 			assert(correct);
@@ -964,9 +896,9 @@ describe('User', () => {
 						uid: uid,
 						newPassword: '123456',
 						currentPassword: '123456',
-					}
+					},
 				),
-				{ message: '[[user:change-password-error-same-password]]' }
+				{ message: '[[user:change-password-error-same-password]]' },
 			);
 		});
 
@@ -986,7 +918,7 @@ describe('User', () => {
 						uid: regularUserUid,
 						newPassword: '654321',
 						currentPassword: '123456',
-					}
+					},
 				);
 				assert(false);
 			} catch (err) {
@@ -1007,7 +939,7 @@ describe('User', () => {
 			try {
 				await apiUser.changePassword(
 					{ uid: uid },
-					{ uid: adminUid, newPassword: '654321', currentPassword: '123456' }
+					{ uid: adminUid, newPassword: '654321', currentPassword: '123456' },
 				);
 				assert(false);
 			} catch (err) {
@@ -1026,10 +958,7 @@ describe('User', () => {
 				password: '123456',
 			});
 
-			await apiUser.changePassword(
-				{ uid: adminUid },
-				{ uid: uid, newPassword: '654321' }
-			);
+			await apiUser.changePassword({ uid: adminUid }, { uid: uid, newPassword: '654321' });
 			const correct = await User.isPasswordCorrect(uid, '654321', '127.0.0.1');
 			assert(correct);
 		});
@@ -1044,31 +973,25 @@ describe('User', () => {
 			try {
 				await apiUser.changePassword(
 					{ uid: adminUid },
-					{ uid: adminUid, newPassword: '654321', currentPassword: 'wrongpwd' }
+					{ uid: adminUid, newPassword: '654321', currentPassword: 'wrongpwd' },
 				);
 				assert(false);
 			} catch (err) {
-				assert.equal(
-					err.message,
-					'[[user:change-password-error-wrong-current]]'
-				);
+				assert.equal(err.message, '[[user:change-password-error-wrong-current]]');
 			}
 		});
 
 		it('should change username', async () => {
 			await apiUser.update(
 				{ uid: uid },
-				{ uid: uid, username: 'updatedAgain', password: '123456' }
+				{ uid: uid, username: 'updatedAgain', password: '123456' },
 			);
 			const username = await db.getObjectField(`user:${uid}`, 'username');
 			assert.equal(username, 'updatedAgain');
 		});
 
 		it('should not let setting an empty username', async () => {
-			await apiUser.update(
-				{ uid: uid },
-				{ uid: uid, username: '', password: '123456' }
-			);
+			await apiUser.update({ uid: uid }, { uid: uid, username: '', password: '123456' });
 			const username = await db.getObjectField(`user:${uid}`, 'username');
 			assert.strictEqual(username, 'updatedAgain');
 		});
@@ -1079,13 +1002,10 @@ describe('User', () => {
 			const uid = await User.create({ username: longName });
 			await apiUser.update(
 				{ uid: uid },
-				{ uid: uid, username: longName, email: 'verylong@name.com' }
+				{ uid: uid, username: longName, email: 'verylong@name.com' },
 			);
 			const userData = await db.getObject(`user:${uid}`);
-			const awaitingValidation = await User.email.isValidationPending(
-				uid,
-				'verylong@name.com'
-			);
+			const awaitingValidation = await User.email.isValidationPending(uid, 'verylong@name.com');
 
 			assert.strictEqual(userData.username, longName);
 			assert.strictEqual(awaitingValidation, true);
@@ -1094,23 +1014,16 @@ describe('User', () => {
 		it("should not update a user's username if it did not change", async () => {
 			await apiUser.update(
 				{ uid: uid },
-				{ uid: uid, username: 'updatedAgain', password: '123456' }
+				{ uid: uid, username: 'updatedAgain', password: '123456' },
 			);
-			const data = await db.getSortedSetRevRange(
-				`user:${uid}:usernames`,
-				0,
-				-1
-			);
+			const data = await db.getSortedSetRevRange(`user:${uid}:usernames`, 0, -1);
 			assert.equal(data.length, 2);
 			assert(data[0].startsWith('updatedAgain'));
 		});
 
 		it("should not update a user's username if a password is not supplied", async () => {
 			try {
-				await apiUser.update(
-					{ uid: uid },
-					{ uid: uid, username: 'updatedAgain', password: '' }
-				);
+				await apiUser.update({ uid: uid }, { uid: uid, username: 'updatedAgain', password: '' });
 				assert(false);
 			} catch (err) {
 				assert.strictEqual(err.message, '[[error:invalid-password]]');
@@ -1119,36 +1032,18 @@ describe('User', () => {
 
 		it('should properly change username and clean up old sorted sets', async () => {
 			const uid = await User.create({ username: 'DennyO', password: '123456' });
-			let usernames = await db.getSortedSetRevRangeWithScores(
-				'username:uid',
-				0,
-				-1
-			);
-			usernames = usernames.filter((d) => d.score === uid);
+			let usernames = await db.getSortedSetRevRangeWithScores('username:uid', 0, -1);
+			usernames = usernames.filter(d => d.score === uid);
 			assert.deepStrictEqual(usernames, [{ value: 'DennyO', score: uid }]);
 
-			await apiUser.update(
-				{ uid: uid },
-				{ uid: uid, username: "DennyO's", password: '123456' }
-			);
-			usernames = await db.getSortedSetRevRangeWithScores(
-				'username:uid',
-				0,
-				-1
-			);
-			usernames = usernames.filter((d) => d.score === uid);
+			await apiUser.update({ uid: uid }, { uid: uid, username: "DennyO's", password: '123456' });
+			usernames = await db.getSortedSetRevRangeWithScores('username:uid', 0, -1);
+			usernames = usernames.filter(d => d.score === uid);
 			assert.deepStrictEqual(usernames, [{ value: "DennyO's", score: uid }]);
 
-			await apiUser.update(
-				{ uid: uid },
-				{ uid: uid, username: 'Denny O', password: '123456' }
-			);
-			usernames = await db.getSortedSetRevRangeWithScores(
-				'username:uid',
-				0,
-				-1
-			);
-			usernames = usernames.filter((d) => d.score === uid);
+			await apiUser.update({ uid: uid }, { uid: uid, username: 'Denny O', password: '123456' });
+			usernames = await db.getSortedSetRevRangeWithScores('username:uid', 0, -1);
+			usernames = usernames.filter(d => d.score === uid);
 			assert.deepStrictEqual(usernames, [{ value: 'Denny O', score: uid }]);
 		});
 
@@ -1161,19 +1056,16 @@ describe('User', () => {
 			await User.email.expireValidation(uid);
 			await apiUser.update(
 				{ uid: uid },
-				{ uid: uid, email: 'updatedAgain@me.com', password: '123456' }
+				{ uid: uid, email: 'updatedAgain@me.com', password: '123456' },
 			);
 
 			assert.strictEqual(
-				await User.email.isValidationPending(
-					uid,
-					'updatedAgain@me.com'.toLowerCase()
-				),
-				true
+				await User.email.isValidationPending(uid, 'updatedAgain@me.com'.toLowerCase()),
+				true,
 			);
 		});
 
-		it('should update cover image', (done) => {
+		it('should update cover image', done => {
 			const position = '50.0301% 19.2464%';
 			socketUser.updateCover(
 				{ uid: uid },
@@ -1181,17 +1073,13 @@ describe('User', () => {
 				(err, result) => {
 					assert.ifError(err);
 					assert(result.url);
-					db.getObjectFields(
-						`user:${uid}`,
-						['cover:url', 'cover:position'],
-						(err, data) => {
-							assert.ifError(err);
-							assert.equal(data['cover:url'], result.url);
-							assert.equal(data['cover:position'], position);
-							done();
-						}
-					);
-				}
+					db.getObjectFields(`user:${uid}`, ['cover:url', 'cover:position'], (err, data) => {
+						assert.ifError(err);
+						assert.equal(data['cover:url'], result.url);
+						assert.equal(data['cover:position'], position);
+						done();
+					});
+				},
 			);
 		});
 
@@ -1203,7 +1091,7 @@ describe('User', () => {
 			assert.strictEqual(fs.existsSync(coverPath), false);
 		});
 
-		it('should set user status', (done) => {
+		it('should set user status', done => {
 			socketUser.setStatus({ uid: uid }, 'away', (err, data) => {
 				assert.ifError(err);
 				assert.equal(data.uid, uid);
@@ -1212,14 +1100,14 @@ describe('User', () => {
 			});
 		});
 
-		it('should fail for invalid status', (done) => {
-			socketUser.setStatus({ uid: uid }, '12345', (err) => {
+		it('should fail for invalid status', done => {
+			socketUser.setStatus({ uid: uid }, '12345', err => {
 				assert.equal(err.message, '[[error:invalid-user-status]]');
 				done();
 			});
 		});
 
-		it('should get user status', (done) => {
+		it('should get user status', done => {
 			socketUser.checkStatus({ uid: uid }, uid, (err, status) => {
 				assert.ifError(err);
 				assert.equal(status, 'away');
@@ -1235,28 +1123,22 @@ describe('User', () => {
 
 		it('should let you set an external image', async () => {
 			const token = await helpers.getCsrfToken(jar);
-			const { body } = await request.put(
-				`${nconf.get('url')}/api/v3/users/${uid}/picture`,
-				{
-					jar,
-					headers: {
-						'x-csrf-token': token,
-					},
-					body: {
-						type: 'external',
-						url: 'https://example.org/picture.jpg',
-					},
-				}
-			);
+			const { body } = await request.put(`${nconf.get('url')}/api/v3/users/${uid}/picture`, {
+				jar,
+				headers: {
+					'x-csrf-token': token,
+				},
+				body: {
+					type: 'external',
+					url: 'https://example.org/picture.jpg',
+				},
+			});
 
 			assert(body && body.status && body.response);
 			assert.strictEqual(body.status.code, 'ok');
 
 			const picture = await User.getUserField(uid, 'picture');
-			assert.strictEqual(
-				picture,
-				validator.escape('https://example.org/picture.jpg')
-			);
+			assert.strictEqual(picture, validator.escape('https://example.org/picture.jpg'));
 		});
 
 		it('should fail to change user picture with invalid data', async () => {
@@ -1284,7 +1166,7 @@ describe('User', () => {
 			assert.equal(picture, `${nconf.get('relative_path')}/test`);
 		});
 
-		it('should return error if profile image uploads disabled', (done) => {
+		it('should return error if profile image uploads disabled', done => {
 			meta.config.allowProfileImageUploads = 0;
 			const picture = {
 				path: path.join(nconf.get('base_dir'), 'test/files/test_copy.png'),
@@ -1298,25 +1180,25 @@ describe('User', () => {
 					uid: uid,
 					file: picture,
 				},
-				(err) => {
+				err => {
 					assert.equal(err.message, '[[error:profile-image-uploads-disabled]]');
 					meta.config.allowProfileImageUploads = 1;
 					done();
-				}
+				},
 			);
 		});
 
-		it('should return error if profile image has no mime type', (done) => {
+		it('should return error if profile image has no mime type', done => {
 			User.uploadCroppedPicture(
 				{
 					callerUid: uid,
 					uid: uid,
 					imageData: 'data:image/invalid;base64,R0lGODlhPQBEAPeoAJosM/',
 				},
-				(err) => {
+				err => {
 					assert.equal(err.message, '[[error:invalid-image]]');
 					done();
-				}
+				},
 			);
 		});
 
@@ -1327,13 +1209,10 @@ describe('User', () => {
 			it('should upload cropped profile picture', async () => {
 				const result = await socketUser.uploadCroppedPicture(
 					{ uid: uid },
-					{ uid: uid, imageData: goodImage }
+					{ uid: uid, imageData: goodImage },
 				);
 				assert(result.url);
-				const data = await db.getObjectFields(`user:${uid}`, [
-					'uploadedpicture',
-					'picture',
-				]);
+				const data = await db.getObjectFields(`user:${uid}`, ['uploadedpicture', 'picture']);
 				assert.strictEqual(result.url, data.uploadedpicture);
 				assert.strictEqual(result.url, data.picture);
 			});
@@ -1349,10 +1228,7 @@ describe('User', () => {
 				const chunkSize = 1000;
 				let result;
 				do {
-					const chunk = goodImage.slice(
-						socketData.progress,
-						socketData.progress + chunkSize
-					);
+					const chunk = goodImage.slice(socketData.progress, socketData.progress + chunkSize);
 					socketData.progress += chunk.length;
 					// eslint-disable-next-line
 					result = await socketUploads.upload(
@@ -1360,27 +1236,24 @@ describe('User', () => {
 						{
 							chunk: chunk,
 							params: socketData,
-						}
+						},
 					);
 				} while (socketData.progress < socketData.size);
 
 				assert(result.url);
-				const data = await db.getObjectFields(`user:${uid}`, [
-					'uploadedpicture',
-					'picture',
-				]);
+				const data = await db.getObjectFields(`user:${uid}`, ['uploadedpicture', 'picture']);
 				assert.strictEqual(result.url, data.uploadedpicture);
 				assert.strictEqual(result.url, data.picture);
 			});
 
-			it('should error if both file and imageData are missing', (done) => {
-				User.uploadCroppedPicture({}, (err) => {
+			it('should error if both file and imageData are missing', done => {
+				User.uploadCroppedPicture({}, err => {
 					assert.equal('[[error:invalid-data]]', err.message);
 					done();
 				});
 			});
 
-			it('should error if file size is too big', (done) => {
+			it('should error if file size is too big', done => {
 				const temp = meta.config.maximumProfileImageSize;
 				meta.config.maximumProfileImageSize = 1;
 				User.uploadCroppedPicture(
@@ -1389,64 +1262,60 @@ describe('User', () => {
 						uid: 1,
 						imageData: goodImage,
 					},
-					(err) => {
+					err => {
 						assert.equal('[[error:file-too-big, 1]]', err.message);
 
 						// Restore old value
 						meta.config.maximumProfileImageSize = temp;
 						done();
-					}
+					},
 				);
 			});
 
-			it('should not allow image data with bad MIME type to be passed in', (done) => {
+			it('should not allow image data with bad MIME type to be passed in', done => {
 				User.uploadCroppedPicture(
 					{
 						callerUid: uid,
 						uid: 1,
 						imageData: badImage,
 					},
-					(err) => {
+					err => {
 						assert.equal('[[error:invalid-image]]', err.message);
 						done();
-					}
+					},
 				);
 			});
 
-			it('should get profile pictures', (done) => {
-				socketUser.getProfilePictures(
-					{ uid: uid },
-					{ uid: uid },
-					(err, data) => {
-						assert.ifError(err);
-						assert(data);
-						assert(Array.isArray(data));
-						assert.equal(data[0].type, 'default');
-						assert.equal(data[0].username, '[[user:default-picture]]');
-						assert.equal(data[1].type, 'uploaded');
-						assert.equal(data[1].username, '[[user:uploaded-picture]]');
-						done();
-					}
-				);
+			it('should get profile pictures', done => {
+				socketUser.getProfilePictures({ uid: uid }, { uid: uid }, (err, data) => {
+					assert.ifError(err);
+					assert(data);
+					assert(Array.isArray(data));
+					assert.equal(data[0].type, 'default');
+					assert.equal(data[0].username, '[[user:default-picture]]');
+					assert.equal(data[1].type, 'uploaded');
+					assert.equal(data[1].username, '[[user:uploaded-picture]]');
+					done();
+				});
 			});
 
-			it('should get default profile avatar', (done) => {
+			it('should get default profile avatar', done => {
 				assert.strictEqual(User.getDefaultAvatar(), '');
 				meta.config.defaultAvatar = 'https://path/to/default/avatar';
 				assert.strictEqual(User.getDefaultAvatar(), meta.config.defaultAvatar);
 				meta.config.defaultAvatar = '/path/to/default/avatar';
 				assert.strictEqual(
 					User.getDefaultAvatar(),
-					nconf.get('relative_path') + meta.config.defaultAvatar
+					nconf.get('relative_path') + meta.config.defaultAvatar,
 				);
 				meta.config.defaultAvatar = '';
 				done();
 			});
 
-			it('should fail to get profile pictures with invalid data', (done) => {
-				socketUser.getProfilePictures({ uid: uid }, null, (err) => {
+			it('should fail to get profile pictures with invalid data', done => {
+				socketUser.getProfilePictures({ uid: uid }, null, err => {
 					assert.equal(err.message, '[[error:invalid-data]]');
-					socketUser.getProfilePictures({ uid: uid }, { uid: null }, (err) => {
+					socketUser.getProfilePictures({ uid: uid }, { uid: null }, err => {
 						assert.equal(err.message, '[[error:invalid-data]]');
 						done();
 					});
@@ -1462,12 +1331,12 @@ describe('User', () => {
 				assert.strictEqual(fs.existsSync(avatarPath), false);
 			});
 
-			it('should fail to remove uploaded picture with invalid-data', (done) => {
-				socketUser.removeUploadedPicture({ uid: uid }, null, (err) => {
+			it('should fail to remove uploaded picture with invalid-data', done => {
+				socketUser.removeUploadedPicture({ uid: uid }, null, err => {
 					assert.equal(err.message, '[[error:invalid-data]]');
-					socketUser.removeUploadedPicture({ uid: uid }, {}, (err) => {
+					socketUser.removeUploadedPicture({ uid: uid }, {}, err => {
 						assert.equal(err.message, '[[error:invalid-data]]');
-						socketUser.removeUploadedPicture({ uid: null }, {}, (err) => {
+						socketUser.removeUploadedPicture({ uid: null }, {}, err => {
 							assert.equal(err.message, '[[error:invalid-data]]');
 							done();
 						});
@@ -1477,10 +1346,9 @@ describe('User', () => {
 		});
 
 		it('should load profile page', async () => {
-			const { response, body } = await request.get(
-				`${nconf.get('url')}/api/user/updatedagain`,
-				{ jar }
-			);
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/updatedagain`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 			assert(body);
 		});
@@ -1488,7 +1356,7 @@ describe('User', () => {
 		it('should load settings page', async () => {
 			const { response, body } = await request.get(
 				`${nconf.get('url')}/api/user/updatedagain/settings`,
-				{ jar }
+				{ jar },
 			);
 			assert.equal(response.statusCode, 200);
 			assert(body.settings);
@@ -1499,7 +1367,7 @@ describe('User', () => {
 		it('should load edit page', async () => {
 			const { response, body } = await request.get(
 				`${nconf.get('url')}/api/user/updatedagain/edit`,
-				{ jar }
+				{ jar },
 			);
 			assert.equal(response.statusCode, 200);
 			assert(body);
@@ -1508,7 +1376,7 @@ describe('User', () => {
 		it('should load edit/email page', async () => {
 			const { response, body } = await request.get(
 				`${nconf.get('url')}/api/user/updatedagain/edit/email`,
-				{ jar }
+				{ jar },
 			);
 			assert.strictEqual(response.statusCode, 200);
 			assert(body);
@@ -1529,10 +1397,9 @@ describe('User', () => {
 			});
 
 			await groups.join('Test', uid);
-			const { body } = await request.get(
-				`${nconf.get('url')}/api/user/updatedagain/groups`,
-				{ jar }
-			);
+			const { body } = await request.get(`${nconf.get('url')}/api/user/updatedagain/groups`, {
+				jar,
+			});
 
 			assert(Array.isArray(body.groups));
 			assert.equal(body.groups[0].name, 'Test');
@@ -1558,8 +1425,8 @@ describe('User', () => {
 			});
 		});
 
-		it('should return error if there is no ban reason', (done) => {
-			User.getLatestBanInfo(123, (err) => {
+		it('should return error if there is no ban reason', done => {
+			User.getLatestBanInfo(123, err => {
 				assert.equal(err.message, 'no-ban-info');
 				done();
 			});
@@ -1567,11 +1434,7 @@ describe('User', () => {
 
 		it('should get history from set', async () => {
 			const now = Date.now();
-			await db.sortedSetAdd(
-				`user:${testUserUid}:usernames`,
-				now,
-				`derp:${now}`
-			);
+			await db.sortedSetAdd(`user:${testUserUid}:usernames`, now, `derp:${now}`);
 			const data = await User.getHistory(`user:${testUserUid}:usernames`);
 			assert.equal(data[0].value, 'derp');
 			assert.equal(data[0].timestamp, now);
@@ -1581,16 +1444,12 @@ describe('User', () => {
 			await User.bans.ban(testUserUid, 0, '');
 			const data = await User.getModerationHistory(testUserUid);
 			assert.equal(data.bans.length, 1, 'one ban');
-			assert.equal(
-				data.bans[0].reason,
-				'[[user:info.banned-no-reason]]',
-				'no ban reason'
-			);
+			assert.equal(data.bans[0].reason, '[[user:info.banned-no-reason]]', 'no ban reason');
 			await User.bans.unban(testUserUid);
 		});
 
-		it('should ban user permanently', (done) => {
-			User.bans.ban(testUserUid, (err) => {
+		it('should ban user permanently', done => {
+			User.bans.ban(testUserUid, err => {
 				assert.ifError(err);
 				User.bans.isBanned(testUserUid, (err, isBanned) => {
 					assert.ifError(err);
@@ -1610,8 +1469,8 @@ describe('User', () => {
 			await User.bans.unban(testUserUid);
 		});
 
-		it('should error if until is NaN', (done) => {
-			User.bans.ban(testUserUid, 'asd', (err) => {
+		it('should error if until is NaN', done => {
+			User.bans.ban(testUserUid, 'asd', err => {
 				assert.equal(err.message, '[[error:ban-expiry-missing]]');
 				done();
 			});
@@ -1620,14 +1479,9 @@ describe('User', () => {
 		it('should be member of "banned-users" system group only after a ban', async () => {
 			await User.bans.ban(testUserUid);
 
-			const systemGroups = groups.systemGroups.filter(
-				(group) => group !== groups.BANNED_USERS
-			);
+			const systemGroups = groups.systemGroups.filter(group => group !== groups.BANNED_USERS);
 			const isMember = await groups.isMember(testUserUid, groups.BANNED_USERS);
-			const isMemberOfAny = await groups.isMemberOfAny(
-				testUserUid,
-				systemGroups
-			);
+			const isMemberOfAny = await groups.isMemberOfAny(testUserUid, systemGroups);
 
 			assert.strictEqual(isMember, true);
 			assert.strictEqual(isMemberOfAny, false);
@@ -1636,15 +1490,9 @@ describe('User', () => {
 		it('should restore system group memberships after an unban (for an unverified user)', async () => {
 			await User.bans.unban(testUserUid);
 
-			const isMemberOfGroups = await groups.isMemberOfGroups(
-				testUserUid,
-				groups.systemGroups
-			);
+			const isMemberOfGroups = await groups.isMemberOfGroups(testUserUid, groups.systemGroups);
 			const membership = new Map(
-				groups.systemGroups.map((item, index) => [
-					item,
-					isMemberOfGroups[index],
-				])
+				groups.systemGroups.map((item, index) => [item, isMemberOfGroups[index]]),
 			);
 
 			assert.strictEqual(membership.get('registered-users'), true);
@@ -1663,13 +1511,10 @@ describe('User', () => {
 
 			const isMemberOfGroups = await groups.isMemberOfGroups(
 				verifiedTestUserUid,
-				groups.systemGroups
+				groups.systemGroups,
 			);
 			const membership = new Map(
-				groups.systemGroups.map((item, index) => [
-					item,
-					isMemberOfGroups[index],
-				])
+				groups.systemGroups.map((item, index) => [item, isMemberOfGroups[index]]),
 			);
 
 			assert.strictEqual(membership.get('verified-users'), true);
@@ -1701,12 +1546,12 @@ describe('User', () => {
 				privileges.categories.give(
 					['groups:topics:create', 'groups:topics:reply'],
 					cid,
-					'banned-users'
+					'banned-users',
 				),
 				privileges.categories.rescind(
 					['groups:topics:create', 'groups:topics:reply'],
 					cid,
-					'registered-users'
+					'registered-users',
 				),
 			]);
 
@@ -1727,7 +1572,7 @@ describe('User', () => {
 		before(async () => {
 			const testUsers = ['daysub', 'offsub', 'nullsub', 'weeksub'];
 			await Promise.all(
-				testUsers.map(async (username) => {
+				testUsers.map(async username => {
 					const uid = await User.create({
 						username,
 						email: `${username}@example.com`,
@@ -1740,11 +1585,11 @@ describe('User', () => {
 					const sub = username.slice(0, -3);
 					await User.updateDigestSetting(uid, sub);
 					await User.setSetting(uid, 'dailyDigestFreq', sub);
-				})
+				}),
 			);
 		});
 
-		it('should accurately build digest list given ACP default "null" (not set)', (done) => {
+		it('should accurately build digest list given ACP default "null" (not set)', done => {
 			User.digest.getSubscribers('day', (err, subs) => {
 				assert.ifError(err);
 				assert.strictEqual(subs.length, 1);
@@ -1827,7 +1672,7 @@ describe('User', () => {
 
 		it('should get delivery times', async () => {
 			const data = await User.digest.getDeliveryTimes(0, -1);
-			const users = data.users.filter((u) => u.username === 'digestuser');
+			const users = data.users.filter(u => u.username === 'digestuser');
 			assert.strictEqual(users[0].setting, 'day');
 		});
 
@@ -1838,17 +1683,12 @@ describe('User', () => {
 						template: 'digest',
 						uid: uid,
 					},
-					nconf.get('secret')
+					nconf.get('secret'),
 				);
 
-				const { response } = await request.post(
-					`${nconf.get('url')}/email/unsubscribe/${token}`
-				);
+				const { response } = await request.post(`${nconf.get('url')}/email/unsubscribe/${token}`);
 				assert.strictEqual(response.statusCode, 200);
-				const value = await db.getObjectField(
-					`user:${uid}:settings`,
-					'dailyDigestFreq'
-				);
+				const value = await db.getObjectField(`user:${uid}:settings`, 'dailyDigestFreq');
 				assert.strictEqual(value, 'off');
 			});
 
@@ -1859,18 +1699,13 @@ describe('User', () => {
 						type: 'test',
 						uid: uid,
 					},
-					nconf.get('secret')
+					nconf.get('secret'),
 				);
 
-				const { response } = await request.post(
-					`${nconf.get('url')}/email/unsubscribe/${token}`
-				);
+				const { response } = await request.post(`${nconf.get('url')}/email/unsubscribe/${token}`);
 				assert.strictEqual(response.statusCode, 200);
 
-				const value = await db.getObjectField(
-					`user:${uid}:settings`,
-					'notificationType_test'
-				);
+				const value = await db.getObjectField(`user:${uid}:settings`, 'notificationType_test');
 				assert.strictEqual(value, 'notification');
 			});
 
@@ -1879,12 +1714,10 @@ describe('User', () => {
 					{
 						uid: uid,
 					},
-					nconf.get('secret')
+					nconf.get('secret'),
 				);
 
-				const { response } = await request.post(
-					`${nconf.get('url')}/email/unsubscribe/${token}`
-				);
+				const { response } = await request.post(`${nconf.get('url')}/email/unsubscribe/${token}`);
 				assert.strictEqual(response.statusCode, 404);
 			});
 
@@ -1894,19 +1727,15 @@ describe('User', () => {
 						template: 'user',
 						uid: uid,
 					},
-					nconf.get('secret')
+					nconf.get('secret'),
 				);
 
-				const { response } = await request.post(
-					`${nconf.get('url')}/email/unsubscribe/${token}`
-				);
+				const { response } = await request.post(`${nconf.get('url')}/email/unsubscribe/${token}`);
 				assert.strictEqual(response.statusCode, 404);
 			});
 
 			it('should return errors on missing token', async () => {
-				const { response } = await request.post(
-					`${nconf.get('url')}/email/unsubscribe/`
-				);
+				const { response } = await request.post(`${nconf.get('url')}/email/unsubscribe/`);
 				assert.strictEqual(response.statusCode, 404);
 			});
 
@@ -1917,12 +1746,10 @@ describe('User', () => {
 						type: 'test',
 						uid: uid,
 					},
-					`${nconf.get('secret')}aababacaba`
+					`${nconf.get('secret')}aababacaba`,
 				);
 
-				const { response } = await request.post(
-					`${nconf.get('url')}/email/unsubscribe/${token}`
-				);
+				const { response } = await request.post(`${nconf.get('url')}/email/unsubscribe/${token}`);
 				assert.strictEqual(response.statusCode, 403);
 			});
 		});
@@ -1932,32 +1759,29 @@ describe('User', () => {
 		const socketUser = require('../src/socket.io/user');
 		let delUid;
 
-		it('should fail with invalid data', (done) => {
-			meta.userOrGroupExists(null, (err) => {
+		it('should fail with invalid data', done => {
+			meta.userOrGroupExists(null, err => {
 				assert.equal(err.message, '[[error:invalid-data]]');
 				done();
 			});
 		});
 
 		it('should return true/false if user/group exists or not', async () => {
-			assert.strictEqual(
-				await meta.userOrGroupExists('registered-users'),
-				true
-			);
+			assert.strictEqual(await meta.userOrGroupExists('registered-users'), true);
 			assert.strictEqual(await meta.userOrGroupExists('John Smith'), true);
 			assert.strictEqual(await meta.userOrGroupExists('doesnot exist'), false);
-			assert.deepStrictEqual(
-				await meta.userOrGroupExists(['doesnot exist', 'nope not here']),
-				[false, false]
-			);
-			assert.deepStrictEqual(
-				await meta.userOrGroupExists(['doesnot exist', 'John Smith']),
-				[false, true]
-			);
-			assert.deepStrictEqual(
-				await meta.userOrGroupExists(['administrators', 'John Smith']),
-				[true, true]
-			);
+			assert.deepStrictEqual(await meta.userOrGroupExists(['doesnot exist', 'nope not here']), [
+				false,
+				false,
+			]);
+			assert.deepStrictEqual(await meta.userOrGroupExists(['doesnot exist', 'John Smith']), [
+				false,
+				true,
+			]);
+			assert.deepStrictEqual(await meta.userOrGroupExists(['administrators', 'John Smith']), [
+				true,
+				true,
+			]);
 
 			await assert.rejects(meta.userOrGroupExists(['', undefined]), {
 				message: '[[error:invalid-data]]',
@@ -1971,24 +1795,24 @@ describe('User', () => {
 			meta.config['profile:keepAllUserImages'] = 1;
 			let result = await socketUser.uploadCroppedPicture(
 				{ uid: delUid },
-				{ uid: delUid, imageData: goodImage }
+				{ uid: delUid, imageData: goodImage },
 			);
 			assert(result.url);
 			result = await socketUser.uploadCroppedPicture(
 				{ uid: delUid },
-				{ uid: delUid, imageData: goodImage }
+				{ uid: delUid, imageData: goodImage },
 			);
 			assert(result.url);
 
 			const position = '50.0301% 19.2464%';
 			result = await socketUser.updateCover(
 				{ uid: delUid },
-				{ uid: delUid, imageData: goodImage, position: position }
+				{ uid: delUid, imageData: goodImage, position: position },
 			);
 			assert(result.url);
 			result = await socketUser.updateCover(
 				{ uid: delUid },
-				{ uid: delUid, imageData: goodImage, position: position }
+				{ uid: delUid, imageData: goodImage, position: position },
 			);
 			assert(result.url);
 			meta.config['profile:keepAllUserImages'] = 0;
@@ -1999,13 +1823,9 @@ describe('User', () => {
 		});
 
 		it('should clean profile images after account deletion', () => {
-			const allProfileFiles = fs.readdirSync(
-				path.join(nconf.get('upload_path'), 'profile')
-			);
+			const allProfileFiles = fs.readdirSync(path.join(nconf.get('upload_path'), 'profile'));
 			const deletedUserImages = allProfileFiles.filter(
-				(f) =>
-					f.startsWith(`${delUid}-profilecover`) ||
-					f.startsWith(`${delUid}-profileavatar`)
+				f => f.startsWith(`${delUid}-profilecover`) || f.startsWith(`${delUid}-profileavatar`),
 			);
 			assert.strictEqual(deletedUserImages.length, 0);
 		});
@@ -2016,10 +1836,7 @@ describe('User', () => {
 				password: '123456',
 			});
 			try {
-				await apiUser.deleteAccount(
-					{ uid: uid },
-					{ uid: uid, password: '654321' }
-				);
+				await apiUser.deleteAccount({ uid: uid }, { uid: uid, password: '654321' });
 				assert(false);
 			} catch (err) {
 				assert.strictEqual(err.message, '[[error:invalid-password]]');
@@ -2031,10 +1848,7 @@ describe('User', () => {
 				username: 'willbedeletedcorrectpwd',
 				password: '123456',
 			});
-			await apiUser.deleteAccount(
-				{ uid: uid },
-				{ uid: uid, password: '123456' }
-			);
+			await apiUser.deleteAccount({ uid: uid }, { uid: uid, password: '123456' });
 			const exists = await User.exists(uid);
 			assert(!exists);
 		});
@@ -2052,41 +1866,37 @@ describe('User', () => {
 			meta.config.allowAccountDelete = oldValue;
 		});
 
-		it('should send reset email', (done) => {
-			socketUser.reset.send({ uid: 0 }, 'john@example.com', (err) => {
+		it('should send reset email', done => {
+			socketUser.reset.send({ uid: 0 }, 'john@example.com', err => {
 				assert.ifError(err);
 				done();
 			});
 		});
 
-		it('should return invalid-data error', (done) => {
-			socketUser.reset.send({ uid: 0 }, null, (err) => {
+		it('should return invalid-data error', done => {
+			socketUser.reset.send({ uid: 0 }, null, err => {
 				assert.equal(err.message, '[[error:invalid-data]]');
 				done();
 			});
 		});
 
-		it('should not error', (done) => {
-			socketUser.reset.send({ uid: 0 }, 'doestnot@exist.com', (err) => {
+		it('should not error', done => {
+			socketUser.reset.send({ uid: 0 }, 'doestnot@exist.com', err => {
 				assert.ifError(err);
 				done();
 			});
 		});
 
-		it('should commit reset', (done) => {
+		it('should commit reset', done => {
 			db.getObject('reset:uid', (err, data) => {
 				assert.ifError(err);
 				const code = Object.keys(data).find(
-					(code) => parseInt(data[code], 10) === parseInt(testUid, 10)
+					code => parseInt(data[code], 10) === parseInt(testUid, 10),
 				);
-				socketUser.reset.commit(
-					{ uid: 0 },
-					{ code: code, password: 'pwdchange' },
-					(err) => {
-						assert.ifError(err);
-						done();
-					}
-				);
+				socketUser.reset.commit({ uid: 0 }, { code: code, password: 'pwdchange' }, err => {
+					assert.ifError(err);
+					done();
+				});
 			});
 		});
 
@@ -2137,10 +1947,7 @@ describe('User', () => {
 			};
 			await apiUser.updateSettings({ uid: testUid }, data);
 			const userSettings = await User.getSettings(testUid);
-			assert.strictEqual(
-				userSettings.homePageRoute,
-				'category/6/testing-ground'
-			);
+			assert.strictEqual(userSettings.homePageRoute, 'category/6/testing-ground');
 		});
 
 		it('should error if language is invalid', async () => {
@@ -2165,12 +1972,12 @@ describe('User', () => {
 			await groups.join('administrators', adminUid);
 			await socketUser.setModerationNote(
 				{ uid: adminUid },
-				{ uid: testUid, note: 'this is a test user' }
+				{ uid: testUid, note: 'this is a test user' },
 			);
 			await setTimeout(50);
 			await socketUser.setModerationNote(
 				{ uid: adminUid },
-				{ uid: testUid, note: '<svg/onload=alert(document.location);//' }
+				{ uid: testUid, note: '<svg/onload=alert(document.location);//' },
 			);
 			const notes = await User.getModerationNotes(testUid, 0, -1);
 			assert.equal(notes[0].note, '');
@@ -2228,32 +2035,20 @@ describe('User', () => {
 		});
 
 		it('should get user data by username', async () => {
-			const userData = await socketUser.getUserByUsername(
-				{ uid: testUid },
-				'John Smith'
-			);
+			const userData = await socketUser.getUserByUsername({ uid: testUid }, 'John Smith');
 			assert.strictEqual(userData.uid, testUid);
 		});
 
 		it('should get user data by email', async () => {
-			const userData = await socketUser.getUserByEmail(
-				{ uid: testUid },
-				'john@example.com'
-			);
+			const userData = await socketUser.getUserByEmail({ uid: testUid }, 'john@example.com');
 			assert.strictEqual(userData.uid, testUid);
 		});
 
 		it('should check/consent gdpr status', async () => {
-			const consent = await socketUser.gdpr.check(
-				{ uid: testUid },
-				{ uid: testUid }
-			);
+			const consent = await socketUser.gdpr.check({ uid: testUid }, { uid: testUid });
 			assert(!consent);
 			await socketUser.gdpr.consent({ uid: testUid });
-			const consentAfter = await socketUser.gdpr.check(
-				{ uid: testUid },
-				{ uid: testUid }
-			);
+			const consentAfter = await socketUser.gdpr.check({ uid: testUid }, { uid: testUid });
 			assert(consentAfter);
 		});
 	});
@@ -2261,7 +2056,7 @@ describe('User', () => {
 	describe('approval queue', () => {
 		let oldRegistrationApprovalType;
 		let adminUid;
-		before((done) => {
+		before(done => {
 			oldRegistrationApprovalType = meta.config.registrationApprovalType;
 			meta.config.registrationApprovalType = 'admin-approval';
 			User.create({ username: 'admin', password: '123456' }, (err, uid) => {
@@ -2271,7 +2066,7 @@ describe('User', () => {
 			});
 		});
 
-		after((done) => {
+		after(done => {
 			meta.config.registrationApprovalType = oldRegistrationApprovalType;
 			done();
 		});
@@ -2287,14 +2082,11 @@ describe('User', () => {
 			const { jar } = await helpers.loginUser('admin', '123456');
 			const {
 				body: { users },
-			} = await request.get(
-				`${nconf.get('url')}/api/admin/manage/registration`,
-				{ jar }
-			);
+			} = await request.get(`${nconf.get('url')}/api/admin/manage/registration`, { jar });
 			assert.equal(users[0].username, 'rejectme');
 			assert.equal(
 				users[0].email,
-				'&lt;script&gt;alert(&quot;ok&quot;)&lt;script&gt;reject@me.com'
+				'&lt;script&gt;alert(&quot;ok&quot;)&lt;script&gt;reject@me.com',
 			);
 		});
 
@@ -2321,10 +2113,7 @@ describe('User', () => {
 		});
 
 		it('should reject user registration', async () => {
-			await socketUser.rejectRegistration(
-				{ uid: adminUid },
-				{ username: 'rejectme' }
-			);
+			await socketUser.rejectRegistration({ uid: adminUid }, { username: 'rejectme' });
 			const users = await User.getRegistrationQueue(0, -1);
 			assert.equal(users.length, 0);
 		});
@@ -2338,10 +2127,7 @@ describe('User', () => {
 				gdpr_consent: true,
 			});
 
-			const uid = await socketUser.acceptRegistration(
-				{ uid: adminUid },
-				{ username: 'acceptme' }
-			);
+			const uid = await socketUser.acceptRegistration({ uid: adminUid }, { username: 'acceptme' });
 			const exists = await User.exists(uid);
 			assert(exists);
 			const users = await User.getRegistrationQueue(0, -1);
@@ -2409,10 +2195,7 @@ describe('User', () => {
 			let jar;
 
 			before(async () => {
-				({ jar, csrf_token } = await helpers.loginUser(
-					'notAnInviter',
-					COMMON_PW
-				));
+				({ jar, csrf_token } = await helpers.loginUser('notAnInviter', COMMON_PW));
 			});
 
 			it('should error if user does not have invite privilege', async () => {
@@ -2420,12 +2203,12 @@ describe('User', () => {
 					{ emails: 'invite1@test.com', groupsToJoin: [] },
 					notAnInviterUid,
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				assert.strictEqual(response.statusCode, 403);
 				assert.strictEqual(
 					body.status.message,
-					'You do not have enough privileges for this action.'
+					'You do not have enough privileges for this action.',
 				);
 			});
 
@@ -2434,13 +2217,13 @@ describe('User', () => {
 					{ emails: 'invite1@test.com', groupsToJoin: [] },
 					inviterUid,
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				const numInvites = await User.getInvitesNumber(inviterUid);
 				assert.strictEqual(response.statusCode, 403);
 				assert.strictEqual(
 					body.status.message,
-					'You do not have enough privileges for this action.'
+					'You do not have enough privileges for this action.',
 				);
 				assert.strictEqual(numInvites, 0);
 			});
@@ -2455,12 +2238,7 @@ describe('User', () => {
 			});
 
 			it('should error with invalid data', async () => {
-				const { response, body } = await helpers.invite(
-					{},
-					inviterUid,
-					jar,
-					csrf_token
-				);
+				const { response, body } = await helpers.invite({}, inviterUid, jar, csrf_token);
 				assert.strictEqual(response.statusCode, 400);
 				assert.strictEqual(body.status.message, 'Invalid Data');
 			});
@@ -2471,12 +2249,12 @@ describe('User', () => {
 					{ emails: 'invite1@test.com', groupsToJoin: [] },
 					inviterUid,
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				assert.strictEqual(response.statusCode, 403);
 				assert.strictEqual(
 					body.status.message,
-					'You do not have enough privileges for this action.'
+					'You do not have enough privileges for this action.',
 				);
 			});
 
@@ -2486,7 +2264,7 @@ describe('User', () => {
 					{ emails: 'invite1@test.com', groupsToJoin: [] },
 					inviterUid,
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				assert.strictEqual(response.statusCode, 200);
 			});
@@ -2499,7 +2277,7 @@ describe('User', () => {
 					},
 					inviterUid,
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				assert.strictEqual(response.statusCode, 200);
 			});
@@ -2509,12 +2287,12 @@ describe('User', () => {
 					{ emails: 'invite4@test.com', groupsToJoin: [PRIVATE_GROUP] },
 					inviterUid,
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				assert.strictEqual(response.statusCode, 403);
 				assert.strictEqual(
 					body.status.message,
-					'You do not have enough privileges for this action.'
+					'You do not have enough privileges for this action.',
 				);
 			});
 
@@ -2523,12 +2301,12 @@ describe('User', () => {
 					{ emails: 'invite4@test.com', groupsToJoin: ['administrators'] },
 					inviterUid,
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				assert.strictEqual(response.statusCode, 403);
 				assert.strictEqual(
 					body.status.message,
-					'You do not have enough privileges for this action.'
+					'You do not have enough privileges for this action.',
 				);
 			});
 
@@ -2537,7 +2315,7 @@ describe('User', () => {
 					{ emails: 'invite4@test.com', groupsToJoin: [OWN_PRIVATE_GROUP] },
 					inviterUid,
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				assert.strictEqual(response.statusCode, 200);
 			});
@@ -2550,7 +2328,7 @@ describe('User', () => {
 					},
 					inviterUid,
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				assert.strictEqual(response.statusCode, 200);
 			});
@@ -2560,7 +2338,7 @@ describe('User', () => {
 					{ emails: 'invite6@test.com', groupsToJoin: [HIDDEN_GROUP] },
 					inviterUid,
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				assert.strictEqual(response.statusCode, 403);
 			});
@@ -2571,12 +2349,12 @@ describe('User', () => {
 					{ emails: 'invite6@test.com', groupsToJoin: [] },
 					inviterUid,
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				assert.strictEqual(response.statusCode, 403);
 				assert.strictEqual(
 					body.status.message,
-					`You have invited the maximum amount of people (${5} out of ${1}).`
+					`You have invited the maximum amount of people (${5} out of ${1}).`,
 				);
 				meta.config.maximumInvites = 10;
 			});
@@ -2586,7 +2364,7 @@ describe('User', () => {
 					{ emails: 'invite6@test.com', groupsToJoin: [] },
 					inviterUid,
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				assert.strictEqual(response.statusCode, 200);
 			});
@@ -2596,13 +2374,13 @@ describe('User', () => {
 					{ emails: 'inviter@nodebb.org', groupsToJoin: [] },
 					adminUid,
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				const numInvites = await User.getInvitesNumber(adminUid);
 				assert.strictEqual(response.statusCode, 403);
 				assert.strictEqual(
 					body.status.message,
-					'You do not have enough privileges for this action.'
+					'You do not have enough privileges for this action.',
 				);
 				assert.strictEqual(numInvites, 0);
 			});
@@ -2612,7 +2390,7 @@ describe('User', () => {
 					{ emails: 'inviter@nodebb.org', groupsToJoin: [] },
 					inviterUid,
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				const numInvites = await User.getInvitesNumber(adminUid);
 
@@ -2626,10 +2404,7 @@ describe('User', () => {
 			let jar;
 
 			before(async () => {
-				({ jar, csrf_token } = await helpers.loginUser(
-					'adminInvite',
-					COMMON_PW
-				));
+				({ jar, csrf_token } = await helpers.loginUser('adminInvite', COMMON_PW));
 			});
 
 			it('should escape email', async () => {
@@ -2637,13 +2412,10 @@ describe('User', () => {
 					{ emails: '<script>alert("ok");</script>', groupsToJoin: [] },
 					adminUid,
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				const data = await User.getInvites(adminUid);
-				assert.strictEqual(
-					data[0],
-					'&lt;script&gt;alert(&quot;ok&quot;);&lt;&#x2F;script&gt;'
-				);
+				assert.strictEqual(data[0], '&lt;script&gt;alert(&quot;ok&quot;);&lt;&#x2F;script&gt;');
 				await User.deleteInvitationKey('<script>alert("ok");</script>');
 			});
 
@@ -2652,14 +2424,14 @@ describe('User', () => {
 					{ emails: 'invite99@test.com', groupsToJoin: ['administrators'] },
 					adminUid,
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				assert.strictEqual(response.statusCode, 200);
 			});
 		});
 
 		describe('after invites checks', () => {
-			it("should get user's invites", (done) => {
+			it("should get user's invites", done => {
 				User.getInvites(inviterUid, (err, data) => {
 					assert.ifError(err);
 					Array.from(Array(6)).forEach((_, i) => {
@@ -2669,125 +2441,89 @@ describe('User', () => {
 				});
 			});
 
-			it('should get all invites', (done) => {
+			it('should get all invites', done => {
 				User.getAllInvites((err, data) => {
 					assert.ifError(err);
 
-					const adminData = data.filter(
-						(d) => parseInt(d.uid, 10) === adminUid
-					)[0];
-					assert.notEqual(
-						adminData.invitations.indexOf('invite99@test.com'),
-						-1
-					);
+					const adminData = data.filter(d => parseInt(d.uid, 10) === adminUid)[0];
+					assert.notEqual(adminData.invitations.indexOf('invite99@test.com'), -1);
 
-					const inviterData = data.filter(
-						(d) => parseInt(d.uid, 10) === inviterUid
-					)[0];
+					const inviterData = data.filter(d => parseInt(d.uid, 10) === inviterUid)[0];
 					Array.from(Array(6)).forEach((_, i) => {
-						assert.notEqual(
-							inviterData.invitations.indexOf(`invite${i + 1}@test.com`),
-							-1
-						);
+						assert.notEqual(inviterData.invitations.indexOf(`invite${i + 1}@test.com`), -1);
 					});
 
 					done();
 				});
 			});
 
-			it('should fail to verify invitation with invalid data', (done) => {
-				User.verifyInvitation({ token: '', email: '' }, (err) => {
-					assert.strictEqual(
-						err.message,
-						'[[register:invite.error-invite-only]]'
-					);
+			it('should fail to verify invitation with invalid data', done => {
+				User.verifyInvitation({ token: '', email: '' }, err => {
+					assert.strictEqual(err.message, '[[register:invite.error-invite-only]]');
 					done();
 				});
 			});
 
-			it('should fail to verify invitation with invalid email', (done) => {
-				User.verifyInvitation(
-					{ token: 'test', email: 'doesnotexist@test.com' },
-					(err) => {
-						assert.strictEqual(
-							err.message,
-							'[[register:invite.error-invalid-data]]'
-						);
-						done();
-					}
-				);
+			it('should fail to verify invitation with invalid email', done => {
+				User.verifyInvitation({ token: 'test', email: 'doesnotexist@test.com' }, err => {
+					assert.strictEqual(err.message, '[[register:invite.error-invalid-data]]');
+					done();
+				});
 			});
 
-			it('should verify installation with no errors', (done) => {
+			it('should verify installation with no errors', done => {
 				const email = 'invite1@test.com';
-				db.get(
-					`invitation:uid:${inviterUid}:invited:${email}`,
-					'token',
-					(err, token) => {
+				db.get(`invitation:uid:${inviterUid}:invited:${email}`, 'token', (err, token) => {
+					assert.ifError(err);
+					User.verifyInvitation({ token: token, email: 'invite1@test.com' }, err => {
 						assert.ifError(err);
-						User.verifyInvitation(
-							{ token: token, email: 'invite1@test.com' },
-							(err) => {
-								assert.ifError(err);
-								done();
-							}
-						);
-					}
-				);
+						done();
+					});
+				});
 			});
 
-			it('should error with invalid username', (done) => {
-				User.deleteInvitation('doesnotexist', 'test@test.com', (err) => {
+			it('should error with invalid username', done => {
+				User.deleteInvitation('doesnotexist', 'test@test.com', err => {
 					assert.equal(err.message, '[[error:invalid-username]]');
 					done();
 				});
 			});
 
-			it('should delete invitation', (done) => {
+			it('should delete invitation', done => {
 				const socketUser = require('../src/socket.io/user');
 				socketUser.deleteInvitation(
 					{ uid: adminUid },
 					{ invitedBy: 'inviter', email: 'invite1@test.com' },
-					(err) => {
+					err => {
 						assert.ifError(err);
-						db.isSetMember(
-							`invitation:uid:${inviterUid}`,
-							'invite1@test.com',
-							(err, isMember) => {
-								assert.ifError(err);
-								assert.equal(isMember, false);
-								done();
-							}
-						);
-					}
+						db.isSetMember(`invitation:uid:${inviterUid}`, 'invite1@test.com', (err, isMember) => {
+							assert.ifError(err);
+							assert.equal(isMember, false);
+							done();
+						});
+					},
 				);
 			});
 
-			it('should delete invitation key', (done) => {
-				User.deleteInvitationKey('invite99@test.com', (err) => {
+			it('should delete invitation key', done => {
+				User.deleteInvitationKey('invite99@test.com', err => {
 					assert.ifError(err);
-					db.isSetMember(
-						`invitation:uid:${adminUid}`,
-						'invite99@test.com',
-						(err, isMember) => {
+					db.isSetMember(`invitation:uid:${adminUid}`, 'invite99@test.com', (err, isMember) => {
+						assert.ifError(err);
+						assert.equal(isMember, false);
+						db.isSetMember('invitation:uids', adminUid, (err, isMember) => {
 							assert.ifError(err);
 							assert.equal(isMember, false);
-							db.isSetMember('invitation:uids', adminUid, (err, isMember) => {
-								assert.ifError(err);
-								assert.equal(isMember, false);
-								done();
-							});
-						}
-					);
+							done();
+						});
+					});
 				});
 			});
 
 			it('should joined the groups from invitation after registration', async () => {
 				const email = 'invite5@test.com';
 				const groupsToJoin = [PUBLIC_GROUP, OWN_PRIVATE_GROUP];
-				const token = await db.get(
-					`invitation:uid:${inviterUid}:invited:${email}`
-				);
+				const token = await db.get(`invitation:uid:${inviterUid}:invited:${email}`);
 
 				const { body } = await helpers.registerUser({
 					username: 'invite5',
@@ -2798,16 +2534,9 @@ describe('User', () => {
 					token: token,
 				});
 
-				const memberships = await groups.isMemberOfGroups(
-					body.uid,
-					groupsToJoin
-				);
+				const memberships = await groups.isMemberOfGroups(body.uid, groupsToJoin);
 				const joinedToAll = memberships.filter(Boolean);
-				assert.strictEqual(
-					joinedToAll.length,
-					groupsToJoin.length,
-					'Not joined to the groups'
-				);
+				assert.strictEqual(joinedToAll.length, groupsToJoin.length, 'Not joined to the groups');
 			});
 		});
 
@@ -2825,15 +2554,12 @@ describe('User', () => {
 					`/api/v3/users/${inviterUid}/invites/groups`,
 					{
 						jar,
-					}
+					},
 				);
 
 				assert(Array.isArray(body.response));
 				assert.strictEqual(2, body.response.length);
-				assert.deepStrictEqual(body.response, [
-					'ownPrivateGroup',
-					'publicGroup',
-				]);
+				assert.deepStrictEqual(body.response, ['ownPrivateGroup', 'publicGroup']);
 			});
 
 			it('should error out if you request invite groups for another uid', async () => {
@@ -2842,7 +2568,7 @@ describe('User', () => {
 					`/api/v3/users/${adminUid}/invites/groups`,
 					{
 						jar,
-					}
+					},
 				);
 
 				assert.strictEqual(response.statusCode, 403);
@@ -2851,8 +2577,8 @@ describe('User', () => {
 	});
 
 	describe('email confirm', () => {
-		it('should error with invalid code', (done) => {
-			User.email.confirmByCode('asdasda', (err) => {
+		it('should error with invalid code', done => {
+			User.email.confirmByCode('asdasda', err => {
 				assert.equal(err.message, '[[error:invalid-data]]');
 				done();
 			});
@@ -2917,29 +2643,24 @@ describe('User', () => {
 	});
 
 	describe('user jobs', () => {
-		it('should start user jobs', (done) => {
+		it('should start user jobs', done => {
 			User.startJobs();
 			done();
 		});
 
-		it('should stop user jobs', (done) => {
+		it('should stop user jobs', done => {
 			User.stopJobs();
 			done();
 		});
 
-		it('should send digest', (done) => {
-			db.sortedSetAdd(
-				'digest:day:uids',
-				[Date.now(), Date.now()],
-				[1, 2],
-				(err) => {
+		it('should send digest', done => {
+			db.sortedSetAdd('digest:day:uids', [Date.now(), Date.now()], [1, 2], err => {
+				assert.ifError(err);
+				User.digest.execute({ interval: 'day' }, err => {
 					assert.ifError(err);
-					User.digest.execute({ interval: 'day' }, (err) => {
-						assert.ifError(err);
-						done();
-					});
-				}
-			);
+					done();
+				});
+			});
 		});
 	});
 
@@ -2969,45 +2690,31 @@ describe('User', () => {
 				password: COMMON_PW,
 			});
 			await groups.join('administrators', adminUid);
-			({ jar: adminJar } = await helpers.loginUser(
-				'adminhideemail',
-				COMMON_PW
-			));
+			({ jar: adminJar } = await helpers.loginUser('adminhideemail', COMMON_PW));
 
 			// Edge case: In a grepped test, this user should not be created as the first user to have its email not confirmed
 			hidingUser.uid = await User.create(hidingUser);
-			({ jar: hidingUserJar } = await helpers.loginUser(
-				hidingUser.username,
-				COMMON_PW
-			));
+			({ jar: hidingUserJar } = await helpers.loginUser(hidingUser.username, COMMON_PW));
 
 			const globalModUid = await User.create({
 				username: 'globalmodhideemail',
 				password: COMMON_PW,
 			});
 			await groups.join('Global Moderators', globalModUid);
-			({ jar: globalModJar } = await helpers.loginUser(
-				'globalmodhideemail',
-				COMMON_PW
-			));
+			({ jar: globalModJar } = await helpers.loginUser('globalmodhideemail', COMMON_PW));
 
 			regularUser.uid = await User.create(regularUser);
-			({ jar: regularUserJar } = await helpers.loginUser(
-				regularUser.username,
-				COMMON_PW
-			));
+			({ jar: regularUserJar } = await helpers.loginUser(regularUser.username, COMMON_PW));
 		});
 
-		after((done) => {
+		after(done => {
 			meta.config.hideEmail = 0;
 			meta.config.hideFullname = 0;
 			done();
 		});
 
 		async function assertPrivacy({ expectVisible, jar, v3Api, emailOnly }) {
-			const path = v3Api
-				? `v3/users/${hidingUser.uid}`
-				: `user/${hidingUser.username}`;
+			const path = v3Api ? `v3/users/${hidingUser.uid}` : `user/${hidingUser.username}`;
 			const { body } = await request.get(`${nconf.get('url')}/api/${path}`, {
 				jar,
 			});
@@ -3015,10 +2722,7 @@ describe('User', () => {
 
 			assert.strictEqual(userData.email, expectVisible ? hidingUser.email : '');
 			if (!emailOnly) {
-				assert.strictEqual(
-					userData.fullname,
-					expectVisible ? hidingUser.fullname : ''
-				);
+				assert.strictEqual(userData.fullname, expectVisible ? hidingUser.fullname : '');
 			}
 		}
 
@@ -3234,10 +2938,7 @@ describe('User', () => {
 		});
 
 		it('should handle array of user data (system-wide: hide)', async () => {
-			const userData = await User.hidePrivateData(
-				[hidingUser, regularUser],
-				hidingUser.uid
-			);
+			const userData = await User.hidePrivateData([hidingUser, regularUser], hidingUser.uid);
 			assert.strictEqual(userData[0].fullname, hidingUser.fullname);
 			assert.strictEqual(userData[0].email, hidingUser.email);
 			assert.strictEqual(userData[1].fullname, '');
@@ -3252,21 +2953,19 @@ describe('User', () => {
 				cid: testCid,
 			});
 
-			const { body: body1 } = await request.get(
-				`${nconf.get('url')}/api/recent`
-			);
+			const { body: body1 } = await request.get(`${nconf.get('url')}/api/recent`);
 			assert(!body1.topics[0].user.hasOwnProperty('fullname'));
 
 			const { body: body2 } = await request.get(
-				`${nconf.get('url')}/api/topic/${body1.topics[0].slug}`
+				`${nconf.get('url')}/api/topic/${body1.topics[0].slug}`,
 			);
 			assert(!body2.posts[0].user.hasOwnProperty('fullname'));
 		});
 	});
 
-	describe('user blocking methods', (done) => {
+	describe('user blocking methods', done => {
 		let blockeeUid;
-		before((done) => {
+		before(done => {
 			User.create(
 				{
 					username: 'blockee',
@@ -3276,45 +2975,45 @@ describe('User', () => {
 				(err, uid) => {
 					blockeeUid = uid;
 					done(err);
-				}
+				},
 			);
 		});
 
 		describe('.toggle()', () => {
-			it('should toggle block', (done) => {
+			it('should toggle block', done => {
 				socketUser.toggleBlock(
 					{ uid: 1 },
 					{ blockerUid: 1, blockeeUid: blockeeUid, action: 'block' },
-					(err) => {
+					err => {
 						assert.ifError(err);
 						User.blocks.is(blockeeUid, 1, (err, blocked) => {
 							assert.ifError(err);
 							assert(blocked);
 							done();
 						});
-					}
+					},
 				);
 			});
 
-			it('should toggle block', (done) => {
+			it('should toggle block', done => {
 				socketUser.toggleBlock(
 					{ uid: 1 },
 					{ blockerUid: 1, blockeeUid: blockeeUid, action: 'unblock' },
-					(err) => {
+					err => {
 						assert.ifError(err);
 						User.blocks.is(blockeeUid, 1, (err, blocked) => {
 							assert.ifError(err);
 							assert(!blocked);
 							done();
 						});
-					}
+					},
 				);
 			});
 		});
 
 		describe('.add()', () => {
-			it('should block a uid', (done) => {
-				User.blocks.add(blockeeUid, 1, (err) => {
+			it('should block a uid', done => {
+				User.blocks.add(blockeeUid, 1, err => {
 					assert.ifError(err);
 					User.blocks.list(1, (err, blocked_uids) => {
 						assert.ifError(err);
@@ -3326,7 +3025,7 @@ describe('User', () => {
 				});
 			});
 
-			it('should automatically increment corresponding user field', (done) => {
+			it('should automatically increment corresponding user field', done => {
 				db.getObjectField('user:1', 'blocksCount', (err, count) => {
 					assert.ifError(err);
 					assert.strictEqual(parseInt(count, 10), 1);
@@ -3334,8 +3033,8 @@ describe('User', () => {
 				});
 			});
 
-			it('should error if you try to block the same uid again', (done) => {
-				User.blocks.add(blockeeUid, 1, (err) => {
+			it('should error if you try to block the same uid again', done => {
+				User.blocks.add(blockeeUid, 1, err => {
 					assert.equal(err.message, '[[error:already-blocked]]');
 					done();
 				});
@@ -3343,8 +3042,8 @@ describe('User', () => {
 		});
 
 		describe('.remove()', () => {
-			it('should unblock a uid', (done) => {
-				User.blocks.remove(blockeeUid, 1, (err) => {
+			it('should unblock a uid', done => {
+				User.blocks.remove(blockeeUid, 1, err => {
 					assert.ifError(err);
 					User.blocks.list(1, (err, blocked_uids) => {
 						assert.ifError(err);
@@ -3355,7 +3054,7 @@ describe('User', () => {
 				});
 			});
 
-			it('should automatically decrement corresponding user field', (done) => {
+			it('should automatically decrement corresponding user field', done => {
 				db.getObjectField('user:1', 'blocksCount', (err, count) => {
 					assert.ifError(err);
 					assert.strictEqual(parseInt(count, 10), 0);
@@ -3363,8 +3062,8 @@ describe('User', () => {
 				});
 			});
 
-			it('should error if you try to unblock the same uid again', (done) => {
-				User.blocks.remove(blockeeUid, 1, (err) => {
+			it('should error if you try to unblock the same uid again', done => {
+				User.blocks.remove(blockeeUid, 1, err => {
 					assert.equal(err.message, '[[error:already-unblocked]]');
 					done();
 				});
@@ -3372,11 +3071,11 @@ describe('User', () => {
 		});
 
 		describe('.is()', () => {
-			before((done) => {
+			before(done => {
 				User.blocks.add(blockeeUid, 1, done);
 			});
 
-			it('should return a Boolean with blocked status for the queried uid', (done) => {
+			it('should return a Boolean with blocked status for the queried uid', done => {
 				User.blocks.is(blockeeUid, 1, (err, blocked) => {
 					assert.ifError(err);
 					assert.strictEqual(blocked, true);
@@ -3386,7 +3085,7 @@ describe('User', () => {
 		});
 
 		describe('.list()', () => {
-			it('should return a list of blocked uids', (done) => {
+			it('should return a list of blocked uids', done => {
 				User.blocks.list(1, (err, blocked_uids) => {
 					assert.ifError(err);
 					assert.strictEqual(Array.isArray(blocked_uids), true);
@@ -3398,7 +3097,7 @@ describe('User', () => {
 		});
 
 		describe('.filter()', () => {
-			it('should remove entries by blocked uids and return filtered set', (done) => {
+			it('should remove entries by blocked uids and return filtered set', done => {
 				User.blocks.filter(
 					1,
 					[
@@ -3421,11 +3120,11 @@ describe('User', () => {
 						assert.strictEqual(filtered.length, 1);
 						assert.equal(filtered[0].uid, 1);
 						done();
-					}
+					},
 				);
 			});
 
-			it('should allow property argument to be passed in to customise checked property', (done) => {
+			it('should allow property argument to be passed in to customise checked property', done => {
 				User.blocks.filter(
 					1,
 					'fromuid',
@@ -3449,27 +3148,23 @@ describe('User', () => {
 						assert.strictEqual(filtered.length, 1);
 						assert.equal(filtered[0].fromuid, 1);
 						done();
-					}
+					},
 				);
 			});
 
-			it('should not process invalid sets', (done) => {
-				User.blocks.filter(
-					1,
-					[{ foo: 'foo' }, { foo: 'bar' }, { foo: 'baz' }],
-					(err, filtered) => {
-						assert.ifError(err);
-						assert.strictEqual(Array.isArray(filtered), true);
-						assert.strictEqual(filtered.length, 3);
-						filtered.forEach((obj) => {
-							assert.strictEqual(obj.hasOwnProperty('foo'), true);
-						});
-						done();
-					}
-				);
+			it('should not process invalid sets', done => {
+				User.blocks.filter(1, [{ foo: 'foo' }, { foo: 'bar' }, { foo: 'baz' }], (err, filtered) => {
+					assert.ifError(err);
+					assert.strictEqual(Array.isArray(filtered), true);
+					assert.strictEqual(filtered.length, 3);
+					filtered.forEach(obj => {
+						assert.strictEqual(obj.hasOwnProperty('foo'), true);
+					});
+					done();
+				});
 			});
 
-			it('should process plain sets that just contain uids', (done) => {
+			it('should process plain sets that just contain uids', done => {
 				User.blocks.filter(1, [1, blockeeUid], (err, filtered) => {
 					assert.ifError(err);
 					assert.strictEqual(filtered.length, 1);
@@ -3478,7 +3173,7 @@ describe('User', () => {
 				});
 			});
 
-			it('should filter uids that are blocking targetUid', (done) => {
+			it('should filter uids that are blocking targetUid', done => {
 				User.blocks.filterUids(blockeeUid, [1, 2], (err, filtered) => {
 					assert.ifError(err);
 					assert.deepEqual(filtered, [2]);
@@ -3489,7 +3184,7 @@ describe('User', () => {
 	});
 
 	describe('status/online', () => {
-		it('should return offline if user is guest', (done) => {
+		it('should return offline if user is guest', done => {
 			const status = User.getStatus({ uid: 0 });
 			assert.strictEqual(status, 'offline');
 			done();
@@ -3505,19 +3200,19 @@ describe('User', () => {
 	});
 
 	describe('isPrivilegedOrSelf', () => {
-		it('should return not error if self', (done) => {
-			User.isPrivilegedOrSelf(1, 1, (err) => {
+		it('should return not error if self', done => {
+			User.isPrivilegedOrSelf(1, 1, err => {
 				assert.ifError(err);
 				done();
 			});
 		});
 
-		it('should not error if privileged', (done) => {
+		it('should not error if privileged', done => {
 			User.create({ username: 'theadmin' }, (err, uid) => {
 				assert.ifError(err);
-				groups.join('administrators', uid, (err) => {
+				groups.join('administrators', uid, err => {
 					assert.ifError(err);
-					User.isPrivilegedOrSelf(uid, 2, (err) => {
+					User.isPrivilegedOrSelf(uid, 2, err => {
 						assert.ifError(err);
 						done();
 					});
@@ -3525,15 +3220,15 @@ describe('User', () => {
 			});
 		});
 
-		it('should error if not privileged', (done) => {
-			User.isPrivilegedOrSelf(0, 1, (err) => {
+		it('should error if not privileged', done => {
+			User.isPrivilegedOrSelf(0, 1, err => {
 				assert.equal(err.message, '[[error:no-privileges]]');
 				done();
 			});
 		});
 	});
 
-	it('should get admins and mods', (done) => {
+	it('should get admins and mods', done => {
 		User.getAdminsandGlobalMods((err, data) => {
 			assert.ifError(err);
 			assert(Array.isArray(data));
@@ -3557,7 +3252,7 @@ describe('User', () => {
 		});
 
 		it('subfolder tests', () => {
-			files.forEach((filePath) => {
+			files.forEach(filePath => {
 				require(filePath);
 			});
 		});

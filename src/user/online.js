@@ -11,11 +11,7 @@ module.exports = function (User) {
 		if (utils.isNumber(uid) && !(parseInt(uid, 10) > 0)) {
 			return;
 		}
-		const userData = await db.getObjectFields(`user:${uid}`, [
-			'userslug',
-			'status',
-			'lastonline',
-		]);
+		const userData = await db.getObjectFields(`user:${uid}`, ['userslug', 'status', 'lastonline']);
 		const now = Date.now();
 		if (
 			!userData.userslug ||
@@ -54,7 +50,7 @@ module.exports = function (User) {
 		uid = isArray ? uid : [uid];
 		const lastonline = await db.sortedSetScores('users:online', uid);
 		const isOnline = uid.map(
-			(uid, index) => now - lastonline[index] < meta.config.onlineCutoff * 60000
+			(uid, index) => now - lastonline[index] < meta.config.onlineCutoff * 60000,
 		);
 		return isArray ? isOnline : isOnline[0];
 	};

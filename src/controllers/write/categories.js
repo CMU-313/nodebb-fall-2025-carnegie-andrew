@@ -13,11 +13,7 @@ Categories.list = async (req, res) => {
 };
 
 Categories.get = async (req, res) => {
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.categories.get(req, req.params)
-	);
+	helpers.formatApiResponse(200, res, await api.categories.get(req, req.params));
 };
 
 Categories.create = async (req, res) => {
@@ -41,11 +37,7 @@ Categories.delete = async (req, res) => {
 };
 
 Categories.getTopicCount = async (req, res) => {
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.categories.getTopicCount(req, { ...req.params })
-	);
+	helpers.formatApiResponse(200, res, await api.categories.getTopicCount(req, { ...req.params }));
 };
 
 Categories.getPosts = async (req, res) => {
@@ -56,11 +48,7 @@ Categories.getPosts = async (req, res) => {
 Categories.getChildren = async (req, res) => {
 	const { cid } = req.params;
 	const { start } = req.query;
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.categories.getChildren(req, { cid, start })
-	);
+	helpers.formatApiResponse(200, res, await api.categories.getChildren(req, { cid, start }));
 };
 
 Categories.getTopics = async (req, res) => {

@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/topic/images', [], function () {
 	const Images = {};
 
@@ -27,9 +26,13 @@ define('forum/topic/images', [], function () {
 			const altFilename = alt.split('/').pop();
 			const altExt = altFilename.split('.').slice(1).pop();
 
-			imageEl.wrap('<a href="' + src + '" ' +
-				(!srcExt && altExt ? ' download="' + utils.escapeHTML(altFilename) + '" ' : '') +
-				' target="_blank" rel="noopener">');
+			imageEl.wrap(
+				'<a href="' +
+					src +
+					'" ' +
+					(!srcExt && altExt ? ' download="' + utils.escapeHTML(altFilename) + '" ' : '') +
+					' target="_blank" rel="noopener">',
+			);
 		}
 	};
 

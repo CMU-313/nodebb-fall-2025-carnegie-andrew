@@ -58,11 +58,11 @@ SocketRooms.getAll = async function () {
 	totals.onlineRegisteredCount = Object.keys(userRooms).length;
 
 	let topTenTopics = [];
-	Object.keys(topicData).forEach((tid) => {
+	Object.keys(topicData).forEach(tid => {
 		topTenTopics.push({ tid: tid, count: topicData[tid].count });
 	});
 	topTenTopics = topTenTopics.sort((a, b) => b.count - a.count).slice(0, 10);
-	const topTenTids = topTenTopics.map((topic) => topic.tid);
+	const topTenTids = topTenTopics.map(topic => topic.tid);
 
 	const titles = await topics.getTopicsFields(topTenTids, ['title']);
 	totals.topTenTopics = topTenTopics.map((topic, index) => {

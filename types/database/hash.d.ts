@@ -1,8 +1,5 @@
 export interface Hash {
-  decrObjectField(
-    key: string | string[],
-    field: string
-  ): Promise<number | number[]>;
+  decrObjectField(key: string | string[], field: string): Promise<number | number[]>;
 
   deleteObjectField(key: string, field: string): Promise<void>;
 
@@ -20,25 +17,17 @@ export interface Hash {
 
   getObjects(keys: string[], fields: string[]): Promise<any[]>;
 
-  getObjectsFields(
-    keys: string[],
-    fields: string[]
-  ): Promise<Record<string, any>[]>;
+  getObjectsFields(keys: string[], fields: string[]): Promise<Record<string, any>[]>;
 
-  incrObjectField(
-    key: string | string[],
-    field: string
-  ): Promise<number | number[]>;
+  incrObjectField(key: string | string[], field: string): Promise<number | number[]>;
 
   incrObjectFieldBy(
     key: string | string[],
     field: string,
-    value: number
+    value: number,
   ): Promise<number | number[]>;
 
-  incrObjectFieldByBulk(
-    data: [key: string, batch: Record<string, number>][]
-  ): Promise<void>;
+  incrObjectFieldByBulk(data: [key: string, batch: Record<string, number>][]): Promise<void>;
 
   isObjectField(key: string, field: string): Promise<boolean>;
 
@@ -46,13 +35,7 @@ export interface Hash {
 
   setObject(key: string | string[], data: Record<string, any>): Promise<void>;
 
-  setObjectBulk(
-    args: [key: string, data: Record<string, any>][]
-  ): Promise<void>;
+  setObjectBulk(args: [key: string, data: Record<string, any>][]): Promise<void>;
 
-  setObjectField(
-    key: string | string[],
-    field: string,
-    value: any
-  ): Promise<void>;
+  setObjectField(key: string | string[], field: string, value: any): Promise<void>;
 }

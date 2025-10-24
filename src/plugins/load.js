@@ -44,7 +44,7 @@ module.exports = function (Plugins) {
 
 		let methods = {};
 		if (Array.isArray(fields)) {
-			fields.forEach((field) => {
+			fields.forEach(field => {
 				methods[field] = handlers[field];
 			});
 		} else {
@@ -63,11 +63,11 @@ module.exports = function (Plugins) {
 		if (results.languageData) {
 			Plugins.languageData.languages = _.union(
 				Plugins.languageData.languages,
-				results.languageData.languages
+				results.languageData.languages,
 			);
 			Plugins.languageData.namespaces = _.union(
 				Plugins.languageData.namespaces,
-				results.languageData.namespaces
+				results.languageData.namespaces,
 			);
 			pluginData.languageData = results.languageData;
 		}
@@ -85,10 +85,10 @@ module.exports = function (Plugins) {
 			languages: ['languageData'],
 		};
 
-		const fields = _.uniq(_.flatMap(targets, (target) => map[target] || []));
+		const fields = _.uniq(_.flatMap(targets, target => map[target] || []));
 
 		// clear old data before build
-		fields.forEach((field) => {
+		fields.forEach(field => {
 			switch (field) {
 				case 'clientScripts':
 				case 'acpScripts':
@@ -106,10 +106,10 @@ module.exports = function (Plugins) {
 		});
 
 		winston.verbose(
-			`[plugins] loading the following fields from plugin data: ${fields.join(', ')}`
+			`[plugins] loading the following fields from plugin data: ${fields.join(', ')}`,
 		);
 		const plugins = await Plugins.data.getActive();
-		await Promise.all(plugins.map((p) => registerPluginAssets(p, fields)));
+		await Promise.all(plugins.map(p => registerPluginAssets(p, fields)));
 	};
 
 	Plugins.loadPlugin = async function (pluginPath) {
@@ -158,9 +158,7 @@ module.exports = function (Plugins) {
 			pluginData.nbbpm.compatibility &&
 			semver.validRange(pluginData.nbbpm.compatibility)
 		) {
-			if (
-				!semver.satisfies(nconf.get('version'), pluginData.nbbpm.compatibility)
-			) {
+			if (!semver.satisfies(nconf.get('version'), pluginData.nbbpm.compatibility)) {
 				add();
 			}
 		} else {
@@ -175,9 +173,7 @@ module.exports = function (Plugins) {
 			}
 
 			if (Array.isArray(pluginData.hooks)) {
-				pluginData.hooks.forEach((hook) =>
-					Plugins.hooks.register(pluginData.id, hook)
-				);
+				pluginData.hooks.forEach(hook => Plugins.hooks.register(pluginData.id, hook));
 			}
 		} catch (err) {
 			winston.warn(`[plugins] Unable to load library for: ${pluginData.id}`);

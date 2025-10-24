@@ -18,7 +18,7 @@ utils.tokens.list = async (start = 0, stop = -1) => {
 
 utils.tokens.count = async () => await db.sortedSetCard('tokens:createtime');
 
-utils.tokens.get = async (tokens) => {
+utils.tokens.get = async tokens => {
 	// Validation handled at higher level
 	if (!tokens) {
 		throw new Error('[[error:invalid-data]]');
@@ -31,7 +31,7 @@ utils.tokens.get = async (tokens) => {
 	}
 
 	let [tokenObjs, lastSeen] = await Promise.all([
-		db.getObjects(tokens.map((t) => `token:${t}`)),
+		db.getObjects(tokens.map(t => `token:${t}`)),
 		utils.tokens.getLastSeen(tokens),
 	]);
 
@@ -42,12 +42,8 @@ utils.tokens.get = async (tokens) => {
 
 		tokenObj.token = tokens[idx];
 		tokenObj.lastSeen = lastSeen[idx];
-		tokenObj.lastSeenISO = lastSeen[idx]
-			? new Date(lastSeen[idx]).toISOString()
-			: null;
-		tokenObj.timestampISO = new Date(
-			parseInt(tokenObj.timestamp, 10)
-		).toISOString();
+		tokenObj.lastSeenISO = lastSeen[idx] ? new Date(lastSeen[idx]).toISOString() : null;
+		tokenObj.timestampISO = new Date(parseInt(tokenObj.timestamp, 10)).toISOString();
 
 		return tokenObj;
 	});
@@ -72,12 +68,7 @@ utils.tokens.generate = async ({ uid, description }) => {
 	return utils.tokens.add({ token, uid, description, timestamp });
 };
 
-utils.tokens.add = async ({
-	token,
-	uid,
-	description = '',
-	timestamp = Date.now(),
-}) => {
+utils.tokens.add = async ({ token, uid, description = '', timestamp = Date.now() }) => {
 	if (!token || uid === undefined || !srcUtils.isNumber(uid)) {
 		throw new Error('[[error:invalid-data]]');
 	}
@@ -103,19 +94,16 @@ utils.tokens.update = async (token, { uid, description }) => {
 	return await utils.tokens.get(token);
 };
 
-utils.tokens.roll = async (token) => {
+utils.tokens.roll = async token => {
 	const [createTime, uid, lastSeen] = await db.sortedSetsScore(
 		[`tokens:createtime`, `tokens:uid`, `tokens:lastSeen`],
-		token
+		token,
 	);
 	const newToken = srcUtils.generateUUID();
 
 	const updates = [
 		db.rename(`token:${token}`, `token:${newToken}`),
-		db.sortedSetsRemove(
-			[`tokens:createtime`, `tokens:uid`, `tokens:lastSeen`],
-			token
-		),
+		db.sortedSetsRemove([`tokens:createtime`, `tokens:uid`, `tokens:lastSeen`], token),
 		db.sortedSetAdd(`tokens:createtime`, createTime, newToken),
 		db.sortedSetAdd(`tokens:uid`, uid, newToken),
 	];
@@ -129,19 +117,15 @@ utils.tokens.roll = async (token) => {
 	return newToken;
 };
 
-utils.tokens.delete = async (token) => {
+utils.tokens.delete = async token => {
 	await Promise.all([
 		db.delete(`token:${token}`),
-		db.sortedSetsRemove(
-			[`tokens:createtime`, `tokens:uid`, `tokens:lastSeen`],
-			token
-		),
+		db.sortedSetsRemove([`tokens:createtime`, `tokens:uid`, `tokens:lastSeen`], token),
 	]);
 };
 
-utils.tokens.log = async (token) => {
+utils.tokens.log = async token => {
 	await db.sortedSetAdd('tokens:lastSeen', Date.now(), token);
 };
 
-utils.tokens.getLastSeen = async (tokens) =>
-	await db.sortedSetScores('tokens:lastSeen', tokens);
+utils.tokens.getLastSeen = async tokens => await db.sortedSetScores('tokens:lastSeen', tokens);

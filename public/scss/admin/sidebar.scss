@@ -1,13 +1,14 @@
-#sidebar-left, #offcanvas {
-	.btn-ghost {
-		i {
-			color: $gray-500;
-		}
-	}
+#sidebar-left,
+#offcanvas {
+  .btn-ghost {
+    i {
+      color: $gray-500;
+    }
+  }
 
-	.accordion-body {
-		.btn-ghost.btn-sm {
-			padding-left: 38px!important;
-		}
-	}
+  .accordion-body {
+    .btn-ghost.btn-sm {
+      padding-left: 38px !important;
+    }
+  }
 }

@@ -30,7 +30,10 @@ app.flags = {};
 app.onDomReady = function () {
 	$(document).ready(async function () {
 		if (app.user.timeagoCode && app.user.timeagoCode !== 'en') {
-			await import(/* webpackChunkName: "timeago/[request]" */ 'timeago/locales/jquery.timeago.' + app.user.timeagoCode);
+			await import(
+				/* webpackChunkName: "timeago/[request]" */ 'timeago/locales/jquery.timeago.' +
+					app.user.timeagoCode
+			);
 		}
 		app.load();
 	});
@@ -68,7 +71,11 @@ if (document.readyState === 'loading') {
 			const earlyClick = function (ev) {
 				let btnEl = ev.target.closest('button');
 				const anchorEl = ev.target.closest('a');
-				if (!btnEl && anchorEl && (anchorEl.getAttribute('data-ajaxify') === 'false' || anchorEl.href === '#')) {
+				if (
+					!btnEl &&
+					anchorEl &&
+					(anchorEl.getAttribute('data-ajaxify') === 'false' || anchorEl.href === '#')
+				) {
 					btnEl = anchorEl;
 				}
 				if (btnEl && !earlyQueue.includes(btnEl)) {
@@ -131,16 +138,25 @@ if (document.readyState === 'loading') {
 			let _module;
 			try {
 				switch (moduleName) {
-					case 'bootbox': return require('bootbox');
-					case 'benchpressjs': return require('benchpressjs');
-					case 'clipboard': return require('clipboard');
+					case 'bootbox':
+						return require('bootbox');
+					case 'benchpressjs':
+						return require('benchpressjs');
+					case 'clipboard':
+						return require('clipboard');
 				}
 				if (moduleName.startsWith('admin')) {
-					_module = await import(/* webpackChunkName: "admin/[request]" */ 'admin/' + moduleName.replace(/^admin\//, ''));
+					_module = await import(
+						/* webpackChunkName: "admin/[request]" */ 'admin/' + moduleName.replace(/^admin\//, '')
+					);
 				} else if (moduleName.startsWith('forum')) {
-					_module = await import(/* webpackChunkName: "forum/[request]" */ 'forum/' + moduleName.replace(/^forum\//, ''));
+					_module = await import(
+						/* webpackChunkName: "forum/[request]" */ 'forum/' + moduleName.replace(/^forum\//, '')
+					);
 				} else {
-					_module = await import(/* webpackChunkName: "modules/[request]" */ 'modules/' + moduleName);
+					_module = await import(
+						/* webpackChunkName: "modules/[request]" */ 'modules/' + moduleName
+					);
 				}
 			} catch (err) {
 				console.warn(`error loading ${moduleName}\n${err.stack}`);
@@ -152,23 +168,27 @@ if (document.readyState === 'loading') {
 	};
 
 	app.enterRoom = function (room, callback) {
-		callback = callback || function () { };
+		callback = callback || function () {};
 		if (socket && app.user.uid && app.currentRoom !== room) {
 			const previousRoom = app.currentRoom;
 			app.currentRoom = room;
-			socket.emit('meta.rooms.enter', {
-				enter: room,
-			}, function (err) {
-				if (err) {
-					app.currentRoom = previousRoom;
-					require(['alerts'], function (alerts) {
-						alerts.error(err);
-					});
-					return;
-				}
+			socket.emit(
+				'meta.rooms.enter',
+				{
+					enter: room,
+				},
+				function (err) {
+					if (err) {
+						app.currentRoom = previousRoom;
+						require(['alerts'], function (alerts) {
+							alerts.error(err);
+						});
+						return;
+					}
 
-				callback();
-			});
+					callback();
+				},
+			);
 		}
 	};
 
@@ -205,12 +225,13 @@ if (document.readyState === 'loading') {
 			.filter(function (i, a) {
 				const hasHref = $(a).attr('href') !== '#';
 				const removeByQueryString = a.search && hasHref && !queryMatch(a.search);
-				return hasHref && window.location.hostname === a.hostname &&
+				return (
+					hasHref &&
+					window.location.hostname === a.hostname &&
 					!removeByQueryString &&
-					(
-						window.location.pathname === a.pathname ||
-						window.location.pathname.startsWith(a.pathname + '/')
-					);
+					(window.location.pathname === a.pathname ||
+						window.location.pathname.startsWith(a.pathname + '/'))
+				);
 			})
 			.addClass('active');
 	}
@@ -257,7 +278,7 @@ if (document.readyState === 'loading') {
 	};
 
 	app.toggleNavbar = function (state) {
-		require(['components'], (components) => {
+		require(['components'], components => {
 			const navbarEl = components.get('navbar');
 			navbarEl[state ? 'show' : 'hide']();
 		});
@@ -306,9 +327,9 @@ if (document.readyState === 'loading') {
 		}
 
 		const [hooks, api] = await app.require(['hooks', 'api']);
-		params.title = (ajaxify.data.template.topic ?
-			ajaxify.data.titleRaw :
-			(await api.get(`/topics/${params.tid}`)).titleRaw);
+		params.title = ajaxify.data.template.topic
+			? ajaxify.data.titleRaw
+			: (await api.get(`/topics/${params.tid}`)).titleRaw;
 
 		hooks.fire('action:composer.post.new', params);
 	};
@@ -341,7 +362,7 @@ if (document.readyState === 'loading') {
 					.then(translated => translator.unescape(translated))
 					.then(resolve, reject);
 			});
-		}).then((html) => {
+		}).then(html => {
 			html = $(html);
 			if (callback && typeof callback === 'function') {
 				setTimeout(callback, 0, html);
@@ -354,9 +375,12 @@ if (document.readyState === 'loading') {
 	function registerServiceWorker() {
 		// Do not register for Safari browsers
 		if (!config.useragent.isSafari && 'serviceWorker' in navigator) {
-			navigator.serviceWorker.register(config.relative_path + '/service-worker.js', { scope: config.relative_path + '/' })
+			navigator.serviceWorker
+				.register(config.relative_path + '/service-worker.js', {
+					scope: config.relative_path + '/',
+				})
 				.then(function () {
-					navigator.serviceWorker.addEventListener('message', (event) => {
+					navigator.serviceWorker.addEventListener('message', event => {
 						const { action, url } = event.data;
 						switch (action) {
 							case 'ajaxify': {
@@ -371,9 +395,10 @@ if (document.readyState === 'loading') {
 					});
 
 					console.info('ServiceWorker registration succeeded.');
-				}).catch(function (err) {
+				})
+				.catch(function (err) {
 					console.info('ServiceWorker registration failed: ', err);
 				});
 		}
 	}
-}());
+})();

@@ -12,11 +12,11 @@ module.exports = {
 		await db.deleteAll(['username:uid', 'username:sorted']);
 		await batch.processSortedSet(
 			'users:joindate',
-			async (uids) => {
+			async uids => {
 				progress.incr(uids.length);
-				const usersData = await db.getObjects(uids.map((uid) => `user:${uid}`));
+				const usersData = await db.getObjects(uids.map(uid => `user:${uid}`));
 				const bulkAdd = [];
-				usersData.forEach((userData) => {
+				usersData.forEach(userData => {
 					if (userData && userData.username) {
 						bulkAdd.push(['username:uid', userData.uid, userData.username]);
 						bulkAdd.push([
@@ -31,7 +31,7 @@ module.exports = {
 			{
 				batch: 500,
 				progress: progress,
-			}
+			},
 		);
 	},
 };

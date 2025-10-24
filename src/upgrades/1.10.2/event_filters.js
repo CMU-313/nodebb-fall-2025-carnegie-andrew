@@ -14,7 +14,7 @@ module.exports = {
 
 		await batch.processSortedSet(
 			'events:time',
-			async (eids) => {
+			async eids => {
 				for (const eid of eids) {
 					progress.incr();
 
@@ -27,23 +27,15 @@ module.exports = {
 					if (!eventData.type && eventData.privilege) {
 						eventData.type = 'privilege-change';
 						await db.setObjectField(`event:${eid}`, 'type', 'privilege-change');
-						await db.sortedSetAdd(
-							`events:time:${eventData.type}`,
-							eventData.timestamp,
-							eid
-						);
+						await db.sortedSetAdd(`events:time:${eventData.type}`, eventData.timestamp, eid);
 						return;
 					}
-					await db.sortedSetAdd(
-						`events:time:${eventData.type || ''}`,
-						eventData.timestamp,
-						eid
-					);
+					await db.sortedSetAdd(`events:time:${eventData.type || ''}`, eventData.timestamp, eid);
 				}
 			},
 			{
 				progress: this.progress,
-			}
+			},
 		);
 	},
 };

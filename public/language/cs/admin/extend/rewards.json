@@ -1,17 +1,17 @@
 {
-	"rewards": "Odměny",
-	"add-reward": "Add reward",
-	"condition-if-users": "Pokud uživatel",
-	"condition-is": "je:",
-	"condition-then": "Pak:",
-	"max-claims": "Počet dosažitelnosti odměny",
-	"zero-infinite": "Pro neomezeně zadejte 0",
-	"select-reward": "Select reward",
-	"delete": "Odstranit",
-	"enable": "Povolit",
-	"disable": "Zakázat",
+  "rewards": "Odměny",
+  "add-reward": "Add reward",
+  "condition-if-users": "Pokud uživatel",
+  "condition-is": "je:",
+  "condition-then": "Pak:",
+  "max-claims": "Počet dosažitelnosti odměny",
+  "zero-infinite": "Pro neomezeně zadejte 0",
+  "select-reward": "Select reward",
+  "delete": "Odstranit",
+  "enable": "Povolit",
+  "disable": "Zakázat",
 
-	"alert.delete-success": "Odměna byla úspěšně smazána",
-	"alert.no-inputs-found": "Nepovolená odměna – nebyl nalezen žádný záznam.",
-	"alert.save-success": "Odměny byly úspěšně uloženy"
+  "alert.delete-success": "Odměna byla úspěšně smazána",
+  "alert.no-inputs-found": "Nepovolená odměna – nebyl nalezen žádný záznam.",
+  "alert.save-success": "Odměny byly úspěšně uloženy"
 }

@@ -38,12 +38,8 @@ function get() {
 					data: data,
 				});
 			};
-			process.on('message', (message) => {
-				if (
-					message &&
-					typeof message === 'object' &&
-					message.action === 'pubsub'
-				) {
+			process.on('message', message => {
+				if (message && typeof message === 'object' && message.action === 'pubsub') {
 					singleHost.emit(message.event, message.data);
 				}
 			});

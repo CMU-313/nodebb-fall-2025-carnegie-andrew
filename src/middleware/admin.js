@@ -55,12 +55,8 @@ middleware.checkPrivileges = helpers.try(async (req, res, next) => {
 	const loginTime = req.session.meta ? req.session.meta.datetime : 0;
 	const adminReloginDuration = meta.config.adminReloginDuration * 60000;
 	const disabled = meta.config.adminReloginDuration === 0;
-	if (
-		disabled ||
-		(loginTime && parseInt(loginTime, 10) > Date.now() - adminReloginDuration)
-	) {
-		const timeLeft =
-			parseInt(loginTime, 10) - (Date.now() - adminReloginDuration);
+	if (disabled || (loginTime && parseInt(loginTime, 10) > Date.now() - adminReloginDuration)) {
+		const timeLeft = parseInt(loginTime, 10) - (Date.now() - adminReloginDuration);
 		if (req.session.meta && timeLeft < Math.min(60000, adminReloginDuration)) {
 			req.session.meta.datetime += Math.min(60000, adminReloginDuration);
 		}
@@ -70,10 +66,7 @@ middleware.checkPrivileges = helpers.try(async (req, res, next) => {
 
 	let returnTo = req.path;
 	if (nconf.get('relative_path')) {
-		returnTo = req.path.replace(
-			new RegExp(`^${nconf.get('relative_path')}`),
-			''
-		);
+		returnTo = req.path.replace(new RegExp(`^${nconf.get('relative_path')}`), '');
 	}
 	returnTo = returnTo.replace(/^\/api/, '');
 

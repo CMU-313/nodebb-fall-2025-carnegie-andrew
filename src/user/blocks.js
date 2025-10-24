@@ -21,9 +21,7 @@ module.exports = function (User) {
 		const isBlocked = uids.map(
 			(uid, index) =>
 				blocks[index] &&
-				blocks[index].includes(
-					utils.isNumber(targetUid) ? parseInt(targetUid, 10) : targetUid
-				)
+				blocks[index].includes(utils.isNumber(targetUid) ? parseInt(targetUid, 10) : targetUid),
 		);
 		return isArray ? isBlocked : isBlocked[0];
 	};
@@ -45,31 +43,28 @@ module.exports = function (User) {
 		if (isBlockeeAdminOrMod && type === 'block') {
 			throw new Error('[[error:cannot-block-privileged]]');
 		}
-		if (
-			parseInt(callerUid, 10) !== parseInt(blockerUid, 10) &&
-			!isCallerAdminOrMod
-		) {
+		if (parseInt(callerUid, 10) !== parseInt(blockerUid, 10) && !isCallerAdminOrMod) {
 			throw new Error('[[error:no-privileges]]');
 		}
 	};
 
 	User.blocks.list = async function (uids) {
 		const isArray = Array.isArray(uids);
-		uids = (isArray ? uids : [uids]).map((uid) => String(uid));
+		uids = (isArray ? uids : [uids]).map(uid => String(uid));
 		const cachedData = {};
 		const unCachedUids = User.blocks._cache.getUnCachedKeys(uids, cachedData);
 		if (unCachedUids.length) {
 			const unCachedData = await db.getSortedSetsMembers(
-				unCachedUids.map((uid) => `uid:${uid}:blocked_uids`)
+				unCachedUids.map(uid => `uid:${uid}:blocked_uids`),
 			);
 			unCachedUids.forEach((uid, index) => {
-				cachedData[uid] = (unCachedData[index] || []).map((uid) =>
-					utils.isNumber(uid) ? parseInt(uid, 10) : uid
+				cachedData[uid] = (unCachedData[index] || []).map(uid =>
+					utils.isNumber(uid) ? parseInt(uid, 10) : uid,
 				);
 				User.blocks._cache.set(String(uid), cachedData[uid]);
 			});
 		}
-		const result = uids.map((uid) => cachedData[uid] || []);
+		const result = uids.map(uid => cachedData[uid] || []);
 		return isArray ? result.slice() : result[0];
 	};
 
@@ -125,7 +120,7 @@ module.exports = function (User) {
 		const blocked_uids = await User.blocks.list(uid);
 		const blockedSet = new Set(blocked_uids);
 
-		set = set.filter((item) => {
+		set = set.filter(item => {
 			let uid = isPlain ? item : item && item[property];
 			uid = utils.isNumber(uid) ? parseInt(uid, 10) : uid;
 			return !blockedSet.has(uid);

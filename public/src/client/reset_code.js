@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/reset_code', ['alerts', 'zxcvbn'], function (alerts, zxcvbn) {
 	const ResetCode = {};
 
@@ -19,18 +18,26 @@ define('forum/reset_code', ['alerts', 'zxcvbn'], function (alerts, zxcvbn) {
 					throw new Error('[[reset_password:passwords-do-not-match]]');
 				}
 
-				resetEl.prop('disabled', true).translateHtml('<i class="fa fa-spin fa-refresh"></i> [[reset_password:changing-password]]');
-				socket.emit('user.reset.commit', {
-					code: reset_code,
-					password: password.val(),
-				}, function (err) {
-					if (err) {
-						ajaxify.refresh();
-						return alerts.error(err);
-					}
+				resetEl
+					.prop('disabled', true)
+					.translateHtml(
+						'<i class="fa fa-spin fa-refresh"></i> [[reset_password:changing-password]]',
+					);
+				socket.emit(
+					'user.reset.commit',
+					{
+						code: reset_code,
+						password: password.val(),
+					},
+					function (err) {
+						if (err) {
+							ajaxify.refresh();
+							return alerts.error(err);
+						}
 
-					window.location.href = config.relative_path + '/login';
-				});
+						window.location.href = config.relative_path + '/login';
+					},
+				);
 			} catch (err) {
 				$('#notice').removeClass('hidden');
 				$('#notice strong').translateText(err.message);

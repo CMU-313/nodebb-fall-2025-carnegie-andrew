@@ -12,7 +12,7 @@ get:
 
     Subcategories are also returned, nested under a category's `children` property.
   responses:
-    "200":
+    '200':
       description: A list of category objects currently available to the accessing user
       content:
         application/json:
@@ -96,23 +96,26 @@ get:
                                                   description: A friendly name for a given user account
                                                 userslug:
                                                   type: string
-                                                  description: An URL-safe variant of the username (i.e. lower-cased, spaces
+                                                  description:
+                                                    An URL-safe variant of the username (i.e. lower-cased, spaces
                                                     removed, etc.)
                                                 picture:
                                                   nullable: true
                                                   type: string
                                                 icon:text:
                                                   type: string
-                                                  description: A single-letter representation of a username. This is used in the
+                                                  description:
+                                                    A single-letter representation of a username. This is used in the
                                                     auto-generated icon given to
                                                     users without an avatar
                                                 icon:bgColor:
                                                   type: string
-                                                  description: A six-character hexadecimal colour code assigned to the user. This
+                                                  description:
+                                                    A six-character hexadecimal colour code assigned to the user. This
                                                     value is used in conjunction
                                                     with `icon:text` for the user's
                                                     auto-generated icon
-                                                  example: "#f44336"
+                                                  example: '#f44336'
                                             index:
                                               type: number
                                             cid:
@@ -165,23 +168,26 @@ get:
                                         description: This is either username or fullname depending on forum and user settings
                                       userslug:
                                         type: string
-                                        description: An URL-safe variant of the username (i.e. lower-cased, spaces
+                                        description:
+                                          An URL-safe variant of the username (i.e. lower-cased, spaces
                                           removed, etc.)
                                       picture:
                                         nullable: true
                                         type: string
                                       icon:text:
                                         type: string
-                                        description: A single-letter representation of a username. This is used in the
+                                        description:
+                                          A single-letter representation of a username. This is used in the
                                           auto-generated icon given to users
                                           without an avatar
                                       icon:bgColor:
                                         type: string
-                                        description: A six-character hexadecimal colour code assigned to the user. This
+                                        description:
+                                          A six-character hexadecimal colour code assigned to the user. This
                                           value is used in conjunction with
                                           `icon:text` for the user's
                                           auto-generated icon
-                                        example: "#f44336"
+                                        example: '#f44336'
                                   index:
                                     type: number
                                   cid:
@@ -223,32 +229,32 @@ get:
                                 user:
                                   type: object
                                   properties:
-                                      uid:
-                                        type: number
-                                        example: 1
-                                      isLocal:
-                                        type: boolean
-                                        description: Whether the user belongs to the local installation or not.
-                                      username:
-                                        type: string
-                                        example: Dragon Fruit
-                                      userslug:
-                                        type: string
-                                        example: dragon-fruit
-                                      picture:
-                                        type: string
-                                        example: 'https://images.unsplash.com/photo-1560070094-e1f2ddec4337?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=256&h=256&q=80'
-                                        nullable: true
-                                      displayname:
-                                        type: string
-                                        description: This is either username or fullname depending on forum and user settings
-                                        example: Dragon Fruit
-                                      'icon:text':
-                                        type: string
-                                        example: D
-                                      'icon:bgColor':
-                                        type: string
-                                        example: '#9c27b0'
+                                    uid:
+                                      type: number
+                                      example: 1
+                                    isLocal:
+                                      type: boolean
+                                      description: Whether the user belongs to the local installation or not.
+                                    username:
+                                      type: string
+                                      example: Dragon Fruit
+                                    userslug:
+                                      type: string
+                                      example: dragon-fruit
+                                    picture:
+                                      type: string
+                                      example: 'https://images.unsplash.com/photo-1560070094-e1f2ddec4337?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=256&h=256&q=80'
+                                      nullable: true
+                                    displayname:
+                                      type: string
+                                      description: This is either username or fullname depending on forum and user settings
+                                      example: Dragon Fruit
+                                    'icon:text':
+                                      type: string
+                                      example: D
+                                    'icon:bgColor':
+                                      type: string
+                                      example: '#9c27b0'
                             imageClass:
                               type: string
               - $ref: ../components/schemas/Pagination.yaml#/Pagination

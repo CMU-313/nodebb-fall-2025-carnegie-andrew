@@ -3,8 +3,8 @@ get:
     - admin
   summary: Manage custom fields for users
   responses:
-    "200":
-      description: ""
+    '200':
+      description: ''
       content:
         application/json:
           schema:

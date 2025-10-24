@@ -11,11 +11,7 @@ userController.getCurrentUser = async function (req, res) {
 		return res.status(401).json('not-authorized');
 	}
 	const userslug = await user.getUserField(req.uid, 'userslug');
-	const userData = await accountHelpers.getUserDataByUserSlug(
-		userslug,
-		req.uid,
-		req.query
-	);
+	const userData = await accountHelpers.getUserDataByUserSlug(userslug, req.uid, req.query);
 	res.json(userData);
 };
 
@@ -32,22 +28,14 @@ userController.getUserByEmail = async function (req, res, next) {
 };
 
 async function byType(type, req, res, next) {
-	const userData = await userController.getUserDataByField(
-		req.uid,
-		type,
-		req.params[type]
-	);
+	const userData = await userController.getUserDataByField(req.uid, type, req.params[type]);
 	if (!userData) {
 		return next();
 	}
 	res.json(userData);
 }
 
-userController.getUserDataByField = async function (
-	callerUid,
-	field,
-	fieldValue
-) {
+userController.getUserDataByField = async function (callerUid, field, fieldValue) {
 	let uid = null;
 	if (field === 'uid') {
 		uid = fieldValue;

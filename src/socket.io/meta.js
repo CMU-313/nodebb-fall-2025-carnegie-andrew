@@ -40,11 +40,7 @@ SocketMeta.rooms.enter = async function (socket, data) {
 		data.enter = data.enter.toString();
 	}
 
-	if (
-		data.enter &&
-		data.enter.startsWith('uid_') &&
-		data.enter !== `uid_${socket.uid}`
-	) {
+	if (data.enter && data.enter.startsWith('uid_') && data.enter !== `uid_${socket.uid}`) {
 		throw new Error('[[error:not-allowed]]');
 	}
 

@@ -160,16 +160,12 @@ function boostrapImport(themeData) {
 
 function getFontawesomeStyle() {
 	const styles = utils.getFontawesomeStyles();
-	return styles
-		.map((style) => `@import "fontawesome/style-${style}";`)
-		.join('\n');
+	return styles.map(style => `@import "fontawesome/style-${style}";`).join('\n');
 }
 
 async function copyFontAwesomeFiles() {
 	await mkdirp(path.join(__dirname, '../../build/public/fontawesome/webfonts'));
-	const fonts = await fs.promises.opendir(
-		path.join(utils.getFontawesomePath(), '/webfonts')
-	);
+	const fonts = await fs.promises.opendir(path.join(utils.getFontawesomePath(), '/webfonts'));
 	const copyOperations = [];
 	for await (const file of fonts) {
 		if (file.isFile() && file.name.match(/\.(woff2|ttf|eot)?$/)) {
@@ -177,12 +173,8 @@ async function copyFontAwesomeFiles() {
 			copyOperations.push(
 				fs.promises.copyFile(
 					path.join(fonts.path, file.name),
-					path.join(
-						__dirname,
-						'../../build/public/fontawesome/webfonts/',
-						file.name
-					)
-				)
+					path.join(__dirname, '../../build/public/fontawesome/webfonts/', file.name),
+				),
 			);
 		}
 	}
@@ -191,15 +183,13 @@ async function copyFontAwesomeFiles() {
 
 async function filterMissingFiles(filepaths) {
 	const exists = await Promise.all(
-		filepaths.map(async (filepath) => {
-			const exists = await file.exists(
-				path.join(__dirname, '../../node_modules', filepath)
-			);
+		filepaths.map(async filepath => {
+			const exists = await file.exists(path.join(__dirname, '../../node_modules', filepath));
 			if (!exists) {
 				winston.warn(`[meta/css] File not found! ${filepath}`);
 			}
 			return exists;
-		})
+		}),
 	);
 	return filepaths.filter((filePath, i) => exists[i]);
 }
@@ -218,7 +208,7 @@ async function getImports(files, extension) {
 		return `\n@import "${newFile.replace(/\\/g, '/')}";`;
 	}
 
-	files.forEach((styleFile) => {
+	files.forEach(styleFile => {
 		if (styleFile.endsWith(extension)) {
 			source += pathToImport(styleFile);
 		} else {
@@ -226,12 +216,12 @@ async function getImports(files, extension) {
 		}
 	});
 	await Promise.all(
-		pluginDirectories.map(async (directory) => {
+		pluginDirectories.map(async directory => {
 			const styleFiles = await file.walk(directory);
-			styleFiles.forEach((styleFile) => {
+			styleFiles.forEach(styleFile => {
 				source += pathToImport(styleFile);
 			});
-		})
+		}),
 	);
 	return source;
 }
@@ -270,14 +260,12 @@ async function getBundleMetadata(target) {
 			nconf.get('themes_path'),
 			themeData['theme:type'] && themeData['theme:type'] === 'local'
 				? themeId
-				: 'nodebb-theme-harmony'
+				: 'nodebb-theme-harmony',
 		);
 		paths.unshift(baseThemePath);
 		paths.unshift(`${baseThemePath}/node_modules`);
 		themeData.bsVariables =
-			parseInt(themeData.useBSVariables, 10) === 1
-				? themeData.bsVariables || ''
-				: '';
+			parseInt(themeData.useBSVariables, 10) === 1 ? themeData.bsVariables || '' : '';
 		themeData.bootswatchSkin = skin;
 		themeData.isCustomSkin = isCustomSkin;
 		const customSkin = isCustomSkin ? await CSS.getCustomSkin(skin) : null;
@@ -309,9 +297,7 @@ CSS.getSkinSwitcherOptions = async function (uid) {
 		CSS.getCustomSkins(),
 	]);
 
-	const foundCustom = customSkins.find(
-		(skin) => skin.value === meta.config.bootswatchSkin
-	);
+	const foundCustom = customSkins.find(skin => skin.value === meta.config.bootswatchSkin);
 	const defaultSkin = foundCustom
 		? foundCustom.name
 		: _.capitalize(meta.config.bootswatchSkin) || '[[user:no-skin]]';
@@ -349,28 +335,20 @@ CSS.getSkinSwitcherOptions = async function (uid) {
 		'yeti',
 		'zephyr',
 	];
-	const darkSkins = [
-		'cyborg',
-		'darkly',
-		'quartz',
-		'slate',
-		'solar',
-		'superhero',
-		'vapor',
-	];
+	const darkSkins = ['cyborg', 'darkly', 'quartz', 'slate', 'solar', 'superhero', 'vapor'];
 	function parseSkins(skins) {
-		skins = skins.map((skin) => ({
+		skins = skins.map(skin => ({
 			name: _.capitalize(skin),
 			value: skin,
 		}));
-		skins.forEach((skin) => {
+		skins.forEach(skin => {
 			skin.selected = skin.value === userSettings.bootswatchSkin;
 		});
 		return skins;
 	}
 	return await plugins.hooks.fire('filter:meta.css.getSkinSwitcherOptions', {
 		default: defaultSkins,
-		custom: customSkins.map((s) => ({
+		custom: customSkins.map(s => ({
 			...s,
 			selected: s.value === userSettings.bootswatchSkin,
 		})),
@@ -386,7 +364,7 @@ CSS.getCustomSkins = async function (opts = {}) {
 	const customSkins = await meta.settings.get('custom-skins');
 	const returnSkins = [];
 	if (customSkins && Array.isArray(customSkins['custom-skin-list'])) {
-		customSkins['custom-skin-list'].forEach((customSkin) => {
+		customSkins['custom-skin-list'].forEach(customSkin => {
 			if (customSkin) {
 				returnSkins.push({
 					name: customSkin['custom-skin-name'],
@@ -405,44 +383,32 @@ CSS.isSkinValid = async function (skin) {
 
 CSS.isCustomSkin = async function (skin) {
 	const skins = await CSS.getCustomSkins();
-	return !!skins.find((s) => s.value === skin);
+	return !!skins.find(s => s.value === skin);
 };
 
 CSS.getCustomSkin = async function (skin) {
 	const skins = await CSS.getCustomSkins({ loadVariables: true });
-	return skins.find((s) => s.value === skin);
+	return skins.find(s => s.value === skin);
 };
 
 CSS.buildBundle = async function (target, fork) {
 	if (target === 'client') {
-		let files = await fs.promises.readdir(
-			path.join(__dirname, '../../build/public')
-		);
-		files = files.filter((f) => f.match(/^client.*\.css$/));
+		let files = await fs.promises.readdir(path.join(__dirname, '../../build/public'));
+		files = files.filter(f => f.match(/^client.*\.css$/));
 		await Promise.all(
-			files.map((f) =>
-				fs.promises.unlink(path.join(__dirname, '../../build/public', f))
-			)
+			files.map(f => fs.promises.unlink(path.join(__dirname, '../../build/public', f))),
 		);
 	}
 
 	const data = await getBundleMetadata(target);
 	const minify = process.env.NODE_ENV !== 'development';
-	const { ltr, rtl } = await minifier.css.bundle(
-		data.imports,
-		data.paths,
-		minify,
-		fork
-	);
+	const { ltr, rtl } = await minifier.css.bundle(data.imports, data.paths, minify, fork);
 
 	await Promise.all([
-		fs.promises.writeFile(
-			path.join(__dirname, '../../build/public', `${target}.css`),
-			ltr.code
-		),
+		fs.promises.writeFile(path.join(__dirname, '../../build/public', `${target}.css`), ltr.code),
 		fs.promises.writeFile(
 			path.join(__dirname, '../../build/public', `${target}-rtl.css`),
-			rtl.code
+			rtl.code,
 		),
 		copyFontAwesomeFiles(),
 	]);

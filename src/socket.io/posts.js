@@ -27,11 +27,7 @@ SocketPosts.getPostSummaryByIndex = async function (socket, data) {
 	if (data.index === 0) {
 		pid = await topics.getTopicField(data.tid, 'mainPid');
 	} else {
-		pid = await db.getSortedSetRange(
-			`tid:${data.tid}:posts`,
-			data.index - 1,
-			data.index - 1
-		);
+		pid = await db.getSortedSetRange(`tid:${data.tid}:posts`, data.index - 1, data.index - 1);
 	}
 	pid = Array.isArray(pid) ? pid[0] : pid;
 	if (!pid) {
@@ -49,11 +45,7 @@ SocketPosts.getPostTimestampByIndex = async function (socket, data) {
 	if (data.index === 0) {
 		pid = await topics.getTopicField(data.tid, 'mainPid');
 	} else {
-		pid = await db.getSortedSetRange(
-			`tid:${data.tid}:posts`,
-			data.index - 1,
-			data.index - 1
-		);
+		pid = await db.getSortedSetRange(`tid:${data.tid}:posts`, data.index - 1, data.index - 1);
 	}
 	pid = Array.isArray(pid) ? pid[0] : pid;
 	const topicPrivileges = await privileges.topics.get(data.tid, socket.uid);

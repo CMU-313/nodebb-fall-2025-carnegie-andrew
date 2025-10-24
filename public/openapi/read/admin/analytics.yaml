@@ -23,8 +23,8 @@ get:
       description: The number of entries to return (e.g. if `units` is `hourly`, and `count` is `24`, the result set will contain 24 hours' worth of analytics)
       example: 20
   responses:
-    "200":
-      description: "A JSON object containing analytics data"
+    '200':
+      description: 'A JSON object containing analytics data'
       content:
         application/json:
           schema:

@@ -12,8 +12,8 @@ module.exports = {
 
 		await batch.processSortedSet(
 			'posts:pid',
-			async (pids) => {
-				const keys = pids.map((p) => `post:${p}:uploads`);
+			async pids => {
+				const keys = pids.map(p => `post:${p}:uploads`);
 				const uploads = await db.getSortedSetRange(keys, 0, -1);
 				await posts.uploads.saveSize(uploads);
 				progress.incr(pids.length);
@@ -21,7 +21,7 @@ module.exports = {
 			{
 				batch: 100,
 				progress: progress,
-			}
+			},
 		);
 	},
 };

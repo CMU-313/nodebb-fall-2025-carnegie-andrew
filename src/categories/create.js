@@ -72,11 +72,7 @@ module.exports = function (Categories) {
 			'groups:posts:view_deleted',
 			'groups:purge',
 		]);
-		const guestPrivileges = [
-			'groups:find',
-			'groups:read',
-			'groups:topics:read',
-		];
+		const guestPrivileges = ['groups:find', 'groups:read', 'groups:topics:read'];
 
 		const result = await plugins.hooks.fire('filter:category.create', {
 			category: category,
@@ -95,11 +91,7 @@ module.exports = function (Categories) {
 		await db.sortedSetAddBulk([
 			['categories:cid', category.order, category.cid],
 			[`cid:${parentCid}:children`, category.order, category.cid],
-			[
-				'categories:name',
-				0,
-				`${data.name.slice(0, 200).toLowerCase()}:${category.cid}`,
-			],
+			['categories:name', 0, `${data.name.slice(0, 200).toLowerCase()}:${category.cid}`],
 			['categoryhandle:cid', cid, handle],
 		]);
 
@@ -111,10 +103,7 @@ module.exports = function (Categories) {
 			'administrators',
 			'Global Moderators',
 		]);
-		await privileges.categories.give(result.guestPrivileges, category.cid, [
-			'guests',
-			'spiders',
-		]);
+		await privileges.categories.give(result.guestPrivileges, category.cid, ['guests', 'spiders']);
 
 		cache.del('categories:cid');
 		await clearParentCategoryCache(parentCid);
@@ -123,16 +112,12 @@ module.exports = function (Categories) {
 			category = await Categories.copySettingsFrom(
 				data.cloneFromCid,
 				category.cid,
-				!data.parentCid
+				!data.parentCid,
 			);
 		}
 
 		if (data.cloneChildren) {
-			await duplicateCategoriesChildren(
-				category.cid,
-				data.cloneFromCid,
-				data.uid
-			);
+			await duplicateCategoriesChildren(category.cid, data.cloneFromCid, data.uid);
 		}
 
 		plugins.hooks.fire('action:category.create', { category: category });
@@ -160,7 +145,7 @@ module.exports = function (Categories) {
 
 		children = children[0];
 
-		children.forEach((child) => {
+		children.forEach(child => {
 			child.parentCid = parentCid;
 			child.cloneFromCid = child.cid;
 			child.cloneChildren = true;
@@ -272,53 +257,34 @@ module.exports = function (Categories) {
 	};
 
 	async function copyTagWhitelist(fromCid, toCid) {
-		const data = await db.getSortedSetRangeWithScores(
-			`cid:${fromCid}:tag:whitelist`,
-			0,
-			-1
-		);
+		const data = await db.getSortedSetRangeWithScores(`cid:${fromCid}:tag:whitelist`, 0, -1);
 		await db.delete(`cid:${toCid}:tag:whitelist`);
 		await db.sortedSetAdd(
 			`cid:${toCid}:tag:whitelist`,
-			data.map((item) => item.score),
-			data.map((item) => item.value)
+			data.map(item => item.score),
+			data.map(item => item.value),
 		);
 		cache.del(`cid:${toCid}:tag:whitelist`);
 	}
 
-	Categories.copyPrivilegesFrom = async function (
-		fromCid,
-		toCid,
-		group,
-		filter
-	) {
+	Categories.copyPrivilegesFrom = async function (fromCid, toCid, group, filter) {
 		group = group || '';
 		let privsToCopy = privileges.categories.getPrivilegesByFilter(filter);
 
 		if (group) {
-			privsToCopy = privsToCopy.map((priv) => `groups:${priv}`);
+			privsToCopy = privsToCopy.map(priv => `groups:${priv}`);
 		} else {
-			privsToCopy = privsToCopy.concat(
-				privsToCopy.map((priv) => `groups:${priv}`)
-			);
+			privsToCopy = privsToCopy.concat(privsToCopy.map(priv => `groups:${priv}`));
 		}
 
-		const data = await plugins.hooks.fire(
-			'filter:categories.copyPrivilegesFrom',
-			{
-				privileges: privsToCopy,
-				fromCid: fromCid,
-				toCid: toCid,
-				group: group,
-			}
-		);
+		const data = await plugins.hooks.fire('filter:categories.copyPrivilegesFrom', {
+			privileges: privsToCopy,
+			fromCid: fromCid,
+			toCid: toCid,
+			group: group,
+		});
 		if (group) {
-			await copyPrivilegesByGroup(
-				data.privileges,
-				data.fromCid,
-				data.toCid,
-				group
-			);
+			await copyPrivilegesByGroup(data.privileges, data.fromCid, data.toCid, group);
 		} else {
 			await copyPrivileges(data.privileges, data.fromCid, data.toCid);
 		}
@@ -326,37 +292,33 @@ module.exports = function (Categories) {
 
 	async function copyPrivileges(privileges, fromCid, toCid) {
 		const toGroups = privileges.map(
-			(privilege) => `group:cid:${toCid}:privileges:${privilege}:members`
+			privilege => `group:cid:${toCid}:privileges:${privilege}:members`,
 		);
 		const fromGroups = privileges.map(
-			(privilege) => `group:cid:${fromCid}:privileges:${privilege}:members`
+			privilege => `group:cid:${fromCid}:privileges:${privilege}:members`,
 		);
 
-		const currentMembers = await db.getSortedSetsMembers(
-			toGroups.concat(fromGroups)
-		);
+		const currentMembers = await db.getSortedSetsMembers(toGroups.concat(fromGroups));
 		const copyGroups = _.uniq(_.flatten(currentMembers));
-		await async.each(copyGroups, async (group) => {
+		await async.each(copyGroups, async group => {
 			await copyPrivilegesByGroup(privileges, fromCid, toCid, group);
 		});
 	}
 
 	async function copyPrivilegesByGroup(privilegeList, fromCid, toCid, group) {
 		const fromGroups = privilegeList.map(
-			(privilege) => `group:cid:${fromCid}:privileges:${privilege}:members`
+			privilege => `group:cid:${fromCid}:privileges:${privilege}:members`,
 		);
 		const toGroups = privilegeList.map(
-			(privilege) => `group:cid:${toCid}:privileges:${privilege}:members`
+			privilege => `group:cid:${toCid}:privileges:${privilege}:members`,
 		);
 		const [fromChecks, toChecks] = await Promise.all([
 			db.isMemberOfSortedSets(fromGroups, group),
 			db.isMemberOfSortedSets(toGroups, group),
 		]);
-		const givePrivs = privilegeList.filter(
-			(priv, index) => fromChecks[index] && !toChecks[index]
-		);
+		const givePrivs = privilegeList.filter((priv, index) => fromChecks[index] && !toChecks[index]);
 		const rescindPrivs = privilegeList.filter(
-			(priv, index) => !fromChecks[index] && toChecks[index]
+			(priv, index) => !fromChecks[index] && toChecks[index],
 		);
 		await privileges.categories.give(givePrivs, toCid, group);
 		await privileges.categories.rescind(rescindPrivs, toCid, group);

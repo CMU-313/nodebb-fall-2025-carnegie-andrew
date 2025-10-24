@@ -44,7 +44,7 @@ Sockets.init = async function (server) {
 		transports: nconf.get('socket.io:transports') || ['polling', 'websocket'],
 		cookie: false,
 		allowRequest: (req, callback) => {
-			authorize(req, (err) => {
+			authorize(req, err => {
 				if (err) {
 					return callback(err);
 				}
@@ -100,7 +100,7 @@ function onConnection(socket) {
 			},
 			onMessage,
 			socket,
-			payload
+			payload,
 		);
 	});
 
@@ -179,11 +179,7 @@ async function onMessage(socket, payload) {
 		const parts = event.split('.');
 		const namespace = parts[0];
 		const methodToCall = parts.reduce((prev, cur) => {
-			if (
-				prev !== null &&
-				prev[cur] &&
-				(!prev.hasOwnProperty || prev.hasOwnProperty(cur))
-			) {
+			if (prev !== null && prev[cur] && (!prev.hasOwnProperty || prev.hasOwnProperty(cur))) {
 				return prev[cur];
 			}
 			return null;
@@ -205,7 +201,7 @@ async function onMessage(socket, payload) {
 
 		if (!event.startsWith('admin.') && ratelimit.isFlooding(socket)) {
 			winston.warn(
-				`[socket.io] Too many emits! Disconnecting uid : ${socket.uid}. Events : ${socket.previousEvents}`
+				`[socket.io] Too many emits! Disconnecting uid : ${socket.uid}. Events : ${socket.previousEvents}`,
 			);
 			return socket.disconnect();
 		}
@@ -218,10 +214,7 @@ async function onMessage(socket, payload) {
 			await Namespaces[namespace].before(socket, event, params);
 		}
 
-		if (
-			methodToCall.constructor &&
-			methodToCall.constructor.name === 'AsyncFunction'
-		) {
+		if (methodToCall.constructor && methodToCall.constructor.name === 'AsyncFunction') {
 			const result = await methodToCall(socket, params);
 			callback(null, result);
 		} else {
@@ -251,7 +244,7 @@ function requireModules() {
 		'uploads',
 	];
 
-	modules.forEach((module) => {
+	modules.forEach(module => {
 		Namespaces[module] = require(`./${module}`);
 	});
 }
@@ -267,16 +260,14 @@ async function checkMaintenance(socket) {
 	}
 	const validator = require('validator');
 	throw new Error(
-		`[[pages:maintenance.text, ${validator.escape(String(meta.config.title || 'NodeBB'))}]]`
+		`[[pages:maintenance.text, ${validator.escape(String(meta.config.title || 'NodeBB'))}]]`,
 	);
 }
 
 async function validateSession(socket, errorMsg) {
 	const req = socket.request;
 	const { sessionId } = await plugins.hooks.fire('filter:sockets.sessionId', {
-		sessionId: req.signedCookies
-			? req.signedCookies[nconf.get('sessionKey')]
-			: null,
+		sessionId: req.signedCookies ? req.signedCookies[nconf.get('sessionKey')] : null,
 		request: req,
 	});
 
@@ -297,7 +288,7 @@ async function validateSession(socket, errorMsg) {
 }
 
 const cookieParserAsync = util.promisify((req, callback) =>
-	cookieParser(req, {}, (err) => callback(err))
+	cookieParser(req, {}, err => callback(err)),
 );
 
 async function authorize(request, callback) {
@@ -308,9 +299,7 @@ async function authorize(request, callback) {
 	await cookieParserAsync(request);
 
 	const { sessionId } = await plugins.hooks.fire('filter:sockets.sessionId', {
-		sessionId: request.signedCookies
-			? request.signedCookies[nconf.get('sessionKey')]
-			: null,
+		sessionId: request.signedCookies ? request.signedCookies[nconf.get('sessionKey')] : null,
 		request: request,
 	});
 
@@ -370,6 +359,6 @@ Sockets.warnDeprecated = (socket, replacement) => {
 			'[deprecated]',
 			`${new Error('-').stack.split('\n').slice(2, 5).join('\n')}`,
 			`      ${replacement ? `use ${replacement}` : 'there is no replacement for this call.'}`,
-		].join('\n')
+		].join('\n'),
 	);
 };

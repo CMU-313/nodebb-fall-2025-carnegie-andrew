@@ -63,12 +63,9 @@ module.exports = function (module) {
 		}
 		pipeline.push({ $project: project });
 
-		let data = await module.client
-			.collection('objects')
-			.aggregate(pipeline)
-			.toArray();
+		let data = await module.client.collection('objects').aggregate(pipeline).toArray();
 		if (!params.withScores) {
-			data = data.map((item) => item.value);
+			data = data.map(item => item.value);
 		}
 		return data;
 	}

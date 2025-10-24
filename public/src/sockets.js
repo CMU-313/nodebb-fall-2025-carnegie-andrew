@@ -35,10 +35,14 @@ app = window.app || {};
 		}
 
 		return new Promise(function (resolve, reject) {
-			oEmit.apply(socket, [event, data, function (err, result) {
-				if (err) reject(err);
-				else resolve(result);
-			}]);
+			oEmit.apply(socket, [
+				event,
+				data,
+				function (err, result) {
+					if (err) reject(err);
+					else resolve(result);
+				},
+			]);
 		});
 	};
 
@@ -111,8 +115,13 @@ app = window.app || {};
 				alerts.alert(params);
 			});
 		});
-		socket.on('event:deprecated_call', (data) => {
-			console.warn('[socket.io]', data.eventName, 'is now deprecated', data.replacement ? `in favour of ${data.replacement}` : 'with no alternative planned.');
+		socket.on('event:deprecated_call', data => {
+			console.warn(
+				'[socket.io]',
+				data.eventName,
+				'is now deprecated',
+				data.replacement ? `in favour of ${data.replacement}` : 'with no alternative planned.',
+			);
 		});
 
 		socket.on('event:livereload', function () {
@@ -157,7 +166,7 @@ app = window.app || {};
 			reJoinCurrentRoom();
 
 			const { 'cache-buster': hash, hostname } = await socket.emit('meta.reconnected');
-			if ((hostname === app.upstreamHost) && (!app.cacheBuster || app.cacheBuster !== hash)) {
+			if (hostname === app.upstreamHost && (!app.cacheBuster || app.cacheBuster !== hash)) {
 				app.cacheBuster = hash;
 				alert({
 					alert_id: 'forum_updated',
@@ -189,7 +198,10 @@ app = window.app || {};
 				socket.emit('modules.chats.enter', ajaxify.data.roomId);
 			}
 			if (ajaxify.data.publicRooms) {
-				socket.emit('modules.chats.enterPublic', ajaxify.data.publicRooms.map(r => r.roomId));
+				socket.emit(
+					'modules.chats.enterPublic',
+					ajaxify.data.publicRooms.map(r => r.roomId),
+				);
 			}
 		}
 	}
@@ -223,9 +235,13 @@ app = window.app || {};
 
 	function onEventBanned(data) {
 		require(['bootbox', 'translator'], function (bootbox, translator) {
-			const message = data.until ?
-				translator.compile('error:user-banned-reason-until', (new Date(data.until).toLocaleString()), data.reason) :
-				'[[error:user-banned-reason, ' + data.reason + ']]';
+			const message = data.until
+				? translator.compile(
+						'error:user-banned-reason-until',
+						new Date(data.until).toLocaleString(),
+						data.reason,
+					)
+				: '[[error:user-banned-reason, ' + data.reason + ']]';
 			translator.translate(message, function (message) {
 				bootbox.alert({
 					title: '[[error:user-banned]]',
@@ -259,8 +275,8 @@ app = window.app || {};
 	) {
 		console.error(
 			'You are accessing the forum from an unknown origin. This will likely result in websockets failing to connect. \n' +
-			'To fix this, set the `"url"` value in `config.json` to the URL at which you access the site. \n' +
-			'For more information, see this FAQ topic: https://community.nodebb.org/topic/13388'
+				'To fix this, set the `"url"` value in `config.json` to the URL at which you access the site. \n' +
+				'For more information, see this FAQ topic: https://community.nodebb.org/topic/13388',
 		);
 	}
-}());
+})();

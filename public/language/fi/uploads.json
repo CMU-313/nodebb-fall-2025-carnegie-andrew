@@ -1,9 +1,9 @@
 {
-    "uploading-file": "Lähetetään tiedostoa..",
-    "select-file-to-upload": "Valitse tiedosto lähetettäväksi!",
-    "upload-success": "Tiedoston lähetys onnistui",
-    "maximum-file-size": "Enimmäiskoko on %1 kt",
-    "no-uploads-found": "Tiedostolähetyksiä ei ole",
-    "public-uploads-info": "Tiedostolähetykset ovat julkisia ja kaikki kävijät näkevät ne.",
-    "private-uploads-info": "Tiedostolähetykset ovat yksityisiä ja vain kirjautuneet käyttäjät näkevät ne."
+  "uploading-file": "Lähetetään tiedostoa..",
+  "select-file-to-upload": "Valitse tiedosto lähetettäväksi!",
+  "upload-success": "Tiedoston lähetys onnistui",
+  "maximum-file-size": "Enimmäiskoko on %1 kt",
+  "no-uploads-found": "Tiedostolähetyksiä ei ole",
+  "public-uploads-info": "Tiedostolähetykset ovat julkisia ja kaikki kävijät näkevät ne.",
+  "private-uploads-info": "Tiedostolähetykset ovat yksityisiä ja vain kirjautuneet käyttäjät näkevät ne."
 }

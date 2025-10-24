@@ -86,7 +86,7 @@ describe('Search', () => {
 		await privileges.global.rescind(['groups:search:content'], 'guests');
 	});
 
-	it('should search for a user', (done) => {
+	it('should search for a user', done => {
 		search.search(
 			{
 				query: 'gin',
@@ -100,11 +100,11 @@ describe('Search', () => {
 				assert.equal(data.users[0].uid, gingerUid);
 				assert.equal(data.users[0].username, 'ginger');
 				done();
-			}
+			},
 		);
 	});
 
-	it('should search for a tag', (done) => {
+	it('should search for a tag', done => {
 		search.search(
 			{
 				query: 'plug',
@@ -118,7 +118,7 @@ describe('Search', () => {
 				assert.equal(data.tags[0].value, 'plugin');
 				assert.equal(data.tags[0].score, 2);
 				done();
-			}
+			},
 		);
 	});
 
@@ -143,30 +143,27 @@ describe('Search', () => {
 		const socketCategories = require('../src/socket.io/categories');
 		let data = await socketCategories.categorySearch(
 			{ uid: phoebeUid },
-			{ query: 'baz', parentCid: 0 }
+			{ query: 'baz', parentCid: 0 },
 		);
 		assert.strictEqual(data[0].name, 'baz category');
-		data = await socketCategories.categorySearch(
-			{ uid: phoebeUid },
-			{ query: '', parentCid: 0 }
-		);
+		data = await socketCategories.categorySearch({ uid: phoebeUid }, { query: '', parentCid: 0 });
 		assert.strictEqual(data.length, 5);
 	});
 
-	it('should fail if searchIn is wrong', (done) => {
+	it('should fail if searchIn is wrong', done => {
 		search.search(
 			{
 				query: 'plug',
 				searchIn: '',
 			},
-			(err) => {
+			err => {
 				assert.equal(err.message, '[[error:unknown-search-filter]]');
 				done();
-			}
+			},
 		);
 	});
 
-	it('should search with tags filter', (done) => {
+	it('should search with tags filter', done => {
 		search.search(
 			{
 				query: 'mongodb',
@@ -177,11 +174,11 @@ describe('Search', () => {
 				assert.ifError(err);
 				assert.equal(data.posts[0].tid, topic2Data.tid);
 				done();
-			}
+			},
 		);
 	});
 
-	it('should not crash if tags is not an array', (done) => {
+	it('should not crash if tags is not an array', done => {
 		search.search(
 			{
 				query: 'mongodb',
@@ -191,11 +188,11 @@ describe('Search', () => {
 			(err, data) => {
 				assert.ifError(err);
 				done();
-			}
+			},
 		);
 	});
 
-	it('should not find anything', (done) => {
+	it('should not find anything', done => {
 		search.search(
 			{
 				query: 'xxxxxxxxxxxxxx',
@@ -206,7 +203,7 @@ describe('Search', () => {
 				assert(Array.isArray(data.posts));
 				assert(!data.matchCount);
 				done();
-			}
+			},
 		);
 	});
 

@@ -14,15 +14,9 @@ const primaryDB = require(`./${databaseName}`);
 const utils = require('../utils');
 
 primaryDB.parseIntFields = function (data, intFields, requestedFields) {
-	intFields.forEach((field) => {
-		if (
-			!requestedFields ||
-			!requestedFields.length ||
-			requestedFields.includes(field)
-		) {
-			data[field] = utils.isNumber(data[field])
-				? parseInt(data[field], 10)
-				: data[field] || 0;
+	intFields.forEach(field => {
+		if (!requestedFields || !requestedFields.length || requestedFields.includes(field)) {
+			data[field] = utils.isNumber(data[field]) ? parseInt(data[field], 10) : data[field] || 0;
 		}
 	});
 };
@@ -39,8 +33,7 @@ primaryDB.initSessionStore = async function () {
 		sessionStoreDB = require('./redis');
 	}
 
-	primaryDB.sessionStore =
-		await sessionStoreDB.createSessionStore(sessionStoreConfig);
+	primaryDB.sessionStore = await sessionStoreDB.createSessionStore(sessionStoreConfig);
 };
 
 function promisifySessionStoreMethod(method, sid) {

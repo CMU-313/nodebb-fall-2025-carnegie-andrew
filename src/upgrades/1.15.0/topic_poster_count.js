@@ -12,9 +12,9 @@ module.exports = {
 
 		await batch.processSortedSet(
 			'topics:tid',
-			async (tids) => {
+			async tids => {
 				progress.incr(tids.length);
-				const keys = tids.map((tid) => `tid:${tid}:posters`);
+				const keys = tids.map(tid => `tid:${tid}:posters`);
 				await db.sortedSetsRemoveRangeByScore(keys, '-inf', 0);
 				const counts = await db.sortedSetsCard(keys);
 				const bulkSet = [];
@@ -28,7 +28,7 @@ module.exports = {
 			{
 				progress: progress,
 				batchSize: 500,
-			}
+			},
 		);
 	},
 };

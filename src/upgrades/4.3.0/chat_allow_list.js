@@ -13,11 +13,11 @@ module.exports = {
 
 		await batch.processSortedSet(
 			'users:joindate',
-			async (uids) => {
-				const keys = uids.map((uid) => `user:${uid}:settings`);
+			async uids => {
+				const keys = uids.map(uid => `user:${uid}:settings`);
 				const [userSettings, followingUids] = await Promise.all([
 					db.getObjects(keys),
-					db.getSortedSetsMembers(uids.map((uid) => `following:${uid}`)),
+					db.getSortedSetsMembers(uids.map(uid => `following:${uid}`)),
 				]);
 
 				const bulkSet = [];
@@ -27,10 +27,7 @@ module.exports = {
 						const uid = uids[idx];
 						const followingUidsOfThisUser = followingUids[idx] || [];
 
-						if (
-							parseInt(settings.restrictChat, 10) === 1 &&
-							followingUidsOfThisUser.length > 0
-						) {
+						if (parseInt(settings.restrictChat, 10) === 1 && followingUidsOfThisUser.length > 0) {
 							bulkSet.push([
 								`user:${uid}:settings`,
 								{ chatAllowList: JSON.stringify(followingUidsOfThisUser) },
@@ -45,7 +42,7 @@ module.exports = {
 			},
 			{
 				batch: 500,
-			}
+			},
 		);
 	},
 };

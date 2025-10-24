@@ -16,14 +16,9 @@ module.exports = {
 			async.eachSeries(
 				cids,
 				(cid, next) => {
-					privileges.categories.give(
-						['groups:posts:history'],
-						cid,
-						'registered-users',
-						next
-					);
+					privileges.categories.give(['groups:posts:history'], cid, 'registered-users', next);
 				},
-				callback
+				callback,
 			);
 		});
 	},

@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/topic/threadTools', [
 	'components',
 	'translator',
@@ -12,7 +11,18 @@ define('forum/topic/threadTools', [
 	'alerts',
 	'bootstrap',
 	'helpers',
-], function (components, translator, handleBack, posts, api, hooks, bootbox, alerts, bootstrap, helpers) {
+], function (
+	components,
+	translator,
+	handleBack,
+	posts,
+	api,
+	hooks,
+	bootbox,
+	alerts,
+	bootstrap,
+	helpers,
+) {
 	const ThreadTools = {};
 
 	ThreadTools.init = function (tid, topicContainer) {
@@ -86,9 +96,10 @@ define('forum/topic/threadTools', [
 		topicContainer.on('click', '[component="topic/event/delete"]', function () {
 			const eventId = $(this).attr('data-topic-event-id');
 			const eventEl = $(this).parents('[data-topic-event-id]');
-			bootbox.confirm('[[topic:delete-event-confirm]]', (ok) => {
+			bootbox.confirm('[[topic:delete-event-confirm]]', ok => {
 				if (ok) {
-					api.del(`/topics/${tid}/events/${eventId}`, {})
+					api
+						.del(`/topics/${tid}/events/${eventId}`, {})
 						.then(function () {
 							const itemsParent = eventEl.parents('[component="topic/event/items"]');
 							eventEl.remove();
@@ -160,38 +171,47 @@ define('forum/topic/threadTools', [
 
 		function changeWatching(type, state = 1) {
 			const method = state ? 'put' : 'del';
-			api[method](`/topics/${tid}/${type}`, {}, () => {
-				let message = '';
-				if (type === 'follow') {
-					message = state ? '[[topic:following-topic.message]]' : '[[topic:not-following-topic.message]]';
-				} else if (type === 'ignore') {
-					message = state ? '[[topic:ignoring-topic.message]]' : '[[topic:not-following-topic.message]]';
-				}
+			api[method](
+				`/topics/${tid}/${type}`,
+				{},
+				() => {
+					let message = '';
+					if (type === 'follow') {
+						message = state
+							? '[[topic:following-topic.message]]'
+							: '[[topic:not-following-topic.message]]';
+					} else if (type === 'ignore') {
+						message = state
+							? '[[topic:ignoring-topic.message]]'
+							: '[[topic:not-following-topic.message]]';
+					}
 
-				// From here on out, type changes to 'unfollow' if state is falsy
-				if (!state) {
-					type = 'unfollow';
-				}
+					// From here on out, type changes to 'unfollow' if state is falsy
+					if (!state) {
+						type = 'unfollow';
+					}
 
-				setFollowState(type);
+					setFollowState(type);
 
-				alerts.alert({
-					alert_id: 'follow_thread',
-					message: message,
-					type: 'success',
-					timeout: 5000,
-				});
+					alerts.alert({
+						alert_id: 'follow_thread',
+						message: message,
+						type: 'success',
+						timeout: 5000,
+					});
 
-				hooks.fire('action:topics.changeWatching', { tid: tid, type: type });
-			}, () => {
-				alerts.alert({
-					type: 'danger',
-					alert_id: 'topic_follow',
-					title: '[[global:please-log-in]]',
-					message: '[[topic:login-to-subscribe]]',
-					timeout: 5000,
-				});
-			});
+					hooks.fire('action:topics.changeWatching', { tid: tid, type: type });
+				},
+				() => {
+					alerts.alert({
+						type: 'danger',
+						alert_id: 'topic_follow',
+						title: '[[global:please-log-in]]',
+						message: '[[topic:login-to-subscribe]]',
+						timeout: 5000,
+					});
+				},
+			);
 
 			return false;
 		}
@@ -225,7 +245,9 @@ define('forum/topic/threadTools', [
 				return;
 			}
 			dropdownMenu.html(helpers.generatePlaceholderWave([8, 8, 8]));
-			const data = await socket.emit('topics.loadTopicTools', { tid: ajaxify.data.tid, cid: ajaxify.data.cid }).catch(alerts.error);
+			const data = await socket
+				.emit('topics.loadTopicTools', { tid: ajaxify.data.tid, cid: ajaxify.data.cid })
+				.catch(alerts.error);
 			const html = await app.parseAndTranslate('partials/topic/topic-menu-list', data);
 			$(dropdownMenu).attr('data-loaded', 'true').html(html);
 			hooks.fire('action:topic.tools.load', {
@@ -242,9 +264,7 @@ define('forum/topic/threadTools', [
 		const body = {};
 		const execute = function (ok) {
 			if (ok) {
-				api[method](`/topics/${tid}${path}`, body)
-					.then(onComplete)
-					.catch(alerts.error);
+				api[method](`/topics/${tid}${path}`, body).then(onComplete).catch(alerts.error);
 			}
 		};
 
@@ -312,20 +332,47 @@ define('forum/topic/threadTools', [
 
 		const isLocked = data.isLocked && !ajaxify.data.privileges.isAdminOrMod;
 
-		components.get('topic/lock').toggleClass('hidden', data.isLocked).parent().attr('hidden', data.isLocked ? '' : null);
-		components.get('topic/unlock').toggleClass('hidden', !data.isLocked).parent().attr('hidden', !data.isLocked ? '' : null);
+		components
+			.get('topic/lock')
+			.toggleClass('hidden', data.isLocked)
+			.parent()
+			.attr('hidden', data.isLocked ? '' : null);
+		components
+			.get('topic/unlock')
+			.toggleClass('hidden', !data.isLocked)
+			.parent()
+			.attr('hidden', !data.isLocked ? '' : null);
 
-		const hideReply = !!((data.isLocked || ajaxify.data.deleted) && !ajaxify.data.privileges.isAdminOrMod);
+		const hideReply = !!(
+			(data.isLocked || ajaxify.data.deleted) &&
+			!ajaxify.data.privileges.isAdminOrMod
+		);
 
 		components.get('topic/reply/container').toggleClass('hidden', hideReply);
-		components.get('topic/reply/locked').toggleClass('hidden', ajaxify.data.privileges.isAdminOrMod || !data.isLocked || ajaxify.data.deleted);
+		components
+			.get('topic/reply/locked')
+			.toggleClass(
+				'hidden',
+				ajaxify.data.privileges.isAdminOrMod || !data.isLocked || ajaxify.data.deleted,
+			);
 
-		threadEl.find('[component="post"]:not(.deleted) [component="post/reply"], [component="post"]:not(.deleted) [component="post/quote"]').toggleClass('hidden', hideReply);
-		threadEl.find('[component="post/edit"], [component="post/delete"]').toggleClass('hidden', isLocked);
+		threadEl
+			.find(
+				'[component="post"]:not(.deleted) [component="post/reply"], [component="post"]:not(.deleted) [component="post/quote"]',
+			)
+			.toggleClass('hidden', hideReply);
+		threadEl
+			.find('[component="post/edit"], [component="post/delete"]')
+			.toggleClass('hidden', isLocked);
 
-		threadEl.find('[component="post"][data-uid="' + app.user.uid + '"].deleted [component="post/tools"]').toggleClass('hidden', isLocked);
+		threadEl
+			.find('[component="post"][data-uid="' + app.user.uid + '"].deleted [component="post/tools"]')
+			.toggleClass('hidden', isLocked);
 
-		$('[component="topic/labels"] [component="topic/locked"]').toggleClass('hidden', !data.isLocked);
+		$('[component="topic/labels"] [component="topic/locked"]').toggleClass(
+			'hidden',
+			!data.isLocked,
+		);
 		$('[component="post/tools"] .dropdown-menu').html('');
 		ajaxify.data.locked = data.isLocked;
 
@@ -338,26 +385,51 @@ define('forum/topic/threadTools', [
 			return;
 		}
 
-		components.get('topic/delete').toggleClass('hidden', data.isDelete).parent().attr('hidden', data.isDelete ? '' : null);
-		components.get('topic/restore').toggleClass('hidden', !data.isDelete).parent().attr('hidden', !data.isDelete ? '' : null);
-		components.get('topic/purge').toggleClass('hidden', !data.isDelete).parent().attr('hidden', !data.isDelete ? '' : null);
+		components
+			.get('topic/delete')
+			.toggleClass('hidden', data.isDelete)
+			.parent()
+			.attr('hidden', data.isDelete ? '' : null);
+		components
+			.get('topic/restore')
+			.toggleClass('hidden', !data.isDelete)
+			.parent()
+			.attr('hidden', !data.isDelete ? '' : null);
+		components
+			.get('topic/purge')
+			.toggleClass('hidden', !data.isDelete)
+			.parent()
+			.attr('hidden', !data.isDelete ? '' : null);
 		components.get('topic/deleted/message').toggleClass('hidden', !data.isDelete);
 
 		if (data.isDelete) {
-			app.parseAndTranslate('partials/topic/deleted-message', {
-				deleter: data.user,
-				deleted: true,
-				deletedTimestampISO: utils.toISOString(Date.now()),
-			}, function (html) {
-				components.get('topic/deleted/message').replaceWith(html);
-				html.find('.timeago').timeago();
-			});
+			app.parseAndTranslate(
+				'partials/topic/deleted-message',
+				{
+					deleter: data.user,
+					deleted: true,
+					deletedTimestampISO: utils.toISOString(Date.now()),
+				},
+				function (html) {
+					components.get('topic/deleted/message').replaceWith(html);
+					html.find('.timeago').timeago();
+				},
+			);
 		}
 		const hideReply = data.isDelete && !ajaxify.data.privileges.isAdminOrMod;
 
 		components.get('topic/reply/container').toggleClass('hidden', hideReply);
-		components.get('topic/reply/locked').toggleClass('hidden', ajaxify.data.privileges.isAdminOrMod || !ajaxify.data.locked || data.isDelete);
-		threadEl.find('[component="post"]:not(.deleted) [component="post/reply"], [component="post"]:not(.deleted) [component="post/quote"]').toggleClass('hidden', hideReply);
+		components
+			.get('topic/reply/locked')
+			.toggleClass(
+				'hidden',
+				ajaxify.data.privileges.isAdminOrMod || !ajaxify.data.locked || data.isDelete,
+			);
+		threadEl
+			.find(
+				'[component="post"]:not(.deleted) [component="post/reply"], [component="post"]:not(.deleted) [component="post/quote"]',
+			)
+			.toggleClass('hidden', hideReply);
 
 		threadEl.toggleClass('deleted', data.isDelete);
 		ajaxify.data.deleted = data.isDelete ? 1 : 0;
@@ -365,23 +437,31 @@ define('forum/topic/threadTools', [
 		posts.addTopicEvents(data.events);
 	};
 
-
 	ThreadTools.setPinnedState = function (data) {
 		const threadEl = components.get('topic');
 		if (String(data.tid) !== threadEl.attr('data-tid')) {
 			return;
 		}
 
-		components.get('topic/pin').toggleClass('hidden', data.pinned).parent().attr('hidden', data.pinned ? '' : null);
-		components.get('topic/unpin').toggleClass('hidden', !data.pinned).parent().attr('hidden', !data.pinned ? '' : null);
+		components
+			.get('topic/pin')
+			.toggleClass('hidden', data.pinned)
+			.parent()
+			.attr('hidden', data.pinned ? '' : null);
+		components
+			.get('topic/unpin')
+			.toggleClass('hidden', !data.pinned)
+			.parent()
+			.attr('hidden', !data.pinned ? '' : null);
 		const icon = $('[component="topic/labels"] [component="topic/pinned"]');
 		icon.toggleClass('hidden', !data.pinned);
 		if (data.pinned) {
-			icon.translateAttr('title', (
-				data.pinExpiry && data.pinExpiryISO ?
-					'[[topic:pinned-with-expiry, ' + data.pinExpiryISO + ']]' :
-					'[[topic:pinned]]'
-			));
+			icon.translateAttr(
+				'title',
+				data.pinExpiry && data.pinExpiryISO
+					? '[[topic:pinned-with-expiry, ' + data.pinExpiryISO + ']]'
+					: '[[topic:pinned]]',
+			);
 		}
 		ajaxify.data.pinned = data.pinned;
 
@@ -414,7 +494,6 @@ define('forum/topic/threadTools', [
 		menu.toggleClass('hidden', state !== 'ignore');
 		components.get('topic/ignoring/check').toggleClass('fa-check', state === 'ignore');
 	}
-
 
 	return ThreadTools;
 });

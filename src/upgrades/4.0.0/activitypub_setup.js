@@ -19,8 +19,8 @@ module.exports = {
 		// Run through all categories and ensure their slugs are unique (incl. users/groups too)
 		const cids = await db.getSortedSetMembers('categories:cid');
 		const names = await db.getObjectsFields(
-			cids.map((cid) => `category:${cid}`),
-			cids.map(() => 'name')
+			cids.map(cid => `category:${cid}`),
+			cids.map(() => 'name'),
 		);
 
 		const handles = await Promise.all(
@@ -28,13 +28,11 @@ module.exports = {
 				const { name } = names[idx];
 				const handle = await categories.generateHandle(slugify(name));
 				return handle;
-			})
+			}),
 		);
 
 		await Promise.all([
-			db.setObjectBulk(
-				cids.map((cid, idx) => [`category:${cid}`, { handle: handles[idx] }])
-			),
+			db.setObjectBulk(cids.map((cid, idx) => [`category:${cid}`, { handle: handles[idx] }])),
 			db.sortedSetAdd('categoryhandle:cid', cids, handles),
 		]);
 	},

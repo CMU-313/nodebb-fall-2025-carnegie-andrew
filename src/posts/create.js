@@ -51,10 +51,8 @@ module.exports = function (Posts) {
 		// Rewrite emoji references to inline image assets
 		if (_activitypub && _activitypub.tag && Array.isArray(_activitypub.tag)) {
 			_activitypub.tag
-				.filter(
-					(tag) => tag.type === 'Emoji' && tag.icon && tag.icon.type === 'Image'
-				)
-				.forEach((tag) => {
+				.filter(tag => tag.type === 'Emoji' && tag.icon && tag.icon.type === 'Image')
+				.forEach(tag => {
 					if (!tag.name.startsWith(':')) {
 						tag.name = `:${tag.name}`;
 					}
@@ -64,7 +62,7 @@ module.exports = function (Posts) {
 
 					postData.content = postData.content.replace(
 						new RegExp(tag.name, 'g'),
-						`<img class="not-responsive emoji" src="${tag.icon.url}" title="${tag.name}" />`
+						`<img class="not-responsive emoji" src="${tag.icon.url}" title="${tag.name}" />`,
 					);
 				});
 		}

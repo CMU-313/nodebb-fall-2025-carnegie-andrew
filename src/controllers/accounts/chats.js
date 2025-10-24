@@ -18,10 +18,7 @@ chatsController.get = async function (req, res, next) {
 	if (!uid) {
 		return next();
 	}
-	const canChat = await privileges.global.can(
-		['chat', 'chat:privileged'],
-		req.uid
-	);
+	const canChat = await privileges.global.can(['chat', 'chat:privileged'], req.uid);
 	if (!canChat.includes(true)) {
 		return helpers.notAllowed(req, res);
 	}
@@ -55,15 +52,9 @@ chatsController.get = async function (req, res, next) {
 	let start = 0;
 	payload.scrollToIndex = null;
 	if (index) {
-		const msgCount = await db.getObjectField(
-			`chat:room:${req.params.roomid}`,
-			'messageCount'
-		);
+		const msgCount = await db.getObjectField(`chat:room:${req.params.roomid}`, 'messageCount');
 		start = Math.max(0, parseInt(msgCount, 10) - index - 49);
-		payload.scrollToIndex = Math.min(
-			msgCount,
-			Math.max(0, parseInt(index, 10) || 1)
-		);
+		payload.scrollToIndex = Math.min(msgCount, Math.max(0, parseInt(index, 10) || 1));
 	}
 	const room = await messaging.loadRoom(req.uid, {
 		uid: uid,
@@ -76,15 +67,13 @@ chatsController.get = async function (req, res, next) {
 
 	room.title = room.roomName || room.usernames || '[[pages:chats]]';
 	room.bodyClasses = ['chat-loaded'];
-	const [canViewInfo, canUploadImage, canUploadFile] =
-		await privileges.global.can(
-			['view:users:info', 'upload:post:image', 'upload:post:file'],
-			uid
-		);
+	const [canViewInfo, canUploadImage, canUploadFile] = await privileges.global.can(
+		['view:users:info', 'upload:post:image', 'upload:post:file'],
+		uid,
+	);
 	room.canViewInfo = canViewInfo;
 	room.canUpload =
-		(canUploadImage || canUploadFile) &&
-		(meta.config.maximumFileSize > 0 || room.isAdmin);
+		(canUploadImage || canUploadFile) && (meta.config.maximumFileSize > 0 || room.isAdmin);
 	res.render('chats', {
 		...payload,
 		...room,
@@ -103,7 +92,7 @@ chatsController.redirectToChat = async function (req, res, next) {
 	const index = parseInt(req.params.index, 10);
 	helpers.redirect(
 		res,
-		`/user/${userslug}/chats${roomid ? `/${roomid}` : ''}${index ? `/${index}` : ''}`
+		`/user/${userslug}/chats${roomid ? `/${roomid}` : ''}${index ? `/${index}` : ''}`,
 	);
 };
 
@@ -124,9 +113,5 @@ chatsController.redirectToMessage = async function (req, res, next) {
 		return next();
 	}
 
-	helpers.redirect(
-		res,
-		`/user/${userslug}/chats/${roomId}${index ? `/${index + 1}` : ''}`,
-		true
-	);
+	helpers.redirect(res, `/user/${userslug}/chats/${roomId}${index ? `/${index + 1}` : ''}`, true);
 };

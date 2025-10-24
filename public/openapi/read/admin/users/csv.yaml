@@ -10,8 +10,8 @@ get:
       required: true
       example: /admin/manage/users
   responses:
-    "200":
-      description: "A CSV file containing all registered users"
+    '200':
+      description: 'A CSV file containing all registered users'
       content:
         text/csv:
           schema:

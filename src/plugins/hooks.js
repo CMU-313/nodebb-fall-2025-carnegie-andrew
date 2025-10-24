@@ -37,10 +37,7 @@ const hookTypeToMethod = {
 */
 Hooks.register = function (id, data) {
 	if (!data.hook || !data.method) {
-		winston.warn(
-			`[plugins/${id}] registerHook called with invalid data.hook/method`,
-			data
-		);
+		winston.warn(`[plugins/${id}] registerHook called with invalid data.hook/method`, data);
 		return;
 	}
 
@@ -61,12 +58,10 @@ Hooks.register = function (id, data) {
 
 	if (
 		Array.isArray(data.method) &&
-		data.method.every(
-			(method) => typeof method === 'function' || typeof method === 'string'
-		)
+		data.method.every(method => typeof method === 'function' || typeof method === 'string')
 	) {
 		// Go go gadget recursion!
-		data.method.forEach((method) => {
+		data.method.forEach(method => {
 			const singularData = { ...data, method: method };
 			Hooks.register(id, singularData);
 		});
@@ -86,16 +81,14 @@ Hooks.register = function (id, data) {
 	} else if (typeof data.method === 'function') {
 		Hooks.internals._register(data);
 	} else {
-		winston.warn(
-			`[plugins/${id}] Hook method mismatch: ${data.hook} => ${data.method}`
-		);
+		winston.warn(`[plugins/${id}] Hook method mismatch: ${data.hook} => ${data.method}`);
 	}
 };
 
 Hooks.unregister = function (id, hook, method) {
 	const hooks = plugins.loadedHooks[hook] || [];
 	plugins.loadedHooks[hook] = hooks.filter(
-		(hookData) => hookData && hookData.id !== id && hookData.method !== method
+		hookData => hookData && hookData.id !== id && hookData.method !== method,
 	);
 };
 
@@ -126,10 +119,7 @@ Hooks.fire = async function (hook, params) {
 	}
 	const result = await hookTypeToMethod[hookType](hook, hookList, params);
 
-	if (
-		hook !== 'action:plugins.firehook' &&
-		hook !== 'filter:plugins.firehook'
-	) {
+	if (hook !== 'action:plugins.firehook' && hook !== 'filter:plugins.firehook') {
 		const payload = await Hooks.fire('filter:plugins.firehook', {
 			hook: hook,
 			params: result || params,
@@ -153,9 +143,7 @@ function hookHandlerPromise(hook, hookObj, params) {
 		let resolved = false;
 		function _resolve(result) {
 			if (resolved) {
-				winston.warn(
-					`[plugins] ${hook} already resolved in plugin ${hookObj.id}`
-				);
+				winston.warn(`[plugins] ${hook} already resolved in plugin ${hookObj.id}`);
 				return;
 			}
 			resolved = true;
@@ -168,8 +156,8 @@ function hookHandlerPromise(hook, hookObj, params) {
 
 		if (utils.isPromise(returned)) {
 			returned.then(
-				(payload) => _resolve(payload),
-				(err) => reject(err)
+				payload => _resolve(payload),
+				err => reject(err),
 			);
 			return;
 		}
@@ -192,16 +180,13 @@ async function fireFilterHook(hook, hookList, params) {
 		if (typeof hookObj.method !== 'function') {
 			if (global.env === 'development') {
 				winston.warn(
-					`[plugins] Expected method for hook '${hook}' in plugin '${hookObj.id}' not found, skipping.`
+					`[plugins] Expected method for hook '${hook}' in plugin '${hookObj.id}' not found, skipping.`,
 				);
 			}
 			return params;
 		}
 
-		if (
-			hookObj.method.constructor &&
-			hookObj.method.constructor.name === 'AsyncFunction'
-		) {
+		if (hookObj.method.constructor && hookObj.method.constructor.name === 'AsyncFunction') {
 			return await hookObj.method(params);
 		}
 		return hookHandlerPromise(hook, hookObj, params);
@@ -222,7 +207,7 @@ async function fireActionHook(hook, hookList, params) {
 		if (typeof hookObj.method !== 'function') {
 			if (global.env === 'development') {
 				winston.warn(
-					`[plugins] Expected method for hook '${hook}' in plugin '${hookObj.id}' not found, skipping.`
+					`[plugins] Expected method for hook '${hook}' in plugin '${hookObj.id}' not found, skipping.`,
 				);
 			}
 		} else {
@@ -230,9 +215,7 @@ async function fireActionHook(hook, hookList, params) {
 				// eslint-disable-next-line
 				await hookObj.method(params);
 			} catch (err) {
-				winston.error(
-					`[plugins] Error in hook ${hookObj.id}@${hookObj.hook} \n${err.stack}`
-				);
+				winston.error(`[plugins] Error in hook ${hookObj.id}@${hookObj.hook} \n${err.stack}`);
 			}
 		}
 	}
@@ -254,26 +237,19 @@ async function fireStaticHook(hook, hookList, params) {
 		return;
 	}
 	// don't bubble errors from these hooks, so bad plugins don't stop startup
-	const noErrorHooks = [
-		'static:app.load',
-		'static:assets.prepare',
-		'static:app.preload',
-	];
+	const noErrorHooks = ['static:app.load', 'static:assets.prepare', 'static:app.preload'];
 
 	async function fireMethod(hookObj, params) {
 		if (typeof hookObj.method !== 'function') {
 			if (global.env === 'development') {
 				winston.warn(
-					`[plugins] Expected method for hook '${hook}' in plugin '${hookObj.id}' not found, skipping.`
+					`[plugins] Expected method for hook '${hook}' in plugin '${hookObj.id}' not found, skipping.`,
 				);
 			}
 			return params;
 		}
 
-		if (
-			hookObj.method.constructor &&
-			hookObj.method.constructor.name === 'AsyncFunction'
-		) {
+		if (hookObj.method.constructor && hookObj.method.constructor.name === 'AsyncFunction') {
 			return timeout(hookObj.method(params), 10000, 'timeout');
 		}
 
@@ -286,16 +262,14 @@ async function fireStaticHook(hook, hookList, params) {
 			await fireMethod(hookObj, params);
 		} catch (err) {
 			if (err && err.message === 'timeout') {
-				winston.warn(
-					`[plugins] Callback timed out, hook '${hook}' in plugin '${hookObj.id}'`
-				);
+				winston.warn(`[plugins] Callback timed out, hook '${hook}' in plugin '${hookObj.id}'`);
 			} else {
 				if (!noErrorHooks.includes(hook)) {
 					throw err;
 				}
 
 				winston.error(
-					`[plugins] Error executing '${hook}' in plugin '${hookObj.id}'\n${err.stack}`
+					`[plugins] Error executing '${hook}' in plugin '${hookObj.id}'\n${err.stack}`,
 				);
 			}
 		}
@@ -310,7 +284,7 @@ async function fireResponseHook(hook, hookList, params) {
 		if (typeof hookObj.method !== 'function') {
 			if (global.env === 'development') {
 				winston.warn(
-					`[plugins] Expected method for hook '${hook}' in plugin '${hookObj.id}' not found, skipping.`
+					`[plugins] Expected method for hook '${hook}' in plugin '${hookObj.id}' not found, skipping.`,
 				);
 			}
 		} else {

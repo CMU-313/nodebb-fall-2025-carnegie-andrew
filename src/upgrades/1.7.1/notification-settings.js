@@ -11,27 +11,27 @@ module.exports = {
 
 		await batch.processSortedSet(
 			'users:joindate',
-			async (uids) => {
+			async uids => {
 				await Promise.all(
-					uids.map(async (uid) => {
+					uids.map(async uid => {
 						progress.incr();
-						const userSettings = await db.getObjectFields(
-							`user:${uid}:settings`,
-							['sendChatNotifications', 'sendPostNotifications']
-						);
+						const userSettings = await db.getObjectFields(`user:${uid}:settings`, [
+							'sendChatNotifications',
+							'sendPostNotifications',
+						]);
 						if (userSettings) {
 							if (parseInt(userSettings.sendChatNotifications, 10) === 1) {
 								await db.setObjectField(
 									`user:${uid}:settings`,
 									'notificationType_new-chat',
-									'notificationemail'
+									'notificationemail',
 								);
 							}
 							if (parseInt(userSettings.sendPostNotifications, 10) === 1) {
 								await db.setObjectField(
 									`user:${uid}:settings`,
 									'notificationType_new-reply',
-									'notificationemail'
+									'notificationemail',
 								);
 							}
 						}
@@ -39,13 +39,13 @@ module.exports = {
 							'sendChatNotifications',
 							'sendPostNotifications',
 						]);
-					})
+					}),
 				);
 			},
 			{
 				progress: progress,
 				batch: 500,
-			}
+			},
 		);
 	},
 };

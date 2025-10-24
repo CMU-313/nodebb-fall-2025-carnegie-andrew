@@ -25,25 +25,19 @@ module.exports = {
 								}
 								progress.incr();
 
-								const timestamp =
-									topicData.lastposttime || topicData.timestamp || Date.now();
-								db.sortedSetAdd(
-									`cid:${topicData.cid}:tids:lastposttime`,
-									timestamp,
-									tid,
-									next
-								);
+								const timestamp = topicData.lastposttime || topicData.timestamp || Date.now();
+								db.sortedSetAdd(`cid:${topicData.cid}:tids:lastposttime`, timestamp, tid, next);
 							},
-							next
+							next,
 						);
 					},
-					next
+					next,
 				);
 			},
 			{
 				progress: this.progress,
 			},
-			callback
+			callback,
 		);
 	},
 };

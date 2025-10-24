@@ -16,7 +16,7 @@ get:
       schema:
         type: boolean
       required: false
-      description: "(default: false) exclude post attachments, uploaded media, and those added by plugins"
+      description: '(default: false) exclude post attachments, uploaded media, and those added by plugins'
       example: 0
   responses:
     '200':

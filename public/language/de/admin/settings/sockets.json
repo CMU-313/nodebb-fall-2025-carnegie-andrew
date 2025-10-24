@@ -1,6 +1,6 @@
 {
-    "reconnection": "Wiederverbindungseinstellungen",
-    "max-attempts": "Max. Wiederverbindungsversuche",
-    "default-placeholder": "Standard: %1",
-    "delay": "Wiederverbindungsverzögerung"
+  "reconnection": "Wiederverbindungseinstellungen",
+  "max-attempts": "Max. Wiederverbindungsversuche",
+  "default-placeholder": "Standard: %1",
+  "delay": "Wiederverbindungsverzögerung"
 }

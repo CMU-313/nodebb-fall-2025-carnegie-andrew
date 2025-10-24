@@ -74,10 +74,7 @@ Anonymous.createReply = async function (data) {
 
 Anonymous.generateAnonymousHandle = async function (uid) {
 	// Generate a simple deterministic anonymous handle based on user ID
-	const hash = require('crypto')
-		.createHash('md5')
-		.update(`${uid}-anonymous`)
-		.digest('hex');
+	const hash = require('crypto').createHash('md5').update(`${uid}-anonymous`).digest('hex');
 	return `Anonymous_${hash.substring(0, 8)}`;
 };
 
@@ -95,7 +92,7 @@ Anonymous.storeAnonymousMapping = async function (originalUid, postData) {
 			uid: postData.uid,
 			handle: postData.handle,
 			timestamp: timestamp,
-		})
+		}),
 	);
 };
 
@@ -112,12 +109,8 @@ Anonymous.canPostAnonymously = async function (uid, cid) {
 };
 
 Anonymous.getAnonymousPostsByUser = async function (uid) {
-	const posts = await db.getSortedSetRevRange(
-		`uid:${uid}:anonymous:posts`,
-		0,
-		-1
-	);
-	return posts.map((post) => JSON.parse(post));
+	const posts = await db.getSortedSetRevRange(`uid:${uid}:anonymous:posts`, 0, -1);
+	return posts.map(post => JSON.parse(post));
 };
 
 Anonymous.filterComposerBuild = async function (data) {
@@ -126,7 +119,7 @@ Anonymous.filterComposerBuild = async function (data) {
 		if (data.req.uid) {
 			data.templateData.canPostAnonymously = await Anonymous.canPostAnonymously(
 				data.req.uid,
-				data.req.query.cid
+				data.req.query.cid,
 			);
 		} else {
 			data.templateData.canPostAnonymously = false;

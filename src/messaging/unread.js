@@ -5,7 +5,7 @@ const utils = require('../utils');
 const io = require('../socket.io');
 
 module.exports = function (Messaging) {
-	Messaging.getUnreadCount = async (uid) => {
+	Messaging.getUnreadCount = async uid => {
 		if (!(parseInt(uid, 10) > 0)) {
 			return 0;
 		}
@@ -17,8 +17,8 @@ module.exports = function (Messaging) {
 		if (!Array.isArray(uids)) {
 			uids = [uids];
 		}
-		uids = uids.filter((uid) => parseInt(uid, 10) > 0);
-		uids.forEach((uid) => {
+		uids = uids.filter(uid => parseInt(uid, 10) > 0);
+		uids.forEach(uid => {
 			io.in(`uid_${uid}`).emit('event:unread.updateChatCount', data);
 		});
 	};
@@ -45,8 +45,8 @@ module.exports = function (Messaging) {
 		if (roomData.public) {
 			const [userTimestamps, mids] = await Promise.all([
 				db.getObjectsFields(
-					uids.map((uid) => `uid:${uid}:chat:rooms:read`),
-					[roomId]
+					uids.map(uid => `uid:${uid}:chat:rooms:read`),
+					[roomId],
 				),
 				db.getSortedSetRevRangeWithScores(`chat:room:${roomId}:mids`, 0, 0),
 			]);
@@ -55,29 +55,29 @@ module.exports = function (Messaging) {
 				(uid, index) =>
 					!userTimestamps[index] ||
 					!userTimestamps[index][roomId] ||
-					parseInt(userTimestamps[index][roomId], 10) > lastMsgTimestamp
+					parseInt(userTimestamps[index][roomId], 10) > lastMsgTimestamp,
 			);
 		}
 		const isMembers = await db.isMemberOfSortedSets(
-			uids.map((uid) => `uid:${uid}:chat:rooms:unread`),
-			roomId
+			uids.map(uid => `uid:${uid}:chat:rooms:unread`),
+			roomId,
 		);
 		return uids.map((uid, index) => !isMembers[index]);
 	};
 
-	Messaging.markAllRead = async (uid) => {
+	Messaging.markAllRead = async uid => {
 		await db.delete(`uid:${uid}:chat:rooms:unread`);
 	};
 
 	Messaging.markUnread = async (uids, roomId) => {
 		// Remote users don't have (un)read states
-		uids = uids.filter((uid) => utils.isNumber(uid));
+		uids = uids.filter(uid => utils.isNumber(uid));
 
 		const exists = await Messaging.roomExists(roomId);
 		if (!exists) {
 			return;
 		}
-		const keys = uids.map((uid) => `uid:${uid}:chat:rooms:unread`);
+		const keys = uids.map(uid => `uid:${uid}:chat:rooms:unread`);
 		await db.sortedSetsAdd(keys, Date.now(), roomId);
 	};
 };

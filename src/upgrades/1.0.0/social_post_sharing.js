@@ -11,16 +11,13 @@ module.exports = {
 		async.parallel(
 			[
 				function (next) {
-					social.setActivePostSharingNetworks(
-						['facebook', 'google', 'twitter'],
-						next
-					);
+					social.setActivePostSharingNetworks(['facebook', 'google', 'twitter'], next);
 				},
 				function (next) {
 					db.deleteObjectField('config', 'disableSocialButtons', next);
 				},
 			],
-			callback
+			callback,
 		);
 	},
 };

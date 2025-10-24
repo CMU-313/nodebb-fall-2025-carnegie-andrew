@@ -20,8 +20,7 @@ module.exports = {
 				database: process.env.database,
 			};
 		}
-		const isMongo =
-			configJSON.hasOwnProperty('mongo') && configJSON.database === 'mongo';
+		const isMongo = configJSON.hasOwnProperty('mongo') && configJSON.database === 'mongo';
 		const { progress } = this;
 		if (!isMongo) {
 			return;
@@ -33,10 +32,7 @@ module.exports = {
 			score: { $exists: false },
 		};
 		progress.total = await client.collection('objects').countDocuments(query);
-		const cursor = await client
-			.collection('objects')
-			.find(query)
-			.batchSize(1000);
+		const cursor = await client.collection('objects').find(query).batchSize(1000);
 
 		let done = false;
 		while (!done) {

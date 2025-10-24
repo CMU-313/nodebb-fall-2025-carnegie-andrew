@@ -1,12 +1,15 @@
 'use strict';
 
-
-define('admin/advanced/events', ['bootbox', 'alerts', 'autocomplete'], function (bootbox, alerts, autocomplete) {
+define('admin/advanced/events', ['bootbox', 'alerts', 'autocomplete'], function (
+	bootbox,
+	alerts,
+	autocomplete,
+) {
 	const Events = {};
 
 	Events.init = function () {
 		$('[data-action="clear"]').on('click', function () {
-			bootbox.confirm('[[admin/advanced/events:confirm-delete-all-events]]', (confirm) => {
+			bootbox.confirm('[[admin/advanced/events:confirm-delete-all-events]]', confirm => {
 				if (confirm) {
 					socket.emit('admin.deleteAllEvents', function (err) {
 						if (err) {

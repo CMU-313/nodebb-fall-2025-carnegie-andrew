@@ -87,9 +87,8 @@ describe('custom user fields', () => {
 				luckyNumber: 13,
 			}),
 			{
-				message:
-					'[[error:not-enough-reputation-custom-field, 7, Lucky Number]]',
-			}
+				message: '[[error:not-enough-reputation-custom-field, 7, Lucky Number]]',
+			},
 		);
 	});
 
@@ -99,7 +98,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				location: new Array(300).fill('a').join(''),
 			}),
-			{ message: '[[error:custom-user-field-value-too-long, Location]]' }
+			{ message: '[[error:custom-user-field-value-too-long, Location]]' },
 		);
 
 		await assert.rejects(
@@ -107,7 +106,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				luckyNumber: 'not-a-number',
 			}),
-			{ message: '[[error:custom-user-field-invalid-number, Lucky Number]]' }
+			{ message: '[[error:custom-user-field-invalid-number, Lucky Number]]' },
 		);
 
 		await assert.rejects(
@@ -115,7 +114,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				location: 'https://spam.com',
 			}),
-			{ message: '[[error:custom-user-field-invalid-text, Location]]' }
+			{ message: '[[error:custom-user-field-invalid-text, Location]]' },
 		);
 
 		await assert.rejects(
@@ -123,7 +122,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				favouriteDate: 'not-a-date',
 			}),
-			{ message: '[[error:custom-user-field-invalid-date, Anniversary]]' }
+			{ message: '[[error:custom-user-field-invalid-date, Anniversary]]' },
 		);
 
 		await assert.rejects(
@@ -131,7 +130,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				website: 'not-a-url',
 			}),
-			{ message: '[[error:custom-user-field-invalid-link, Website]]' }
+			{ message: '[[error:custom-user-field-invalid-link, Website]]' },
 		);
 
 		await assert.rejects(
@@ -140,9 +139,8 @@ describe('custom user fields', () => {
 				soccerTeam: 'not-in-options',
 			}),
 			{
-				message:
-					'[[error:custom-user-field-select-value-invalid, Soccer Team]]',
-			}
+				message: '[[error:custom-user-field-select-value-invalid, Soccer Team]]',
+			},
 		);
 
 		await assert.rejects(
@@ -151,9 +149,8 @@ describe('custom user fields', () => {
 				favouriteLanguages: '["not-in-options"]',
 			}),
 			{
-				message:
-					'[[error:custom-user-field-select-value-invalid, Favourite Languages]]',
-			}
+				message: '[[error:custom-user-field-select-value-invalid, Favourite Languages]]',
+			},
 		);
 	});
 
@@ -168,9 +165,7 @@ describe('custom user fields', () => {
 			soccerTeam: 'Galatasaray',
 		});
 
-		const { body } = await request.get(
-			`${nconf.get('url')}/api/user/highrepuser`
-		);
+		const { body } = await request.get(`${nconf.get('url')}/api/user/highrepuser`);
 		assert.strictEqual(body.website, 'https://nodebb.org');
 	});
 });

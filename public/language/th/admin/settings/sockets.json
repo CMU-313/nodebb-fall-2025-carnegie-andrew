@@ -1,6 +1,6 @@
 {
-    "reconnection": "Reconnection Settings",
-    "max-attempts": "จำนวนการเชื่อมต่อใหม่สูงสุด",
-    "default-placeholder": "ค่าเริ่มต้น: %1",
-    "delay": "เวลาที่รอก่อนเชื่อมต่อใหม่"
+  "reconnection": "Reconnection Settings",
+  "max-attempts": "จำนวนการเชื่อมต่อใหม่สูงสุด",
+  "default-placeholder": "ค่าเริ่มต้น: %1",
+  "delay": "เวลาที่รอก่อนเชื่อมต่อใหม่"
 }

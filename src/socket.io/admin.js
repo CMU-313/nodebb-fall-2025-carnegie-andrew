@@ -44,9 +44,7 @@ SocketAdmin.before = async function (socket, method) {
 		: [];
 	const hasPrivilege = (
 		await Promise.all(
-			privilegeSet.map(async (privilege) =>
-				privileges.admin.can(privilege, socket.uid)
-			)
+			privilegeSet.map(async privilege => privileges.admin.can(privilege, socket.uid)),
 		)
 	).some(Boolean);
 	if (privilegeSet.length && hasPrivilege) {
@@ -54,7 +52,7 @@ SocketAdmin.before = async function (socket, method) {
 	}
 
 	winston.warn(
-		`[socket.io] Call to admin method ( ${method} ) blocked (accessed by uid ${socket.uid})`
+		`[socket.io] Call to admin method ( ${method} ) blocked (accessed by uid ${socket.uid})`,
 	);
 	throw new Error('[[error:no-privileges]]');
 };

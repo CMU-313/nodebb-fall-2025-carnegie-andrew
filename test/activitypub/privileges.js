@@ -42,45 +42,35 @@ describe.skip('Privilege logic for remote users/content (ActivityPub)', () => {
 					content: utils.generateUUID(),
 				}));
 				handle = await categories.getCategoryField(cid, 'handle');
-				const privsToRemove =
-					await privileges.categories.getGroupPrivilegeList();
+				const privsToRemove = await privileges.categories.getGroupPrivilegeList();
 				await privileges.categories.rescind(privsToRemove, cid, ['fediverse']);
 			});
 
 			describe('incoming requests', () => {
 				it("should not respond to a webfinger request to a category's handle", async () => {
 					const response = await activitypub.helpers.query(
-						`${handle}@${nconf.get('url_parsed').hostname}`
+						`${handle}@${nconf.get('url_parsed').hostname}`,
 					);
 					assert.strictEqual(response, false);
 				});
 
 				it('should not respond to a request for the category actor', async () => {
-					await assert.rejects(
-						activitypub.get('uid', uid, `${nconf.get('url')}/category/${cid}`),
-						{ message: '[[error:activitypub.get-failed]]' }
-					);
+					await assert.rejects(activitypub.get('uid', uid, `${nconf.get('url')}/category/${cid}`), {
+						message: '[[error:activitypub.get-failed]]',
+					});
 				});
 
 				it('should not respond to a request for a topic collection', async () => {
 					await assert.rejects(
-						activitypub.get(
-							'uid',
-							uid,
-							`${nconf.get('url')}/topic/${topicData.tid}`
-						),
-						{ message: '[[error:activitypub.get-failed]]' }
+						activitypub.get('uid', uid, `${nconf.get('url')}/topic/${topicData.tid}`),
+						{ message: '[[error:activitypub.get-failed]]' },
 					);
 				});
 
 				it('should not respond to a request for a post', async () => {
 					await assert.rejects(
-						activitypub.get(
-							'uid',
-							uid,
-							`${nconf.get('url')}/post/${topicData.mainPid}`
-						),
-						{ message: '[[error:activitypub.get-failed]]' }
+						activitypub.get('uid', uid, `${nconf.get('url')}/post/${topicData.mainPid}`),
+						{ message: '[[error:activitypub.get-failed]]' },
 					);
 				});
 			});
@@ -113,16 +103,12 @@ describe.skip('Privilege logic for remote users/content (ActivityPub)', () => {
 							cc: [`${nconf.get('url')}/category/${cid}`],
 						}));
 						({ activity } = helpers.mocks.create(note));
-						await privileges.categories.give(['groups:topics:create'], cid, [
-							'fediverse',
-						]);
+						await privileges.categories.give(['groups:topics:create'], cid, ['fediverse']);
 						await activitypub.inbox.create({ body: activity });
 					});
 
 					after(async () => {
-						await privileges.categories.rescind(['groups:topics:create'], cid, [
-							'fediverse',
-						]);
+						await privileges.categories.rescind(['groups:topics:create'], cid, ['fediverse']);
 					});
 
 					it('should assert the note', async () => {
@@ -154,16 +140,12 @@ describe.skip('Privilege logic for remote users/content (ActivityPub)', () => {
 							cc: [`${nconf.get('url')}/category/${cid}`],
 						}));
 						({ activity } = helpers.mocks.create(note));
-						await privileges.categories.give(['groups:topics:create'], cid, [
-							'fediverse',
-						]);
+						await privileges.categories.give(['groups:topics:create'], cid, ['fediverse']);
 						await activitypub.inbox.create({ body: activity });
 					});
 
 					after(async () => {
-						await privileges.categories.rescind(['groups:topics:create'], cid, [
-							'fediverse',
-						]);
+						await privileges.categories.rescind(['groups:topics:create'], cid, ['fediverse']);
 					});
 
 					it('should assert the note', async () => {
@@ -199,23 +181,19 @@ describe.skip('Privilege logic for remote users/content (ActivityPub)', () => {
 			before(async () => {
 				({ cid } = await categories.create({ name: utils.generateUUID() }));
 				handle = await categories.getCategoryField(cid, 'handle');
-				const privsToRemove =
-					await privileges.categories.getGroupPrivilegeList();
+				const privsToRemove = await privileges.categories.getGroupPrivilegeList();
 			});
 
 			describe('groups:find', () => {
 				it("should return webfinger response to a category's handle", async () => {
 					const { response, body } = await request.get(
-						`${nconf.get('url')}/.well-known/webfinger?resource=acct:${handle}@${nconf.get('url_parsed').host}`
+						`${nconf.get('url')}/.well-known/webfinger?resource=acct:${handle}@${nconf.get('url_parsed').host}`,
 					);
 
 					assert(response);
 					assert.strictEqual(response.statusCode, 200);
 					assert(body.links && body.links.length);
-					assert.strictEqual(
-						body.subject,
-						`acct:${handle}@${nconf.get('url_parsed').host}`
-					);
+					assert.strictEqual(body.subject, `acct:${handle}@${nconf.get('url_parsed').host}`);
 				});
 			});
 		});

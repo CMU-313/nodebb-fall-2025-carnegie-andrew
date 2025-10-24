@@ -69,7 +69,7 @@ describe('Analytics', () => {
 					},
 				},
 			},
-			{ sendStatus: () => {} }
+			{ sendStatus: () => {} },
 		);
 		const processed = await db.isSortedSetMember('activities:datetime', id);
 
@@ -91,7 +91,7 @@ describe('Analytics', () => {
 					},
 				},
 			},
-			{ sendStatus: () => {} }
+			{ sendStatus: () => {} },
 		);
 
 		await middleware.activitypub.assertPayload(
@@ -107,10 +107,10 @@ describe('Analytics', () => {
 				},
 			},
 			{
-				sendStatus: (statusCode) => {
+				sendStatus: statusCode => {
 					assert.strictEqual(statusCode, 200);
 				},
-			}
+			},
 		);
 	});
 
@@ -129,7 +129,7 @@ describe('Analytics', () => {
 					},
 				},
 			},
-			{ sendStatus: () => {} }
+			{ sendStatus: () => {} },
 		);
 
 		const after = await db.sortedSetScore('domains:lastSeen', 'example.org');
@@ -156,22 +156,18 @@ describe('Analytics', () => {
 					},
 				},
 			},
-			{ sendStatus: () => {} }
+			{ sendStatus: () => {} },
 		);
 
 		({ counters } = analytics.peek());
 		const after = { ...counters };
 
-		const metrics = [
-			'activities',
-			'activities:byType:Like',
-			'activities:byHost:example.org',
-		];
-		metrics.forEach((metric) => {
+		const metrics = ['activities', 'activities:byType:Like', 'activities:byHost:example.org'];
+		metrics.forEach(metric => {
 			before[metric] = before[metric] || 0;
 			assert(
 				before.hasOwnProperty(metric) && after.hasOwnProperty(metric),
-				JSON.stringify({ before, after }, null, 2)
+				JSON.stringify({ before, after }, null, 2),
 			);
 			assert(before[metric] < after[metric]);
 		});

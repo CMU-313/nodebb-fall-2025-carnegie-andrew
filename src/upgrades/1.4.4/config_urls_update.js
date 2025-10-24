@@ -17,17 +17,14 @@ module.exports = {
 				'profile:defaultCovers',
 			];
 
-			keys.forEach((key) => {
+			keys.forEach(key => {
 				const oldValue = config[key];
 
 				if (!oldValue || typeof oldValue !== 'string') {
 					return;
 				}
 
-				config[key] = oldValue.replace(
-					/(?:\/assets)?\/(images|uploads)\//g,
-					'/assets/$1/'
-				);
+				config[key] = oldValue.replace(/(?:\/assets)?\/(images|uploads)\//g, '/assets/$1/');
 			});
 
 			await db.setObject('config', config);

@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('topicSelect', ['components'], function (components) {
 	const TopicSelect = {};
 	let lastSelectedTopic;
@@ -61,7 +60,10 @@ define('topicSelect', ['components'], function (components) {
 	TopicSelect.unselectAll = function () {
 		if (topicsContainer) {
 			topicsContainer.find('[component="category/topic"].selected').removeClass('selected');
-			topicsContainer.find('[component="topic/select"]').toggleClass('fa-check-square-o', false).toggleClass('fa-square-o', true);
+			topicsContainer
+				.find('[component="topic/select"]')
+				.toggleClass('fa-check-square-o', false)
+				.toggleClass('fa-square-o', true);
 			updateSelectedBadgeCount();
 		}
 	};
@@ -71,7 +73,9 @@ define('topicSelect', ['components'], function (components) {
 			lastSelectedTopic = $('[component="category/topic"]').first();
 		}
 
-		const isClickedSelected = components.get('category/topic', 'tid', clickedTid).hasClass('selected');
+		const isClickedSelected = components
+			.get('category/topic', 'tid', clickedTid)
+			.hasClass('selected');
 
 		const clickedIndex = getIndex(clickedTid);
 		const lastIndex = getIndex(lastSelectedTopic.attr('data-tid'));

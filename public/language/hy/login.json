@@ -1,12 +1,12 @@
 {
-    "username-email": "Օգտանուն / Էլ. փոստ",
-    "username": "Օգտանուն",
-    "remember-me": "Հիշե՞լ ինձ։",
-    "forgot-password": "Մոռացե՞լ եք գաղտնաբառը։",
-    "alternative-logins": "Մուտքի այլ եղանակներ",
-    "failed-login-attempt": "Մուտքը չհաջողվեց",
-    "login-successful": "Դուք բարեհաջող մուտք գործեցիք։",
-    "dont-have-account": "Չունե՞ք հաշիվ։",
-    "logged-out-due-to-inactivity": "Դուք դուրս եք գրվել ադմինիստրատորի ղեկավարման վահանակից՝ ակտիվություն չցուցաբերելու պատճառով",
-    "caps-lock-enabled": "Caps Lock-ը միացված է"
+  "username-email": "Օգտանուն / Էլ. փոստ",
+  "username": "Օգտանուն",
+  "remember-me": "Հիշե՞լ ինձ։",
+  "forgot-password": "Մոռացե՞լ եք գաղտնաբառը։",
+  "alternative-logins": "Մուտքի այլ եղանակներ",
+  "failed-login-attempt": "Մուտքը չհաջողվեց",
+  "login-successful": "Դուք բարեհաջող մուտք գործեցիք։",
+  "dont-have-account": "Չունե՞ք հաշիվ։",
+  "logged-out-due-to-inactivity": "Դուք դուրս եք գրվել ադմինիստրատորի ղեկավարման վահանակից՝ ակտիվություն չցուցաբերելու պատճառով",
+  "caps-lock-enabled": "Caps Lock-ը միացված է"
 }

@@ -8,8 +8,8 @@ module.exports = {
 	method: async () => {
 		const cids = await db.getSortedSetMembers('categories:cid');
 		await db.sortedSetsRemove(
-			cids.map((cid) => `followRequests:cid.${cid}`),
-			'null'
+			cids.map(cid => `followRequests:cid.${cid}`),
+			'null',
 		);
 	},
 };

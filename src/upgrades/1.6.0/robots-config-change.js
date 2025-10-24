@@ -11,10 +11,7 @@ module.exports = {
 			// fix mongo nested data
 			if (config.robots && config.robots.txt) {
 				await db.setObjectField('config', 'robots:txt', config.robots.txt);
-			} else if (
-				typeof config['robots.txt'] === 'string' &&
-				config['robots.txt']
-			) {
+			} else if (typeof config['robots.txt'] === 'string' && config['robots.txt']) {
 				await db.setObjectField('config', 'robots:txt', config['robots.txt']);
 			}
 			await db.deleteObjectField('config', 'robots');

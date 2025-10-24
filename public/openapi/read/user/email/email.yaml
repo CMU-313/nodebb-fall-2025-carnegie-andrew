@@ -13,8 +13,8 @@ get:
         type: string
       example: 'test@example.org'
   responses:
-    "200":
-      description: ""
+    '200':
+      description: ''
       content:
         application/json:
           schema:

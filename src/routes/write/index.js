@@ -10,12 +10,12 @@ const { setupApiRoute } = require('../helpers');
 
 const Write = module.exports;
 
-Write.reload = async (params) => {
+Write.reload = async params => {
 	const { router } = params;
 	let apiSettings = await meta.settings.get('core.api');
 	plugins.hooks.register('core', {
 		hook: 'action:settings.set',
-		method: async (data) => {
+		method: async data => {
 			if (data.plugin === 'core.api') {
 				apiSettings = await meta.settings.get('core.api');
 			}
@@ -46,18 +46,8 @@ Write.reload = async (params) => {
 	router.use('/api/v3/files', require('./files')());
 	router.use('/api/v3/utilities', require('./utilities')());
 
-	setupApiRoute(
-		router,
-		'get',
-		'/api/v3/ping',
-		writeControllers.utilities.ping.get
-	);
-	setupApiRoute(
-		router,
-		'post',
-		'/api/v3/ping',
-		writeControllers.utilities.ping.post
-	);
+	setupApiRoute(router, 'get', '/api/v3/ping', writeControllers.utilities.ping.get);
+	setupApiRoute(router, 'post', '/api/v3/ping', writeControllers.utilities.ping.post);
 
 	/**
 	 * Plugins can add routes to the Write API by attaching a listener to the
@@ -70,9 +60,7 @@ Write.reload = async (params) => {
 		middleware,
 		helpers,
 	});
-	winston.info(
-		`[api] Adding ${pluginRouter.stack.length} route(s) to \`api/v3/plugins\``
-	);
+	winston.info(`[api] Adding ${pluginRouter.stack.length} route(s) to \`api/v3/plugins\``);
 	router.use('/api/v3/plugins', pluginRouter);
 
 	// 404 handling
@@ -81,7 +69,7 @@ Write.reload = async (params) => {
 	});
 };
 
-Write.cleanup = (req) => {
+Write.cleanup = req => {
 	if (req && req.session) {
 		req.session.destroy();
 	}

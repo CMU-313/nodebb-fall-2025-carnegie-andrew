@@ -10,24 +10,15 @@ module.exports = {
 		const { progress } = this;
 
 		const currentSort = await db.getObjectField('config', 'categoryTopicSort');
-		if (
-			currentSort === 'oldest_to_newest' ||
-			currentSort === 'newest_to_oldest'
-		) {
-			await db.setObjectField(
-				'config',
-				'categoryTopicSort',
-				'recently_replied'
-			);
+		if (currentSort === 'oldest_to_newest' || currentSort === 'newest_to_oldest') {
+			await db.setObjectField('config', 'categoryTopicSort', 'recently_replied');
 		}
 
 		await batch.processSortedSet(
 			'users:joindate',
-			async (uids) => {
+			async uids => {
 				progress.incr(uids.length);
-				const usersSettings = await db.getObjects(
-					uids.map((uid) => `user:${uid}:settings`)
-				);
+				const usersSettings = await db.getObjects(uids.map(uid => `user:${uid}:settings`));
 				const bulkSet = [];
 				usersSettings.forEach((userSetting, i) => {
 					if (
@@ -35,10 +26,7 @@ module.exports = {
 						(userSetting.categoryTopicSort === 'newest_to_oldest' ||
 							userSetting.categoryTopicSort === 'oldest_to_newest')
 					) {
-						bulkSet.push([
-							`user:${uids[i]}:settings`,
-							{ categoryTopicSort: 'recently_replied' },
-						]);
+						bulkSet.push([`user:${uids[i]}:settings`, { categoryTopicSort: 'recently_replied' }]);
 					}
 				});
 				await db.setObjectBulk(bulkSet);
@@ -46,7 +34,7 @@ module.exports = {
 			{
 				batch: 500,
 				progress: progress,
-			}
+			},
 		);
 	},
 };

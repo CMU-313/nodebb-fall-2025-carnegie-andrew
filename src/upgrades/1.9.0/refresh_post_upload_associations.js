@@ -18,13 +18,13 @@ module.exports = {
 						posts.uploads.sync(pid, next);
 						progress.incr();
 					},
-					next
+					next,
 				);
 			},
 			{
 				progress: this.progress,
 			},
-			callback
+			callback,
 		);
 	},
 };

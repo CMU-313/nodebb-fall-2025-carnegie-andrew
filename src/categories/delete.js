@@ -15,20 +15,16 @@ module.exports = function (Categories) {
 	Categories.purge = async function (cid, uid) {
 		await batch.processSortedSet(
 			`cid:${cid}:tids`,
-			async (tids) => {
-				await async.eachLimit(tids, 10, async (tid) => {
+			async tids => {
+				await async.eachLimit(tids, 10, async tid => {
 					await topics.purgePostsAndTopic(tid, uid);
 				});
 			},
-			{ alwaysStartAt: 0 }
+			{ alwaysStartAt: 0 },
 		);
 
-		const pinnedTids = await db.getSortedSetRevRange(
-			`cid:${cid}:tids:pinned`,
-			0,
-			-1
-		);
-		await async.eachLimit(pinnedTids, 10, async (tid) => {
+		const pinnedTids = await db.getSortedSetRevRange(`cid:${cid}:tids:pinned`, 0, -1);
+		await async.eachLimit(pinnedTids, 10, async tid => {
 			await topics.purgePostsAndTopic(tid, uid);
 		});
 		const categoryData = await Categories.getCategoryData(cid);
@@ -72,9 +68,7 @@ module.exports = function (Categories) {
 			`${utils.isNumber(cid) ? 'category' : 'categoryRemote'}:${cid}`,
 		]);
 		const privilegeList = await privileges.categories.getPrivilegeList();
-		await groups.destroy(
-			privilegeList.map((privilege) => `cid:${cid}:privileges:${privilege}`)
-		);
+		await groups.destroy(privilegeList.map(privilege => `cid:${cid}:privileges:${privilege}`));
 	}
 
 	async function removeFromParent(cid) {
@@ -84,7 +78,7 @@ module.exports = function (Categories) {
 		]);
 
 		const bulkAdd = [];
-		const childrenKeys = children.map((cid) => {
+		const childrenKeys = children.map(cid => {
 			bulkAdd.push(['cid:0:children', cid, cid]);
 			return `category:${cid}`;
 		});
@@ -108,7 +102,7 @@ module.exports = function (Categories) {
 
 	async function deleteTags(cid) {
 		const tags = await db.getSortedSetMembers(`cid:${cid}:tags`);
-		await db.deleteAll(tags.map((tag) => `cid:${cid}:tag:${tag}:topics`));
+		await db.deleteAll(tags.map(tag => `cid:${cid}:tag:${tag}:topics`));
 		await db.delete(`cid:${cid}:tags`);
 	}
 };

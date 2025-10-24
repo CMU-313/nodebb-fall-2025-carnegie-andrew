@@ -20,7 +20,7 @@ Dependencies.check = async function () {
 
 	winston.verbose('Checking dependencies for outdated modules');
 
-	await Promise.all(modules.map((module) => Dependencies.checkModule(module)));
+	await Promise.all(modules.map(module => Dependencies.checkModule(module)));
 
 	if (depsMissing) {
 		throw new Error('dependencies-missing');
@@ -33,19 +33,16 @@ Dependencies.checkModule = async function (moduleName) {
 	try {
 		let pkgData = await fs.promises.readFile(
 			path.join(paths.nodeModules, moduleName, 'package.json'),
-			'utf8'
+			'utf8',
 		);
 		pkgData = Dependencies.parseModuleData(moduleName, pkgData);
 
-		const satisfies = Dependencies.doesSatisfy(
-			pkgData,
-			pkg.dependencies[moduleName]
-		);
+		const satisfies = Dependencies.doesSatisfy(pkgData, pkg.dependencies[moduleName]);
 		return satisfies;
 	} catch (err) {
 		if (err.code === 'ENOENT' && pluginNamePattern.test(moduleName)) {
 			winston.warn(
-				`[meta/dependencies] Bundled plugin ${moduleName} not found, skipping dependency check.`
+				`[meta/dependencies] Bundled plugin ${moduleName} not found, skipping dependency check.`,
 			);
 			return true;
 		}
@@ -58,7 +55,7 @@ Dependencies.parseModuleData = function (moduleName, pkgData) {
 		pkgData = JSON.parse(pkgData);
 	} catch (e) {
 		winston.warn(
-			`[${chalk.red('missing')}] ${chalk.bold(moduleName)} is a required dependency but could not be found\n`
+			`[${chalk.red('missing')}] ${chalk.bold(moduleName)} is a required dependency but could not be found\n`,
 		);
 		depsMissing = true;
 		return null;
@@ -73,12 +70,11 @@ Dependencies.doesSatisfy = function (moduleData, packageJSONVersion) {
 	const versionOk =
 		!semver.validRange(packageJSONVersion) ||
 		semver.satisfies(moduleData.version, packageJSONVersion);
-	const githubRepo =
-		moduleData._resolved && moduleData._resolved.includes('//github.com');
+	const githubRepo = moduleData._resolved && moduleData._resolved.includes('//github.com');
 	const satisfies = versionOk || githubRepo;
 	if (!satisfies) {
 		winston.warn(
-			`[${chalk.yellow('outdated')}] ${chalk.bold(moduleData.name)} installed v${moduleData.version}, package.json requires ${packageJSONVersion}\n`
+			`[${chalk.yellow('outdated')}] ${chalk.bold(moduleData.name)} installed v${moduleData.version}, package.json requires ${packageJSONVersion}\n`,
 		);
 		depsOutdated = true;
 	}

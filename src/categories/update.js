@@ -11,7 +11,7 @@ const cache = require('../cache');
 module.exports = function (Categories) {
 	Categories.update = async function (modified) {
 		const cids = Object.keys(modified);
-		await Promise.all(cids.map((cid) => updateCategory(cid, modified[cid])));
+		await Promise.all(cids.map(cid => updateCategory(cid, modified[cid])));
 		return cids;
 	};
 
@@ -43,11 +43,7 @@ module.exports = function (Categories) {
 			await updateCategoryField(cid, key, category[key]);
 		}
 
-		if (
-			['icon', 'color', 'bgColor'].some((prop) =>
-				Object.keys(modifiedFields).includes(prop)
-			)
-		) {
+		if (['icon', 'color', 'bgColor'].some(prop => Object.keys(modifiedFields).includes(prop))) {
 			Categories.icons.flush(cid);
 		}
 
@@ -85,10 +81,7 @@ module.exports = function (Categories) {
 		if (childrenCids.includes(newParent)) {
 			throw new Error('[[error:cant-set-child-as-parent]]');
 		}
-		const categoryData = await Categories.getCategoryFields(cid, [
-			'parentCid',
-			'order',
-		]);
+		const categoryData = await Categories.getCategoryFields(cid, ['parentCid', 'order']);
 		const oldParent = categoryData.parentCid;
 		if (oldParent === newParent) {
 			return;
@@ -110,7 +103,7 @@ module.exports = function (Categories) {
 	async function updateTagWhitelist(cid, tags) {
 		tags = tags
 			.split(',')
-			.map((tag) => utils.cleanUpTag(tag, meta.config.maximumTagLength))
+			.map(tag => utils.cleanUpTag(tag, meta.config.maximumTagLength))
 			.filter(Boolean);
 		await db.delete(`cid:${cid}:tag:whitelist`);
 		const scores = tags.map((tag, index) => index);
@@ -122,11 +115,7 @@ module.exports = function (Categories) {
 		const parentCid = await Categories.getCategoryField(cid, 'parentCid');
 		await db.sortedSetsAdd('categories:cid', order, cid);
 
-		const childrenCids = await db.getSortedSetRange(
-			`cid:${parentCid}:children`,
-			0,
-			-1
-		);
+		const childrenCids = await db.getSortedSetRange(`cid:${parentCid}:children`, 0, -1);
 
 		const currentIndex = childrenCids.indexOf(String(cid));
 		if (currentIndex === -1) {
@@ -134,57 +123,32 @@ module.exports = function (Categories) {
 		}
 		// moves cid to index order - 1 in the array
 		if (childrenCids.length > 1) {
-			childrenCids.splice(
-				Math.max(0, order - 1),
-				0,
-				childrenCids.splice(currentIndex, 1)[0]
-			);
+			childrenCids.splice(Math.max(0, order - 1), 0, childrenCids.splice(currentIndex, 1)[0]);
 		}
 
 		// recalculate orders from array indices
 		await db.sortedSetAdd(
 			`cid:${parentCid}:children`,
 			childrenCids.map((cid, index) => index + 1),
-			childrenCids
+			childrenCids,
 		);
 
 		await db.setObjectBulk(
-			childrenCids.map((cid, index) => [
-				`category:${cid}`,
-				{ order: index + 1 },
-			])
+			childrenCids.map((cid, index) => [`category:${cid}`, { order: index + 1 }]),
 		);
 
-		cache.del([
-			'categories:cid',
-			`cid:${parentCid}:children`,
-			`cid:${parentCid}:children:all`,
-		]);
+		cache.del(['categories:cid', `cid:${parentCid}:children`, `cid:${parentCid}:children:all`]);
 	}
 
 	Categories.parseDescription = async function (cid, description) {
-		const parsedDescription = await plugins.hooks.fire(
-			'filter:parse.raw',
-			description
-		);
-		await Categories.setCategoryField(
-			cid,
-			'descriptionParsed',
-			parsedDescription
-		);
+		const parsedDescription = await plugins.hooks.fire('filter:parse.raw', description);
+		await Categories.setCategoryField(cid, 'descriptionParsed', parsedDescription);
 	};
 
 	async function updateName(cid, newName) {
 		const oldName = await Categories.getCategoryField(cid, 'name');
-		await db.sortedSetRemove(
-			'categories:name',
-			`${oldName.slice(0, 200).toLowerCase()}:${cid}`
-		);
-		await db.sortedSetAdd(
-			'categories:name',
-			0,
-			`${newName.slice(0, 200).toLowerCase()}:${cid}`
-		);
+		await db.sortedSetRemove('categories:name', `${oldName.slice(0, 200).toLowerCase()}:${cid}`);
+		await db.sortedSetAdd('categories:name', 0, `${newName.slice(0, 200).toLowerCase()}:${cid}`);
 		await db.setObjectField(`category:${cid}`, 'name', newName);
 	}
 

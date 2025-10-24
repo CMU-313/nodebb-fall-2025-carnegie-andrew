@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('postSelect', ['components'], function (components) {
 	const PostSelect = {};
 	let onSelect;
@@ -49,7 +48,9 @@ define('postSelect', ['components'], function (components) {
 			}
 
 			if (PostSelect.pids.length) {
-				PostSelect.pids.sort(function (a, b) { return a - b; });
+				PostSelect.pids.sort(function (a, b) {
+					return a - b;
+				});
 			}
 			if (typeof onSelect === 'function') {
 				onSelect();

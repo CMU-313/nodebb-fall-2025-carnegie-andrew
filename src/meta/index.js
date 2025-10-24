@@ -30,11 +30,11 @@ const categories = require('../categories');
 
 Meta.slugTaken = async function (slug) {
 	const isArray = Array.isArray(slug);
-	if ((isArray && slug.some((slug) => !slug)) || (!isArray && !slug)) {
+	if ((isArray && slug.some(slug => !slug)) || (!isArray && !slug)) {
 		throw new Error('[[error:invalid-data]]');
 	}
 
-	slug = isArray ? slug.map((s) => slugify(s, false)) : slugify(slug);
+	slug = isArray ? slug.map(s => slugify(s, false)) : slugify(slug);
 
 	const [userExists, groupExists, categoryExists] = await Promise.all([
 		user.existsBySlug(slug),
@@ -50,7 +50,7 @@ Meta.slugTaken = async function (slug) {
 Meta.userOrGroupExists = Meta.slugTaken; // backwards compatiblity
 
 if (nconf.get('isPrimary')) {
-	pubsub.on('meta:restart', (data) => {
+	pubsub.on('meta:restart', data => {
 		if (data.hostname !== os.hostname()) {
 			restart();
 		}
@@ -69,7 +69,7 @@ function restart() {
 		});
 	} else {
 		winston.error(
-			'[meta.restart] Could not restart, are you sure NodeBB was started with `./nodebb start`?'
+			'[meta.restart] Could not restart, are you sure NodeBB was started with `./nodebb start`?',
 		);
 	}
 }

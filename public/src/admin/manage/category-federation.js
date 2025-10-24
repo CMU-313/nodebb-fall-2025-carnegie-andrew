@@ -19,9 +19,7 @@ export function init() {
 			case 'follow': {
 				const actor = $('#syncing-add').val();
 
-				put(`/categories/${ajaxify.data.cid}/follow`, { actor })
-					.then(ajaxify.refresh)
-					.catch(error);
+				put(`/categories/${ajaxify.data.cid}/follow`, { actor }).then(ajaxify.refresh).catch(error);
 
 				break;
 			}
@@ -29,9 +27,7 @@ export function init() {
 			case 'unfollow': {
 				const actor = $(this).attr('data-actor');
 
-				del(`/categories/${ajaxify.data.cid}/follow`, { actor })
-					.then(ajaxify.refresh)
-					.catch(error);
+				del(`/categories/${ajaxify.data.cid}/follow`, { actor }).then(ajaxify.refresh).catch(error);
 
 				break;
 			}
@@ -43,4 +39,3 @@ export function init() {
 		}
 	});
 }
-

@@ -8,10 +8,10 @@ module.exports = {
 	method: async () => {
 		const flags = await db.getSortedSetRange('flags:hash', 0, -1);
 		await Promise.all(
-			flags.map(async (flag) => {
+			flags.map(async flag => {
 				flag = flag.split(':').slice(0, 2);
 				await db.sortedSetIncrBy('flags:byTarget', 1, flag.join(':'));
-			})
+			}),
 		);
 	},
 };

@@ -42,13 +42,13 @@ if (process.platform === 'win32') {
 
 module.exports = function (Plugins) {
 	if (nconf.get('isPrimary')) {
-		pubsub.on('plugins:toggleInstall', (data) => {
+		pubsub.on('plugins:toggleInstall', data => {
 			if (data.hostname !== os.hostname()) {
 				toggleInstall(data.id, data.version);
 			}
 		});
 
-		pubsub.on('plugins:upgrade', (data) => {
+		pubsub.on('plugins:upgrade', data => {
 			if (data.hostname !== os.hostname()) {
 				upgrade(data.id, data.version);
 			}
@@ -58,7 +58,7 @@ module.exports = function (Plugins) {
 	Plugins.toggleActive = async function (id) {
 		if (nconf.get('plugins:active')) {
 			winston.error(
-				'Cannot activate plugins while plugin state is set in the configuration (config.json, environmental variables or terminal arguments), please modify the configuration instead'
+				'Cannot activate plugins while plugin state is set in the configuration (config.json, environmental variables or terminal arguments), please modify the configuration instead',
 			);
 			throw new Error('[[error:plugins-set-in-configuration]]');
 		}
@@ -80,7 +80,7 @@ module.exports = function (Plugins) {
 
 	Plugins.checkWhitelist = async function (id, version) {
 		const { response, body } = await request.get(
-			`https://packages.nodebb.org/api/v1/plugins/${encodeURIComponent(id)}`
+			`https://packages.nodebb.org/api/v1/plugins/${encodeURIComponent(id)}`,
 		);
 		if (!response.ok) {
 			throw new Error(`[[error:cant-connect-to-nbbpm]]`);
@@ -98,7 +98,7 @@ module.exports = function (Plugins) {
 
 	Plugins.suggest = async function (pluginId, nbbVersion) {
 		const { response, body } = await request.get(
-			`https://packages.nodebb.org/api/v1/suggest?package=${encodeURIComponent(pluginId)}&version=${encodeURIComponent(nbbVersion)}`
+			`https://packages.nodebb.org/api/v1/suggest?package=${encodeURIComponent(pluginId)}&version=${encodeURIComponent(nbbVersion)}`,
 		);
 		if (!response.ok) {
 			throw new Error(`[[error:cant-connect-to-nbbpm]]`);
@@ -115,15 +115,10 @@ module.exports = function (Plugins) {
 		return await toggleInstall(id, version);
 	};
 
-	const runPackageManagerCommandAsync = util.promisify(
-		runPackageManagerCommand
-	);
+	const runPackageManagerCommandAsync = util.promisify(runPackageManagerCommand);
 
 	async function toggleInstall(id, version) {
-		const [installed, active] = await Promise.all([
-			Plugins.isInstalled(id),
-			Plugins.isActive(id),
-		]);
+		const [installed, active] = await Promise.all([Plugins.isInstalled(id), Plugins.isActive(id)]);
 		const type = installed ? 'uninstall' : 'install';
 		if (active && !nconf.get('plugins:active')) {
 			await Plugins.toggleActive(id);
@@ -149,7 +144,7 @@ module.exports = function (Plugins) {
 
 				winston.verbose(`[plugins/${command}] ${stdout}`);
 				callback();
-			}
+			},
 		);
 	}
 
@@ -203,11 +198,9 @@ module.exports = function (Plugins) {
 		return await db.getSortedSetRange('plugins:active', 0, -1);
 	};
 
-	Plugins.autocomplete = async (fragment) => {
+	Plugins.autocomplete = async fragment => {
 		const pluginDir = paths.nodeModules;
-		const plugins = (await fs.readdir(pluginDir)).filter((filename) =>
-			filename.startsWith(fragment)
-		);
+		const plugins = (await fs.readdir(pluginDir)).filter(filename => filename.startsWith(fragment));
 
 		// Autocomplete only if single match
 		return plugins.length === 1 ? plugins.pop() : fragment;

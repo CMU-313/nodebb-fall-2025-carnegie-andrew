@@ -30,20 +30,14 @@ require('./uploads')(Posts);
 Posts.attachments = require('./attachments');
 
 Posts.exists = async function (pids) {
-	return await db.exists(
-		Array.isArray(pids) ? pids.map((pid) => `post:${pid}`) : `post:${pids}`
-	);
+	return await db.exists(Array.isArray(pids) ? pids.map(pid => `post:${pid}`) : `post:${pids}`);
 };
 
 Posts.getPidsFromSet = async function (set, start, stop, reverse) {
 	if (isNaN(start) || isNaN(stop)) {
 		return [];
 	}
-	return await db[reverse ? 'getSortedSetRevRange' : 'getSortedSetRange'](
-		set,
-		start,
-		stop
-	);
+	return await db[reverse ? 'getSortedSetRevRange' : 'getSortedSetRange'](set, start, stop);
 };
 
 Posts.getPostsByPids = async function (pids, uid) {
@@ -73,16 +67,9 @@ Posts.getPostSummariesFromSet = async function (set, uid, start, stop) {
 };
 
 Posts.getPidIndex = async function (pid, tid, topicPostSort) {
-	const set =
-		topicPostSort === 'most_votes'
-			? `tid:${tid}:posts:votes`
-			: `tid:${tid}:posts`;
-	const reverse =
-		topicPostSort === 'newest_to_oldest' || topicPostSort === 'most_votes';
-	const index = await db[reverse ? 'sortedSetRevRank' : 'sortedSetRank'](
-		set,
-		pid
-	);
+	const set = topicPostSort === 'most_votes' ? `tid:${tid}:posts:votes` : `tid:${tid}:posts`;
+	const reverse = topicPostSort === 'newest_to_oldest' || topicPostSort === 'most_votes';
+	const index = await db[reverse ? 'sortedSetRevRank' : 'sortedSetRank'](set, pid);
 	if (!utils.isNumber(index)) {
 		return 0;
 	}
@@ -96,12 +83,9 @@ Posts.getPostIndices = async function (posts, uid) {
 	const settings = await user.getSettings(uid);
 
 	const byVotes = settings.topicPostSort === 'most_votes';
-	let sets = posts.map((p) =>
-		byVotes ? `tid:${p.tid}:posts:votes` : `tid:${p.tid}:posts`
-	);
+	let sets = posts.map(p => (byVotes ? `tid:${p.tid}:posts:votes` : `tid:${p.tid}:posts`));
 	const reverse =
-		settings.topicPostSort === 'newest_to_oldest' ||
-		settings.topicPostSort === 'most_votes';
+		settings.topicPostSort === 'newest_to_oldest' || settings.topicPostSort === 'most_votes';
 
 	const uniqueSets = _.uniq(sets);
 	let method = reverse ? 'sortedSetsRevRanks' : 'sortedSetsRanks';
@@ -110,19 +94,13 @@ Posts.getPostIndices = async function (posts, uid) {
 		sets = uniqueSets[0];
 	}
 
-	const pids = posts.map((post) => post.pid);
+	const pids = posts.map(post => post.pid);
 	const indices = await db[method](sets, pids);
-	return indices.map((index) =>
-		utils.isNumber(index) ? parseInt(index, 10) + 1 : 0
-	);
+	return indices.map(index => (utils.isNumber(index) ? parseInt(index, 10) + 1 : 0));
 };
 
 Posts.modifyPostByPrivilege = function (post, privileges) {
-	if (
-		post &&
-		post.deleted &&
-		!(post.selfPost || privileges['posts:view_deleted'])
-	) {
+	if (post && post.deleted && !(post.selfPost || privileges['posts:view_deleted'])) {
 		post.content = '[[topic:post-is-deleted]]';
 		if (post.user) {
 			post.user.signature = '';

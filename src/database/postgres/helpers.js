@@ -48,7 +48,7 @@ SELECT "type"
 
 	if (res.rows[0].type !== type) {
 		throw new Error(
-			`database: cannot insert ${JSON.stringify(key)} as ${type} because it already exists as ${res.rows[0].type}`
+			`database: cannot insert ${JSON.stringify(key)} as ${type} because it already exists as ${res.rows[0].type}`,
 		);
 	}
 };
@@ -82,21 +82,19 @@ SELECT "_key", "type"
 		values: [keys],
 	});
 
-	const invalid = res.rows.filter((r) => r.type !== type);
+	const invalid = res.rows.filter(r => r.type !== type);
 
 	if (invalid.length) {
-		const parts = invalid.map((r) => `${JSON.stringify(r._key)} is ${r.type}`);
+		const parts = invalid.map(r => `${JSON.stringify(r._key)} is ${r.type}`);
 		throw new Error(
-			`database: cannot insert multiple objects as ${type} because they already exist: ${parts.join(', ')}`
+			`database: cannot insert multiple objects as ${type} because they already exist: ${parts.join(', ')}`,
 		);
 	}
 
-	const missing = keys.filter((k) => !res.rows.some((r) => r._key === k));
+	const missing = keys.filter(k => !res.rows.some(r => r._key === k));
 
 	if (missing.length) {
-		throw new Error(
-			`database: failed to insert keys for objects: ${JSON.stringify(missing)}`
-		);
+		throw new Error(`database: failed to insert keys for objects: ${JSON.stringify(missing)}`);
 	}
 };
 

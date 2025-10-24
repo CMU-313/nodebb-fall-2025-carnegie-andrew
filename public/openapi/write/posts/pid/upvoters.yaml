@@ -30,4 +30,3 @@ get:
                     type: array
                   cutoff:
                     type: number
-

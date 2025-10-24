@@ -33,9 +33,7 @@ Contexts.get = async (uid, id) => {
 			activitypub.helpers.log(`[activitypub/context] ${id} is the context.`);
 			return { context: id };
 		} else if (!context) {
-			activitypub.helpers.log(
-				`[activitypub/context] ${id} contains no context.`
-			);
+			activitypub.helpers.log(`[activitypub/context] ${id} contains no context.`);
 			return false;
 		}
 
@@ -47,9 +45,7 @@ Contexts.get = async (uid, id) => {
 			return { tid };
 		}
 
-		activitypub.helpers.log(
-			`[activitypub/context] ${id} context not resolvable.`
-		);
+		activitypub.helpers.log(`[activitypub/context] ${id} context not resolvable.`);
 		return false;
 	}
 
@@ -70,9 +66,7 @@ Contexts.getItems = async (uid, id, options) => {
 	if (!id && options.object) {
 		object = options.object;
 	} else {
-		activitypub.helpers.log(
-			`[activitypub/context] Retrieving context/page ${id}`
-		);
+		activitypub.helpers.log(`[activitypub/context] Retrieving context/page ${id}`);
 		try {
 			object = await activitypub.get('uid', uid, id);
 		} catch (e) {
@@ -91,16 +85,12 @@ Contexts.getItems = async (uid, id, options) => {
 
 	if (items) {
 		items = await Promise.all(
-			items.map(async (item) =>
-				activitypub.helpers.isUri(item)
-					? parseString(uid, item)
-					: parseItem(uid, item)
-			)
+			items.map(async item =>
+				activitypub.helpers.isUri(item) ? parseString(uid, item) : parseItem(uid, item),
+			),
 		);
 		items = items.filter(Boolean);
-		activitypub.helpers.log(
-			`[activitypub/context] Found ${items.length} items.`
-		);
+		activitypub.helpers.log(`[activitypub/context] Found ${items.length} items.`);
 	}
 
 	const chain = new Set(items || []);
@@ -121,8 +111,8 @@ Contexts.getItems = async (uid, id, options) => {
 				...options,
 				root: false,
 				object: !isUrl && next,
-			})
-		).forEach((item) => {
+			}),
+		).forEach(item => {
 			chain.add(item);
 		});
 
@@ -130,11 +120,9 @@ Contexts.getItems = async (uid, id, options) => {
 	}
 
 	// Handle special case where originating object is not actually part of the context collection
-	const inputId = activitypub.helpers.isUri(options.input)
-		? options.input
-		: options.input.id;
+	const inputId = activitypub.helpers.isUri(options.input) ? options.input : options.input.id;
 	const inCollection = Array.from(chain)
-		.map((p) => p.pid)
+		.map(p => p.pid)
 		.includes(inputId);
 	if (!inCollection) {
 		const item = activitypub.helpers.isUri(options.input)

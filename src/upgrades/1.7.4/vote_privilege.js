@@ -20,10 +20,10 @@ module.exports = {
 						['groups:posts:upvote', 'groups:posts:downvote'],
 						cid,
 						'registered-users',
-						next
+						next,
 					);
 				},
-				callback
+				callback,
 			);
 		});
 	},

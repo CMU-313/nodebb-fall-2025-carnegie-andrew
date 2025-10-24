@@ -18,10 +18,7 @@ async function getUserHomeRoute(uid) {
 	const settings = await user.getSettings(uid);
 	let route = adminHomePageRoute();
 
-	if (
-		settings.homePageRoute !== 'undefined' &&
-		settings.homePageRoute !== 'none'
-	) {
+	if (settings.homePageRoute !== 'undefined' && settings.homePageRoute !== 'none') {
 		route = (settings.homePageRoute || route).replace(/^\/+/, '');
 	}
 

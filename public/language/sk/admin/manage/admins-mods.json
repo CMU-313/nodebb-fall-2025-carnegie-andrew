@@ -1,13 +1,13 @@
 {
-    "manage-admins-and-mods": "Manage Admins & Mods",
-    "administrators": "Správcovia",
-    "global-moderators": "Hlavný moderátori",
-    "moderators": "Moderators",
-    "no-global-moderators": "Žiadny hlavný moderátori",
-    "no-sub-categories": "No subcategories",
-    "view-children": "View children (%1)",
-    "no-moderators": "Žiadny moderátori",
-    "add-administrator": "Pridať správcu",
-    "add-global-moderator": "Pridať hlavného moderátora",
-    "add-moderator": "Pridať moderátora"
+  "manage-admins-and-mods": "Manage Admins & Mods",
+  "administrators": "Správcovia",
+  "global-moderators": "Hlavný moderátori",
+  "moderators": "Moderators",
+  "no-global-moderators": "Žiadny hlavný moderátori",
+  "no-sub-categories": "No subcategories",
+  "view-children": "View children (%1)",
+  "no-moderators": "Žiadny moderátori",
+  "add-administrator": "Pridať správcu",
+  "add-global-moderator": "Pridať hlavného moderátora",
+  "add-moderator": "Pridať moderátora"
 }

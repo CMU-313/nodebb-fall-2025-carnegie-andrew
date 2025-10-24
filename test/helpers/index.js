@@ -9,7 +9,7 @@ const request = require('../../src/request');
 
 const helpers = module.exports;
 
-helpers.getCsrfToken = async (jar) => {
+helpers.getCsrfToken = async jar => {
 	const { body } = await request.get(`${nconf.get('url')}/api/config`, {
 		jar,
 	});
@@ -20,9 +20,7 @@ helpers.request = async function (method, uri, options = {}) {
 	const ignoreMethods = ['GET', 'HEAD', 'OPTIONS'];
 	const lowercaseMethod = String(method).toLowerCase();
 	let csrf_token;
-	if (
-		!ignoreMethods.some((method) => method.toLowerCase() === lowercaseMethod)
-	) {
+	if (!ignoreMethods.some(method => method.toLowerCase() === lowercaseMethod)) {
 		csrf_token = await helpers.getCsrfToken(options.jar);
 	}
 
@@ -83,7 +81,7 @@ helpers.connectSocketIO = function (res, csrf_token) {
 			resolve(socket);
 		});
 
-		socket.on('error', (err) => {
+		socket.on('error', err => {
 			error = err;
 			console.log('socket.io error', err.stack);
 			reject(err);
@@ -91,13 +89,7 @@ helpers.connectSocketIO = function (res, csrf_token) {
 	});
 };
 
-helpers.uploadFile = async function (
-	uploadEndPoint,
-	filePath,
-	data,
-	jar,
-	csrf_token
-) {
+helpers.uploadFile = async function (uploadEndPoint, filePath, data, jar, csrf_token) {
 	const mime = require('mime');
 	const form = new FormData();
 	const file = await fs.promises.readFile(filePath);
@@ -137,16 +129,13 @@ helpers.registerUser = async function (data) {
 		data['password-confirm'] = data.password;
 	}
 
-	const { response, body } = await request.post(
-		`${nconf.get('url')}/register`,
-		{
-			body: data,
-			jar,
-			headers: {
-				'x-csrf-token': csrf_token,
-			},
-		}
-	);
+	const { response, body } = await request.post(`${nconf.get('url')}/register`, {
+		body: data,
+		jar,
+		headers: {
+			'x-csrf-token': csrf_token,
+		},
+	});
 	return { jar, response, body };
 };
 
@@ -155,11 +144,11 @@ helpers.copyFile = function (source, target, callback) {
 	let cbCalled = false;
 
 	const rd = fs.createReadStream(source);
-	rd.on('error', (err) => {
+	rd.on('error', err => {
 		done(err);
 	});
 	const wr = fs.createWriteStream(target);
-	wr.on('error', (err) => {
+	wr.on('error', err => {
 		done(err);
 	});
 	wr.on('close', () => {

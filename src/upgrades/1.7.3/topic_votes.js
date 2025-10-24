@@ -11,9 +11,9 @@ module.exports = {
 
 		batch.processSortedSet(
 			'topics:tid',
-			async (tids) => {
+			async tids => {
 				await Promise.all(
-					tids.map(async (tid) => {
+					tids.map(async tid => {
 						progress.incr();
 						const topicData = await db.getObjectFields(`topic:${tid}`, [
 							'mainPid',
@@ -35,21 +35,17 @@ module.exports = {
 									db.sortedSetAdd('topics:votes', votes, tid),
 								]);
 								if (parseInt(topicData.pinned, 10) !== 1) {
-									await db.sortedSetAdd(
-										`cid:${topicData.cid}:tids:votes`,
-										votes,
-										tid
-									);
+									await db.sortedSetAdd(`cid:${topicData.cid}:tids:votes`, votes, tid);
 								}
 							}
 						}
-					})
+					}),
 				);
 			},
 			{
 				progress: progress,
 				batch: 500,
-			}
+			},
 		);
 	},
 };

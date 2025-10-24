@@ -3,8 +3,8 @@ get:
     - admin
   summary: Get post queue
   responses:
-    "200":
-      description: ""
+    '200':
+      description: ''
       content:
         application/json:
           schema:
@@ -134,7 +134,8 @@ get:
                                   description: A friendly name for a given user account
                                 userslug:
                                   type: string
-                                  description: An URL-safe variant of the username (i.e. lower-cased, spaces
+                                  description:
+                                    An URL-safe variant of the username (i.e. lower-cased, spaces
                                     removed, etc.)
                                 picture:
                                   nullable: true
@@ -144,16 +145,18 @@ get:
                                   description: A user identifier
                                 icon:text:
                                   type: string
-                                  description: A single-letter representation of a username. This is used in the
+                                  description:
+                                    A single-letter representation of a username. This is used in the
                                     auto-generated icon given to users without
                                     an avatar
                                 icon:bgColor:
                                   type: string
-                                  description: A six-character hexadecimal colour code assigned to the user. This
+                                  description:
+                                    A six-character hexadecimal colour code assigned to the user. This
                                     value is used in conjunction with
                                     `icon:text` for the user's auto-generated
                                     icon
-                                  example: "#f44336"
+                                  example: '#f44336'
                             topic:
                               type: object
                               properties:
@@ -176,7 +179,7 @@ get:
                     type: object
                     properties: {}
                     additionalProperties:
-                      description: "A list of global and admin privileges, and whether the calling user has (or has inherited) them"
+                      description: 'A list of global and admin privileges, and whether the calling user has (or has inherited) them'
                       type: boolean
               - $ref: ../components/schemas/Pagination.yaml#/Pagination
               - $ref: ../components/schemas/Breadcrumbs.yaml#/Breadcrumbs

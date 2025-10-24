@@ -17,7 +17,7 @@ put:
         type: string
       example: 1
   responses:
-    "200":
+    '200':
       description: Post successfully pinned
       content:
         application/json:
@@ -35,10 +35,10 @@ put:
                 properties:
                   code:
                     type: string
-                    example: "ok"
+                    example: 'ok'
                   message:
                     type: string
-                    example: "OK"
+                    example: 'OK'
               response:
                 type: object
                 required:
@@ -52,13 +52,13 @@ put:
                     type: boolean
                     description: Whether the post is now pinned
                     example: true
-    "400":
+    '400':
       description: Invalid request data
-    "401":
+    '401':
       description: User not logged in
-    "403":
+    '403':
       description: Insufficient privileges to access the post
-    "404":
+    '404':
       description: Post not found
 
 delete:
@@ -80,7 +80,7 @@ delete:
         type: string
       example: 1
   responses:
-    "200":
+    '200':
       description: Post successfully unpinned
       content:
         application/json:
@@ -98,10 +98,10 @@ delete:
                 properties:
                   code:
                     type: string
-                    example: "ok"
+                    example: 'ok'
                   message:
                     type: string
-                    example: "OK"
+                    example: 'OK'
               response:
                 type: object
                 required:
@@ -115,9 +115,9 @@ delete:
                     type: boolean
                     description: Whether the post is now pinned
                     example: false
-    "400":
+    '400':
       description: Invalid request data
-    "401":
+    '401':
       description: User not logged in
-    "404":
+    '404':
       description: Post not found

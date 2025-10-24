@@ -57,7 +57,7 @@ describe('ActivityPub integration', () => {
 			await activitypub.send('uid', 0, ['https://example.org'], { foo: 'bar' });
 			assert.strictEqual(
 				activitypub.helpers.log(),
-				'[activitypub/send] Federation not enabled; not sending.'
+				'[activitypub/send] Federation not enabled; not sending.',
 			);
 		});
 
@@ -65,8 +65,7 @@ describe('ActivityPub integration', () => {
 			const uid = user.create({ username: utils.generateUUID() });
 			const { response } = await request.get(`${nconf.get('url')}/uid/${uid}`, {
 				headers: {
-					Accept:
-						'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+					Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
 				},
 			});
 
@@ -75,7 +74,7 @@ describe('ActivityPub integration', () => {
 
 		it('requests to the /ap endpoint should return 404 Not Found', async () => {
 			const { response } = await request.get(
-				`${nconf.get('url')}/ap?resource=${encodeURIComponent('https://example.org')}`
+				`${nconf.get('url')}/ap?resource=${encodeURIComponent('https://example.org')}`,
 			);
 			assert.strictEqual(response.statusCode, 404);
 		});
@@ -84,16 +83,12 @@ describe('ActivityPub integration', () => {
 			const username = utils.generateUUID().slice(0, 8);
 			await user.create({ username });
 			const { response, body } = await request.get(
-				`${nconf.get('url')}/.well-known/webfinger?resource=acct%3a${username}%40${nconf.get('url_parsed').host}`
+				`${nconf.get('url')}/.well-known/webfinger?resource=acct%3a${username}%40${nconf.get('url_parsed').host}`,
 			);
 
 			assert.strictEqual(response.statusCode, 200);
 			assert(body && body.links && Array.isArray(body.links));
-			assert(
-				!body.links.some(
-					(obj) => obj.type && obj.type === 'application/activity+json'
-				)
-			);
+			assert(!body.links.some(obj => obj.type && obj.type === 'application/activity+json'));
 		});
 
 		after(() => {
@@ -124,10 +119,7 @@ describe('ActivityPub integration', () => {
 			});
 
 			it('should return null when the query fails', async () => {
-				const id = await activitypub.resolveId(
-					0,
-					'https://example.org/sdlknsdfnsd'
-				);
+				const id = await activitypub.resolveId(0, 'https://example.org/sdlknsdfnsd');
 				assert.strictEqual(id, null);
 			});
 
@@ -153,16 +145,14 @@ describe('ActivityPub integration', () => {
 			});
 
 			it('should return null when an invalid input is passed in', async () => {
-				const { type, id } = await activitypub.helpers.resolveLocalId(
-					'ncl28h3qwhoiclwnevoinw3u'
-				);
+				const { type, id } = await activitypub.helpers.resolveLocalId('ncl28h3qwhoiclwnevoinw3u');
 				assert.strictEqual(type, null);
 				assert.strictEqual(id, null);
 			});
 
 			it('should return null when valid input is passed but does not resolve', async () => {
 				const { type, id } = await activitypub.helpers.resolveLocalId(
-					`acct%3afoobar@${nconf.get('url_parsed').host}`
+					`acct%3afoobar@${nconf.get('url_parsed').host}`,
 				);
 				assert.strictEqual(type, 'user');
 				assert.strictEqual(id, null);
@@ -170,22 +160,20 @@ describe('ActivityPub integration', () => {
 
 			it('should resolve to a local uid when given a webfinger-style string', async () => {
 				const { id } = await activitypub.helpers.resolveLocalId(
-					`acct%3a${slug}@${nconf.get('url_parsed').host}`
+					`acct%3a${slug}@${nconf.get('url_parsed').host}`,
 				);
 				assert.strictEqual(id, uid);
 			});
 
 			it('should resolve even without the "acct:" prefix', async () => {
 				const { id } = await activitypub.helpers.resolveLocalId(
-					`${slug}@${nconf.get('url_parsed').host}`
+					`${slug}@${nconf.get('url_parsed').host}`,
 				);
 				assert.strictEqual(id, uid);
 			});
 
 			it('should resolve when passed a full URL', async () => {
-				const { id } = await activitypub.helpers.resolveLocalId(
-					`${nconf.get('url')}/user/${slug}`
-				);
+				const { id } = await activitypub.helpers.resolveLocalId(`${nconf.get('url')}/user/${slug}`);
 				assert.strictEqual(id, uid);
 			});
 		});
@@ -231,10 +219,7 @@ describe('ActivityPub integration', () => {
 					],
 
 					// HTML without outer wrapping element
-					[
-						'Lorem ipsum dolor <span>sit amet</span>',
-						'Lorem ipsum dolor sit amet',
-					],
+					['Lorem ipsum dolor <span>sit amet</span>', 'Lorem ipsum dolor sit amet'],
 
 					// Two sentences with punctuation
 					['Lorem ipsum. Dolor sit amet.', 'Lorem ipsum.'],
@@ -283,42 +268,29 @@ describe('ActivityPub integration', () => {
 
 			it('should convert an anchor pointing to a remote user URL', async () => {
 				const content = `adsf <a href="${url1}">@${uuid1}</a> asdf`;
-				const converted =
-					await activitypub.helpers.remoteAnchorToLocalProfile(content);
-				assert.strictEqual(
-					converted,
-					`adsf <a href="/user/${uuid1}">@${uuid1}</a> asdf`
-				);
+				const converted = await activitypub.helpers.remoteAnchorToLocalProfile(content);
+				assert.strictEqual(converted, `adsf <a href="/user/${uuid1}">@${uuid1}</a> asdf`);
 			});
 
 			it('should convert an anchor pointing to a remote user id', async () => {
 				const content = `adsf <a href="${id2}">@${uuid2}</a> asdf`;
-				const converted =
-					await activitypub.helpers.remoteAnchorToLocalProfile(content);
+				const converted = await activitypub.helpers.remoteAnchorToLocalProfile(content);
 				assert.strictEqual(
 					converted,
-					`adsf <a href="/user/${encodeURIComponent(id2)}">@${uuid2}</a> asdf`
+					`adsf <a href="/user/${encodeURIComponent(id2)}">@${uuid2}</a> asdf`,
 				);
 			});
 
 			it('should convert an anchor pointing to a local user URL', async () => {
 				const content = `adsf <a href="${nconf.get('url')}/user/${localSlug}">@${localSlug}</a> asdf`;
-				const converted =
-					await activitypub.helpers.remoteAnchorToLocalProfile(content);
-				assert.strictEqual(
-					converted,
-					`adsf <a href="/user/${localSlug}">@${localSlug}</a> asdf`
-				);
+				const converted = await activitypub.helpers.remoteAnchorToLocalProfile(content);
+				assert.strictEqual(converted, `adsf <a href="/user/${localSlug}">@${localSlug}</a> asdf`);
 			});
 
 			it('should convert an anchor pointing to a local user URL', async () => {
 				const content = `adsf <a href="${nconf.get('url')}/uid/${localUid}">@${localSlug}</a> asdf`;
-				const converted =
-					await activitypub.helpers.remoteAnchorToLocalProfile(content);
-				assert.strictEqual(
-					converted,
-					`adsf <a href="/user/${localSlug}">@${localSlug}</a> asdf`
-				);
+				const converted = await activitypub.helpers.remoteAnchorToLocalProfile(content);
+				assert.strictEqual(converted, `adsf <a href="/user/${localSlug}">@${localSlug}</a> asdf`);
 			});
 
 			after(async () => {
@@ -342,14 +314,11 @@ describe('ActivityPub integration', () => {
 		it('should return regular user profile html if federation is disabled', async () => {
 			delete meta.config.activitypubEnabled;
 
-			const { response, body } = await request.get(
-				`${nconf.get('url')}/uid/${uid}`,
-				{
-					headers: {
-						Accept: 'text/html',
-					},
-				}
-			);
+			const { response, body } = await request.get(`${nconf.get('url')}/uid/${uid}`, {
+				headers: {
+					Accept: 'text/html',
+				},
+			});
 
 			assert(response);
 			assert.strictEqual(response.statusCode, 200);
@@ -359,14 +328,11 @@ describe('ActivityPub integration', () => {
 		});
 
 		it('should return regular user profile html if Accept header is not ActivityPub-related', async () => {
-			const { response, body } = await request.get(
-				`${nconf.get('url')}/uid/${uid}`,
-				{
-					headers: {
-						Accept: 'text/html',
-					},
-				}
-			);
+			const { response, body } = await request.get(`${nconf.get('url')}/uid/${uid}`, {
+				headers: {
+					Accept: 'text/html',
+				},
+			});
 
 			assert(response);
 			assert.strictEqual(response.statusCode, 200);
@@ -374,22 +340,16 @@ describe('ActivityPub integration', () => {
 		});
 
 		it('should return the ActivityPub Actor JSON-LD payload if the correct Accept header is provided', async () => {
-			const { response, body } = await request.get(
-				`${nconf.get('url')}/uid/${uid}`,
-				{
-					headers: {
-						Accept:
-							'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-					},
-				}
-			);
+			const { response, body } = await request.get(`${nconf.get('url')}/uid/${uid}`, {
+				headers: {
+					Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+				},
+			});
 
 			assert(response);
 			assert.strictEqual(response.statusCode, 200);
 			assert(body.hasOwnProperty('@context'));
-			assert(
-				body['@context'].includes('https://www.w3.org/ns/activitystreams')
-			);
+			assert(body['@context'].includes('https://www.w3.org/ns/activitystreams'));
 		});
 	});
 
@@ -436,15 +396,8 @@ describe('ActivityPub integration', () => {
 					const controllers = require('../src/controllers');
 
 					activitypub._cache.set(`0;${id}`, remoteNote);
-					activitypub._cache.set(
-						`0;https://example.org/user/foobar`,
-						remoteUser
-					);
-					await db.sortedSetAdd(
-						`followersRemote:${remoteUser.id}`,
-						Date.now(),
-						1
-					); // fake a follow
+					activitypub._cache.set(`0;https://example.org/user/foobar`, remoteUser);
+					await db.sortedSetAdd(`followersRemote:${remoteUser.id}`, Date.now(), 1); // fake a follow
 					await controllers.activitypub.postInbox(
 						{
 							body: {
@@ -453,7 +406,7 @@ describe('ActivityPub integration', () => {
 								object: remoteNote,
 							},
 						},
-						{ sendStatus: () => {} }
+						{ sendStatus: () => {} },
 					);
 				});
 
@@ -511,15 +464,11 @@ describe('ActivityPub integration', () => {
 						content: 'Lorem ipsum dolor sit amet',
 					}));
 
-					({ body, response } = await request.get(
-						`${nconf.get('url')}/post/${postData.pid}`,
-						{
-							headers: {
-								Accept:
-									'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-							},
-						}
-					));
+					({ body, response } = await request.get(`${nconf.get('url')}/post/${postData.pid}`, {
+						headers: {
+							Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+						},
+					}));
 				});
 
 				it('should return a 404 on a non-existant post', async () => {
@@ -527,10 +476,9 @@ describe('ActivityPub integration', () => {
 						`${nconf.get('url')}/post/${parseInt(postData.pid, 10) + 1}`,
 						{
 							headers: {
-								Accept:
-									'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+								Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
 							},
-						}
+						},
 					);
 
 					assert.strictEqual(response.statusCode, 404);
@@ -543,7 +491,7 @@ describe('ActivityPub integration', () => {
 				it('should return the expected Content-Type header', () => {
 					assert.strictEqual(
 						response.headers['content-type'],
-						'application/activity+json; charset=utf-8'
+						'application/activity+json; charset=utf-8',
 					);
 				});
 
@@ -567,15 +515,11 @@ describe('ActivityPub integration', () => {
 
 					await posts.delete(postData.pid, uid);
 
-					({ body, response } = await request.get(
-						`${nconf.get('url')}/post/${postData.pid}`,
-						{
-							headers: {
-								Accept:
-									'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-							},
-						}
-					));
+					({ body, response } = await request.get(`${nconf.get('url')}/post/${postData.pid}`, {
+						headers: {
+							Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+						},
+					}));
 				});
 
 				it('should return a 200 response on an existing post', () => {
@@ -587,18 +531,15 @@ describe('ActivityPub integration', () => {
 				});
 
 				it('should still retain the existing id and former type', () => {
-					assert.strictEqual(
-						body.id,
-						`${nconf.get('url')}/post/${postData.pid}`
-					);
+					assert.strictEqual(body.id, `${nconf.get('url')}/post/${postData.pid}`);
 					assert.strictEqual(body.formerType, 'Note');
 				});
 
 				it('should still contain contextual information (context, audience, attributedTo)', () => {
 					assert(
 						['context', 'audience', 'attributedTo'].every(
-							(prop) => body.hasOwnProperty(prop) && body[prop]
-						)
+							prop => body.hasOwnProperty(prop) && body[prop],
+						),
 					);
 				});
 			});
@@ -613,7 +554,7 @@ describe('ActivityPub integration', () => {
 		});
 
 		it('subfolder tests', () => {
-			files.forEach((filePath) => {
+			files.forEach(filePath => {
 				require(filePath);
 			});
 		});

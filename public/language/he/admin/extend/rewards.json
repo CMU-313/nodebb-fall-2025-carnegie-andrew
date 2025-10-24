@@ -1,17 +1,17 @@
 {
-	"rewards": "תגמולים",
-	"add-reward": "הוסף תגמול",
-	"condition-if-users": "אם",
-	"condition-is": "הינו:",
-	"condition-then": "תגמל ב:",
-	"max-claims": "מספר פעמים בה ניתן לדרוש תגמול",
-	"zero-infinite": "הזינו 0 ללא הגבלה",
-	"select-reward": "בחירת תגמול",
-	"delete": "מחיקה",
-	"enable": "הפעלה",
-	"disable": "השבתה",
+  "rewards": "תגמולים",
+  "add-reward": "הוסף תגמול",
+  "condition-if-users": "אם",
+  "condition-is": "הינו:",
+  "condition-then": "תגמל ב:",
+  "max-claims": "מספר פעמים בה ניתן לדרוש תגמול",
+  "zero-infinite": "הזינו 0 ללא הגבלה",
+  "select-reward": "בחירת תגמול",
+  "delete": "מחיקה",
+  "enable": "הפעלה",
+  "disable": "השבתה",
 
-	"alert.delete-success": "תגמול נמחק בהצלחה",
-	"alert.no-inputs-found": "תגמול לא חוקי - לא נמצא מידע!",
-	"alert.save-success": "תגמולים נשמרו בהצלחה"
+  "alert.delete-success": "תגמול נמחק בהצלחה",
+  "alert.no-inputs-found": "תגמול לא חוקי - לא נמצא מידע!",
+  "alert.save-success": "תגמולים נשמרו בהצלחה"
 }

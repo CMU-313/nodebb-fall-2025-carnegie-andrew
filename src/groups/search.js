@@ -9,18 +9,16 @@ module.exports = function (Groups) {
 			return [];
 		}
 		query = String(query).toLowerCase();
-		const excludeGroups = Array.isArray(options.excludeGroups)
-			? options.excludeGroups
-			: [];
+		const excludeGroups = Array.isArray(options.excludeGroups) ? options.excludeGroups : [];
 		let groupNames = Object.values(await db.getObject('groupslug:groupname'));
 		if (!options.hideEphemeralGroups) {
 			groupNames = Groups.ephemeralGroups.concat(groupNames);
 		}
 		groupNames = groupNames.filter(
-			(name) =>
+			name =>
 				name.toLowerCase().includes(query) &&
 				name !== Groups.BANNED_USERS && // hide banned-users in searches
-				!excludeGroups.includes(name)
+				!excludeGroups.includes(name),
 		);
 		groupNames = groupNames.slice(0, 100);
 
@@ -32,7 +30,7 @@ module.exports = function (Groups) {
 		}
 		groupsData = groupsData.filter(Boolean);
 		if (options.filterHidden) {
-			groupsData = groupsData.filter((group) => !group.hidden);
+			groupsData = groupsData.filter(group => !group.hidden);
 		}
 		return Groups.sort(options.sort, groupsData);
 	};
@@ -40,9 +38,7 @@ module.exports = function (Groups) {
 	Groups.sort = function (strategy, groups) {
 		switch (strategy) {
 			case 'count':
-				groups
-					.sort((a, b) => a.slug > b.slug)
-					.sort((a, b) => b.memberCount - a.memberCount);
+				groups.sort((a, b) => a.slug > b.slug).sort((a, b) => b.memberCount - a.memberCount);
 				break;
 
 			case 'date':
@@ -59,12 +55,7 @@ module.exports = function (Groups) {
 
 	Groups.searchMembers = async function (data) {
 		if (!data.query) {
-			const users = await Groups.getOwnersAndMembers(
-				data.groupName,
-				data.uid,
-				0,
-				19
-			);
+			const users = await Groups.getOwnersAndMembers(data.groupName, data.uid, 0, 19);
 			const matchCount = users.length;
 			const timing = '0.00';
 			return { users, matchCount, timing };
@@ -76,7 +67,7 @@ module.exports = function (Groups) {
 			hardCap: -1,
 		});
 
-		const uids = results.users.map((user) => user && user.uid);
+		const uids = results.users.map(user => user && user.uid);
 		const isOwners = await Groups.ownership.isOwners(uids, data.groupName);
 
 		results.users.forEach((user, index) => {

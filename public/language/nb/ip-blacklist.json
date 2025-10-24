@@ -1,19 +1,19 @@
 {
-	"lead": "Konfigurer IP-svartelisten din her.",
-	"description": "Noen ganger er det ikke tilstrekkelig å blokkere brukerkontoer. Den beste måten å beskytte et forum på kan være å begrense tilgangen til forumet for en bestemt IP-adresse eller et sett med IP-er. I slike tilfeller kan du legge til IP-adresser eller hele CIDR-blokker i denne svartelisten, og de vil bli forhindret fra å logge på eller registrere en ny konto.",
-	"active-rules": "Aktive regler",
-	"validate": "Valider svartelisten",
-	"apply": "Bruk svarteliste",
-	"hints": "Syntaks-hint",
-	"hint-1": "Definer én IP-adresse per linje. Du kan legge til IP-blokker så lenge de følger CIDR-formatet (f.eks. <code>192.168.100.0/22</code>).",
-	"hint-2": "Du kan legge til kommentarer ved å starte linjer med symbolet <code>#</code>.",
+  "lead": "Konfigurer IP-svartelisten din her.",
+  "description": "Noen ganger er det ikke tilstrekkelig å blokkere brukerkontoer. Den beste måten å beskytte et forum på kan være å begrense tilgangen til forumet for en bestemt IP-adresse eller et sett med IP-er. I slike tilfeller kan du legge til IP-adresser eller hele CIDR-blokker i denne svartelisten, og de vil bli forhindret fra å logge på eller registrere en ny konto.",
+  "active-rules": "Aktive regler",
+  "validate": "Valider svartelisten",
+  "apply": "Bruk svarteliste",
+  "hints": "Syntaks-hint",
+  "hint-1": "Definer én IP-adresse per linje. Du kan legge til IP-blokker så lenge de følger CIDR-formatet (f.eks. <code>192.168.100.0/22</code>).",
+  "hint-2": "Du kan legge til kommentarer ved å starte linjer med symbolet <code>#</code>.",
 
-	"validate.x-valid": "<strong>%1</strong> av <strong>%2</strong> regler er gyldige.",
-	"validate.x-invalid": "Følgende <strong>%1</strong> regler er ugyldige:",
+  "validate.x-valid": "<strong>%1</strong> av <strong>%2</strong> regler er gyldige.",
+  "validate.x-invalid": "Følgende <strong>%1</strong> regler er ugyldige:",
 
-	"alerts.applied-success": "Svartelisten er brukt",
+  "alerts.applied-success": "Svartelisten er brukt",
 
-	"analytics.blacklist-hourly": "<strong>Figur 1</strong> &ndash; Treff på svartelisten per time",
-	"analytics.blacklist-daily": "<strong>Figur 2</strong> &ndash; Treff på svartelisten per dag",
-	"ip-banned": "IP er utestengt"
+  "analytics.blacklist-hourly": "<strong>Figur 1</strong> &ndash; Treff på svartelisten per time",
+  "analytics.blacklist-daily": "<strong>Figur 2</strong> &ndash; Treff på svartelisten per dag",
+  "ip-banned": "IP er utestengt"
 }

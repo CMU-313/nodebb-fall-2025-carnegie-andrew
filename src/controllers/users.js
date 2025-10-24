@@ -29,10 +29,7 @@ usersController.index = async function (req, res, next) {
 
 	if (req.query.query) {
 		await usersController.search(req, res, next);
-	} else if (
-		sectionToController.hasOwnProperty(section) &&
-		sectionToController[section]
-	) {
+	} else if (sectionToController.hasOwnProperty(section) && sectionToController[section]) {
 		await sectionToController[section](req, res, next);
 	} else {
 		await usersController.getUsersSortedByJoinDate(req, res, next);
@@ -44,11 +41,7 @@ usersController.search = async function (req, res) {
 
 	const section = req.query.section || 'joindate';
 
-	searchData.pagination = pagination.create(
-		req.query.page,
-		searchData.pageCount,
-		req.query
-	);
+	searchData.pagination = pagination.create(req.query.page, searchData.pageCount, req.query);
 	searchData[`section_${section}`] = true;
 	searchData.displayUserSearch = true;
 	await render(req, res, searchData);
@@ -62,9 +55,8 @@ usersController.getOnlineUsers = async function (req, res) {
 
 	let hiddenCount = 0;
 	if (!userData.isAdminOrGlobalMod) {
-		userData.users = userData.users.filter((user) => {
-			const showUser =
-				user && (user.uid === req.uid || user.userStatus !== 'offline');
+		userData.users = userData.users.filter(user => {
+			const showUser = user && (user.uid === req.uid || user.userStatus !== 'offline');
 			if (!showUser) {
 				hiddenCount += 1;
 			}
@@ -180,11 +172,7 @@ usersController.getUsers = async function (set, uid, query) {
 usersController.getUsersAndCount = async function (set, uid, start, stop) {
 	async function getCount() {
 		if (set === 'users:online') {
-			return await db.sortedSetCount(
-				'users:online',
-				Date.now() - 86400000,
-				'+inf'
-			);
+			return await db.sortedSetCount('users:online', Date.now() - 86400000, '+inf');
 		} else if (set === 'users:banned' || set === 'users:flags') {
 			return await db.sortedSetCard(set);
 		}
@@ -198,14 +186,14 @@ usersController.getUsersAndCount = async function (set, uid, start, stop) {
 				start,
 				count,
 				'+inf',
-				Date.now() - 86400000
+				Date.now() - 86400000,
 			);
-			const uids = data.map((d) => d.value);
-			const scores = data.map((d) => d.score);
+			const uids = data.map(d => d.value);
+			const scores = data.map(d => d.score);
 			const [userStatus, userData] = await Promise.all([
 				db.getObjectsFields(
-					uids.map((uid) => `user:${uid}`),
-					['status']
+					uids.map(uid => `user:${uid}`),
+					['status'],
 				),
 				user.getUsers(uids, uid),
 			]);
@@ -232,9 +220,7 @@ async function render(req, res, data) {
 	const { registrationType } = meta.config;
 
 	data.maximumInvites = meta.config.maximumInvites;
-	data.inviteOnly =
-		registrationType === 'invite-only' ||
-		registrationType === 'admin-invite-only';
+	data.inviteOnly = registrationType === 'invite-only' || registrationType === 'admin-invite-only';
 	data.adminInviteOnly = registrationType === 'admin-invite-only';
 	data.invites = await user.getInvitesNumber(req.uid);
 

@@ -1,18 +1,18 @@
 {
-	"alert.confirm-rebuild-and-restart": "آیا شما مطمئن هستید که می خواهید NodeBB را بازسازی و مجدداً راه اندازی کنید؟",
-	"alert.confirm-restart": "آیا از راه اندازی مجدد نود‌بی‌بی مطمئن هستید؟",
+  "alert.confirm-rebuild-and-restart": "آیا شما مطمئن هستید که می خواهید NodeBB را بازسازی و مجدداً راه اندازی کنید؟",
+  "alert.confirm-restart": "آیا از راه اندازی مجدد نود‌بی‌بی مطمئن هستید؟",
 
-	"acp-title": "%1 | کنترل پنل مدیر کل نود‌بی‌بی",
-	"settings-header-contents": "محتوا",
-	"changes-saved": "تغییرات ذخیره شد",
-	"changes-saved-message": "تغییرات شما در پیکربندی NodeBB ذخیره شده است.",
-	"changes-not-saved": "تغییرات ذخیره نشد",
-	"changes-not-saved-message": "NodeBB در ذخیره تغییرات شما با مشکل مواجه شد. (% 1)",
-	"save-changes": "ذخیره تغییرات",
-	"min": "کمترین:",
-	"max": "بیشترین:",
-	"view": "نمایش",
-	"edit": "ویرایش",
-	"add": "اضافه",
-	"select-icon": "انتخاب نقشک"
+  "acp-title": "%1 | کنترل پنل مدیر کل نود‌بی‌بی",
+  "settings-header-contents": "محتوا",
+  "changes-saved": "تغییرات ذخیره شد",
+  "changes-saved-message": "تغییرات شما در پیکربندی NodeBB ذخیره شده است.",
+  "changes-not-saved": "تغییرات ذخیره نشد",
+  "changes-not-saved-message": "NodeBB در ذخیره تغییرات شما با مشکل مواجه شد. (% 1)",
+  "save-changes": "ذخیره تغییرات",
+  "min": "کمترین:",
+  "max": "بیشترین:",
+  "view": "نمایش",
+  "edit": "ویرایش",
+  "add": "اضافه",
+  "select-icon": "انتخاب نقشک"
 }

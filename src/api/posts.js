@@ -91,11 +91,7 @@ postsAPI.getRaw = async (caller, { pid }) => {
 };
 
 postsAPI.edit = async function (caller, data) {
-	if (
-		!data ||
-		!data.pid ||
-		(meta.config.minimumPostLength !== 0 && !data.content)
-	) {
+	if (!data || !data.pid || (meta.config.minimumPostLength !== 0 && !data.content)) {
 		throw new Error('[[error:invalid-data]]');
 	}
 	if (!caller.uid) {
@@ -109,33 +105,20 @@ postsAPI.edit = async function (caller, data) {
 		// Trim and remove HTML (latter for composers that send in HTML, like redactor)
 		const contentLen = utils.stripHTMLTags(data.content).trim().length;
 
-		if (
-			meta.config.minimumPostLength !== 0 &&
-			contentLen < meta.config.minimumPostLength
-		) {
-			throw new Error(
-				`[[error:content-too-short, ${meta.config.minimumPostLength}]]`
-			);
+		if (meta.config.minimumPostLength !== 0 && contentLen < meta.config.minimumPostLength) {
+			throw new Error(`[[error:content-too-short, ${meta.config.minimumPostLength}]]`);
 		} else if (contentLen > meta.config.maximumPostLength) {
-			throw new Error(
-				`[[error:content-too-long, ${meta.config.maximumPostLength}]]`
-			);
+			throw new Error(`[[error:content-too-long, ${meta.config.maximumPostLength}]]`);
 		}
 	}
 
 	if (data.title && data.title.length < meta.config.minimumTitleLength) {
-		throw new Error(
-			`[[error:title-too-short, ${meta.config.minimumTitleLength}]]`
-		);
+		throw new Error(`[[error:title-too-short, ${meta.config.minimumTitleLength}]]`);
 	} else if (data.title && data.title.length > meta.config.maximumTitleLength) {
+		throw new Error(`[[error:title-too-long, ${meta.config.maximumTitleLength}]]`);
+	} else if (!(await posts.canUserPostContentWithLinks(caller.uid, data.content))) {
 		throw new Error(
-			`[[error:title-too-long, ${meta.config.maximumTitleLength}]]`
-		);
-	} else if (
-		!(await posts.canUserPostContentWithLinks(caller.uid, data.content))
-	) {
-		throw new Error(
-			`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`
+			`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`,
 		);
 	}
 
@@ -147,8 +130,7 @@ postsAPI.edit = async function (caller, data) {
 	if (editResult.topic.isMainPost) {
 		await topics.thumbs.migrate(data.uuid, editResult.topic.tid);
 	}
-	const selfPost =
-		parseInt(caller.uid, 10) === parseInt(editResult.post.uid, 10);
+	const selfPost = parseInt(caller.uid, 10) === parseInt(editResult.post.uid, 10);
 	if (!selfPost && editResult.post.changed) {
 		await events.log({
 			type: `post-edit`,
@@ -170,19 +152,16 @@ postsAPI.edit = async function (caller, data) {
 			newTitle: validator.escape(String(editResult.topic.title)),
 		});
 	}
-	const postObj = await posts.getPostSummaryByPids(
-		[editResult.post.pid],
-		caller.uid,
-		{ parse: false, extraFields: ['edited'] }
-	);
+	const postObj = await posts.getPostSummaryByPids([editResult.post.pid], caller.uid, {
+		parse: false,
+		extraFields: ['edited'],
+	});
 	postObj.content = editResult.post.content; // re-use already parsed html
 	const returnData = { ...postObj[0], ...editResult.post };
 	returnData.topic = { ...postObj[0].topic, ...editResult.post.topic };
 
 	if (!editResult.post.deleted) {
-		websockets
-			.in(`topic_${editResult.topic.tid}`)
-			.emit('event:post_edited', editResult);
+		websockets.in(`topic_${editResult.topic.tid}`).emit('event:post_edited', editResult);
 		setTimeout(() => {
 			require('.').activitypub.update.note(caller, { post: postObj[0] });
 		}, 5000);
@@ -198,9 +177,7 @@ postsAPI.edit = async function (caller, data) {
 	]);
 
 	const uids = _.uniq(_.flatten(memberData).concat(String(caller.uid)));
-	uids.forEach((uid) =>
-		websockets.in(`uid_${uid}`).emit('event:post_edited', editResult)
-	);
+	uids.forEach(uid => websockets.in(`uid_${uid}`).emit('event:post_edited', editResult));
 
 	return returnData;
 };
@@ -242,20 +219,13 @@ async function deleteOrRestore(caller, data, params) {
 	});
 
 	// Explicitly non-awaited
-	posts
-		.getPostSummaryByPids([data.pid], caller.uid, { extraFields: ['edited'] })
-		.then(([post]) => {
-			require('.').activitypub.update.note(caller, { post });
-		});
+	posts.getPostSummaryByPids([data.pid], caller.uid, { extraFields: ['edited'] }).then(([post]) => {
+		require('.').activitypub.update.note(caller, { post });
+	});
 }
 
 async function deleteOrRestoreTopicOf(command, pid, caller) {
-	const topic = await posts.getTopicFields(pid, [
-		'tid',
-		'cid',
-		'deleted',
-		'scheduled',
-	]);
+	const topic = await posts.getTopicFields(pid, ['tid', 'cid', 'deleted', 'scheduled']);
 	// exempt scheduled topics from being deleted/restored
 	if (topic.scheduled) {
 		return;
@@ -265,7 +235,7 @@ async function deleteOrRestoreTopicOf(command, pid, caller) {
 		command,
 		topic.deleted ? 'event:topic_restored' : 'event:topic_deleted',
 		caller,
-		{ tids: [topic.tid], cid: topic.cid }
+		{ tids: [topic.tid], cid: topic.cid },
 	);
 }
 
@@ -364,15 +334,12 @@ postsAPI.move = async function (caller, data) {
 			data.pid,
 			caller.uid,
 			'move',
-			'notifications:moved-your-post'
+			'notifications:moved-your-post',
 		);
 
 		// ideally we should federate a "move" activity instead, then can capture remote posts too. tbd
 		if (utils.isNumber(data.pid)) {
-			const { activity } = await activitypub.mocks.activities.create(
-				data.pid,
-				caller.uid
-			);
+			const { activity } = await activitypub.mocks.activities.create(data.pid, caller.uid);
 			await activitypub.feps.announce(data.pid, activity);
 		}
 	}
@@ -384,7 +351,7 @@ postsAPI.upvote = async function (caller, data) {
 		'upvote',
 		'voted',
 		'notifications:upvoted-your-post-in',
-		data
+		data,
 	);
 };
 
@@ -412,8 +379,7 @@ postsAPI.getVoters = async function (caller, data) {
 	}
 	const repSystemDisabled = meta.config['reputation:disabled'];
 	const showUpvotes = canSeeUpvotes && !repSystemDisabled;
-	const showDownvotes =
-		canSeeDownvotes && !meta.config['downvote:disabled'] && !repSystemDisabled;
+	const showDownvotes = canSeeDownvotes && !meta.config['downvote:disabled'] && !repSystemDisabled;
 	const [upvoteUids, downvoteUids] = await Promise.all([
 		showUpvotes ? db.getSetMembers(`pid:${data.pid}:upvote`) : [],
 		showDownvotes ? db.getSetMembers(`pid:${data.pid}:downvote`) : [],
@@ -466,7 +432,7 @@ async function getTooltipData(uids) {
 	const users = await user.getUsersFields(uids, ['username']);
 	return {
 		otherCount,
-		usernames: users.map((user) => user.displayname),
+		usernames: users.map(user => user.displayname),
 		cutoff,
 	};
 }
@@ -480,28 +446,18 @@ postsAPI.getAnnouncers = async (caller, data) => {
 	}
 	const { pid } = data;
 	const cid = await posts.getCidByPid(pid);
-	if (
-		!(await privileges.categories.isUserAllowedTo(
-			'topics:read',
-			cid,
-			caller.uid
-		))
-	) {
+	if (!(await privileges.categories.isUserAllowedTo('topics:read', cid, caller.uid))) {
 		throw new Error('[[error:no-privileges]]');
 	}
 	const notes = require('../activitypub/notes');
 	const announcers = await notes.announce.list({ pid });
-	const uids = announcers.map((ann) => ann.actor);
+	const uids = announcers.map(ann => ann.actor);
 	if (data.tooltip) {
 		return await getTooltipData(uids);
 	}
 	return {
 		announceCount: uids.length,
-		announcers: await user.getUsersFields(uids, [
-			'username',
-			'userslug',
-			'picture',
-		]),
+		announcers: await user.getUsersFields(uids, ['username', 'userslug', 'picture']),
 	};
 };
 
@@ -523,29 +479,17 @@ async function canSeeVotes(uid, cids, type) {
 			isMod[index] ||
 			(cidToAllowed[cid] &&
 				(meta.config[type] === 'all' ||
-					(meta.config[type] === 'loggedin' && parseInt(uid, 10) > 0)))
+					(meta.config[type] === 'loggedin' && parseInt(uid, 10) > 0))),
 	);
 	return isArray ? checks : checks[0];
 }
 
 postsAPI.bookmark = async function (caller, data) {
-	return await apiHelpers.postCommand(
-		caller,
-		'bookmark',
-		'bookmarked',
-		'',
-		data
-	);
+	return await apiHelpers.postCommand(caller, 'bookmark', 'bookmarked', '', data);
 };
 
 postsAPI.unbookmark = async function (caller, data) {
-	return await apiHelpers.postCommand(
-		caller,
-		'unbookmark',
-		'bookmarked',
-		'',
-		data
-	);
+	return await apiHelpers.postCommand(caller, 'unbookmark', 'bookmarked', '', data);
 };
 
 postsAPI.pin = async function (caller, data) {
@@ -582,12 +526,10 @@ postsAPI.getDiffs = async (caller, data) => {
 		posts.diffs.get(data.pid),
 	]);
 
-	const uids = diffs.map((diff) => diff.uid || null);
+	const uids = diffs.map(diff => diff.uid || null);
 	uids.push(post.uid);
 	let usernames = await user.getUsersFields(uids, ['username']);
-	usernames = usernames.map((userObj) =>
-		userObj.uid ? userObj.username : null
-	);
+	usernames = usernames.map(userObj => (userObj.uid ? userObj.username : null));
 
 	const cid = await posts.getCidByPid(data.pid);
 	const [isAdmin, isModerator] = await Promise.all([
@@ -609,10 +551,7 @@ postsAPI.getDiffs = async (caller, data) => {
 		// Only admins, global mods and moderator of that cid can delete a diff
 		deletable: isAdmin || isModerator,
 		// These and post owners can restore to a different post version
-		editable:
-			isAdmin ||
-			isModerator ||
-			parseInt(caller.uid, 10) === parseInt(post.uid, 10),
+		editable: isAdmin || isModerator || parseInt(caller.uid, 10) === parseInt(post.uid, 10),
 	});
 	return result;
 };
@@ -624,11 +563,7 @@ postsAPI.loadDiff = async (caller, data) => {
 
 postsAPI.restoreDiff = async (caller, data) => {
 	const cid = await posts.getCidByPid(data.pid);
-	const canEdit = await privileges.categories.can(
-		'posts:edit',
-		cid,
-		caller.uid
-	);
+	const canEdit = await privileges.categories.can('posts:edit', cid, caller.uid);
 	if (!canEdit) {
 		throw new Error('[[error:no-privileges]]');
 	}
@@ -637,7 +572,7 @@ postsAPI.restoreDiff = async (caller, data) => {
 		data.pid,
 		data.since,
 		caller.uid,
-		apiHelpers.buildReqObject(caller)
+		apiHelpers.buildReqObject(caller),
 	);
 	websockets.in(`topic_${edit.topic.tid}`).emit('event:post_edited', edit);
 };
@@ -671,7 +606,7 @@ postsAPI.getReplies = async (caller, { pid }) => {
 		`pid:${pid}:replies`,
 		0,
 		-1,
-		topicPostSort === 'newest_to_oldest'
+		topicPostSort === 'newest_to_oldest',
 	);
 
 	let [postData, postPrivileges] = await Promise.all([
@@ -680,11 +615,9 @@ postsAPI.getReplies = async (caller, { pid }) => {
 	]);
 	postData = await topics.addPostData(postData, uid);
 	postData.forEach((postData, index) =>
-		posts.modifyPostByPrivilege(postData, postPrivileges[index])
+		posts.modifyPostByPrivilege(postData, postPrivileges[index]),
 	);
-	postData = postData.filter(
-		(postData, index) => postData && postPrivileges[index].read
-	);
+	postData = postData.filter((postData, index) => postData && postPrivileges[index].read);
 	postData = await user.blocks.filter(uid, postData);
 
 	return postData;
@@ -694,11 +627,7 @@ postsAPI.acceptQueuedPost = async (caller, data) => {
 	await canEditQueue(caller.uid, data, 'accept');
 	const result = await posts.submitFromQueue(data.id);
 	if (result && caller.uid !== parseInt(result.uid, 10)) {
-		await sendQueueNotification(
-			'post-queue-accepted',
-			result.uid,
-			`/post/${result.pid}`
-		);
+		await sendQueueNotification('post-queue-accepted', result.uid, `/post/${result.pid}`);
 	}
 	await logQueueEvent(caller, result, 'accept');
 	return { type: result.type, pid: result.pid, tid: result.tid };
@@ -732,7 +661,7 @@ postsAPI.notifyQueuedPostOwner = async (caller, data) => {
 			'post-queue-notify',
 			result.uid,
 			`/post-queue/${data.id}`,
-			validator.escape(String(data.message))
+			validator.escape(String(data.message)),
 		);
 	}
 };

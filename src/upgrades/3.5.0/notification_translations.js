@@ -11,27 +11,22 @@ module.exports = {
 
 		await batch.processSortedSet(
 			`notifications`,
-			async (nids) => {
-				const notifData = await db.getObjects(
-					nids.map((nid) => `notifications:${nid}`)
-				);
-				notifData.forEach((n) => {
+			async nids => {
+				const notifData = await db.getObjects(nids.map(nid => `notifications:${nid}`));
+				notifData.forEach(n => {
 					if (n && n.bodyShort) {
 						n.bodyShort = n.bodyShort.replace(/_/g, '-');
 					}
 				});
 
-				const bulkSet = notifData.map((n) => [
-					`notifications:${n.nid}`,
-					{ bodyShort: n.bodyShort },
-				]);
+				const bulkSet = notifData.map(n => [`notifications:${n.nid}`, { bodyShort: n.bodyShort }]);
 
 				await db.setObjectBulk(bulkSet);
 			},
 			{
 				batch: 500,
 				progress: progress,
-			}
+			},
 		);
 	},
 };

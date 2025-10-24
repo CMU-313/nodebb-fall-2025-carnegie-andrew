@@ -10,7 +10,7 @@ describe('Pins data model (isolated)', () => {
 	// Simple in-memory fake DB
 	let store;
 	const dbStub = {
-		getSetMembers: async (k) => {
+		getSetMembers: async k => {
 			const s = store.get(k);
 			return s ? Array.from(s) : [];
 		},

@@ -53,9 +53,7 @@ helpers.buildQueryString = function (query, key, value) {
 		delete queryObj[key];
 	}
 	delete queryObj._;
-	return Object.keys(queryObj).length
-		? `?${querystring.stringify(queryObj)}`
-		: '';
+	return Object.keys(queryObj).length ? `?${querystring.stringify(queryObj)}` : '';
 };
 
 helpers.addLinkTags = function (params) {
@@ -66,7 +64,7 @@ helpers.addLinkTags = function (params) {
 		href: `${url}/${params.url}${page}`,
 	});
 
-	params.tags.forEach((rel) => {
+	params.tags.forEach(rel => {
 		rel.href = `${url}/${params.url}${rel.href}`;
 		params.res.locals.linkTags.push(rel);
 	});
@@ -174,9 +172,7 @@ helpers.notAllowed = async function (req, res, error) {
 		await helpers.formatApiResponse(401, res, error);
 	} else {
 		req.session.returnTo = req.url;
-		res.redirect(
-			`${relative_path}/login${req.path.startsWith('/admin') ? '?local=1' : ''}`
-		);
+		res.redirect(`${relative_path}/login${req.path.startsWith('/admin') ? '?local=1' : ''}`);
 	}
 };
 
@@ -204,9 +200,7 @@ helpers.redirect = function (res, url, permanent) {
 };
 
 function prependRelativePath(url) {
-	return url.startsWith('http://') || url.startsWith('https://')
-		? url
-		: relative_path + url;
+	return url.startsWith('http://') || url.startsWith('https://') ? url : relative_path + url;
 }
 
 helpers.buildCategoryBreadcrumbs = async function (cid) {
@@ -253,7 +247,7 @@ helpers.buildBreadcrumbs = function (crumbs) {
 		},
 	];
 
-	crumbs.forEach((crumb) => {
+	crumbs.forEach(crumb => {
 		if (crumb) {
 			if (crumb.url) {
 				crumb.url = `${utils.isRelativeUrl(crumb.url) ? `${url}/` : ''}${crumb.url}`;
@@ -268,11 +262,10 @@ helpers.buildBreadcrumbs = function (crumbs) {
 helpers.buildTitle = function (pageTitle) {
 	pageTitle = pageTitle || '';
 	const titleLayout =
-		meta.config.titleLayout ||
-		`${pageTitle ? '{pageTitle} | ' : ''}{browserTitle}`;
+		meta.config.titleLayout || `${pageTitle ? '{pageTitle} | ' : ''}{browserTitle}`;
 
 	const browserTitle = validator.escape(
-		String(meta.config.browserTitle || meta.config.title || 'NodeBB')
+		String(meta.config.browserTitle || meta.config.title || 'NodeBB'),
 	);
 
 	const title = titleLayout
@@ -288,7 +281,7 @@ helpers.getCategories = async function (set, uid, privilege, selectedCid) {
 		uid,
 		selectedCid,
 		Object.values(categories.watchStates),
-		privilege
+		privilege,
 	);
 };
 
@@ -296,7 +289,7 @@ helpers.getCategoriesByStates = async function (
 	uid,
 	selectedCid,
 	states,
-	privilege = 'topics:read'
+	privilege = 'topics:read',
 ) {
 	const cids = await categories.getAllCidsFromSet('categories:cid');
 	return await getCategoryData(cids, uid, selectedCid, states, privilege);
@@ -314,12 +307,9 @@ async function getCategoryData(cids, uid, selectedCid, states, privilege) {
 		helpers.getSelectedCategory(selectedCid),
 	]);
 
-	const categoriesData = categories.buildForSelectCategories(
-		visibleCategories,
-		['disabledClass']
-	);
+	const categoriesData = categories.buildForSelectCategories(visibleCategories, ['disabledClass']);
 
-	categoriesData.forEach((category) => {
+	categoriesData.forEach(category => {
 		category.selected = selectData.selectedCids.includes(category.cid);
 	});
 	selectData.selectedCids.sort((a, b) => a - b);
@@ -338,69 +328,54 @@ helpers.getVisibleCategories = async function (params) {
 	];
 	const showLinks = !!params.showLinks;
 
-	let [allowed, watchState, categoriesData, isAdmin, isModerator] =
-		await Promise.all([
-			privileges.categories.isUserAllowedTo(privilege, cids, uid),
-			categories.getWatchState(cids, uid),
-			categories.getCategoriesData(cids),
-			user.isAdministrator(uid),
-			user.isModerator(uid, cids),
-		]);
+	let [allowed, watchState, categoriesData, isAdmin, isModerator] = await Promise.all([
+		privileges.categories.isUserAllowedTo(privilege, cids, uid),
+		categories.getWatchState(cids, uid),
+		categories.getCategoriesData(cids),
+		user.isAdministrator(uid),
+		user.isModerator(uid, cids),
+	]);
 
-	const filtered = await plugins.hooks.fire(
-		'filter:helpers.getVisibleCategories',
-		{
-			uid: uid,
-			allowed: allowed,
-			watchState: watchState,
-			categoriesData: categoriesData,
-			isModerator: isModerator,
-			isAdmin: isAdmin,
-		}
-	);
+	const filtered = await plugins.hooks.fire('filter:helpers.getVisibleCategories', {
+		uid: uid,
+		allowed: allowed,
+		watchState: watchState,
+		categoriesData: categoriesData,
+		isModerator: isModerator,
+		isAdmin: isAdmin,
+	});
 	({ allowed, watchState, categoriesData, isModerator, isAdmin } = filtered);
 
 	categories.getTree(categoriesData, params.parentCid);
 
 	const cidToAllowed = _.zipObject(
 		cids,
-		allowed.map((allowed, i) => isAdmin || isModerator[i] || allowed)
+		allowed.map((allowed, i) => isAdmin || isModerator[i] || allowed),
 	);
 	const cidToCategory = _.zipObject(cids, categoriesData);
 	const cidToWatchState = _.zipObject(cids, watchState);
 
-	return categoriesData.filter((c) => {
+	return categoriesData.filter(c => {
 		if (!c) {
 			return false;
 		}
-		const hasVisibleChildren = checkVisibleChildren(
-			c,
-			cidToAllowed,
-			cidToWatchState,
-			states
-		);
+		const hasVisibleChildren = checkVisibleChildren(c, cidToAllowed, cidToWatchState, states);
 		const isCategoryVisible =
 			cidToAllowed[c.cid] &&
 			(showLinks || !c.link) &&
 			!c.disabled &&
 			states.includes(cidToWatchState[c.cid]);
 		const shouldBeRemoved = !hasVisibleChildren && !isCategoryVisible;
-		const shouldBeDisaplayedAsDisabled =
-			hasVisibleChildren && !isCategoryVisible;
+		const shouldBeDisaplayedAsDisabled = hasVisibleChildren && !isCategoryVisible;
 
 		if (shouldBeDisaplayedAsDisabled) {
 			c.disabledClass = true;
 		}
 
-		if (
-			shouldBeRemoved &&
-			c.parent &&
-			c.parent.cid &&
-			cidToCategory[c.parent.cid]
-		) {
-			cidToCategory[c.parent.cid].children = cidToCategory[
-				c.parent.cid
-			].children.filter((child) => child.cid !== c.cid);
+		if (shouldBeRemoved && c.parent && c.parent.cid && cidToCategory[c.parent.cid]) {
+			cidToCategory[c.parent.cid].children = cidToCategory[c.parent.cid].children.filter(
+				child => child.cid !== c.cid,
+			);
 		}
 
 		return !shouldBeRemoved;
@@ -411,11 +386,9 @@ helpers.getSelectedCategory = async function (cids) {
 	if (cids && !Array.isArray(cids)) {
 		cids = [cids];
 	}
-	cids = cids && cids.map((cid) => parseInt(cid, 10));
+	cids = cids && cids.map(cid => parseInt(cid, 10));
 	let selectedCategories = await categories.getCategoriesData(cids);
-	const selectedCids = selectedCategories
-		.map((c) => c && c.cid)
-		.filter(Boolean);
+	const selectedCids = selectedCategories.map(c => c && c.cid).filter(Boolean);
 	if (selectedCategories.length > 1) {
 		selectedCategories = {
 			icon: 'fa-plus',
@@ -438,7 +411,7 @@ helpers.getSelectedTag = function (tags) {
 		tags = [tags];
 	}
 	tags = tags || [];
-	const tagData = tags.map((t) => String(t));
+	const tagData = tags.map(t => String(t));
 	let selectedTag = null;
 	if (tagData.length) {
 		selectedTag = {
@@ -453,11 +426,8 @@ helpers.getSelectedTag = function (tags) {
 
 helpers.trimChildren = function (category) {
 	if (category && Array.isArray(category.children)) {
-		category.children = category.children.slice(
-			0,
-			category.subCategoriesPerPage
-		);
-		category.children.forEach((child) => {
+		category.children = category.children.slice(0, category.subCategoriesPerPage);
+		category.children.forEach(child => {
 			if (category.isSection) {
 				helpers.trimChildren(child);
 			} else {
@@ -468,11 +438,7 @@ helpers.trimChildren = function (category) {
 };
 
 helpers.setCategoryTeaser = function (category) {
-	if (
-		Array.isArray(category.posts) &&
-		category.posts.length &&
-		category.posts[0]
-	) {
+	if (Array.isArray(category.posts) && category.posts.length && category.posts[0]) {
 		const post = category.posts[0];
 		category.teaser = {
 			url: `${nconf.get('relative_path')}/post/${post.pid}`,
@@ -491,10 +457,10 @@ function checkVisibleChildren(c, cidToAllowed, cidToWatchState, states) {
 		return false;
 	}
 	return c.children.some(
-		(c) =>
+		c =>
 			!c.disabled &&
 			((cidToAllowed[c.cid] && states.includes(cidToWatchState[c.cid])) ||
-				checkVisibleChildren(c, cidToAllowed, cidToWatchState, states))
+				checkVisibleChildren(c, cidToAllowed, cidToWatchState, states)),
 	);
 }
 
@@ -584,9 +550,7 @@ helpers.formatApiResponse = async (statusCode, res, payload) => {
 		}
 
 		if (message.startsWith('[[error:required-parameters-missing, ')) {
-			const params = message
-				.slice('[[error:required-parameters-missing, '.length, -2)
-				.split(' ');
+			const params = message.slice('[[error:required-parameters-missing, '.length, -2).split(' ');
 			Object.assign(response, { params });
 		}
 
@@ -596,7 +560,7 @@ helpers.formatApiResponse = async (statusCode, res, payload) => {
 		if (global.env === 'development') {
 			returnPayload.stack = payload.stack;
 			process.stdout.write(
-				`[${chalk.yellow('api')}] Exception caught, error with stack trace follows:\n`
+				`[${chalk.yellow('api')}] Exception caught, error with stack trace follows:\n`,
 			);
 			process.stdout.write(payload.stack);
 		}
@@ -632,9 +596,7 @@ helpers.generateError = async (statusCode, message, res) => {
 	async function translateMessage(message) {
 		const { req } = res;
 		const settings = req.query.lang ? null : await user.getSettings(req.uid);
-		const language = String(
-			req.query.lang || settings.userLang || meta.config.defaultLang
-		);
+		const language = String(req.query.lang || settings.userLang || meta.config.defaultLang);
 		return await translator.translate(message, language);
 	}
 	if (message && message.startsWith('[[')) {
@@ -644,8 +606,7 @@ helpers.generateError = async (statusCode, message, res) => {
 	const payload = {
 		status: {
 			code: 'internal-server-error',
-			message:
-				message || (await translateMessage(`[[error:api.${statusCode}]]`)),
+			message: message || (await translateMessage(`[[error:api.${statusCode}]]`)),
 		},
 		response: {},
 	};

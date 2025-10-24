@@ -1,12 +1,12 @@
 {
-    "username-email": "Username / Email",
-    "username": "Username",
-    "remember-me": "Remember Me?",
-    "forgot-password": "Forgot Password?",
-    "alternative-logins": "Alternative Logins",
-    "failed-login-attempt": "Login Unsuccessful",
-    "login-successful": "You have successfully logged in!",
-    "dont-have-account": "Don't have an account?",
-    "logged-out-due-to-inactivity": "You have been logged out of the Admin Control Panel due to inactivity",
-    "caps-lock-enabled": "Caps Lock is enabled"
+  "username-email": "Username / Email",
+  "username": "Username",
+  "remember-me": "Remember Me?",
+  "forgot-password": "Forgot Password?",
+  "alternative-logins": "Alternative Logins",
+  "failed-login-attempt": "Login Unsuccessful",
+  "login-successful": "You have successfully logged in!",
+  "dont-have-account": "Don't have an account?",
+  "logged-out-due-to-inactivity": "You have been logged out of the Admin Control Panel due to inactivity",
+  "caps-lock-enabled": "Caps Lock is enabled"
 }

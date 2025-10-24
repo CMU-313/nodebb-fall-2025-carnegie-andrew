@@ -24,10 +24,7 @@ module.exports = {
 			'posts:downvote',
 			'topics:delete',
 		];
-		const modPrivileges = defaultPrivileges.concat([
-			'posts:view_deleted',
-			'purge',
-		]);
+		const modPrivileges = defaultPrivileges.concat(['posts:view_deleted', 'purge']);
 
 		const globalModPrivs = [
 			'groups:chat',
@@ -49,21 +46,19 @@ module.exports = {
 			await givePrivsToModerators(cid, '');
 			await givePrivsToModerators(cid, 'groups:');
 			await privileges.categories.give(
-				modPrivileges.map((p) => `groups:${p}`),
+				modPrivileges.map(p => `groups:${p}`),
 				cid,
-				['Global Moderators']
+				['Global Moderators'],
 			);
 		}
 		await privileges.global.give(globalModPrivs, 'Global Moderators');
 
 		async function givePrivsToModerators(cid, groupPrefix) {
-			const privGroups = modPrivileges.map(
-				(priv) => `cid:${cid}:privileges:${groupPrefix}${priv}`
-			);
+			const privGroups = modPrivileges.map(priv => `cid:${cid}:privileges:${groupPrefix}${priv}`);
 			const members = await db.getSortedSetRevRange(
 				`group:cid:${cid}:privileges:${groupPrefix}moderate:members`,
 				0,
-				-1
+				-1,
 			);
 			for (const member of members) {
 				await groups.join(privGroups, member);

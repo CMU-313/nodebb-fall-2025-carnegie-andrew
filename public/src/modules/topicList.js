@@ -8,7 +8,15 @@ define('topicList', [
 	'tagFilter',
 	'forum/category/tools',
 	'hooks',
-], function (infinitescroll, handleBack, topicSelect, categoryFilter, tagFilter, categoryTools, hooks) {
+], function (
+	infinitescroll,
+	handleBack,
+	topicSelect,
+	categoryFilter,
+	tagFilter,
+	categoryTools,
+	hooks,
+) {
 	const TopicList = {};
 	let templateName = '';
 
@@ -93,16 +101,20 @@ define('topicList', [
 	function onNewTopic(data) {
 		const d = ajaxify.data;
 
-		const categories = d.selectedCids &&
+		const categories =
+			d.selectedCids &&
 			d.selectedCids.length &&
 			d.selectedCids.indexOf(parseInt(data.cid, 10)) === -1;
-		const filterWatched = d.selectedFilter &&
-			d.selectedFilter.filter === 'watched';
-		const category = d.template.category &&
-			parseInt(d.cid, 10) !== parseInt(data.cid, 10);
+		const filterWatched = d.selectedFilter && d.selectedFilter.filter === 'watched';
+		const category = d.template.category && parseInt(d.cid, 10) !== parseInt(data.cid, 10);
 
-		const preventAlert = !!(categories || filterWatched || category || scheduledTopics.includes(data.tid));
-		hooks.fire('filter:topicList.onNewTopic', { topic: data, preventAlert }).then((result) => {
+		const preventAlert = !!(
+			categories ||
+			filterWatched ||
+			category ||
+			scheduledTopics.includes(data.tid)
+		);
+		hooks.fire('filter:topicList.onNewTopic', { topic: data, preventAlert }).then(result => {
 			if (result.preventAlert) {
 				return;
 			}
@@ -124,19 +136,17 @@ define('topicList', [
 		const d = ajaxify.data;
 
 		const isMain = parseInt(post.topic.mainPid, 10) === parseInt(post.pid, 10);
-		const categories = d.selectedCids &&
+		const categories =
+			d.selectedCids &&
 			d.selectedCids.length &&
 			d.selectedCids.indexOf(parseInt(post.topic.cid, 10)) === -1;
-		const filterNew = d.selectedFilter &&
-			d.selectedFilter.filter === 'new';
-		const filterWatched = d.selectedFilter &&
-			d.selectedFilter.filter === 'watched' &&
-			!post.topic.isFollowing;
-		const category = d.template.category &&
-			parseInt(d.cid, 10) !== parseInt(post.topic.cid, 10);
+		const filterNew = d.selectedFilter && d.selectedFilter.filter === 'new';
+		const filterWatched =
+			d.selectedFilter && d.selectedFilter.filter === 'watched' && !post.topic.isFollowing;
+		const category = d.template.category && parseInt(d.cid, 10) !== parseInt(post.topic.cid, 10);
 
 		const preventAlert = !!(isMain || categories || filterNew || filterWatched || category);
-		hooks.fire('filter:topicList.onNewPost', { post, preventAlert }).then((result) => {
+		hooks.fire('filter:topicList.onNewPost', { post, preventAlert }).then(result => {
 			if (result.preventAlert) {
 				return;
 			}
@@ -161,7 +171,10 @@ define('topicList', [
 		const afterEl = direction > 0 ? topics.last() : topics.first();
 		const after = (parseInt(afterEl.attr('data-index'), 10) || 0) + (direction > 0 ? 1 : 0);
 
-		if (!utils.isNumber(after) || (after === 0 && topicListEl.find('[component="category/topic"][data-index="0"]').length)) {
+		if (
+			!utils.isNumber(after) ||
+			(after === 0 && topicListEl.find('[component="category/topic"][data-index="0"]').length)
+		) {
 			return;
 		}
 
@@ -238,7 +251,11 @@ define('topicList', [
 			}
 
 			if (!topicSelect.getSelectedTids().length) {
-				infinitescroll.removeExtra(topicListEl.find('[component="category/topic"]'), direction, Math.max(60, config.topicsPerPage * 3));
+				infinitescroll.removeExtra(
+					topicListEl.find('[component="category/topic"]'),
+					direction,
+					Math.max(60, config.topicsPerPage * 3),
+				);
 			}
 
 			html.find('.timeago').timeago();

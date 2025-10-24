@@ -28,9 +28,9 @@ module.exports = {
 
 			await batch.processArray(
 				sessionKeys,
-				async (keys) => {
+				async keys => {
 					const multi = client.multi();
-					keys.forEach((key) => {
+					keys.forEach(key => {
 						progress.incr();
 						multi.del(key);
 					});
@@ -38,7 +38,7 @@ module.exports = {
 				},
 				{
 					batch: 1000,
-				}
+				},
 			);
 		} else if (db.client && db.client.collection) {
 			await db.client.collection('sessions').deleteMany({}, {});

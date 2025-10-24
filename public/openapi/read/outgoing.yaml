@@ -11,7 +11,7 @@ get:
       example: https://example.org
   description: This route presents a warning to a user notifying them that the page they are about to view is hosted externally. They then have the option of continuing onwards or going back to where they came from.
   responses:
-    "200":
+    '200':
       description: Warning page presented
       content:
         application/json:

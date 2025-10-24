@@ -68,10 +68,7 @@ async function getSitemapPages() {
 }
 
 sitemap.getPages = async function () {
-	if (
-		sitemap.maps.pages &&
-		Date.now() < sitemap.maps.pagesCacheExpireTimestamp
-	) {
+	if (sitemap.maps.pages && Date.now() < sitemap.maps.pagesCacheExpireTimestamp) {
 		return sitemap.maps.pages;
 	}
 
@@ -97,16 +94,13 @@ async function getSitemapCategories() {
 }
 
 sitemap.getCategories = async function () {
-	if (
-		sitemap.maps.categories &&
-		Date.now() < sitemap.maps.categoriesCacheExpireTimestamp
-	) {
+	if (sitemap.maps.categories && Date.now() < sitemap.maps.categoriesCacheExpireTimestamp) {
 		return sitemap.maps.categories;
 	}
 
 	const categoryUrls = [];
 	const categoriesData = await getSitemapCategories();
-	categoriesData.forEach((category) => {
+	categoriesData.forEach(category => {
 		if (category) {
 			categoryUrls.push({
 				url: `${nconf.get('relative_path')}/category/${category.slug}`,
@@ -118,14 +112,12 @@ sitemap.getCategories = async function () {
 
 	if (!categoryUrls.length) {
 		sitemap.maps.categories = '';
-		sitemap.maps.categoriesCacheExpireTimestamp =
-			Date.now() + 1000 * 60 * 60 * 24;
+		sitemap.maps.categoriesCacheExpireTimestamp = Date.now() + 1000 * 60 * 60 * 24;
 		return sitemap.maps.categories;
 	}
 
 	sitemap.maps.categories = await urlsToSitemap(categoryUrls);
-	sitemap.maps.categoriesCacheExpireTimestamp =
-		Date.now() + 1000 * 60 * 60 * 24;
+	sitemap.maps.categoriesCacheExpireTimestamp = Date.now() + 1000 * 60 * 60 * 24;
 	return sitemap.maps.categories;
 };
 
@@ -148,12 +140,7 @@ sitemap.getTopicPage = async function (page) {
 	const topicUrls = [];
 	let tids = await db.getSortedSetRange('topics:tid', start, stop);
 	tids = await privileges.topics.filterTids('topics:read', tids, 0);
-	const topicData = await topics.getTopicsFields(tids, [
-		'tid',
-		'title',
-		'slug',
-		'lastposttime',
-	]);
+	const topicData = await topics.getTopicsFields(tids, ['tid', 'title', 'slug', 'lastposttime']);
 
 	const data = await plugins.hooks.fire('filter:sitemap.getCategories', {
 		page: page,
@@ -168,7 +155,7 @@ sitemap.getTopicPage = async function (page) {
 		return sitemap.maps.topics[page - 1].sm;
 	}
 
-	data.topics.forEach((topic) => {
+	data.topics.forEach(topic => {
 		if (topic) {
 			topicUrls.push({
 				url: `${nconf.get('relative_path')}/topic/${topic.slug}`,
@@ -192,7 +179,7 @@ async function urlsToSitemap(urls) {
 		return '';
 	}
 	const smStream = new SitemapStream({ hostname: nconf.get('url') });
-	urls.forEach((url) => smStream.write(url));
+	urls.forEach(url => smStream.write(url));
 	smStream.end();
 	return (await streamToPromise(smStream)).toString();
 }
@@ -204,7 +191,7 @@ sitemap.clearCache = function () {
 	if (sitemap.maps.categories) {
 		sitemap.maps.categoriesCacheExpireTimestamp = 0;
 	}
-	sitemap.maps.topics.forEach((topicMap) => {
+	sitemap.maps.topics.forEach(topicMap => {
 		topicMap.cacheExpireTimestamp = 0;
 	});
 };

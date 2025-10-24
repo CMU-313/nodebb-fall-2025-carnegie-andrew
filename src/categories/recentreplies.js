@@ -16,7 +16,7 @@ module.exports = function (Categories) {
 		// backwards compatibility, treat start as count
 		if (stop === undefined && start > 0) {
 			winston.warn(
-				'[Categories.getRecentReplies] 3 params deprecated please use Categories.getRecentReplies(cid, uid, start, stop)'
+				'[Categories.getRecentReplies] 3 params deprecated please use Categories.getRecentReplies(cid, uid, start, stop)',
 			);
 			stop = start - 1;
 			start = 0;
@@ -31,7 +31,7 @@ module.exports = function (Categories) {
 			db.sortedSetCard(`cid:${cid}:recent_tids`),
 			db.getObjectField(
 				`${utils.isNumber(cid) ? 'category' : 'categoryRemote'}:${cid}`,
-				'numRecentReplies'
+				'numRecentReplies',
 			),
 		]);
 
@@ -39,18 +39,14 @@ module.exports = function (Categories) {
 			const data = await db.getSortedSetRangeWithScores(
 				`cid:${cid}:recent_tids`,
 				0,
-				count - numRecentReplies
+				count - numRecentReplies,
 			);
-			const shouldRemove = !(
-				data.length === 1 &&
-				count === 1 &&
-				data[0].value === String(tid)
-			);
+			const shouldRemove = !(data.length === 1 && count === 1 && data[0].value === String(tid));
 			if (data.length && shouldRemove) {
 				await db.sortedSetsRemoveRangeByScore(
 					[`cid:${cid}:recent_tids`],
 					'-inf',
-					data[data.length - 1].score
+					data[data.length - 1].score,
 				);
 			}
 		}
@@ -69,11 +65,7 @@ module.exports = function (Categories) {
 		let index = 0;
 		do {
 			/* eslint-disable no-await-in-loop */
-			const pids = await db.getSortedSetRevRange(
-				`cid:${cid}:pids`,
-				index,
-				index
-			);
+			const pids = await db.getSortedSetRevRange(`cid:${cid}:pids`, index, index);
 			if (!pids.length) {
 				return;
 			}
@@ -95,22 +87,19 @@ module.exports = function (Categories) {
 			return;
 		}
 		const categoriesToLoad = categoryData.filter(
-			(c) => c && c.numRecentReplies && parseInt(c.numRecentReplies, 10) > 0
+			c => c && c.numRecentReplies && parseInt(c.numRecentReplies, 10) > 0,
 		);
 		let keys = [];
 		if (plugins.hooks.hasListeners('filter:categories.getRecentTopicReplies')) {
-			const result = await plugins.hooks.fire(
-				'filter:categories.getRecentTopicReplies',
-				{
-					categories: categoriesToLoad,
-					uid: uid,
-					query: query,
-					keys: [],
-				}
-			);
+			const result = await plugins.hooks.fire('filter:categories.getRecentTopicReplies', {
+				categories: categoriesToLoad,
+				uid: uid,
+				query: query,
+				keys: [],
+			});
 			keys = result.keys;
 		} else {
-			keys = categoriesToLoad.map((c) => `cid:${c.cid}:recent_tids`);
+			keys = categoriesToLoad.map(c => `cid:${c.cid}:recent_tids`);
 		}
 
 		const results = await db.getSortedSetsMembers(keys);
@@ -133,20 +122,14 @@ module.exports = function (Categories) {
 			'cid',
 			'postcount',
 		]);
-		topicData.forEach((topic) => {
+		topicData.forEach(topic => {
 			if (topic) {
 				topic.teaserPid = topic.teaserPid || topic.mainPid;
 			}
 		});
-		const cids = _.uniq(
-			topicData.map((t) => t && t.cid).filter((cid) => parseInt(cid, 10))
-		);
-		const getToRoot = async () =>
-			await Promise.all(cids.map(Categories.getParentCids));
-		const [toRoot, teasers] = await Promise.all([
-			getToRoot(),
-			topics.getTeasers(topicData, uid),
-		]);
+		const cids = _.uniq(topicData.map(t => t && t.cid).filter(cid => parseInt(cid, 10)));
+		const getToRoot = async () => await Promise.all(cids.map(Categories.getParentCids));
+		const [toRoot, teasers] = await Promise.all([getToRoot(), topics.getTeasers(topicData, uid)]);
 		const cidToRoot = _.zipObject(cids, toRoot);
 
 		teasers.forEach((teaser, index) => {
@@ -166,26 +149,25 @@ module.exports = function (Categories) {
 	}
 
 	function assignTopicsToCategories(categories, topics) {
-		categories.forEach((category) => {
+		categories.forEach(category => {
 			if (category) {
 				category.posts = topics
 					.filter(
-						(t) =>
+						t =>
 							t.cid &&
-							(t.cid === category.cid ||
-								(t.parentCids && t.parentCids.includes(category.cid)))
+							(t.cid === category.cid || (t.parentCids && t.parentCids.includes(category.cid))),
 					)
 					.sort((a, b) => b.timestamp - a.timestamp)
 					.slice(0, parseInt(category.numRecentReplies, 10));
 			}
 		});
-		topics.forEach((t) => {
+		topics.forEach(t => {
 			t.parentCids = undefined;
 		});
 	}
 
 	function bubbleUpChildrenPosts(categoryData) {
-		categoryData.forEach((category) => {
+		categoryData.forEach(category => {
 			if (category) {
 				if (category.posts.length) {
 					return;
@@ -203,10 +185,10 @@ module.exports = function (Categories) {
 
 	function getPostsRecursive(category, posts) {
 		if (Array.isArray(category.posts)) {
-			category.posts.forEach((p) => posts.push(p));
+			category.posts.forEach(p => posts.push(p));
 		}
 
-		category.children.forEach((child) => getPostsRecursive(child, posts));
+		category.children.forEach(child => getPostsRecursive(child, posts));
 	}
 
 	// terrible name, should be topics.moveTopicPosts
@@ -218,7 +200,7 @@ module.exports = function (Categories) {
 
 		await batch.processArray(
 			pids,
-			async (pids) => {
+			async pids => {
 				const postData = await posts.getPostsFields(pids, [
 					'pid',
 					'deleted',
@@ -230,42 +212,29 @@ module.exports = function (Categories) {
 
 				const bulkRemove = [];
 				const bulkAdd = [];
-				postData.forEach((post) => {
+				postData.forEach(post => {
 					bulkRemove.push([`cid:${oldCid}:uid:${post.uid}:pids`, post.pid]);
-					bulkRemove.push([
-						`cid:${oldCid}:uid:${post.uid}:pids:votes`,
-						post.pid,
-					]);
-					bulkAdd.push([
-						`cid:${cid}:uid:${post.uid}:pids`,
-						post.timestamp,
-						post.pid,
-					]);
+					bulkRemove.push([`cid:${oldCid}:uid:${post.uid}:pids:votes`, post.pid]);
+					bulkAdd.push([`cid:${cid}:uid:${post.uid}:pids`, post.timestamp, post.pid]);
 					if (post.votes > 0 || post.votes < 0) {
-						bulkAdd.push([
-							`cid:${cid}:uid:${post.uid}:pids:votes`,
-							post.votes,
-							post.pid,
-						]);
+						bulkAdd.push([`cid:${cid}:uid:${post.uid}:pids:votes`, post.votes, post.pid]);
 					}
 				});
 
-				const postsToReAdd = postData.filter(
-					(p) => !p.deleted && !topicDeleted
-				);
-				const timestamps = postsToReAdd.map((p) => p && p.timestamp);
+				const postsToReAdd = postData.filter(p => !p.deleted && !topicDeleted);
+				const timestamps = postsToReAdd.map(p => p && p.timestamp);
 				await Promise.all([
 					db.sortedSetRemove(`cid:${oldCid}:pids`, pids),
 					db.sortedSetAdd(
 						`cid:${cid}:pids`,
 						timestamps,
-						postsToReAdd.map((p) => p.pid)
+						postsToReAdd.map(p => p.pid),
 					),
 					db.sortedSetRemoveBulk(bulkRemove),
 					db.sortedSetAddBulk(bulkAdd),
 				]);
 			},
-			{ batch: 500 }
+			{ batch: 500 },
 		);
 	};
 };

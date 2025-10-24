@@ -36,52 +36,50 @@ function enabledCheck(next) {
 	};
 }
 
-activitypubApi.follow = enabledCheck(
-	async (caller, { type, id, actor } = {}) => {
-		// Privilege checks should be done upstream
-		const acceptedTypes = ['uid', 'cid'];
-		const assertion = await activitypub.actors.assert(actor);
-		if (
-			!acceptedTypes.includes(type) ||
-			!assertion ||
-			(Array.isArray(assertion) && assertion.length)
-		) {
-			throw new Error('[[error:activitypub.invalid-id]]');
-		}
-
-		if (actor.includes('@')) {
-			const [uid, cid] = await Promise.all([
-				user.getUidByUserslug(actor),
-				categories.getCidByHandle(actor),
-			]);
-
-			actor = uid || cid;
-		}
-
-		const isFollowing = await db.isSortedSetMember(
-			type === 'uid' ? `followingRemote:${id}` : `cid:${id}:following`,
-			actor
-		);
-		if (isFollowing) {
-			// already following
-			return;
-		}
-
-		const timestamp = Date.now();
-
-		await db.sortedSetAdd(`followRequests:${type}.${id}`, timestamp, actor);
-		try {
-			await activitypub.send(type, id, [actor], {
-				id: `${nconf.get('url')}/${type}/${id}#activity/follow/${encodeURIComponent(actor)}/${timestamp}`,
-				type: 'Follow',
-				object: actor,
-			});
-		} catch (e) {
-			await db.sortedSetRemove(`followRequests:${type}.${id}`, actor);
-			throw e;
-		}
+activitypubApi.follow = enabledCheck(async (caller, { type, id, actor } = {}) => {
+	// Privilege checks should be done upstream
+	const acceptedTypes = ['uid', 'cid'];
+	const assertion = await activitypub.actors.assert(actor);
+	if (
+		!acceptedTypes.includes(type) ||
+		!assertion ||
+		(Array.isArray(assertion) && assertion.length)
+	) {
+		throw new Error('[[error:activitypub.invalid-id]]');
 	}
-);
+
+	if (actor.includes('@')) {
+		const [uid, cid] = await Promise.all([
+			user.getUidByUserslug(actor),
+			categories.getCidByHandle(actor),
+		]);
+
+		actor = uid || cid;
+	}
+
+	const isFollowing = await db.isSortedSetMember(
+		type === 'uid' ? `followingRemote:${id}` : `cid:${id}:following`,
+		actor,
+	);
+	if (isFollowing) {
+		// already following
+		return;
+	}
+
+	const timestamp = Date.now();
+
+	await db.sortedSetAdd(`followRequests:${type}.${id}`, timestamp, actor);
+	try {
+		await activitypub.send(type, id, [actor], {
+			id: `${nconf.get('url')}/${type}/${id}#activity/follow/${encodeURIComponent(actor)}/${timestamp}`,
+			type: 'Follow',
+			object: actor,
+		});
+	} catch (e) {
+		await db.sortedSetRemove(`followRequests:${type}.${id}`, actor);
+		throw e;
+	}
+});
 
 // should be .undo.follow
 activitypubApi.unfollow = enabledCheck(async (caller, { type, id, actor }) => {
@@ -101,14 +99,8 @@ activitypubApi.unfollow = enabledCheck(async (caller, { type, id, actor }) => {
 	}
 
 	const [isFollowing, isPending] = await Promise.all([
-		db.isSortedSetMember(
-			type === 'uid' ? `followingRemote:${id}` : `cid:${id}:following`,
-			actor
-		),
-		db.isSortedSetMember(
-			`followRequests:${type === 'uid' ? 'uid' : 'cid'}.${id}`,
-			actor
-		),
+		db.isSortedSetMember(type === 'uid' ? `followingRemote:${id}` : `cid:${id}:following`, actor),
+		db.isSortedSetMember(`followRequests:${type === 'uid' ? 'uid' : 'cid'}.${id}`, actor),
 	]);
 
 	if (!isFollowing && !isPending) {
@@ -121,7 +113,7 @@ activitypubApi.unfollow = enabledCheck(async (caller, { type, id, actor }) => {
 			`followRequests:${type}.${id}`,
 			type === 'uid' ? `followingRemote:${id}` : `cid:${id}:following`,
 		],
-		actor
+		actor,
 	);
 	const timestamp = timestamps[0] || timestamps[1];
 
@@ -163,9 +155,7 @@ activitypubApi.create = {};
 
 activitypubApi.create.note = enabledCheck(async (caller, { pid, post }) => {
 	if (!post) {
-		post = (
-			await posts.getPostSummaryByPids([pid], caller.uid, { stripTags: false })
-		).pop();
+		post = (await posts.getPostSummaryByPids([pid], caller.uid, { stripTags: false })).pop();
 		if (!post) {
 			return;
 		}
@@ -173,23 +163,15 @@ activitypubApi.create.note = enabledCheck(async (caller, { pid, post }) => {
 		pid = post.pid;
 	}
 
-	const allowed = await privileges.posts.can(
-		'topics:read',
-		pid,
-		activitypub._constants.uid
-	);
+	const allowed = await privileges.posts.can('topics:read', pid, activitypub._constants.uid);
 	if (!allowed) {
 		activitypub.helpers.log(
-			`[activitypub/api] Not federating creation of pid ${pid} to the fediverse due to privileges.`
+			`[activitypub/api] Not federating creation of pid ${pid} to the fediverse due to privileges.`,
 		);
 		return;
 	}
 
-	const { activity, targets } = await activitypub.mocks.activities.create(
-		pid,
-		caller.uid,
-		post
-	);
+	const { activity, targets } = await activitypub.mocks.activities.create(pid, caller.uid, post);
 
 	await Promise.all([
 		activitypub.send('uid', caller.uid, Array.from(targets), activity),
@@ -198,25 +180,23 @@ activitypubApi.create.note = enabledCheck(async (caller, { pid, post }) => {
 	]);
 });
 
-activitypubApi.create.privateNote = enabledCheck(
-	async (caller, { messageObj }) => {
-		const { roomId } = messageObj;
-		let targets = await messaging.getUidsInRoom(roomId, 0, -1);
-		targets = targets.filter((uid) => !utils.isNumber(uid)); // remote uids only
+activitypubApi.create.privateNote = enabledCheck(async (caller, { messageObj }) => {
+	const { roomId } = messageObj;
+	let targets = await messaging.getUidsInRoom(roomId, 0, -1);
+	targets = targets.filter(uid => !utils.isNumber(uid)); // remote uids only
 
-		const object = await activitypub.mocks.notes.private({ messageObj });
+	const object = await activitypub.mocks.notes.private({ messageObj });
 
-		const payload = {
-			id: `${object.id}#activity/create/${Date.now()}`,
-			type: 'Create',
-			actor: object.attributedTo,
-			to: object.to,
-			object,
-		};
+	const payload = {
+		id: `${object.id}#activity/create/${Date.now()}`,
+		type: 'Create',
+		actor: object.attributedTo,
+		to: object.to,
+		object,
+	};
 
-		await activitypub.send('uid', messageObj.fromuid, targets, payload);
-	}
-);
+	await activitypub.send('uid', messageObj.fromuid, targets, payload);
+});
 
 activitypubApi.update = {};
 
@@ -266,14 +246,10 @@ activitypubApi.update.note = enabledCheck(async (caller, { post }) => {
 	object.to = to;
 	object.cc = cc;
 
-	const allowed = await privileges.posts.can(
-		'topics:read',
-		post.pid,
-		activitypub._constants.uid
-	);
+	const allowed = await privileges.posts.can('topics:read', post.pid, activitypub._constants.uid);
 	if (!allowed) {
 		activitypub.helpers.log(
-			`[activitypub/api] Not federating update of pid ${post.pid} to the fediverse due to privileges.`
+			`[activitypub/api] Not federating update of pid ${post.pid} to the fediverse due to privileges.`,
 		);
 		return;
 	}
@@ -293,33 +269,29 @@ activitypubApi.update.note = enabledCheck(async (caller, { post }) => {
 	]);
 });
 
-activitypubApi.update.privateNote = enabledCheck(
-	async (caller, { messageObj }) => {
-		if (!utils.isNumber(messageObj.mid)) {
-			return;
-		}
-
-		const { roomId } = messageObj;
-		let uids = await messaging.getUidsInRoom(roomId, 0, -1);
-		uids = uids.filter((uid) => String(uid) !== String(messageObj.fromuid)); // no author
-		const to = uids.map((uid) =>
-			utils.isNumber(uid) ? `${nconf.get('url')}/uid/${uid}` : uid
-		);
-		const targets = uids.filter((uid) => !utils.isNumber(uid)); // remote uids only
-
-		const object = await activitypub.mocks.notes.private({ messageObj });
-
-		const payload = {
-			id: `${object.id}#activity/create/${Date.now()}`,
-			type: 'Update',
-			actor: object.attributedTo,
-			to,
-			object,
-		};
-
-		await activitypub.send('uid', caller.uid, targets, payload);
+activitypubApi.update.privateNote = enabledCheck(async (caller, { messageObj }) => {
+	if (!utils.isNumber(messageObj.mid)) {
+		return;
 	}
-);
+
+	const { roomId } = messageObj;
+	let uids = await messaging.getUidsInRoom(roomId, 0, -1);
+	uids = uids.filter(uid => String(uid) !== String(messageObj.fromuid)); // no author
+	const to = uids.map(uid => (utils.isNumber(uid) ? `${nconf.get('url')}/uid/${uid}` : uid));
+	const targets = uids.filter(uid => !utils.isNumber(uid)); // remote uids only
+
+	const object = await activitypub.mocks.notes.private({ messageObj });
+
+	const payload = {
+		id: `${object.id}#activity/create/${Date.now()}`,
+		type: 'Update',
+		actor: object.attributedTo,
+		to,
+		object,
+	};
+
+	await activitypub.send('uid', caller.uid, targets, payload);
+});
 
 activitypubApi.delete = {};
 
@@ -330,23 +302,17 @@ activitypubApi.delete.note = enabledCheck(async (caller, { pid }) => {
 	}
 
 	const id = `${nconf.get('url')}/post/${pid}`;
-	const post = (
-		await posts.getPostSummaryByPids([pid], caller.uid, { stripTags: false })
-	).pop();
+	const post = (await posts.getPostSummaryByPids([pid], caller.uid, { stripTags: false })).pop();
 	const object = await activitypub.mocks.notes.public(post);
 	const { to, cc, targets } = await activitypub.buildRecipients(object, {
 		pid,
 		uid: post.user.uid,
 	});
 
-	const allowed = await privileges.posts.can(
-		'topics:read',
-		pid,
-		activitypub._constants.uid
-	);
+	const allowed = await privileges.posts.can('topics:read', pid, activitypub._constants.uid);
 	if (!allowed) {
 		activitypub.helpers.log(
-			`[activitypub/api] Not federating update of pid ${pid} to the fediverse due to privileges.`
+			`[activitypub/api] Not federating update of pid ${pid} to the fediverse due to privileges.`,
 		);
 		return;
 	}
@@ -397,10 +363,7 @@ activitypubApi.like.note = enabledCheck(async (caller, { pid }) => {
 activitypubApi.announce = {};
 
 activitypubApi.announce.note = enabledCheck(async (caller, { tid }) => {
-	const { mainPid: pid, cid } = await topics.getTopicFields(tid, [
-		'mainPid',
-		'cid',
-	]);
+	const { mainPid: pid, cid } = await topics.getTopicFields(tid, ['mainPid', 'cid']);
 
 	// Only remote posts can be announced to real categories
 	if (utils.isNumber(pid) || parseInt(cid, 10) === -1) {
@@ -408,14 +371,10 @@ activitypubApi.announce.note = enabledCheck(async (caller, { tid }) => {
 	}
 
 	const uid = await posts.getPostField(pid, 'uid'); // author
-	const allowed = await privileges.posts.can(
-		'topics:read',
-		pid,
-		activitypub._constants.uid
-	);
+	const allowed = await privileges.posts.can('topics:read', pid, activitypub._constants.uid);
 	if (!allowed) {
 		activitypub.helpers.log(
-			`[activitypub/api] Not federating announce of pid ${pid} to the fediverse due to privileges.`
+			`[activitypub/api] Not federating announce of pid ${pid} to the fediverse due to privileges.`,
 		);
 		return;
 	}
@@ -426,7 +385,7 @@ activitypubApi.announce.note = enabledCheck(async (caller, { tid }) => {
 			to: [activitypub._constants.publicAddress],
 			cc: [`${nconf.get('url')}/uid/${caller.uid}/followers`, uid],
 		},
-		{ uid: caller.uid }
+		{ uid: caller.uid },
 	);
 
 	await activitypub.send('uid', caller.uid, Array.from(targets), {
@@ -483,8 +442,7 @@ activitypubApi.flag = enabledCheck(async (caller, flag) => {
 	const reason =
 		flag.reason ||
 		(flag.reports &&
-			flag.reports.filter((report) => report.reporter.uid === caller.uid).at(-1)
-				.value);
+			flag.reports.filter(report => report.reporter.uid === caller.uid).at(-1).value);
 	await activitypub.send('uid', caller.uid, reportedIds, {
 		id: `${nconf.get('url')}/${flag.type}/${encodeURIComponent(flag.targetId)}#activity/flag/${caller.uid}`,
 		type: 'Flag',
@@ -534,8 +492,7 @@ activitypubApi.undo.flag = enabledCheck(async (caller, flag) => {
 	const reason =
 		flag.reason ||
 		(flag.reports &&
-			flag.reports.filter((report) => report.reporter.uid === caller.uid).at(-1)
-				.value);
+			flag.reports.filter(report => report.reporter.uid === caller.uid).at(-1).value);
 	await activitypub.send('uid', caller.uid, reportedIds, {
 		id: `${nconf.get('url')}/${flag.type}/${encodeURIComponent(flag.targetId)}#activity/undo:flag/${caller.uid}/${Date.now()}`,
 		type: 'Undo',

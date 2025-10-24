@@ -37,27 +37,19 @@ module.exports = function (SocketTopics) {
 
 	SocketTopics.autocompleteTags = async function (socket, data) {
 		if (data.cid) {
-			const canRead = await privileges.categories.can(
-				'topics:read',
-				data.cid,
-				socket.uid
-			);
+			const canRead = await privileges.categories.can('topics:read', data.cid, socket.uid);
 			if (!canRead) {
 				throw new Error('[[error:no-privileges]]');
 			}
 		}
-		data.cids = await categories.getCidsByPrivilege(
-			'categories:cid',
-			socket.uid,
-			'topics:read'
-		);
+		data.cids = await categories.getCidsByPrivilege('categories:cid', socket.uid, 'topics:read');
 		const result = await topics.autocompleteTags(data);
-		return result.map((tag) => tag.value);
+		return result.map(tag => tag.value);
 	};
 
 	SocketTopics.searchTags = async function (socket, data) {
 		const result = await searchTags(socket.uid, topics.searchTags, data);
-		return result.map((tag) => tag.value);
+		return result.map(tag => tag.value);
 	};
 
 	SocketTopics.searchAndLoadTags = async function (socket, data) {
@@ -70,21 +62,13 @@ module.exports = function (SocketTopics) {
 			throw new Error('[[error:no-privileges]]');
 		}
 		if (data.cid) {
-			const canRead = await privileges.categories.can(
-				'topics:read',
-				data.cid,
-				uid
-			);
+			const canRead = await privileges.categories.can('topics:read', data.cid, uid);
 			if (!canRead) {
 				throw new Error('[[error:no-privileges]]');
 			}
 		}
-		data.cids = await categories.getCidsByPrivilege(
-			'categories:cid',
-			uid,
-			'topics:read'
-		);
-		data.cids = data.cids.filter((cid) => cid !== -1);
+		data.cids = await categories.getCidsByPrivilege('categories:cid', uid, 'topics:read');
+		data.cids = data.cids.filter(cid => cid !== -1);
 		return await method(data);
 	}
 
@@ -92,19 +76,11 @@ module.exports = function (SocketTopics) {
 	SocketTopics.tagFilterSearch = async function (socket, data) {
 		let cids = [];
 		if (Array.isArray(data.cids)) {
-			cids = await privileges.categories.filterCids(
-				'topics:read',
-				data.cids,
-				socket.uid
-			);
+			cids = await privileges.categories.filterCids('topics:read', data.cids, socket.uid);
 		} else {
 			// if no cids passed in get all cids we can read
-			cids = await categories.getCidsByPrivilege(
-				'categories:cid',
-				socket.uid,
-				'topics:read'
-			);
-			cids = cids.filter((cid) => cid !== -1);
+			cids = await categories.getCidsByPrivilege('categories:cid', socket.uid, 'topics:read');
+			cids = cids.filter(cid => cid !== -1);
 		}
 
 		let tags = [];
@@ -123,7 +99,7 @@ module.exports = function (SocketTopics) {
 			tags = await topics.getCategoryTagsData(cids, 0, 39);
 		}
 
-		return tags.filter((t) => t.score > 0);
+		return tags.filter(t => t.score > 0);
 	};
 
 	SocketTopics.loadMoreTags = async function (socket, data) {
@@ -133,12 +109,8 @@ module.exports = function (SocketTopics) {
 
 		const start = parseInt(data.after, 10);
 		const stop = start + 99;
-		let cids = await categories.getCidsByPrivilege(
-			'categories:cid',
-			socket.uid,
-			'topics:read'
-		);
-		cids = cids.filter((cid) => cid !== -1);
+		let cids = await categories.getCidsByPrivilege('categories:cid', socket.uid, 'topics:read');
+		cids = cids.filter(cid => cid !== -1);
 		const tags = await topics.getCategoryTagsData(cids, start, stop);
 		return { tags: tags.filter(Boolean), nextStart: stop + 1 };
 	};

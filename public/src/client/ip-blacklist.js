@@ -13,7 +13,15 @@ import * as Benchpress from 'benchpressjs';
 import * as bootbox from 'bootbox';
 import * as alerts from '../modules/alerts';
 
-Chart.register(LineController, CategoryScale, LinearScale, LineElement, PointElement, Tooltip, Filler);
+Chart.register(
+	LineController,
+	CategoryScale,
+	LinearScale,
+	LineElement,
+	PointElement,
+	Tooltip,
+	Filler,
+);
 
 export function init() {
 	const blacklist = $('#blacklist-rules');
@@ -36,17 +44,21 @@ export function init() {
 	});
 
 	$('[data-action="test"]').on('click', function () {
-		socket.emit('blacklist.validate', {
-			rules: blacklist.val(),
-		}, function (err, data) {
-			if (err) {
-				return alerts.error(err);
-			}
+		socket.emit(
+			'blacklist.validate',
+			{
+				rules: blacklist.val(),
+			},
+			function (err, data) {
+				if (err) {
+					return alerts.error(err);
+				}
 
-			Benchpress.render('admin/partials/blacklist-validate', data).then(function (html) {
-				bootbox.alert(html);
-			});
-		});
+				Benchpress.render('admin/partials/blacklist-validate', data).then(function (html) {
+					bootbox.alert(html);
+				});
+			},
+		);
 	});
 
 	setupAnalytics();
@@ -58,9 +70,12 @@ export function setupAnalytics() {
 	const hourlyLabels = utils.getHoursArray().map(function (text, idx) {
 		return idx % 3 ? '' : text;
 	});
-	const dailyLabels = utils.getDaysArray().slice(-7).map(function (text, idx) {
-		return idx % 3 ? '' : text;
-	});
+	const dailyLabels = utils
+		.getDaysArray()
+		.slice(-7)
+		.map(function (text, idx) {
+			return idx % 3 ? '' : text;
+		});
 
 	if (utils.isMobile()) {
 		Chart.defaults.plugins.tooltip.enabled = false;
@@ -126,4 +141,3 @@ export function setupAnalytics() {
 		options: chartOpts,
 	});
 }
-

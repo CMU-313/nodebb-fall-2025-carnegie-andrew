@@ -1,17 +1,17 @@
 {
-	"rewards": "Récompenses",
-	"add-reward": "Nouvelle récompense",
-	"condition-if-users": "Si la propriété de l'utilisateur",
-	"condition-is": "Est :",
-	"condition-then": "Alors :",
-	"max-claims": "Nombre de fois que la récompense peut-être obtenue",
-	"zero-infinite": "Entrez 0 pour infini",
-	"select-reward": "Sélectionner une récompense",
-	"delete": "Supprimer",
-	"enable": "Activer",
-	"disable": "Désactiver",
+  "rewards": "Récompenses",
+  "add-reward": "Nouvelle récompense",
+  "condition-if-users": "Si la propriété de l'utilisateur",
+  "condition-is": "Est :",
+  "condition-then": "Alors :",
+  "max-claims": "Nombre de fois que la récompense peut-être obtenue",
+  "zero-infinite": "Entrez 0 pour infini",
+  "select-reward": "Sélectionner une récompense",
+  "delete": "Supprimer",
+  "enable": "Activer",
+  "disable": "Désactiver",
 
-	"alert.delete-success": "Récompense supprimée",
-	"alert.no-inputs-found": "Récompense invalide - aucune entrée trouvée !",
-	"alert.save-success": "Récompenses sauvegardées"
+  "alert.delete-success": "Récompense supprimée",
+  "alert.no-inputs-found": "Récompense invalide - aucune entrée trouvée !",
+  "alert.save-success": "Récompenses sauvegardées"
 }

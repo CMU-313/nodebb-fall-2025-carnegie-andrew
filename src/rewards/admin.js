@@ -21,7 +21,7 @@ rewards.save = async function (data) {
 			await db.sortedSetAdd('rewards:list', index, data.id);
 			await db.setObject(`rewards:id:${data.id}`, data);
 			await db.setObject(`rewards:id:${data.id}:rewards`, rewardsData);
-		})
+		}),
 	);
 	await saveConditions(data);
 	return data;
@@ -49,26 +49,25 @@ async function saveConditions(data) {
 	await db.delete('conditions:active');
 	const conditions = [];
 
-	data.forEach((reward) => {
+	data.forEach(reward => {
 		conditions.push(reward.condition);
-		rewardsPerCondition[reward.condition] =
-			rewardsPerCondition[reward.condition] || [];
+		rewardsPerCondition[reward.condition] = rewardsPerCondition[reward.condition] || [];
 		rewardsPerCondition[reward.condition].push(reward.id);
 	});
 
 	await db.setAdd('conditions:active', conditions);
 
 	await Promise.all(
-		Object.keys(rewardsPerCondition).map((c) =>
-			db.setAdd(`condition:${c}:rewards`, rewardsPerCondition[c])
-		)
+		Object.keys(rewardsPerCondition).map(c =>
+			db.setAdd(`condition:${c}:rewards`, rewardsPerCondition[c]),
+		),
 	);
 }
 
 async function getActiveRewards() {
 	const rewardsList = await db.getSortedSetRange('rewards:list', 0, -1);
 	const rewardData = await Promise.all(
-		rewardsList.map(async (id) => {
+		rewardsList.map(async id => {
 			const [main, rewards] = await Promise.all([
 				db.getObject(`rewards:id:${id}`),
 				db.getObject(`rewards:id:${id}:rewards`),
@@ -78,7 +77,7 @@ async function getActiveRewards() {
 				main.rewards = rewards;
 			}
 			return main;
-		})
+		}),
 	);
 	return rewardData.filter(Boolean);
 }

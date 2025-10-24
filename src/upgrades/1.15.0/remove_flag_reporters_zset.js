@@ -12,15 +12,11 @@ module.exports = {
 
 		await batch.processSortedSet(
 			'flags:datetime',
-			async (flagIds) => {
+			async flagIds => {
 				await Promise.all(
-					flagIds.map(async (flagId) => {
+					flagIds.map(async flagId => {
 						const [reports, reporterUids] = await Promise.all([
-							db.getSortedSetRevRangeWithScores(
-								`flag:${flagId}:reports`,
-								0,
-								-1
-							),
+							db.getSortedSetRevRangeWithScores(`flag:${flagId}:reports`, 0, -1),
 							db.getSortedSetRevRange(`flag:${flagId}:reporters`, 0, -1),
 						]);
 
@@ -35,13 +31,13 @@ module.exports = {
 
 						await db.delete(`flag:${flagId}:reports`);
 						await db.sortedSetAddBulk(values);
-					})
+					}),
 				);
 			},
 			{
 				batch: 500,
 				progress: progress,
-			}
+			},
 		);
 	},
 };

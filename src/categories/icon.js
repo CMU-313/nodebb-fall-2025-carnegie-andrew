@@ -16,71 +16,58 @@ Icons._constants = Object.freeze({
 	extensions: ['svg', 'png'],
 });
 
-Icons.get = async (cid) => {
+Icons.get = async cid => {
 	try {
-		const paths = Icons._constants.extensions.map((extension) =>
-			path.resolve(
-				nconf.get('upload_path'),
-				'category',
-				`category-${cid}-icon.${extension}`
-			)
+		const paths = Icons._constants.extensions.map(extension =>
+			path.resolve(nconf.get('upload_path'), 'category', `category-${cid}-icon.${extension}`),
 		);
 		await Promise.all(
-			paths.map(async (path) => {
+			paths.map(async path => {
 				await fs.access(path);
-			})
+			}),
 		);
 
 		return new Map(
 			Object.entries({
 				svg: `${nconf.get('upload_url')}/category/category-${cid}-icon.svg`,
 				png: `${nconf.get('upload_url')}/category/category-${cid}-icon.png`,
-			})
+			}),
 		);
 	} catch (e) {
 		return await Icons.regenerate(cid);
 	}
 };
 
-Icons.flush = async (cid) => {
+Icons.flush = async cid => {
 	winston.verbose(`[categories/icons] Flushing ${cid}.`);
-	const paths = Icons._constants.extensions.map((extension) =>
-		path.resolve(
-			nconf.get('upload_path'),
-			'category',
-			`category-${cid}-icon.${extension}`
-		)
+	const paths = Icons._constants.extensions.map(extension =>
+		path.resolve(nconf.get('upload_path'), 'category', `category-${cid}-icon.${extension}`),
 	);
 
-	await Promise.all(
-		paths.map(async (path) => await fs.rm(path, { force: true }))
-	);
+	await Promise.all(paths.map(async path => await fs.rm(path, { force: true })));
 };
 
-Icons.regenerate = async (cid) => {
+Icons.regenerate = async cid => {
 	winston.verbose(`[categories/icons] Regenerating ${cid}.`);
 	const { icon, color, bgColor } = await categories.getCategoryData(cid);
 
 	const fontPaths = new Map(
 		Object.entries({
-			regular: path.join(
-				utils.getFontawesomePath(),
-				'webfonts/fa-regular-400.ttf'
-			),
+			regular: path.join(utils.getFontawesomePath(), 'webfonts/fa-regular-400.ttf'),
 			solid: path.join(utils.getFontawesomePath(), 'webfonts/fa-solid-900.ttf'),
-		})
+		}),
 	);
 	const fontBuffers = new Map(
 		Object.entries({
 			regular: await fs.readFile(fontPaths.get('regular')),
 			solid: await fs.readFile(fontPaths.get('solid')),
-		})
+		}),
 	);
 
 	// Retrieve unicode codepoint (hex) and weight
 	let metadata = await fs.readFile(
 		path.join(utils.getFontawesomePath(), 'metadata/icon-families.json'),
-		'utf-8'
+		'utf-8',
 	);
 	metadata = JSON.parse(metadata); // needs try..catch wrapper
 	let iconString = icon.slice(3);
@@ -125,33 +112,25 @@ Icons.regenerate = async (cid) => {
 					style: 'normal',
 				},
 			],
-		}
+		},
 	);
 	await fs.writeFile(
-		path.resolve(
-			nconf.get('upload_path'),
-			'category',
-			`category-${cid}-icon.svg`
-		),
-		svg
+		path.resolve(nconf.get('upload_path'), 'category', `category-${cid}-icon.svg`),
+		svg,
 	);
 
 	// Generate and save PNG
 	const pngBuffer = await sharp(Buffer.from(svg)).png().toBuffer();
 
 	await fs.writeFile(
-		path.resolve(
-			nconf.get('upload_path'),
-			'category',
-			`category-${cid}-icon.png`
-		),
-		pngBuffer
+		path.resolve(nconf.get('upload_path'), 'category', `category-${cid}-icon.png`),
+		pngBuffer,
 	);
 
 	return new Map(
 		Object.entries({
 			svg: `${nconf.get('upload_url')}/category/category-${cid}-icon.svg`,
 			png: `${nconf.get('upload_url')}/category/category-${cid}-icon.png`,
-		})
+		}),
 	);
 };

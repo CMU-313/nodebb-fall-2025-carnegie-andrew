@@ -1,9 +1,11 @@
 'use strict';
 
-
-define('forum/chats/create', [
-	'components', 'api', 'alerts', 'forum/chats/user-search',
-], function (components, api, alerts, userSearch) {
+define('forum/chats/create', ['components', 'api', 'alerts', 'forum/chats/user-search'], function (
+	components,
+	api,
+	alerts,
+	userSearch,
+) {
 	const create = {};
 	create.init = function () {
 		components.get('chat/create').on('click', handleCreate);
@@ -13,10 +15,12 @@ define('forum/chats/create', [
 		let groups = [];
 		if (app.user.isAdmin) {
 			({ groups } = await api.get('/admin/groups'));
-			groups.sort((a, b) => b.system - a.system).map((g) => {
-				const { name, displayName } = g;
-				return { name, displayName };
-			});
+			groups
+				.sort((a, b) => b.system - a.system)
+				.map(g => {
+					const { name, displayName } = g;
+					return { name, displayName };
+				});
 		}
 		const html = await app.parseAndTranslate('modals/create-room', {
 			user: app.user,
@@ -33,9 +37,11 @@ define('forum/chats/create', [
 					className: 'btn-primary',
 					callback: function () {
 						const roomName = modal.find('[component="chat/room/name"]').val();
-						const uids = modal.find('[component="chat/room/users"] [component="chat/user"]').find('[data-uid]').map(
-							(i, el) => $(el).attr('data-uid')
-						).get();
+						const uids = modal
+							.find('[component="chat/room/users"] [component="chat/user"]')
+							.find('[data-uid]')
+							.map((i, el) => $(el).attr('data-uid'))
+							.get();
 						const type = modal.find('[component="chat/room/type"]').val();
 						const groups = modal.find('[component="chat/room/groups"]').val();
 
@@ -52,15 +58,18 @@ define('forum/chats/create', [
 							return false;
 						}
 
-						api.post(`/chats`, {
-							roomName: roomName,
-							uids: uids,
-							type: type,
-							groups: groups,
-						}).then(({ roomId }) => {
-							ajaxify.go('chats/' + roomId);
-							modal.modal('hide');
-						}).catch(alerts.error);
+						api
+							.post(`/chats`, {
+								roomName: roomName,
+								uids: uids,
+								type: type,
+								groups: groups,
+							})
+							.then(({ roomId }) => {
+								ajaxify.go('chats/' + roomId);
+								modal.modal('hide');
+							})
+							.catch(alerts.error);
 						return false;
 					},
 				},
@@ -71,7 +80,9 @@ define('forum/chats/create', [
 
 		userSearch.init({
 			onSelect: async function (user) {
-				const html = await app.parseAndTranslate('modals/create-room', 'selectedUsers', { selectedUsers: [user] });
+				const html = await app.parseAndTranslate('modals/create-room', 'selectedUsers', {
+					selectedUsers: [user],
+				});
 				chatRoomUsersList.append(html);
 			},
 		});
@@ -80,10 +91,11 @@ define('forum/chats/create', [
 			$(this).parents('[data-uid]').remove();
 		});
 
-
 		modal.find('[component="chat/room/type"]').on('change', function () {
 			const type = $(this).val();
-			modal.find('[component="chat/room/public/options"]').toggleClass('hidden', type === 'private');
+			modal
+				.find('[component="chat/room/public/options"]')
+				.toggleClass('hidden', type === 'private');
 		});
 	}
 

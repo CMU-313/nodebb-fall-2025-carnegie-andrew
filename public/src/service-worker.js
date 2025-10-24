@@ -5,7 +5,7 @@ self.addEventListener('install', () => {
 	self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', event => {
 	// Take responsibility over existing clients from old service worker
 	event.waitUntil(self.clients.claim());
 });
@@ -19,11 +19,13 @@ self.addEventListener('fetch', function (event) {
 		return;
 	}
 
-	event.respondWith(caches.match(event.request).then(function (response) {
-		if (!response) {
-			return fetch(event.request);
-		}
+	event.respondWith(
+		caches.match(event.request).then(function (response) {
+			if (!response) {
+				return fetch(event.request);
+			}
 
-		return response;
-	}));
+			return response;
+		}),
+	);
 });

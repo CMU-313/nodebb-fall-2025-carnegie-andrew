@@ -99,8 +99,7 @@ Controllers.reset = async function (req, res) {
 
 Controllers.login = async function (req, res) {
 	const data = { loginFormEntry: [] };
-	const loginStrategies =
-		require('../routes/authentication').getLoginStrategies();
+	const loginStrategies = require('../routes/authentication').getLoginStrategies();
 	const registrationType = meta.config.registrationType || 'normal';
 	const allowLoginWith = meta.config.allowLoginWith || 'username-email';
 
@@ -118,9 +117,7 @@ Controllers.login = async function (req, res) {
 	// Occasionally, x-return-to is passed a full url.
 	req.session.returnTo =
 		req.session.returnTo &&
-		req.session.returnTo
-			.replace(nconf.get('base_url'), '')
-			.replace(nconf.get('relative_path'), '');
+		req.session.returnTo.replace(nconf.get('base_url'), '').replace(nconf.get('relative_path'), '');
 
 	data.alternate_logins = loginStrategies.length > 0;
 	data.authentication = loginStrategies;
@@ -135,14 +132,11 @@ Controllers.login = async function (req, res) {
 	data.title = '[[pages:login]]';
 	data.allowPasswordReset = !meta.config['password:disableEdit'];
 
-	const loginPrivileges = await privilegesHelpers.getGroupPrivileges(0, [
-		'groups:local:login',
-	]);
+	const loginPrivileges = await privilegesHelpers.getGroupPrivileges(0, ['groups:local:login']);
 	const hasLoginPrivilege = !!loginPrivileges.find(
-		(privilege) => privilege.privileges['groups:local:login']
+		privilege => privilege.privileges['groups:local:login'],
 	);
-	data.allowLocalLogin =
-		hasLoginPrivilege || parseInt(req.query.local, 10) === 1;
+	data.allowLocalLogin = hasLoginPrivilege || parseInt(req.query.local, 10) === 1;
 
 	if (
 		!data.allowLocalLogin &&
@@ -172,16 +166,13 @@ Controllers.register = async function (req, res, next) {
 	let errorText;
 	const returnTo = (req.headers['x-return-to'] || '').replace(
 		nconf.get('base_url') + nconf.get('relative_path'),
-		''
+		'',
 	);
 	if (req.query.error === 'csrf-invalid') {
 		errorText = '[[error:csrf-invalid]]';
 	}
 	try {
-		if (
-			registrationType === 'invite-only' ||
-			registrationType === 'admin-invite-only'
-		) {
+		if (registrationType === 'invite-only' || registrationType === 'admin-invite-only') {
 			try {
 				await user.verifyInvitation(req.query);
 			} catch (e) {
@@ -195,12 +186,9 @@ Controllers.register = async function (req, res, next) {
 			req.session.returnTo = returnTo;
 		}
 
-		const loginStrategies =
-			require('../routes/authentication').getLoginStrategies();
+		const loginStrategies = require('../routes/authentication').getLoginStrategies();
 		res.render('register', {
-			'register_window:spansize': loginStrategies.length
-				? 'col-md-6'
-				: 'col-md-12',
+			'register_window:spansize': loginStrategies.length ? 'col-md-6' : 'col-md-12',
 			alternate_logins: !!loginStrategies.length,
 			authentication: loginStrategies,
 
@@ -231,18 +219,17 @@ Controllers.registerInterstitial = async function (req, res, next) {
 
 		if (!data.interstitials.length) {
 			// No interstitials, redirect to home
-			const returnTo =
-				req.session.returnTo || req.session.registration.returnTo;
+			const returnTo = req.session.returnTo || req.session.registration.returnTo;
 			delete req.session.registration;
 			return helpers.redirect(res, returnTo || '/');
 		}
 
 		const errors = req.flash('errors');
-		const renders = data.interstitials.map((interstitial) =>
+		const renders = data.interstitials.map(interstitial =>
 			req.app.renderAsync(interstitial.template, {
 				...(interstitial.data || {}),
 				errors,
-			})
+			}),
 		);
 		const sections = await Promise.all(renders);
 
@@ -277,10 +264,7 @@ Controllers.confirmEmail = async (req, res) => {
 
 		renderPage();
 	} catch (e) {
-		if (
-			e.message === '[[error:invalid-data]]' ||
-			e.message === '[[error:confirm-email-expired]]'
-		) {
+		if (e.message === '[[error:invalid-data]]' || e.message === '[[error:confirm-email-expired]]') {
 			renderPage({ error: true });
 			return;
 		}
@@ -296,12 +280,10 @@ Controllers.robots = function (req, res) {
 		res.send(meta.config['robots:txt']);
 	} else {
 		res.send(
-			`${
-				'User-agent: *\n' + 'Disallow: '
-			}${nconf.get('relative_path')}/admin/\n` +
+			`${'User-agent: *\n' + 'Disallow: '}${nconf.get('relative_path')}/admin/\n` +
 				`Disallow: ${nconf.get('relative_path')}/reset/\n` +
 				`Disallow: ${nconf.get('relative_path')}/compose\n` +
-				`Sitemap: ${nconf.get('url')}/sitemap.xml`
+				`Sitemap: ${nconf.get('url')}/sitemap.xml`,
 		);
 	}
 };
@@ -361,7 +343,7 @@ Controllers.manifest = async function (req, res) {
 				sizes: '512x512',
 				type: 'image/png',
 				density: 10.0,
-			}
+			},
 		);
 	}
 
@@ -413,11 +395,7 @@ Controllers.outgoing = function (req, res, next) {
 	];
 	const parsed = require('url').parse(url);
 
-	if (
-		!url ||
-		!parsed.protocol ||
-		!allowedProtocols.includes(parsed.protocol.slice(0, -1))
-	) {
+	if (!url || !parsed.protocol || !allowedProtocols.includes(parsed.protocol.slice(0, -1))) {
 		return next();
 	}
 

@@ -20,13 +20,13 @@ module.exports = {
 						progress.incr();
 						db.deleteObjectField(`user:${uid}`, 'rss_token', next);
 					},
-					next
+					next,
 				);
 			},
 			{
 				progress: progress,
 			},
-			callback
+			callback,
 		);
 	},
 };

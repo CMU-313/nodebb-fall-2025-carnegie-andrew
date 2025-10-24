@@ -15,5 +15,5 @@ get:
         type: string
       example: 1
   responses:
-    "200":
-      description: "Canonical URL of user profile page"
+    '200':
+      description: 'Canonical URL of user profile page'

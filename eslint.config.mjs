@@ -9,6 +9,10 @@ import stylisticJs from '@stylistic/eslint-plugin-js';
 import js from '@eslint/js';
 import globals from 'globals';
 
+// NEW: Prettier integration for flat config
+import prettier from 'eslint-plugin-prettier';
+import eslintConfigPrettier from 'eslint-config-prettier';
+
 export default defineConfig([
   {
     ignores: [
@@ -59,6 +63,26 @@ export default defineConfig([
       'no-prototype-builtins': 'off',
     },
   },
+
   ...publicConfig,
   ...serverConfig,
+
+  // === OUR PRETTIER LAYER (place near the end) ===
+  {
+    files: ['**/*.{js,cjs,mjs}'],
+    plugins: { prettier },
+    rules: {
+      // Treat Prettier formatting issues as ESLint errors
+      'prettier/prettier': 'error',
+
+      // Silence style-only rules Prettier already handles or that are too noisy
+      '@stylistic/js/arrow-parens': 'off',
+      '@stylistic/js/operator-linebreak': 'off',
+      '@stylistic/js/function-paren-newline': 'off',
+      '@stylistic/js/no-mixed-operators': 'off',
+    },
+  },
+
+  // Disable remaining conflicting stylistic rules
+  eslintConfigPrettier,
 ]);

@@ -14,10 +14,7 @@ const helpers = require('./helpers');
 exports.handleURIErrors = async function handleURIErrors(err, req, res, next) {
 	// Handle cases where malformed URIs are passed in
 	if (err instanceof URIError) {
-		const cleanPath = req.path.replace(
-			new RegExp(`^${nconf.get('relative_path')}`),
-			''
-		);
+		const cleanPath = req.path.replace(new RegExp(`^${nconf.get('relative_path')}`), '');
 		const tidMatch = cleanPath.match(/^\/topic\/(\d+)\//);
 		const cidMatch = cleanPath.match(/^\/category\/(\d+)\//);
 
@@ -33,9 +30,7 @@ exports.handleURIErrors = async function handleURIErrors(err, req, res, next) {
 				});
 			} else {
 				await middleware.buildHeaderAsync(req, res);
-				res
-					.status(400)
-					.render('400', { error: validator.escape(String(err.message)) });
+				res.status(400).render('400', { error: validator.escape(String(err.message)) });
 			}
 		}
 	} else {
@@ -45,8 +40,8 @@ exports.handleURIErrors = async function handleURIErrors(err, req, res, next) {
 
 // this needs to have four arguments or express treats it as `(req, res, next)`
 // don't remove `next`!
+// eslint-disable-next-line no-unused-vars
 exports.handleErrors = async function handleErrors(err, req, res, next) {
-	// eslint-disable-line no-unused-vars
 	const cases = {
 		EBADCSRFTOKEN: function () {
 			winston.error(`${req.method} ${req.originalUrl}\n${err.message}`);
@@ -63,14 +58,10 @@ exports.handleErrors = async function handleErrors(err, req, res, next) {
 	};
 
 	const notBuiltHandler = async () => {
-		let file = await fs.promises.readFile(
-			path.join(__dirname, '../../public/500.html'),
-			{ encoding: 'utf-8' }
-		);
-		file = file.replace(
-			'{message}',
-			'Failed to lookup view! Did you run `./nodebb build`?'
-		);
+		let file = await fs.promises.readFile(path.join(__dirname, '../../public/500.html'), {
+			encoding: 'utf-8',
+		});
+		file = file.replace('{message}', 'Failed to lookup view! Did you run `./nodebb build`?');
 		return res.type('text/html').send(file);
 	};
 
@@ -82,10 +73,7 @@ exports.handleErrors = async function handleErrors(err, req, res, next) {
 		const status = parseInt(err.status, 10);
 		if ((status === 302 || status === 308) && err.path) {
 			return res.locals.isAPI
-				? res
-						.set('X-Redirect', encodeURIComponent(err.path))
-						.status(200)
-						.json(err.path)
+				? res.set('X-Redirect', encodeURIComponent(err.path)).status(200).json(err.path)
 				: res.redirect(nconf.get('relative_path') + err.path);
 		}
 
@@ -144,9 +132,7 @@ async function getErrorHandlers(cases) {
 		});
 	} catch (err) {
 		// Assume defaults
-		winston.warn(
-			`[errors/handle] Unable to retrieve plugin handlers for errors: ${err.message}`
-		);
+		winston.warn(`[errors/handle] Unable to retrieve plugin handlers for errors: ${err.message}`);
 		return { cases };
 	}
 }

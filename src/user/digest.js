@@ -21,7 +21,7 @@ Digest.execute = async function (payload) {
 	const digestsDisabled = meta.config.disableEmailSubscriptions === 1;
 	if (digestsDisabled) {
 		winston.info(
-			`[user/jobs] Did not send digests (${payload.interval}) because subscription system is disabled.`
+			`[user/jobs] Did not send digests (${payload.interval}) because subscription system is disabled.`,
 		);
 		return false;
 	}
@@ -34,7 +34,7 @@ Digest.execute = async function (payload) {
 	}
 	try {
 		winston.info(
-			`[user/jobs] Digest (${payload.interval}) scheduling completed (${subscribers.length} subscribers). Sending emails; this may take some time...`
+			`[user/jobs] Digest (${payload.interval}) scheduling completed (${subscribers.length} subscribers). Sending emails; this may take some time...`,
 		);
 		await Digest.send({
 			interval: payload.interval,
@@ -43,14 +43,12 @@ Digest.execute = async function (payload) {
 		winston.info(`[user/jobs] Digest (${payload.interval}) complete.`);
 		return true;
 	} catch (err) {
-		winston.error(
-			`[user/jobs] Could not send digests (${payload.interval})\n${err.stack}`
-		);
+		winston.error(`[user/jobs] Could not send digests (${payload.interval})\n${err.stack}`);
 		throw err;
 	}
 };
 
-Digest.getUsersInterval = async (uids) => {
+Digest.getUsersInterval = async uids => {
 	// Checks whether user specifies digest setting, or false for system default setting
 	let single = false;
 	if (!Array.isArray(uids) && !isNaN(parseInt(uids, 10))) {
@@ -58,12 +56,9 @@ Digest.getUsersInterval = async (uids) => {
 		single = true;
 	}
 
-	const settings = await db.getObjects(
-		uids.map((uid) => `user:${uid}:settings`)
-	);
+	const settings = await db.getObjects(uids.map(uid => `user:${uid}:settings`));
 	const interval = uids.map(
-		(uid, index) =>
-			(settings[index] && settings[index].dailyDigestFreq) || false
+		(uid, index) => (settings[index] && settings[index].dailyDigestFreq) || false,
 	);
 	return single ? interval[0] : interval;
 };
@@ -73,10 +68,10 @@ Digest.getSubscribers = async function (interval) {
 
 	await batch.processSortedSet(
 		'users:joindate',
-		async (uids) => {
+		async uids => {
 			const settings = await user.getMultipleUserSettings(uids);
 			let subUids = [];
-			settings.forEach((hash) => {
+			settings.forEach(hash => {
 				if (hash.dailyDigestFreq === interval) {
 					subUids.push(hash.uid);
 				}
@@ -87,7 +82,7 @@ Digest.getSubscribers = async function (interval) {
 		{
 			interval: 1000,
 			batch: 500,
-		}
+		},
 	);
 
 	const results = await plugins.hooks.fire('filter:digest.subscribers', {
@@ -106,7 +101,7 @@ Digest.send = async function (data) {
 	const date = new Date();
 	await batch.processArray(
 		data.subscribers,
-		async (uids) => {
+		async uids => {
 			let userData = await user.getUsersFields(uids, [
 				'uid',
 				'email',
@@ -116,17 +111,12 @@ Digest.send = async function (data) {
 				'lastonline',
 			]);
 			userData = userData.filter(
-				(u) =>
-					u &&
-					u.email &&
-					(meta.config.includeUnverifiedEmails || u['email:confirmed'])
+				u => u && u.email && (meta.config.includeUnverifiedEmails || u['email:confirmed']),
 			);
 			if (!userData.length) {
 				return;
 			}
-			const userSettings = await user.getMultipleUserSettings(
-				userData.map((u) => u.uid)
-			);
+			const userSettings = await user.getMultipleUserSettings(userData.map(u => u.uid));
 			await Promise.all(
 				userData.map(async (userObj, index) => {
 					const userSetting = userSettings[index];
@@ -147,14 +137,12 @@ Digest.send = async function (data) {
 						return;
 					}
 
-					unreadNotifs.forEach((n) => {
+					unreadNotifs.forEach(n => {
 						if (n.image && !n.image.startsWith('http')) {
 							n.image = baseUrl + n.image;
 						}
 						if (n.path) {
-							n.notification_url = n.path.startsWith('http')
-								? n.path
-								: baseUrl + n.path;
+							n.notification_url = n.path.startsWith('http') ? n.path : baseUrl + n.path;
 						}
 					});
 
@@ -172,32 +160,32 @@ Digest.send = async function (data) {
 							interval: data.interval,
 							showUnsubscribe: true,
 						})
-						.catch((err) => {
+						.catch(err => {
 							if (!errorLogged) {
 								winston.error(
-									`[user/jobs] Could not send digest email\n[emailer.send] ${err.stack}`
+									`[user/jobs] Could not send digest email\n[emailer.send] ${err.stack}`,
 								);
 								errorLogged = true;
 							}
 						});
-				})
+				}),
 			);
 			if (data.interval !== 'alltime') {
 				const now = Date.now();
 				await db.sortedSetAdd(
 					'digest:delivery',
 					userData.map(() => now),
-					userData.map((u) => u.uid)
+					userData.map(u => u.uid),
 				);
 			}
 		},
 		{
 			interval: 1000,
 			batch: 100,
-		}
+		},
 	);
 	winston.info(
-		`[user/jobs] Digest (${data.interval}) sending completed. ${emailsSent} emails sent.`
+		`[user/jobs] Digest (${data.interval}) sending completed. ${emailsSent} emails sent.`,
 	);
 	return emailsSent;
 };
@@ -241,39 +229,33 @@ async function getTermTopics(term, uid) {
 		sort: 'posts',
 		teaserPost: 'first',
 	});
-	data.topics = data.topics.filter((topic) => topic && !topic.deleted);
+	data.topics = data.topics.filter(topic => topic && !topic.deleted);
 
 	const popular = data.topics
-		.filter((t) => t.postcount > 1)
+		.filter(t => t.postcount > 1)
 		.sort((a, b) => b.postcount - a.postcount)
 		.slice(0, 10);
-	const popularTids = popular.map((t) => t.tid);
+	const popularTids = popular.map(t => t.tid);
 
 	const top = data.topics
-		.filter((t) => t.votes > 0 && !popularTids.includes(t.tid))
+		.filter(t => t.votes > 0 && !popularTids.includes(t.tid))
 		.sort((a, b) => b.votes - a.votes)
 		.slice(0, 10);
-	const topTids = top.map((t) => t.tid);
+	const topTids = top.map(t => t.tid);
 
 	const recent = data.topics
-		.filter((t) => !topTids.includes(t.tid) && !popularTids.includes(t.tid))
+		.filter(t => !topTids.includes(t.tid) && !popularTids.includes(t.tid))
 		.sort((a, b) => b.lastposttime - a.lastposttime)
 		.slice(0, 10);
 
-	[...top, ...popular, ...recent].forEach((topicObj) => {
+	[...top, ...popular, ...recent].forEach(topicObj => {
 		if (topicObj) {
-			if (
-				topicObj.teaser &&
-				topicObj.teaser.content &&
-				topicObj.teaser.content.length > 255
-			) {
+			if (topicObj.teaser && topicObj.teaser.content && topicObj.teaser.content.length > 255) {
 				topicObj.teaser.content = `${topicObj.teaser.content.slice(0, 255)}...`;
 			}
 			// Fix relative paths in topic data
 			const user =
-				topicObj.hasOwnProperty('teaser') &&
-				topicObj.teaser &&
-				topicObj.teaser.user
+				topicObj.hasOwnProperty('teaser') && topicObj.teaser && topicObj.teaser.user
 					? topicObj.teaser.user
 					: topicObj.user;
 			if (user && user.picture && utils.isRelativeUrl(user.picture)) {
@@ -286,5 +268,5 @@ async function getTermTopics(term, uid) {
 
 async function getUnreadPublicRooms(uid) {
 	const publicRooms = await messaging.getPublicRooms(uid, uid);
-	return publicRooms.filter((r) => r && r.unread);
+	return publicRooms.filter(r => r && r.unread);
 }

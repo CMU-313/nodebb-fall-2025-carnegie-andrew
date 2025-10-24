@@ -1,7 +1,9 @@
 'use strict';
 
-
-define('forum/account/bookmarks', ['forum/account/header', 'forum/account/posts'], function (header, posts) {
+define('forum/account/bookmarks', ['forum/account/header', 'forum/account/posts'], function (
+	header,
+	posts,
+) {
 	const Bookmarks = {};
 
 	Bookmarks.init = function () {

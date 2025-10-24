@@ -1,17 +1,18 @@
 .picture-switcher {
-
-	[data-bg-color] {
-		position: relative;
-		border-radius: 50%;
-		&.selected::after {
-			content: '';
-			position: absolute;
-			top: -2px; left: -2px;
-			right: -2px; bottom: -2px;
-			border-radius: 50%;
-			border: 2px solid $primary;
-			pointer-events: none;
-			z-index: 1;
-		}
-	}
+  [data-bg-color] {
+    position: relative;
+    border-radius: 50%;
+    &.selected::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      right: -2px;
+      bottom: -2px;
+      border-radius: 50%;
+      border: 2px solid $primary;
+      pointer-events: none;
+      z-index: 1;
+    }
+  }
 }

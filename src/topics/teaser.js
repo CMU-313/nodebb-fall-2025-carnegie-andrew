@@ -25,7 +25,7 @@ module.exports = function (Topics) {
 		const teaserPids = [];
 		const tidToPost = {};
 
-		topics.forEach((topic) => {
+		topics.forEach(topic => {
 			counts.push(topic && topic.postcount);
 			if (topic) {
 				if (topic.teaserPid === 'null') {
@@ -53,23 +53,18 @@ module.exports = function (Topics) {
 			]),
 			user.getSettings(uid),
 		]);
-		let postData = allPostData.filter((post) => post && post.pid);
+		let postData = allPostData.filter(post => post && post.pid);
 		postData = await handleBlocks(uid, postData);
 		postData = postData.filter(Boolean);
-		const uids = _.uniq(postData.map((post) => post.uid));
+		const uids = _.uniq(postData.map(post => post.uid));
 		const sortNewToOld = callerSettings.topicPostSort === 'newest_to_oldest';
-		const usersData = await user.getUsersFields(uids, [
-			'uid',
-			'username',
-			'userslug',
-			'picture',
-		]);
+		const usersData = await user.getUsersFields(uids, ['uid', 'username', 'userslug', 'picture']);
 
 		const users = {};
-		usersData.forEach((user) => {
+		usersData.forEach(user => {
 			users[user.uid] = user;
 		});
-		postData.forEach((post) => {
+		postData.forEach(post => {
 			// If the post author isn't represented in the retrieved users' data,
 			// then it means they were deleted, assume guest.
 			if (!users.hasOwnProperty(post.uid)) {
@@ -80,18 +75,14 @@ module.exports = function (Topics) {
 			post.timestampISO = utils.toISOString(post.timestamp);
 			tidToPost[post.tid] = post;
 		});
-		await Promise.all(postData.map((p) => posts.parsePost(p, 'plaintext')));
+		await Promise.all(postData.map(p => posts.parsePost(p, 'plaintext')));
 
 		const teasers = topics.map((topic, index) => {
 			if (!topic) {
 				return null;
 			}
 			if (tidToPost[topic.tid]) {
-				tidToPost[topic.tid].index = calcTeaserIndex(
-					teaserPost,
-					counts[index],
-					sortNewToOld
-				);
+				tidToPost[topic.tid].index = calcTeaserIndex(teaserPost, counts[index], sortNewToOld);
 			}
 			return tidToPost[topic.tid];
 		});
@@ -121,12 +112,12 @@ module.exports = function (Topics) {
 		}
 
 		return await Promise.all(
-			teasers.map(async (postData) => {
+			teasers.map(async postData => {
 				if (blockedUids.includes(parseInt(postData.uid, 10))) {
 					return await getPreviousNonBlockedPost(postData, blockedUids);
 				}
 				return postData;
-			})
+			}),
 		);
 	}
 
@@ -146,11 +137,7 @@ module.exports = function (Topics) {
 
 		do {
 			/* eslint-disable no-await-in-loop */
-			let pids = await db.getSortedSetRevRange(
-				`tid:${postData.tid}:posts`,
-				start,
-				stop
-			);
+			let pids = await db.getSortedSetRevRange(`tid:${postData.tid}:posts`, start, stop);
 			if (!pids.length) {
 				checkedAllReplies = true;
 				const mainPid = await Topics.getTopicField(postData.tid, 'mainPid');
@@ -175,12 +162,7 @@ module.exports = function (Topics) {
 		if (!Array.isArray(tids) || !tids.length) {
 			return [];
 		}
-		const topics = await Topics.getTopicsFields(tids, [
-			'tid',
-			'postcount',
-			'teaserPid',
-			'mainPid',
-		]);
+		const topics = await Topics.getTopicsFields(tids, ['tid', 'postcount', 'teaserPid', 'mainPid']);
 		return await Topics.getTeasers(topics, uid);
 	};
 

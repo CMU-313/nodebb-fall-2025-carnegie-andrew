@@ -15,7 +15,7 @@ module.exports = function () {
 		'post',
 		'/login',
 		[middleware.checkRequired.bind(null, ['username', 'password'])],
-		controllers.write.utilities.login
+		controllers.write.utilities.login,
 	);
 
 	return router;

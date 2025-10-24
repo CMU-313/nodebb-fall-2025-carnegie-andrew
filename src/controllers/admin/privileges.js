@@ -33,7 +33,7 @@ privilegesController.get = async function (req, res) {
 	];
 
 	let selectedCategory;
-	categoriesData.forEach((category) => {
+	categoriesData.forEach(category => {
 		if (category) {
 			category.selected = category.cid === (!isAdminPriv ? cid : 'admin');
 

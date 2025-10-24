@@ -26,12 +26,7 @@ module.exports = function (User) {
 		startDigestJob('digest.weekly', `0 ${digestHour} * * 0`, 'week');
 		startDigestJob('digest.monthly', `0 ${digestHour} 1 * *`, 'month');
 
-		jobs['reset.clean'] = new cronJob(
-			'0 0 * * *',
-			User.reset.clean,
-			null,
-			true
-		);
+		jobs['reset.clean'] = new cronJob('0 0 * * *', User.reset.clean, null, true);
 		winston.verbose('[user/jobs] Starting job (reset.clean)');
 
 		winston.verbose(`[user/jobs] jobs started`);
@@ -55,7 +50,7 @@ module.exports = function (User) {
 				}
 			},
 			null,
-			true
+			true,
 		);
 		winston.verbose(`[user/jobs] Starting job (${name})`);
 	}

@@ -19,12 +19,7 @@ UserNotifications.get = async function (uid) {
 		return { read: [], unread: [] };
 	}
 
-	let unread = await getNotificationsFromSet(
-		`uid:${uid}:notifications:unread`,
-		uid,
-		0,
-		49
-	);
+	let unread = await getNotificationsFromSet(`uid:${uid}:notifications:unread`, uid, 0, 49);
 	unread = unread.filter(Boolean);
 	let read = [];
 	if (unread.length < 50) {
@@ -32,7 +27,7 @@ UserNotifications.get = async function (uid) {
 			`uid:${uid}:notifications:read`,
 			uid,
 			0,
-			49 - unread.length
+			49 - unread.length,
 		);
 	}
 
@@ -47,11 +42,9 @@ async function filterNotifications(nids, filter) {
 	if (!filter) {
 		return nids;
 	}
-	const keys = nids.map((nid) => `notifications:${nid}`);
+	const keys = nids.map(nid => `notifications:${nid}`);
 	const notifications = await db.getObjectsFields(keys, ['nid', 'type']);
-	return notifications
-		.filter((n) => n && n.nid && n.type === filter)
-		.map((n) => n.nid);
+	return notifications.filter(n => n && n.nid && n.type === filter).map(n => n.nid);
 }
 
 UserNotifications.getAll = async function (uid, filter) {
@@ -61,28 +54,26 @@ UserNotifications.getAll = async function (uid, filter) {
 
 UserNotifications.getAllWithCounts = async function (uid, filter) {
 	const nids = await getAllNids(uid);
-	const keys = nids.map((nid) => `notifications:${nid}`);
+	const keys = nids.map(nid => `notifications:${nid}`);
 	let notifications = await db.getObjectsFields(keys, ['nid', 'type']);
 	const counts = {};
-	notifications.forEach((n) => {
+	notifications.forEach(n => {
 		if (n && n.type) {
 			counts[n.type] = counts[n.type] || 0;
 			counts[n.type] += 1;
 		}
 	});
 	if (filter) {
-		notifications = notifications.filter(
-			(n) => n && n.nid && n.type === filter
-		);
+		notifications = notifications.filter(n => n && n.nid && n.type === filter);
 	}
-	return { counts, nids: notifications.map((n) => n.nid) };
+	return { counts, nids: notifications.map(n => n.nid) };
 };
 
 async function getAllNids(uid) {
 	let nids = await db.getSortedSetRevRange(
 		[`uid:${uid}:notifications:unread`, `uid:${uid}:notifications:read`],
 		0,
-		-1
+		-1,
 	);
 	nids = _.uniq(nids);
 	const exists = await db.isSortedSetMembers('notifications', nids);
@@ -101,7 +92,7 @@ async function getAllNids(uid) {
 async function deleteUserNids(nids, uid) {
 	await db.sortedSetRemove(
 		[`uid:${uid}:notifications:read`, `uid:${uid}:notifications:unread`],
-		nids
+		nids,
 	);
 }
 
@@ -137,23 +128,17 @@ UserNotifications.getNotifications = async function (nids, uid) {
 	await deleteUserNids(deletedNids, uid);
 	notificationData = await notifications.merge(notificationData);
 	await Promise.all(
-		notificationData.map(async (n) => {
+		notificationData.map(async n => {
 			if (n && n.bodyShort) {
-				n.bodyShort = await translator.translate(
-					n.bodyShort,
-					userSettings.userLang
-				);
+				n.bodyShort = await translator.translate(n.bodyShort, userSettings.userLang);
 			}
-		})
+		}),
 	);
 
-	const result = await plugins.hooks.fire(
-		'filter:user.notifications.getNotifications',
-		{
-			uid: uid,
-			notifications: notificationData,
-		}
-	);
+	const result = await plugins.hooks.fire('filter:user.notifications.getNotifications', {
+		uid: uid,
+		notifications: notificationData,
+	});
 	return result && result.notifications;
 };
 
@@ -173,7 +158,7 @@ UserNotifications.getUnreadInterval = async function (uid, interval) {
 		0,
 		20,
 		'+inf',
-		min
+		min,
 	);
 	return await UserNotifications.getNotifications(nids, uid);
 };
@@ -186,15 +171,11 @@ UserNotifications.getUnreadCount = async function (uid) {
 	if (parseInt(uid, 10) <= 0) {
 		return 0;
 	}
-	let nids = await db.getSortedSetRevRange(
-		`uid:${uid}:notifications:unread`,
-		0,
-		99
-	);
+	let nids = await db.getSortedSetRevRange(`uid:${uid}:notifications:unread`, 0, 99);
 	nids = await notifications.filterExists(nids);
-	const keys = nids.map((nid) => `notifications:${nid}`);
+	const keys = nids.map(nid => `notifications:${nid}`);
 	const notifData = await db.getObjectsFields(keys, ['mergeId']);
-	const mergeIds = notifData.map((n) => n.mergeId);
+	const mergeIds = notifData.map(n => n.mergeId);
 
 	// Collapse any notifications with identical mergeIds
 	let count = mergeIds.reduce((count, mergeId, idx, arr) => {
@@ -214,47 +195,30 @@ UserNotifications.getUnreadCount = async function (uid) {
 };
 
 UserNotifications.getUnreadByField = async function (uid, field, values) {
-	const nids = await db.getSortedSetRevRange(
-		`uid:${uid}:notifications:unread`,
-		0,
-		99
-	);
+	const nids = await db.getSortedSetRevRange(`uid:${uid}:notifications:unread`, 0, 99);
 	if (!nids.length) {
 		return [];
 	}
-	const keys = nids.map((nid) => `notifications:${nid}`);
+	const keys = nids.map(nid => `notifications:${nid}`);
 	const notifData = await db.getObjectsFields(keys, ['nid', field]);
-	const valuesSet = new Set(values.map((value) => String(value)));
-	return notifData
-		.filter((n) => n && n[field] && valuesSet.has(String(n[field])))
-		.map((n) => n.nid);
+	const valuesSet = new Set(values.map(value => String(value)));
+	return notifData.filter(n => n && n[field] && valuesSet.has(String(n[field]))).map(n => n.nid);
 };
 
 UserNotifications.deleteAll = async function (uid) {
 	if (parseInt(uid, 10) <= 0) {
 		return;
 	}
-	await db.deleteAll([
-		`uid:${uid}:notifications:unread`,
-		`uid:${uid}:notifications:read`,
-	]);
+	await db.deleteAll([`uid:${uid}:notifications:unread`, `uid:${uid}:notifications:read`]);
 };
 
-UserNotifications.sendTopicNotificationToFollowers = async function (
-	uid,
-	topicData,
-	postData
-) {
+UserNotifications.sendTopicNotificationToFollowers = async function (uid, topicData, postData) {
 	try {
 		const [allFollowers, title] = await Promise.all([
 			db.getSortedSetRange(`followers:${uid}`, 0, -1),
 			topics.getTopicField(topicData.tid, 'title'),
 		]);
-		const followers = await privileges.categories.filterUids(
-			'read',
-			topicData.cid,
-			allFollowers
-		);
+		const followers = await privileges.categories.filterUids('read', topicData.cid, allFollowers);
 		if (!followers.length) {
 			return;
 		}
@@ -264,7 +228,7 @@ UserNotifications.sendTopicNotificationToFollowers = async function (
 			bodyShort: translator.compile(
 				'notifications:user-posted-topic',
 				postData.user.displayname,
-				title
+				title,
 			),
 			bodyLong: postData.content,
 			pid: postData.pid,

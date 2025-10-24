@@ -3,8 +3,8 @@ get:
     - admin
   summary: Get server-side log output
   responses:
-    "200":
-      description: "A JSON object containing the server-side log"
+    '200':
+      description: 'A JSON object containing the server-side log'
       content:
         application/json:
           schema:

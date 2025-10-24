@@ -67,14 +67,14 @@ controller.list = async function (req, res) {
 		categories.watchStates.tracking,
 		categories.watchStates.watching,
 	]);
-	cids = cids.filter((cid) => !utils.isNumber(cid));
+	cids = cids.filter(cid => !utils.isNumber(cid));
 	const categoryData = await categories.getCategories(cids);
 	data.categories = categories.getTree(categoryData, 0);
 	await Promise.all([
 		categories.getRecentTopicReplies(categoryData, req.uid, req.query),
 		categories.setUnread(data.categories, cids, req.uid),
 	]);
-	data.categories.forEach((category) => {
+	data.categories.forEach(category => {
 		if (category) {
 			helpers.trimChildren(category);
 			helpers.setCategoryTeaser(category);

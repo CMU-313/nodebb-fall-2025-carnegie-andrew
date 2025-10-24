@@ -27,7 +27,7 @@ describe('emailer', () => {
 		subject: 'Welcome to NodeBB',
 	};
 
-	before((done) => {
+	before(done => {
 		const server = new SMTPServer({
 			allowInsecureAuth: true,
 			onAuth: function (auth, session, callback) {
@@ -43,7 +43,7 @@ describe('emailer', () => {
 			},
 		});
 
-		server.on('error', (err) => {
+		server.on('error', err => {
 			throw err;
 		});
 		server.listen(4000, done);
@@ -51,7 +51,7 @@ describe('emailer', () => {
 
 	// TODO: test sendmail here at some point
 
-	it('plugin hook should work', (done) => {
+	it('plugin hook should work', done => {
 		const error = new Error();
 		const method = function (data, next) {
 			assert(data);
@@ -66,7 +66,7 @@ describe('emailer', () => {
 			method,
 		});
 
-		Emailer.sendToEmail(template, email, language, params, (err) => {
+		Emailer.sendToEmail(template, email, language, params, err => {
 			assert.equal(err, error);
 
 			Plugins.hooks.unregister('emailer-test', 'static:email.send', method);
@@ -74,7 +74,7 @@ describe('emailer', () => {
 		});
 	});
 
-	it('should build custom template on config change', (done) => {
+	it('should build custom template on config change', done => {
 		const text = 'a random string of text';
 
 		// make sure it's not already set
@@ -83,7 +83,7 @@ describe('emailer', () => {
 
 			assert.notEqual(output, text);
 
-			Meta.configs.set('email:custom:test', text, (err) => {
+			Meta.configs.set('email:custom:test', text, err => {
 				assert.ifError(err);
 
 				// wait for pubsub stuff
@@ -99,7 +99,7 @@ describe('emailer', () => {
 		});
 	});
 
-	it('should send via SMTP', (done) => {
+	it('should send via SMTP', done => {
 		const from = 'admin@example.org';
 		const username = 'another@example.com';
 
@@ -128,31 +128,29 @@ describe('emailer', () => {
 				'email:smtpTransport:security': 'NONE',
 				'email:from': from,
 			},
-			(err) => {
+			err => {
 				assert.ifError(err);
 
 				// delay so emailer has a chance to update after config changes
 				setTimeout(() => {
 					assert.equal(Emailer.fallbackTransport, Emailer.transports.smtp);
 
-					Emailer.sendToEmail(template, email, language, params, (err) => {
+					Emailer.sendToEmail(template, email, language, params, err => {
 						assert.ifError(err);
 					});
 				}, 200);
-			}
+			},
 		);
 	});
 
-	after((done) => {
-		fs.unlinkSync(
-			path.join(__dirname, '../build/public/templates/emails/test.js')
-		);
+	after(done => {
+		fs.unlinkSync(path.join(__dirname, '../build/public/templates/emails/test.js'));
 		Meta.configs.setMultiple(
 			{
 				'email:smtpTransport:enabled': '0',
 				'email:custom:test': '',
 			},
-			done
+			done,
 		);
 	});
 

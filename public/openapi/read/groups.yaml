@@ -3,8 +3,8 @@ get:
     - groups
   summary: Get user groups
   responses:
-    "200":
-      description: ""
+    '200':
+      description: ''
       content:
         application/json:
           schema:
@@ -83,20 +83,23 @@ get:
                                 type: string
                               userslug:
                                 type: string
-                                description: An URL-safe variant of the username (i.e. lower-cased, spaces
+                                description:
+                                  An URL-safe variant of the username (i.e. lower-cased, spaces
                                   removed, etc.)
                               icon:text:
                                 type: string
-                                description: A single-letter representation of a username. This is used in the
+                                description:
+                                  A single-letter representation of a username. This is used in the
                                   auto-generated icon given to users without
                                   an avatar
                               icon:bgColor:
                                 type: string
-                                description: A six-character hexadecimal colour code assigned to the user. This
+                                description:
+                                  A six-character hexadecimal colour code assigned to the user. This
                                   value is used in conjunction with
                                   `icon:text` for the user's auto-generated
                                   icon
-                                example: "#f44336"
+                                example: '#f44336'
                         truncated:
                           type: boolean
                   allowGroupCreation:

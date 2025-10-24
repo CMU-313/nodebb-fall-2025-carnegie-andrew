@@ -11,16 +11,13 @@ const groupsController = module.exports;
 const url = nconf.get('url');
 
 groupsController.get = async function (req, res) {
-	const { username, userslug } = await user.getUserFields(res.locals.uid, [
-		'username',
-		'userslug',
-	]);
+	const { username, userslug } = await user.getUserFields(res.locals.uid, ['username', 'userslug']);
 
 	const payload = res.locals.userData;
 
 	let groupsData = await groups.getUserGroups([res.locals.uid]);
 	groupsData = groupsData[0];
-	const groupNames = groupsData.filter(Boolean).map((group) => group.name);
+	const groupNames = groupsData.filter(Boolean).map(group => group.name);
 	const members = await groups.getMemberUsers(groupNames, 0, 3);
 	groupsData.forEach((group, index) => {
 		group.members = members[index];

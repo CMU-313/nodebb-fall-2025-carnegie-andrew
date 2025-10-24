@@ -53,7 +53,7 @@ image.resizeImage = async function (data) {
 		sharpImage.rotate(); // auto-orients based on exif data
 		sharpImage.resize(
 			data.hasOwnProperty('width') ? data.width : null,
-			data.hasOwnProperty('height') ? data.height : null
+			data.hasOwnProperty('height') ? data.height : null,
 		);
 
 		if (data.quality) {
@@ -102,17 +102,11 @@ image.size = async function (path) {
 		const sharp = requireSharp();
 		imageData = await sharp(path, { failOnError: true }).metadata();
 	}
-	return imageData
-		? { width: imageData.width, height: imageData.height }
-		: undefined;
+	return imageData ? { width: imageData.width, height: imageData.height } : undefined;
 };
 
 image.stripEXIF = async function (path) {
-	if (
-		!meta.config.stripEXIFData ||
-		path.endsWith('.gif') ||
-		path.endsWith('.svg')
-	) {
+	if (!meta.config.stripEXIFData || path.endsWith('.gif') || path.endsWith('.svg')) {
 		return;
 	}
 	try {
@@ -163,18 +157,14 @@ image.writeImageDataToTempFile = async function (imageData) {
 
 	const filepath = path.join(os.tmpdir(), filename + extension);
 
-	const buffer = Buffer.from(
-		imageData.slice(imageData.indexOf('base64') + 7),
-		'base64'
-	);
+	const buffer = Buffer.from(imageData.slice(imageData.indexOf('base64') + 7), 'base64');
 
 	await fs.promises.writeFile(filepath, buffer, { encoding: 'base64' });
 	return filepath;
 };
 
 image.sizeFromBase64 = function (imageData) {
-	return Buffer.from(imageData.slice(imageData.indexOf('base64') + 7), 'base64')
-		.length;
+	return Buffer.from(imageData.slice(imageData.indexOf('base64') + 7), 'base64').length;
 };
 
 image.uploadImage = async function (filename, folder, imageData) {

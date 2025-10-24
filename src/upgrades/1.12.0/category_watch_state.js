@@ -13,17 +13,14 @@ module.exports = {
 		const { progress } = this;
 
 		const cids = await db.getSortedSetRange('categories:cid', 0, -1);
-		const keys = cids.map((cid) => `cid:${cid}:ignorers`);
+		const keys = cids.map(cid => `cid:${cid}:ignorers`);
 
 		await batch.processSortedSet(
 			'users:joindate',
-			async (uids) => {
+			async uids => {
 				progress.incr(uids.length);
 				for (const cid of cids) {
-					const isMembers = await db.isSortedSetMembers(
-						`cid:${cid}:ignorers`,
-						uids
-					);
+					const isMembers = await db.isSortedSetMembers(`cid:${cid}:ignorers`, uids);
 					uids = uids.filter((uid, index) => isMembers[index]);
 					if (uids.length) {
 						const states = uids.map(() => categories.watchStates.ignoring);
@@ -34,7 +31,7 @@ module.exports = {
 			{
 				progress: progress,
 				batch: 500,
-			}
+			},
 		);
 
 		await db.deleteAll(keys);

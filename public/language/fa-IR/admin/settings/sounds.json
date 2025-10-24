@@ -1,9 +1,9 @@
 {
-	"notifications": "Notifications",
-	"chat-messages": "پیام‌های چت ",
-	"play-sound": "Play",
-	"incoming-message": "Incoming Message",
-	"outgoing-message": "Outgoing Message",
-	"upload-new-sound": "Upload New Sound",
-	"saved": "تنظیمات ذخیره شد "
+  "notifications": "Notifications",
+  "chat-messages": "پیام‌های چت ",
+  "play-sound": "Play",
+  "incoming-message": "Incoming Message",
+  "outgoing-message": "Outgoing Message",
+  "upload-new-sound": "Upload New Sound",
+  "saved": "تنظیمات ذخیره شد "
 }

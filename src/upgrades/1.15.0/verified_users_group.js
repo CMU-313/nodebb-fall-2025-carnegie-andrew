@@ -17,10 +17,7 @@ module.exports = {
 
 		const maxGroupLength = meta.config.maximumGroupNameLength;
 		meta.config.maximumGroupNameLength = 30;
-		const timestamp = await db.getObjectField(
-			'group:administrators',
-			'timestamp'
-		);
+		const timestamp = await db.getObjectField('group:administrators', 'timestamp');
 		const verifiedExists = await groups.exists('verified-users');
 		if (!verifiedExists) {
 			await groups.create({
@@ -49,57 +46,38 @@ module.exports = {
 		meta.config.maximumGroupNameLength = maxGroupLength;
 		await batch.processSortedSet(
 			'users:joindate',
-			async (uids) => {
+			async uids => {
 				progress.incr(uids.length);
-				const userData = await user.getUsersFields(uids, [
-					'uid',
-					'email:confirmed',
-				]);
+				const userData = await user.getUsersFields(uids, ['uid', 'email:confirmed']);
 
-				const verified = userData.filter(
-					(u) => parseInt(u['email:confirmed'], 10) === 1
-				);
-				const unverified = userData.filter(
-					(u) => parseInt(u['email:confirmed'], 10) !== 1
-				);
+				const verified = userData.filter(u => parseInt(u['email:confirmed'], 10) === 1);
+				const unverified = userData.filter(u => parseInt(u['email:confirmed'], 10) !== 1);
 
 				await db.sortedSetAdd(
 					'group:verified-users:members',
 					verified.map(() => now),
-					verified.map((u) => u.uid)
+					verified.map(u => u.uid),
 				);
 
 				await db.sortedSetAdd(
 					'group:unverified-users:members',
 					unverified.map(() => now),
-					unverified.map((u) => u.uid)
+					unverified.map(u => u.uid),
 				);
 			},
 			{
 				batch: 500,
 				progress: this.progress,
-			}
+			},
 		);
 
 		await db.delete('users:notvalidated');
 		await updatePrivilges();
 
-		const verifiedCount = await db.sortedSetCard(
-			'group:verified-users:members'
-		);
-		const unverifiedCount = await db.sortedSetCard(
-			'group:unverified-users:members'
-		);
-		await db.setObjectField(
-			'group:verified-users',
-			'memberCount',
-			verifiedCount
-		);
-		await db.setObjectField(
-			'group:unverified-users',
-			'memberCount',
-			unverifiedCount
-		);
+		const verifiedCount = await db.sortedSetCard('group:verified-users:members');
+		const unverifiedCount = await db.sortedSetCard('group:unverified-users:members');
+		await db.setObjectField('group:verified-users', 'memberCount', verifiedCount);
+		await db.setObjectField('group:unverified-users', 'memberCount', unverifiedCount);
 	},
 };
 
@@ -111,10 +89,7 @@ async function updatePrivilges() {
 	// This config property has been removed from v1.18.0+, but is still present in old datasets
 	if (meta.config.requireEmailConfirmation) {
 		const cids = await db.getSortedSetRevRange('categories:cid', 0, -1);
-		const canChat = await privileges.global.canGroup(
-			'chat',
-			'registered-users'
-		);
+		const canChat = await privileges.global.canGroup('chat', 'registered-users');
 		if (canChat) {
 			await privileges.global.give(['groups:chat'], 'verified-users');
 			await privileges.global.rescind(['groups:chat'], 'registered-users');
@@ -123,34 +98,16 @@ async function updatePrivilges() {
 			/* eslint-disable no-await-in-loop */
 			const data = await privileges.categories.list(cid);
 
-			const registeredUsersPrivs = data.groups.find(
-				(d) => d.name === 'registered-users'
-			).privileges;
+			const registeredUsersPrivs = data.groups.find(d => d.name === 'registered-users').privileges;
 
 			if (registeredUsersPrivs['groups:topics:create']) {
-				await privileges.categories.give(
-					['groups:topics:create'],
-					cid,
-					'verified-users'
-				);
-				await privileges.categories.rescind(
-					['groups:topics:create'],
-					cid,
-					'registered-users'
-				);
+				await privileges.categories.give(['groups:topics:create'], cid, 'verified-users');
+				await privileges.categories.rescind(['groups:topics:create'], cid, 'registered-users');
 			}
 
 			if (registeredUsersPrivs['groups:topics:reply']) {
-				await privileges.categories.give(
-					['groups:topics:reply'],
-					cid,
-					'verified-users'
-				);
-				await privileges.categories.rescind(
-					['groups:topics:reply'],
-					cid,
-					'registered-users'
-				);
+				await privileges.categories.give(['groups:topics:reply'], cid, 'verified-users');
+				await privileges.categories.rescind(['groups:topics:reply'], cid, 'registered-users');
 			}
 		}
 	}

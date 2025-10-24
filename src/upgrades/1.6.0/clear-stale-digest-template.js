@@ -14,10 +14,7 @@ module.exports = {
 		];
 		const fieldset = await meta.configs.getFields(['email:custom:digest']);
 		const hash = fieldset['email:custom:digest']
-			? crypto
-					.createHash('md5')
-					.update(fieldset['email:custom:digest'])
-					.digest('hex')
+			? crypto.createHash('md5').update(fieldset['email:custom:digest']).digest('hex')
 			: null;
 		if (matches.includes(hash)) {
 			await meta.configs.remove('email:custom:digest');

@@ -36,9 +36,7 @@ profileController.get = async function (req, res, next) {
 	userData.posts = latestPosts; // for backwards compat.
 	userData.latestPosts = latestPosts;
 	userData.bestPosts = bestPosts;
-	userData.breadcrumbs = helpers.buildBreadcrumbs([
-		{ text: userData.username },
-	]);
+	userData.breadcrumbs = helpers.buildBreadcrumbs([{ text: userData.username }]);
 	userData.title = userData.username;
 
 	// Show email changed modal on first access after said change
@@ -55,7 +53,7 @@ profileController.get = async function (req, res, next) {
 		// Include link header for richer parsing
 		res.set(
 			'Link',
-			`<${nconf.get('url')}/uid/${userData.uid}>; rel="alternate"; type="application/activity+json"`
+			`<${nconf.get('url')}/uid/${userData.uid}>; rel="alternate"; type="application/activity+json"`,
 		);
 	}
 
@@ -86,12 +84,8 @@ async function getBestPosts(callerUid, userData) {
 }
 
 async function getPosts(callerUid, userData, setSuffix) {
-	const cids = await categories.getCidsByPrivilege(
-		'categories:cid',
-		callerUid,
-		'topics:read'
-	);
-	const keys = cids.map((c) => `cid:${c}:uid:${userData.uid}:${setSuffix}`);
+	const cids = await categories.getCidsByPrivilege('categories:cid', callerUid, 'topics:read');
+	const keys = cids.map(c => `cid:${c}:uid:${userData.uid}:${setSuffix}`);
 	let hasMorePosts = true;
 	let start = 0;
 	const count = 10;
@@ -123,14 +117,14 @@ async function getPosts(callerUid, userData, setSuffix) {
 			});
 			postData.push(
 				...p.filter(
-					(p) =>
+					p =>
 						p &&
 						p.topic &&
 						(isAdmin ||
 							isModOfCid[p.topic.cid] ||
 							(p.topic.scheduled && cidToCanSchedule[p.topic.cid]) ||
-							(!p.deleted && !p.topic.deleted))
-				)
+							(!p.deleted && !p.topic.deleted)),
+				),
 			);
 		}
 		start += count;
@@ -174,7 +168,7 @@ function addTags(res, userData) {
 				property: 'og:image:url',
 				content: userData.picture,
 				noEscape: true,
-			}
+			},
 		);
 	}
 

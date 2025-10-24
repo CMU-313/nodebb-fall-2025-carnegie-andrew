@@ -9,7 +9,7 @@ const user = require('../user');
 const utils = require('../utils');
 
 module.exports = function (Messaging) {
-	Messaging.sendMessage = async (data) => {
+	Messaging.sendMessage = async data => {
 		await Messaging.checkContent(data.content, utils.isNumber(data.uid));
 		const inRoom = await Messaging.isUserInRoom(data.uid, data.roomId);
 		if (!inRoom) {
@@ -25,15 +25,13 @@ module.exports = function (Messaging) {
 		}
 
 		const maximum =
-			meta.config[
-				local ? 'maximumChatMessageLength' : 'maximumRemoteChatMessageLength'
-			];
+			meta.config[local ? 'maximumChatMessageLength' : 'maximumRemoteChatMessageLength'];
 		content = String(content).trim();
 		let { length } = content;
-		({ content, length } = await plugins.hooks.fire(
-			'filter:messaging.checkContent',
-			{ content, length }
-		));
+		({ content, length } = await plugins.hooks.fire('filter:messaging.checkContent', {
+			content,
+			length,
+		}));
 		if (!content) {
 			throw new Error('[[error:invalid-chat-message]]');
 		}
@@ -42,7 +40,7 @@ module.exports = function (Messaging) {
 		}
 	};
 
-	Messaging.addMessage = async (data) => {
+	Messaging.addMessage = async data => {
 		const { uid, roomId } = data;
 		const roomData = await Messaging.getRoomData(roomId);
 		if (!roomData) {
@@ -90,18 +88,16 @@ module.exports = function (Messaging) {
 			tasks.push(db.sortedSetAdd(`mid:${data.toMid}:replies`, timestamp, mid));
 		}
 		if (roomData.public) {
-			tasks.push(
-				db.sortedSetAdd('chat:rooms:public:lastpost', timestamp, roomId)
-			);
+			tasks.push(db.sortedSetAdd('chat:rooms:public:lastpost', timestamp, roomId));
 		} else {
 			let uids = await Messaging.getUidsInRoom(roomId, 0, -1);
 			uids = await user.blocks.filterUids(uid, uids);
 			tasks.push(
 				Messaging.addRoomToUsers(roomId, uids, timestamp),
 				Messaging.markUnread(
-					uids.filter((uid) => uid !== String(data.uid)),
-					roomId
-				)
+					uids.filter(uid => uid !== String(data.uid)),
+					roomId,
+				),
 			);
 		}
 		await Promise.all(tasks);
@@ -133,7 +129,7 @@ module.exports = function (Messaging) {
 		if (!uids.length) {
 			return;
 		}
-		const keys = _.uniq(uids).map((uid) => `uid:${uid}:chat:rooms`);
+		const keys = _.uniq(uids).map(uid => `uid:${uid}:chat:rooms`);
 		await db.sortedSetsAdd(keys, timestamp, roomId);
 	};
 

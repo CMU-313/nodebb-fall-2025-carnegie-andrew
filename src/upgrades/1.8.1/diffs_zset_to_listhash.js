@@ -16,70 +16,57 @@ module.exports = {
 				async.each(
 					pids,
 					(pid, next) => {
-						db.getSortedSetRangeWithScores(
-							`post:${pid}:diffs`,
-							0,
-							-1,
-							(err, diffs) => {
-								if (err) {
-									return next(err);
-								}
+						db.getSortedSetRangeWithScores(`post:${pid}:diffs`, 0, -1, (err, diffs) => {
+							if (err) {
+								return next(err);
+							}
 
-								if (!diffs || !diffs.length) {
+							if (!diffs || !diffs.length) {
+								progress.incr();
+								return next();
+							}
+
+							// For each diff, push to list
+							async.each(
+								diffs,
+								(diff, next) => {
+									async.series(
+										[
+											async.apply(db.delete.bind(db), `post:${pid}:diffs`),
+											async.apply(db.listPrepend.bind(db), `post:${pid}:diffs`, diff.score),
+											async.apply(db.setObject.bind(db), `diff:${pid}.${diff.score}`, {
+												pid: pid,
+												patch: diff.value,
+											}),
+										],
+										next,
+									);
+								},
+								err => {
+									if (err) {
+										return next(err);
+									}
+
 									progress.incr();
 									return next();
-								}
-
-								// For each diff, push to list
-								async.each(
-									diffs,
-									(diff, next) => {
-										async.series(
-											[
-												async.apply(db.delete.bind(db), `post:${pid}:diffs`),
-												async.apply(
-													db.listPrepend.bind(db),
-													`post:${pid}:diffs`,
-													diff.score
-												),
-												async.apply(
-													db.setObject.bind(db),
-													`diff:${pid}.${diff.score}`,
-													{
-														pid: pid,
-														patch: diff.value,
-													}
-												),
-											],
-											next
-										);
-									},
-									(err) => {
-										if (err) {
-											return next(err);
-										}
-
-										progress.incr();
-										return next();
-									}
-								);
-							}
-						);
+								},
+							);
+						});
 					},
-					(err) => {
+					err => {
 						if (err) {
 							// Probably type error, ok to incr and continue
 							progress.incr();
 						}
 
 						return next();
-					}
+					},
 				);
 			},
 			{
 				progress: progress,
 			},
-			callback
+			callback,
 		);
 	},
 };

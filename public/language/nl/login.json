@@ -1,12 +1,12 @@
 {
-    "username-email": "Gebruikersnaam / Email",
-    "username": "Gebruikersnaam",
-    "remember-me": "Aangemeld blijven?",
-    "forgot-password": "Wachtwoord vergeten?",
-    "alternative-logins": "Andere manieren van aanmelden",
-    "failed-login-attempt": "Aanmelden mislukt",
-    "login-successful": "Je bent succesvol ingelogd!",
-    "dont-have-account": "Geen gebruikersaccount?",
-    "logged-out-due-to-inactivity": "Je bent uitgelogd van het admin control panel vanwege inactiviteit.",
-    "caps-lock-enabled": "Caps Lock staat aan"
+  "username-email": "Gebruikersnaam / Email",
+  "username": "Gebruikersnaam",
+  "remember-me": "Aangemeld blijven?",
+  "forgot-password": "Wachtwoord vergeten?",
+  "alternative-logins": "Andere manieren van aanmelden",
+  "failed-login-attempt": "Aanmelden mislukt",
+  "login-successful": "Je bent succesvol ingelogd!",
+  "dont-have-account": "Geen gebruikersaccount?",
+  "logged-out-due-to-inactivity": "Je bent uitgelogd van het admin control panel vanwege inactiviteit.",
+  "caps-lock-enabled": "Caps Lock staat aan"
 }

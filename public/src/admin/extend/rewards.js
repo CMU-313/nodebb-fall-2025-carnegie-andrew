@@ -1,10 +1,6 @@
 'use strict';
 
-
-define('admin/extend/rewards', [
-	'alerts',
-	'jquery-ui/widgets/sortable',
-], function (alerts) {
+define('admin/extend/rewards', ['alerts', 'jquery-ui/widgets/sortable'], function (alerts) {
 	const rewards = {};
 
 	let available;
@@ -91,7 +87,9 @@ define('admin/extend/rewards', [
 		}
 
 		if (!inputs) {
-			return alerts.error('[[admin/extend/rewards:alert.no-inputs-found]] ' + el.attr('data-selected'));
+			return alerts.error(
+				'[[admin/extend/rewards:alert.no-inputs-found]] ' + el.attr('data-selected'),
+			);
 		}
 
 		inputs.forEach(function (input) {
@@ -128,13 +126,15 @@ define('admin/extend/rewards', [
 		const ul = $('#active');
 
 		const data = {
-			active: [{
-				disabled: true,
-				value: '',
-				claimable: 1,
-				rid: null,
-				id: null,
-			}],
+			active: [
+				{
+					disabled: true,
+					value: '',
+					claimable: 1,
+					rid: null,
+					id: null,
+				},
+			],
 			conditions: conditions,
 			conditionals: conditionals,
 			rewards: available,

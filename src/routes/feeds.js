@@ -27,63 +27,39 @@ module.exports = function (app, middleware) {
 	app.get(
 		'/topic/:topic_id.rss',
 		middleware.maintenanceMode,
-		routeHelpers.tryRoute(generateForTopic)
+		routeHelpers.tryRoute(generateForTopic),
 	);
 	app.get(
 		'/category/:category_id.rss',
 		middleware.maintenanceMode,
-		routeHelpers.tryRoute(generateForCategory)
+		routeHelpers.tryRoute(generateForCategory),
 	);
-	app.get(
-		'/topics.rss',
-		middleware.maintenanceMode,
-		routeHelpers.tryRoute(generateForTopics)
-	);
-	app.get(
-		'/recent.rss',
-		middleware.maintenanceMode,
-		routeHelpers.tryRoute(generateForRecent)
-	);
-	app.get(
-		'/top.rss',
-		middleware.maintenanceMode,
-		routeHelpers.tryRoute(generateForTop)
-	);
-	app.get(
-		'/top/:term.rss',
-		middleware.maintenanceMode,
-		routeHelpers.tryRoute(generateForTop)
-	);
-	app.get(
-		'/popular.rss',
-		middleware.maintenanceMode,
-		routeHelpers.tryRoute(generateForPopular)
-	);
+	app.get('/topics.rss', middleware.maintenanceMode, routeHelpers.tryRoute(generateForTopics));
+	app.get('/recent.rss', middleware.maintenanceMode, routeHelpers.tryRoute(generateForRecent));
+	app.get('/top.rss', middleware.maintenanceMode, routeHelpers.tryRoute(generateForTop));
+	app.get('/top/:term.rss', middleware.maintenanceMode, routeHelpers.tryRoute(generateForTop));
+	app.get('/popular.rss', middleware.maintenanceMode, routeHelpers.tryRoute(generateForPopular));
 	app.get(
 		'/popular/:term.rss',
 		middleware.maintenanceMode,
-		routeHelpers.tryRoute(generateForPopular)
+		routeHelpers.tryRoute(generateForPopular),
 	);
 	app.get(
 		'/recentposts.rss',
 		middleware.maintenanceMode,
-		routeHelpers.tryRoute(generateForRecentPosts)
+		routeHelpers.tryRoute(generateForRecentPosts),
 	);
 	app.get(
 		'/category/:category_id/recentposts.rss',
 		middleware.maintenanceMode,
-		routeHelpers.tryRoute(generateForCategoryRecentPosts)
+		routeHelpers.tryRoute(generateForCategoryRecentPosts),
 	);
 	app.get(
 		'/user/:userslug/topics.rss',
 		middleware.maintenanceMode,
-		routeHelpers.tryRoute(generateForUserTopics)
+		routeHelpers.tryRoute(generateForUserTopics),
 	);
-	app.get(
-		'/tags/:tag.rss',
-		middleware.maintenanceMode,
-		routeHelpers.tryRoute(generateForTag)
-	);
+	app.get('/tags/:tag.rss', middleware.maintenanceMode, routeHelpers.tryRoute(generateForTag));
 };
 
 async function validateTokenIfRequiresLogin(requiresLogin, cid, req, res) {
@@ -125,21 +101,14 @@ async function generateForTopic(req, res, next) {
 		return next();
 	}
 
-	if (
-		await validateTokenIfRequiresLogin(
-			!userPrivileges['topics:read'],
-			topic.cid,
-			req,
-			res
-		)
-	) {
+	if (await validateTokenIfRequiresLogin(!userPrivileges['topics:read'], topic.cid, req, res)) {
 		const topicData = await topics.getTopicWithPosts(
 			topic,
 			`tid:${tid}:posts`,
 			req.uid || req.query.uid || 0,
 			0,
 			24,
-			true
+			true,
 		);
 
 		topics.modifyPostsByPrivilege(topicData, userPrivileges);
@@ -155,20 +124,13 @@ async function generateForTopic(req, res, next) {
 		});
 
 		if (topicData.posts.length > 0) {
-			feed.pubDate = new Date(
-				parseInt(topicData.posts[0].timestamp, 10)
-			).toUTCString();
+			feed.pubDate = new Date(parseInt(topicData.posts[0].timestamp, 10)).toUTCString();
 		}
 		const replies = topicData.posts.slice(1);
-		replies.forEach((postData) => {
+		replies.forEach(postData => {
 			if (!postData.deleted) {
 				const dateStamp = new Date(
-					parseInt(
-						parseInt(postData.edited, 10) === 0
-							? postData.timestamp
-							: postData.edited,
-						10
-					)
+					parseInt(parseInt(postData.edited, 10) === 0 ? postData.timestamp : postData.edited, 10),
 				).toUTCString();
 
 				feed.item({
@@ -218,7 +180,7 @@ async function generateForCategory(req, res, next) {
 				site_url: `/category/${category.cid}`,
 			},
 			topicsData,
-			'timestamp'
+			'timestamp',
 		);
 
 		sendFeed(feed, res);
@@ -240,7 +202,7 @@ async function generateForTopics(req, res, next) {
 			useMainPost: true,
 		},
 		'topics:tid',
-		res
+		res,
 	);
 }
 
@@ -248,8 +210,7 @@ async function generateForRecent(req, res, next) {
 	await generateSorted(
 		{
 			title: 'Recently Active Topics',
-			description:
-				'A list of topics that have been active within the past 24 hours',
+			description: 'A list of topics that have been active within the past 24 hours',
 			feed_url: '/recent.rss',
 			site_url: '/recent',
 			sort: 'recent',
@@ -258,7 +219,7 @@ async function generateForRecent(req, res, next) {
 		},
 		req,
 		res,
-		next
+		next,
 	);
 }
 
@@ -275,7 +236,7 @@ async function generateForTop(req, res, next) {
 		},
 		req,
 		res,
-		next
+		next,
 	);
 }
 
@@ -292,7 +253,7 @@ async function generateForPopular(req, res, next) {
 		},
 		req,
 		res,
-		next
+		next,
 	);
 }
 
@@ -330,7 +291,7 @@ async function generateSorted(options, req, res, next) {
 			site_url: options.site_url,
 		},
 		result.topics,
-		options.timestampField
+		options.timestampField,
 	);
 
 	sendFeed(feed, res);
@@ -339,17 +300,8 @@ async function generateSorted(options, req, res, next) {
 async function sendTopicsFeed(options, set, res, timestampField) {
 	const start = options.hasOwnProperty('start') ? options.start : 0;
 	const stop = options.hasOwnProperty('stop') ? options.stop : 19;
-	const topicData = await topics.getTopicsFromSet(
-		set,
-		options.uid,
-		start,
-		stop
-	);
-	const feed = await generateTopicsFeed(
-		options,
-		topicData.topics,
-		timestampField
-	);
+	const topicData = await topics.getTopicsFromSet(set, options.uid, start, stop);
+	const feed = await generateTopicsFeed(options, topicData.topics, timestampField);
 	sendFeed(feed, res);
 }
 
@@ -417,7 +369,7 @@ async function generateForRecentPosts(req, res, next) {
 			feed_url: '/recentposts.rss',
 			site_url: '/recentposts',
 		},
-		postData
+		postData,
 	);
 
 	sendFeed(feed, res);
@@ -435,12 +387,7 @@ async function generateForCategoryRecentPosts(req, res) {
 	const [userPrivileges, category, postData] = await Promise.all([
 		privileges.categories.get(cid, req.uid),
 		categories.getCategoryData(cid),
-		categories.getRecentReplies(
-			cid,
-			req.uid || req.query.uid || 0,
-			start,
-			stop
-		),
+		categories.getRecentReplies(cid, req.uid || req.query.uid || 0, start, stop),
 	]);
 
 	if (!category) {
@@ -455,7 +402,7 @@ async function generateForCategoryRecentPosts(req, res) {
 				feed_url: `/category/${cid}/recentposts.rss`,
 				site_url: `/category/${cid}/recentposts`,
 			},
-			postData
+			postData,
 		);
 
 		sendFeed(feed, res);
@@ -473,7 +420,7 @@ function generateForPostsFeed(feedOptions, posts) {
 		feed.pubDate = new Date(parseInt(posts[0].timestamp, 10)).toUTCString();
 	}
 
-	posts.forEach((postData) => {
+	posts.forEach(postData => {
 		feed.item({
 			title: postData.topic ? postData.topic.title : '',
 			description: postData.content,
@@ -506,7 +453,7 @@ async function generateForUserTopics(req, res, next) {
 			site_url: `/user/${userslug}/topics`,
 		},
 		`uid:${userData.uid}:topics`,
-		res
+		res,
 	);
 }
 
@@ -531,7 +478,7 @@ async function generateForTag(req, res) {
 			stop: stop,
 		},
 		`tag:${tag}:topics`,
-		res
+		res,
 	);
 }
 

@@ -55,7 +55,7 @@ module.exports = function (Topics) {
 		];
 		const countedSortedSetKeys = [
 			...['views', 'posts', 'votes'].map(
-				(prop) => `${utils.isNumber(tid) ? 'topics' : 'topicsRemote'}:${prop}`
+				prop => `${utils.isNumber(tid) ? 'topics' : 'topicsRemote'}:${prop}`,
 			),
 			`cid:${topicData.cid}:tids:votes`,
 			`cid:${topicData.cid}:tids:posts`,
@@ -73,13 +73,11 @@ module.exports = function (Topics) {
 			user.addTopicIdToUser(topicData.uid, topicData.tid, timestamp),
 			db.incrObjectField(
 				`${utils.isNumber(topicData.cid) ? 'category' : 'categoryRemote'}:${topicData.cid}`,
-				'topic_count'
+				'topic_count',
 			),
 			utils.isNumber(tid) ? db.incrObjectField('global', 'topicCount') : null,
 			Topics.createTags(data.tags, topicData.tid, timestamp),
-			scheduled
-				? Promise.resolve()
-				: categories.updateRecentTid(topicData.cid, topicData.tid),
+			scheduled ? Promise.resolve() : categories.updateRecentTid(topicData.cid, topicData.tid),
 		]);
 		if (scheduled) {
 			await Topics.scheduled.pin(tid, topicData);
@@ -116,7 +114,7 @@ module.exports = function (Topics) {
 			Topics.checkContent(data.sourceContent || data.content);
 			if (!(await posts.canUserPostContentWithLinks(uid, data.content))) {
 				throw new Error(
-					`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`
+					`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`,
 				);
 			}
 		}
@@ -177,11 +175,7 @@ module.exports = function (Topics) {
 				try {
 					if (utils.isNumber(uid)) {
 						// New topic notifications only sent for local-to-local follows only
-						await user.notifications.sendTopicNotificationToFollowers(
-							uid,
-							topicData,
-							postData
-						);
+						await user.notifications.sendTopicNotificationToFollowers(uid, topicData, postData);
 					}
 
 					await Topics.notifyTagFollowers(postData, uid);
@@ -219,7 +213,7 @@ module.exports = function (Topics) {
 			Topics.checkContent(data.sourceContent || data.content);
 			if (!(await posts.canUserPostContentWithLinks(uid, data.content))) {
 				throw new Error(
-					`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`
+					`[[error:not-enough-reputation-to-post-links, ${meta.config['min:rep:post-links']}]]`,
 				);
 			}
 		}
@@ -254,7 +248,7 @@ module.exports = function (Topics) {
 						bodyShort: translator.compile(
 							'notifications:user-posted-to',
 							postData.user.displayname,
-							postData.topic.title
+							postData.topic.title,
 						),
 						nid: `new_post:tid:${postData.topic.tid}:pid:${postData.pid}:uid:${uid}`,
 						mergeId: `notifications:user-posted-to|${postData.topic.tid}`,
@@ -304,7 +298,7 @@ module.exports = function (Topics) {
 			meta.config.minimumTitleLength,
 			meta.config.maximumTitleLength,
 			'title-too-short',
-			'title-too-long'
+			'title-too-long',
 		);
 	};
 
@@ -314,7 +308,7 @@ module.exports = function (Topics) {
 			meta.config.minimumPostLength,
 			meta.config.maximumPostLength,
 			'content-too-short',
-			'content-too-long'
+			'content-too-long',
 		);
 	};
 
@@ -324,11 +318,7 @@ module.exports = function (Topics) {
 			item = utils.stripHTMLTags(item).trim();
 		}
 
-		if (
-			item === null ||
-			item === undefined ||
-			item.length < parseInt(min, 10)
-		) {
+		if (item === null || item === undefined || item.length < parseInt(min, 10)) {
 			throw new Error(`[[error:${minError}, ${min}]]`);
 		} else if (item.length > parseInt(max, 10)) {
 			throw new Error(`[[error:${maxError}, ${max}]]`);
@@ -336,11 +326,7 @@ module.exports = function (Topics) {
 	}
 
 	async function guestHandleValid(data) {
-		if (
-			meta.config.allowGuestHandles &&
-			parseInt(data.uid, 10) === 0 &&
-			data.handle
-		) {
+		if (meta.config.allowGuestHandles && parseInt(data.uid, 10) === 0 && data.handle) {
 			if (data.handle.length > meta.config.maximumUsernameLength) {
 				throw new Error('[[error:guest-handle-invalid]]');
 			}

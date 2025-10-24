@@ -13,7 +13,7 @@ describe('rewards', () => {
 	let bazUid;
 	let herpUid;
 
-	before((done) => {
+	before(done => {
 		// Create 3 users: 1 admin, 2 regular
 		async.series(
 			[
@@ -39,16 +39,16 @@ describe('rewards', () => {
 							Groups.join('rewardGroup', adminUid, next);
 						},
 					],
-					done
+					done,
 				);
-			}
+			},
 		);
 	});
 
 	describe('rewards create', () => {
 		const socketAdmin = require('../src/socket.io/admin');
 		const rewards = require('../src/rewards');
-		it('it should save a reward', (done) => {
+		it('it should save a reward', done => {
 			const data = [
 				{
 					rewards: { groupname: 'Gamers' },
@@ -62,13 +62,13 @@ describe('rewards', () => {
 				},
 			];
 
-			socketAdmin.rewards.save({ uid: adminUid }, data, (err) => {
+			socketAdmin.rewards.save({ uid: adminUid }, data, err => {
 				assert.ifError(err);
 				done();
 			});
 		});
 
-		it('should check condition', (done) => {
+		it('should check condition', done => {
 			function method(next) {
 				next(null, 1);
 			}
@@ -81,7 +81,7 @@ describe('rewards', () => {
 				(err, data) => {
 					assert.ifError(err);
 					done();
-				}
+				},
 			);
 		});
 	});

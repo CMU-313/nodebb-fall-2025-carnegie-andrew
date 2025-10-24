@@ -89,9 +89,7 @@ module.exports = function (Topics) {
 			return tids.map(() => ({ following: false, ignoring: false }));
 		}
 		const keys = [];
-		tids.forEach((tid) =>
-			keys.push(`tid:${tid}:followers`, `tid:${tid}:ignorers`)
-		);
+		tids.forEach(tid => keys.push(`tid:${tid}:followers`, `tid:${tid}:ignorers`));
 
 		const data = await db.isMemberOfSets(keys, uid);
 
@@ -112,7 +110,7 @@ module.exports = function (Topics) {
 		if (parseInt(uid, 10) <= 0) {
 			return tids.map(() => false);
 		}
-		const keys = tids.map((tid) => `tid:${tid}:${set}`);
+		const keys = tids.map(tid => `tid:${tid}:${set}`);
 		return await db.isMemberOfSets(keys, uid);
 	}
 
@@ -154,11 +152,7 @@ module.exports = function (Topics) {
 			followers.splice(index, 1);
 		}
 
-		followers = await privileges.topics.filterUids(
-			'topics:read',
-			postData.topic.tid,
-			followers
-		);
+		followers = await privileges.topics.filterUids('topics:read', postData.topic.tid, followers);
 		if (!followers.length) {
 			return;
 		}

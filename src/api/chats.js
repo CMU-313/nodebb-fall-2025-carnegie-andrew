@@ -24,11 +24,8 @@ async function rateLimitExceeded(caller, field) {
 		user.isPrivileged(caller.uid),
 		user.getUserField(caller.uid, 'reputation'),
 	]);
-	const newbie =
-		!isPrivileged && meta.config.newbieReputationThreshold > reputation;
-	const delay = newbie
-		? meta.config.newbieChatMessageDelay
-		: meta.config.chatMessageDelay;
+	const newbie = !isPrivileged && meta.config.newbieReputationThreshold > reputation;
+	const delay = newbie ? meta.config.newbieChatMessageDelay : meta.config.chatMessageDelay;
 	session[field] = session[field] || 0;
 
 	if (now - session[field] < delay) {
@@ -39,31 +36,20 @@ async function rateLimitExceeded(caller, field) {
 	return false;
 }
 
-chatsAPI.list = async (
-	caller,
-	{ uid = caller.uid, start, stop, page, perPage } = {}
-) => {
-	if (
-		(!utils.isNumber(start) || !utils.isNumber(stop)) &&
-		!utils.isNumber(page)
-	) {
+chatsAPI.list = async (caller, { uid = caller.uid, start, stop, page, perPage } = {}) => {
+	if ((!utils.isNumber(start) || !utils.isNumber(stop)) && !utils.isNumber(page)) {
 		throw new Error('[[error:invalid-data]]');
 	}
 
 	if (!start && !stop && page) {
 		winston.warn(
-			'[api/chats] Sending `page` and `perPage` to .list() is deprecated in favour of `start` and `stop`. The deprecated parameters will be removed in v4.'
+			'[api/chats] Sending `page` and `perPage` to .list() is deprecated in favour of `start` and `stop`. The deprecated parameters will be removed in v4.',
 		);
 		start = Math.max(0, page - 1) * perPage;
 		stop = start + perPage - 1;
 	}
 
-	return await messaging.getRecentChats(
-		caller.uid,
-		uid || caller.uid,
-		start,
-		stop
-	);
+	return await messaging.getRecentChats(caller.uid, uid || caller.uid, start, stop);
 };
 
 chatsAPI.create = async function (caller, data) {
@@ -81,9 +67,7 @@ chatsAPI.create = async function (caller, data) {
 	}
 
 	if (!data.uids || !Array.isArray(data.uids)) {
-		throw new Error(
-			`[[error:wrong-parameter-type, uids, ${typeof data.uids}, Array]]`
-		);
+		throw new Error(`[[error:wrong-parameter-type, uids, ${typeof data.uids}, Array]]`);
 	}
 
 	if (!isPublic && !data.uids.length) {
@@ -97,22 +81,20 @@ chatsAPI.create = async function (caller, data) {
 		? messaging.notificationSettings.ATMENTION
 		: messaging.notificationSettings.ALLMESSAGES;
 
-	await Promise.all(
-		data.uids.map((uid) => messaging.canMessageUser(caller.uid, uid))
-	);
+	await Promise.all(data.uids.map(uid => messaging.canMessageUser(caller.uid, uid)));
 	const roomId = await messaging.newRoom(caller.uid, data);
 
 	return await messaging.getRoomData(roomId);
 };
 
-chatsAPI.getUnread = async (caller) => {
+chatsAPI.getUnread = async caller => {
 	const count = await messaging.getUnreadCount(caller.uid);
 	return { count };
 };
 
 chatsAPI.sortPublicRooms = async (caller, { roomIds, scores }) => {
-	[roomIds, scores].forEach((arr) => {
-		if (!Array.isArray(arr) || !arr.every((value) => isFinite(value))) {
+	[roomIds, scores].forEach(arr => {
+		if (!Array.isArray(arr) || !arr.every(value => isFinite(value))) {
 			throw new Error('[[error:invalid-data]]');
 		}
 	});
@@ -180,18 +162,14 @@ chatsAPI.update = async (caller, data) => {
 	}
 	if (data.hasOwnProperty('groups')) {
 		if (roomData.public && isAdmin) {
-			await db.setObjectField(
-				`chat:room:${data.roomId}`,
-				'groups',
-				JSON.stringify(data.groups)
-			);
+			await db.setObjectField(`chat:room:${data.roomId}`, 'groups', JSON.stringify(data.groups));
 		}
 	}
 	if (data.hasOwnProperty('notificationSetting') && isAdmin) {
 		await db.setObjectField(
 			`chat:room:${data.roomId}`,
 			'notificationSetting',
-			data.notificationSetting
+			data.notificationSetting,
 		);
 	}
 	const loadedRoom = await messaging.loadRoom(caller.uid, {
@@ -226,14 +204,8 @@ chatsAPI.mark = async (caller, data) => {
 		await messaging.markUnread([caller.uid], roomId);
 	} else {
 		await messaging.markRead(caller.uid, roomId);
-		socketHelpers.emitToUids('event:chats.markedAsRead', { roomId: roomId }, [
-			caller.uid,
-		]);
-		const nids = await user.notifications.getUnreadByField(
-			caller.uid,
-			'roomId',
-			[roomId]
-		);
+		socketHelpers.emitToUids('event:chats.markedAsRead', { roomId: roomId }, [caller.uid]);
+		const nids = await user.notifications.getUnreadByField(caller.uid, 'roomId', [roomId]);
 		await notifications.markReadMultiple(nids, caller.uid);
 		user.notifications.pushCount(caller.uid);
 	}
@@ -276,32 +248,28 @@ chatsAPI.users = async (caller, data) => {
 	const start = data.hasOwnProperty('start') ? data.start : 0;
 	const stop = start + 39;
 	const io = require('../socket.io');
-	const [isOwner, isUserInRoom, users, isAdmin, onlineUids] = await Promise.all(
-		[
-			messaging.isRoomOwner(caller.uid, data.roomId),
-			messaging.isUserInRoom(caller.uid, data.roomId),
-			messaging.getUsersInRoomFromSet(
-				`chat:room:${data.roomId}:uids:online`,
-				data.roomId,
-				start,
-				stop,
-				true
-			),
-			user.isAdministrator(caller.uid),
-			io.getUidsInRoom(`chat_room_${data.roomId}`),
-		]
-	);
+	const [isOwner, isUserInRoom, users, isAdmin, onlineUids] = await Promise.all([
+		messaging.isRoomOwner(caller.uid, data.roomId),
+		messaging.isUserInRoom(caller.uid, data.roomId),
+		messaging.getUsersInRoomFromSet(
+			`chat:room:${data.roomId}:uids:online`,
+			data.roomId,
+			start,
+			stop,
+			true,
+		),
+		user.isAdministrator(caller.uid),
+		io.getUidsInRoom(`chat_room_${data.roomId}`),
+	]);
 	if (!isUserInRoom) {
 		throw new Error('[[error:no-privileges]]');
 	}
-	users.forEach((user) => {
+	users.forEach(user => {
 		const isSelf = parseInt(user.uid, 10) === parseInt(caller.uid, 10);
 		user.canKick = isOwner && !isSelf;
-		user.canToggleOwner =
-			utils.isNumber(user.uid) && (isAdmin || isOwner) && !isSelf;
+		user.canToggleOwner = utils.isNumber(user.uid) && (isAdmin || isOwner) && !isSelf;
 		user.online =
-			parseInt(user.uid, 10) === parseInt(caller.uid, 10) ||
-			onlineUids.includes(String(user.uid));
+			parseInt(user.uid, 10) === parseInt(caller.uid, 10) || onlineUids.includes(String(user.uid));
 	});
 	return { users };
 };
@@ -324,9 +292,7 @@ chatsAPI.invite = async (caller, data) => {
 	if (!uidsExist.every(Boolean)) {
 		throw new Error('[[error:no-user]]');
 	}
-	await Promise.all(
-		data.uids.map((uid) => messaging.canMessageUser(caller.uid, uid))
-	);
+	await Promise.all(data.uids.map(uid => messaging.canMessageUser(caller.uid, uid)));
 	await messaging.addUsersToRoom(caller.uid, data.uids, data.roomId);
 
 	delete data.uids;
@@ -370,7 +336,7 @@ chatsAPI.toggleOwner = async (caller, { roomId, uid, state }) => {
 
 chatsAPI.listMessages = async (
 	caller,
-	{ uid = caller.uid, roomId, start = 0, direction = null } = {}
+	{ uid = caller.uid, roomId, start = 0, direction = null } = {},
 ) => {
 	if (!roomId) {
 		throw new Error('[[error:invalid-data]]');
@@ -379,10 +345,7 @@ chatsAPI.listMessages = async (
 	const count = 50;
 	let stop = start + count - 1;
 	if (direction === 1 || direction === -1) {
-		const msgCount = await db.getObjectField(
-			`chat:room:${roomId}`,
-			'messageCount'
-		);
+		const msgCount = await db.getObjectField(`chat:room:${roomId}`, 'messageCount');
 		start = msgCount - start;
 		if (direction === 1) {
 			start -= count + 1;
@@ -412,12 +375,7 @@ chatsAPI.getPinnedMessages = async (caller, { start, roomId }) => {
 	if (!isInRoom) {
 		throw new Error('[[error:no-privileges]]');
 	}
-	const messages = await messaging.getPinnedMessages(
-		roomId,
-		caller.uid,
-		start,
-		start + 49
-	);
+	const messages = await messaging.getPinnedMessages(roomId, caller.uid, start, start + 49);
 	return { messages };
 };
 
@@ -426,12 +384,7 @@ chatsAPI.getMessage = async (caller, { mid, roomId } = {}) => {
 		throw new Error('[[error:invalid-data]]');
 	}
 
-	const messages = await messaging.getMessagesData(
-		[mid],
-		caller.uid,
-		roomId,
-		false
-	);
+	const messages = await messaging.getMessagesData([mid], caller.uid, roomId, false);
 	return messages.pop();
 };
 

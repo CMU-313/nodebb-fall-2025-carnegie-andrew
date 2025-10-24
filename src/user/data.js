@@ -88,21 +88,14 @@ module.exports = function (User) {
 	let iconBackgrounds;
 
 	User.reloadCustomFieldWhitelist = async () => {
-		customFieldWhiteList = await db.getSortedSetRange(
-			'user-custom-fields',
-			0,
-			-1
-		);
+		customFieldWhiteList = await db.getSortedSetRange('user-custom-fields', 0, -1);
 	};
 
 	User.getUserFieldWhitelist = async function () {
-		const { whitelist } = await plugins.hooks.fire(
-			'filter:user.whitelistFields',
-			{
-				uids: [],
-				whitelist: fieldWhitelist.slice(),
-			}
-		);
+		const { whitelist } = await plugins.hooks.fire('filter:user.whitelistFields', {
+			uids: [],
+			whitelist: fieldWhitelist.slice(),
+		});
 		return whitelist;
 	};
 
@@ -111,7 +104,7 @@ module.exports = function (User) {
 			return [];
 		}
 
-		uids = uids.map((uid) => {
+		uids = uids.map(uid => {
 			if (utils.isNumber(uid)) {
 				return parseInt(uid, 10);
 			} else if (activitypub.helpers.isUri(uid)) {
@@ -125,8 +118,8 @@ module.exports = function (User) {
 		fields = fields.slice();
 		ensureRequiredFields(fields, fieldsToRemove);
 
-		const uniqueUids = _.uniq(uids).filter((uid) => isFinite(uid) && uid > 0);
-		const remoteIds = _.uniq(uids).filter((uid) => !isFinite(uid));
+		const uniqueUids = _.uniq(uids).filter(uid => isFinite(uid) && uid > 0);
+		const remoteIds = _.uniq(uids).filter(uid => !isFinite(uid));
 		if (!customFieldWhiteList) {
 			await User.reloadCustomFieldWhitelist();
 		}
@@ -138,14 +131,12 @@ module.exports = function (User) {
 		if (!fields.length) {
 			fields = results.whitelist;
 		} else {
-			fields = fields.filter((value) => value !== 'password');
+			fields = fields.filter(value => value !== 'password');
 		}
 
 		const users = await db.getObjectsFields(
-			uniqueUids
-				.map((uid) => `user:${uid}`)
-				.concat(remoteIds.map((id) => `userRemote:${id}`)),
-			fields
+			uniqueUids.map(uid => `user:${uid}`).concat(remoteIds.map(id => `userRemote:${id}`)),
+			fields,
 		);
 		const result = await plugins.hooks.fire('filter:user.getFields', {
 			uids: uniqueUids,
@@ -192,7 +183,7 @@ module.exports = function (User) {
 
 	function uidsToUsers(uids, uniqueUids, usersData) {
 		const uidToUser = _.zipObject(uniqueUids, usersData);
-		const users = uids.map((uid) => {
+		const users = uids.map(uid => {
 			const user = uidToUser[uid] || { ...User.guestData };
 			if (!parseInt(user.uid, 10) && !activitypub.helpers.isUri(user.uid)) {
 				user.username =
@@ -237,7 +228,7 @@ module.exports = function (User) {
 		}
 
 		const [userSettings, isAdmin, isGlobalModerator] = await Promise.all([
-			User.getMultipleUserSettings(users.map((user) => user.uid)),
+			User.getMultipleUserSettings(users.map(user => user.uid)),
 			User.isAdministrator(callerUID),
 			User.isGlobalModerator(callerUID),
 		]);
@@ -249,20 +240,14 @@ module.exports = function (User) {
 				const isSelf = parseInt(callerUID, 10) === parseInt(_userData.uid, 10);
 				const privilegedOrSelf = isAdmin || isGlobalModerator || isSelf;
 
-				if (
-					!privilegedOrSelf &&
-					(!userSettings[idx].showemail || meta.config.hideEmail)
-				) {
+				if (!privilegedOrSelf && (!userSettings[idx].showemail || meta.config.hideEmail)) {
 					_userData.email = '';
 				}
-				if (
-					!privilegedOrSelf &&
-					(!userSettings[idx].showfullname || meta.config.hideFullname)
-				) {
+				if (!privilegedOrSelf && (!userSettings[idx].showfullname || meta.config.hideFullname)) {
 					_userData.fullname = '';
 				}
 				return _userData;
-			})
+			}),
 		);
 
 		return single ? users.pop() : users;
@@ -271,13 +256,13 @@ module.exports = function (User) {
 	async function modifyUserData(users, requestedFields, fieldsToRemove) {
 		let uidToSettings = {};
 		if (meta.config.showFullnameAsDisplayName) {
-			const uids = users.map((user) => user.uid);
+			const uids = users.map(user => user.uid);
 			uidToSettings = _.zipObject(
 				uids,
 				await db.getObjectsFields(
-					uids.map((uid) => `user:${uid}:settings`),
-					['showfullname']
-				)
+					uids.map(uid => `user:${uid}:settings`),
+					['showfullname'],
+				),
 			);
 		}
 		if (!iconBackgrounds) {
@@ -285,7 +270,7 @@ module.exports = function (User) {
 		}
 
 		const unbanUids = [];
-		users.forEach((user) => {
+		users.forEach(user => {
 			if (!user) {
 				return;
 			}
@@ -294,9 +279,7 @@ module.exports = function (User) {
 
 			if (user.hasOwnProperty('username')) {
 				parseDisplayName(user, uidToSettings);
-				user.username = validator.escape(
-					user.username ? user.username.toString() : ''
-				);
+				user.username = validator.escape(user.username ? user.username.toString() : '');
 			}
 
 			// works around renderOverride supplying `url` to templates
@@ -353,10 +336,9 @@ module.exports = function (User) {
 				if (!iconBackgrounds.includes(user['icon:bgColor'])) {
 					const nameAsIndex = Array.from(user.username).reduce(
 						(cur, next) => cur + next.charCodeAt(),
-						0
+						0,
 					);
-					user['icon:bgColor'] =
-						iconBackgrounds[nameAsIndex % iconBackgrounds.length];
+					user['icon:bgColor'] = iconBackgrounds[nameAsIndex % iconBackgrounds.length];
 				}
 				user['icon:text'] = (user.username[0] || '').toUpperCase();
 			}
@@ -366,26 +348,20 @@ module.exports = function (User) {
 			}
 
 			if (user.hasOwnProperty('lastonline')) {
-				user.lastonlineISO =
-					utils.toISOString(user.lastonline) || user.joindateISO;
+				user.lastonlineISO = utils.toISOString(user.lastonline) || user.joindateISO;
 			}
 
 			if (user.hasOwnProperty('mutedUntil')) {
 				user.muted = user.mutedUntil > Date.now();
 			}
 
-			if (
-				user.hasOwnProperty('banned') ||
-				user.hasOwnProperty('banned:expire')
-			) {
+			if (user.hasOwnProperty('banned') || user.hasOwnProperty('banned:expire')) {
 				const result = User.bans.calcExpiredFromUserData(user);
 				user.banned = result.banned;
 				const unban = result.banned && result.banExpired;
 				user.banned_until = unban ? 0 : user['banned:expire'];
 				user.banned_until_readable =
-					user.banned_until && !unban
-						? utils.toISOString(user.banned_until)
-						: 'Not Banned';
+					user.banned_until && !unban ? utils.toISOString(user.banned_until) : 'Not Banned';
 				if (unban) {
 					unbanUids.push(user.uid);
 					user.banned = false;
@@ -419,8 +395,8 @@ module.exports = function (User) {
 			String(
 				meta.config.showFullnameAsDisplayName && showfullname && user.fullname
 					? user.fullname
-					: user.username
-			)
+					: user.username,
+			),
 		);
 	}
 
@@ -507,11 +483,7 @@ module.exports = function (User) {
 
 	async function incrDecrUserFieldBy(uid, field, value, type) {
 		const prefix = `user${activitypub.helpers.isUri(uid) ? 'Remote' : ''}`;
-		const newValue = await db.incrObjectFieldBy(
-			`${prefix}:${uid}`,
-			field,
-			value
-		);
+		const newValue = await db.incrObjectFieldBy(`${prefix}:${uid}`, field, value);
 		plugins.hooks.fire('action:user.set', {
 			uid: uid,
 			field: field,

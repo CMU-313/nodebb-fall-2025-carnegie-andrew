@@ -8,11 +8,7 @@ module.exports = {
 	method: async function () {
 		const meta = require('../../meta');
 		if (meta.config['allow-from-uri']) {
-			await db.setObjectField(
-				'config',
-				'csp-frame-ancestors',
-				meta.config['allow-from-uri']
-			);
+			await db.setObjectField('config', 'csp-frame-ancestors', meta.config['allow-from-uri']);
 		}
 		await db.deleteObjectField('config', 'allow-from-uri');
 	},

@@ -10,8 +10,8 @@ get:
       description: Path of the folder, relative to `public/uploads/`
       example: /
   responses:
-    "200":
-      description: "A JSON object containing uploaded files"
+    '200':
+      description: 'A JSON object containing uploaded files'
       content:
         application/json:
           schema:

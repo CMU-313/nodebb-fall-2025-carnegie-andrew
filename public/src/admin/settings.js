@@ -1,8 +1,12 @@
 'use strict';
 
-
 define('admin/settings', [
-	'uploader', 'mousetrap', 'hooks', 'alerts', 'settings', 'bootstrap',
+	'uploader',
+	'mousetrap',
+	'hooks',
+	'alerts',
+	'settings',
+	'bootstrap',
 ], function (uploader, mousetrap, hooks, alerts, settings, bootstrap) {
 	const Settings = {};
 
@@ -21,7 +25,9 @@ define('admin/settings', [
 				if (anchor.startsWith('section')) {
 					$this.parent().attr('id', anchor);
 				}
-				tocList.append(`<a class="btn btn-ghost btn-sm text-xs text-start text-decoration-none" href="#${anchor}">${header}</a>`);
+				tocList.append(
+					`<a class="btn btn-ghost btn-sm text-xs text-start text-decoration-none" href="#${anchor}">${header}</a>`,
+				);
 			});
 			const offset = mainHader.outerHeight(true);
 			// https://stackoverflow.com/a/11814275/583363
@@ -46,9 +52,12 @@ define('admin/settings', [
 
 			const scrollTo = $(`${window.location.hash}`);
 			if (scrollTo.length) {
-				$('html, body').animate({
-					scrollTop: (scrollTo.offset().top - offset) + 'px',
-				}, 400);
+				$('html, body').animate(
+					{
+						scrollTop: scrollTo.offset().top - offset + 'px',
+					},
+					400,
+				);
 			}
 			tocEl.removeClass('hidden');
 		}
@@ -79,7 +88,11 @@ define('admin/settings', [
 				if (field.is('input') && inputType === 'checkbox') {
 					const checked = parseInt(app.config[key], 10) === 1;
 					field.prop('checked', checked);
-				} else if (field.is('textarea') || field.is('select') || (field.is('input') && defaultInputs.indexOf(inputType) !== -1)) {
+				} else if (
+					field.is('textarea') ||
+					field.is('select') ||
+					(field.is('input') && defaultInputs.indexOf(inputType) !== -1)
+				) {
 					field.val(app.config[key]);
 				}
 			}
@@ -122,12 +135,14 @@ define('admin/settings', [
 		handleUploads();
 		setupTagsInput();
 
-		$('#clear-sitemap-cache').off('click').on('click', function () {
-			socket.emit('admin.settings.clearSitemapCache', function () {
-				alerts.success('Sitemap Cache Cleared!');
+		$('#clear-sitemap-cache')
+			.off('click')
+			.on('click', function () {
+				socket.emit('admin.settings.clearSitemapCache', function () {
+					alerts.success('Sitemap Cache Cleared!');
+				});
+				return false;
 			});
-			return false;
-		});
 
 		if (typeof callback === 'function') {
 			callback();
@@ -152,16 +167,19 @@ define('admin/settings', [
 		$('#content input[data-action="upload"]').each(function () {
 			const uploadBtn = $(this);
 			uploadBtn.on('click', function () {
-				uploader.show({
-					title: uploadBtn.attr('data-title'),
-					description: uploadBtn.attr('data-description'),
-					route: uploadBtn.attr('data-route'),
-					params: {},
-					showHelp: uploadBtn.attr('data-help') ? uploadBtn.attr('data-help') === 1 : undefined,
-					accept: uploadBtn.attr('data-accept'),
-				}, function (image) {
-					$('#' + uploadBtn.attr('data-target')).val(image);
-				});
+				uploader.show(
+					{
+						title: uploadBtn.attr('data-title'),
+						description: uploadBtn.attr('data-description'),
+						route: uploadBtn.attr('data-route'),
+						params: {},
+						showHelp: uploadBtn.attr('data-help') ? uploadBtn.attr('data-help') === 1 : undefined,
+						accept: uploadBtn.attr('data-accept'),
+					},
+					function (image) {
+						$('#' + uploadBtn.attr('data-target')).val(image);
+					},
+				);
 			});
 		});
 	}

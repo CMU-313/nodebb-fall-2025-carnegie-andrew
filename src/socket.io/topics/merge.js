@@ -10,23 +10,15 @@ module.exports = function (SocketTopics) {
 			throw new Error('[[error:invalid-data]]');
 		}
 		const allowed = await Promise.all(
-			data.tids.map((tid) => privileges.topics.isAdminOrMod(tid, socket.uid))
+			data.tids.map(tid => privileges.topics.isAdminOrMod(tid, socket.uid)),
 		);
 		if (allowed.includes(false)) {
 			throw new Error('[[error:no-privileges]]');
 		}
-		if (
-			data.options &&
-			data.options.mainTid &&
-			!data.tids.includes(data.options.mainTid)
-		) {
+		if (data.options && data.options.mainTid && !data.tids.includes(data.options.mainTid)) {
 			throw new Error('[[error:invalid-data]]');
 		}
-		const mergeIntoTid = await topics.merge(
-			data.tids,
-			socket.uid,
-			data.options
-		);
+		const mergeIntoTid = await topics.merge(data.tids, socket.uid, data.options);
 		await events.log({
 			type: `topic-merge`,
 			uid: socket.uid,

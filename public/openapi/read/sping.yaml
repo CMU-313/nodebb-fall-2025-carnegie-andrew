@@ -4,10 +4,10 @@ get:
   summary: Check if NodeBB is up
   description: This route returns "healthy" and 200 status code if NodeBB is up and running.
   responses:
-    "200":
-      description: ""
+    '200':
+      description: ''
       content:
         text/plain:
           schema:
             type: string
-            example: "healthy"
+            example: 'healthy'

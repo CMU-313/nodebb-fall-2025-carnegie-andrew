@@ -4,8 +4,8 @@ post:
   summary: Upload a file to a specific post
   description: Provided by NodeBB core and used mainly by the composer, this route allows you to upload an image or file to a post.
   responses:
-    "200":
-      description: ""
+    '200':
+      description: ''
       content:
         application/json:
           schema:

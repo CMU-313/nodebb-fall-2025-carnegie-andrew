@@ -1,14 +1,17 @@
 'use strict';
 
 // Use this in client:
-const currentUserSlug = (app && app.user && app.user.userslug) ? app.user.userslug : 'unknown';
+const currentUserSlug = app && app.user && app.user.userslug ? app.user.userslug : 'unknown';
 define('quickreply', [
-	'components', 'autocomplete', 'api',
-	'alerts', 'uploadHelpers', 'mousetrap', 'storage', 'hooks',
-], function (
-	components, autocomplete, api,
-	alerts, uploadHelpers, mousetrap, storage, hooks
-) {
+	'components',
+	'autocomplete',
+	'api',
+	'alerts',
+	'uploadHelpers',
+	'mousetrap',
+	'storage',
+	'hooks',
+], function (components, autocomplete, api, alerts, uploadHelpers, mousetrap, storage, hooks) {
 	const QuickReply = {
 		_autocomplete: null,
 	};
@@ -27,9 +30,9 @@ define('quickreply', [
 		};
 
 		// === Anonymous state wiring ===
-		const $anonToggle = $('#qr-anon-toggle').length ?
-			$('#qr-anon-toggle') :
-			components.get('topic/quickreply/anonymous/toggle');
+		const $anonToggle = $('#qr-anon-toggle').length
+			? $('#qr-anon-toggle')
+			: components.get('topic/quickreply/anonymous/toggle');
 		const $anonHidden = $('[component="topic/quickreply/anonymous"]');
 
 		// single source of truth during this page view
@@ -42,9 +45,9 @@ define('quickreply', [
 
 		// helper to show a small toast
 		function toastMode(state) {
-			const msg = state ?
-				'Anonymous mode ON — replies will post as Anonymous.' :
-				'Anonymous mode OFF — replies will post as yourself.';
+			const msg = state
+				? 'Anonymous mode ON — replies will post as Anonymous.'
+				: 'Anonymous mode OFF — replies will post as yourself.';
 			alerts.alert({
 				type: 'info',
 				title: 'Posting mode changed',
@@ -67,7 +70,6 @@ define('quickreply', [
 			});
 		}
 
-
 		destroyAutoComplete();
 		$(window).one('action:ajaxify.start', () => {
 			destroyAutoComplete();
@@ -75,7 +77,7 @@ define('quickreply', [
 		$(window).trigger('composer:autocomplete:init', data);
 		QuickReply._autocomplete = autocomplete.setup(data);
 
-		mousetrap.bind('ctrl+return', (e) => {
+		mousetrap.bind('ctrl+return', e => {
 			if (e.target === element.get(0)) {
 				components.get('topic/quickreply/button').get(0).click();
 			}
@@ -90,8 +92,12 @@ define('quickreply', [
 			route: '/api/post/upload',
 			callback: function (uploads) {
 				let text = element.val();
-				uploads.forEach((upload) => {
-					text = text + (text ? '\n' : '') + (upload.isImage ? '!' : '') + `[${upload.filename}](${upload.url})`;
+				uploads.forEach(upload => {
+					text =
+						text +
+						(text ? '\n' : '') +
+						(upload.isImage ? '!' : '') +
+						`[${upload.filename}](${upload.url})`;
 				});
 				element.val(text);
 			},
@@ -147,7 +153,10 @@ define('quickreply', [
 				alerts.alert({
 					type: 'success',
 					title: '[[global:alert.success]]',
-					message: 'anonymous posting: ' + (app && app.user && app.user.userslug ? app.user.userslug : 'unknown') + ' posted anonymously',
+					message:
+						'anonymous posting: ' +
+						(app && app.user && app.user.userslug ? app.user.userslug : 'unknown') +
+						' posted anonymously',
 					timeout: 3000,
 				});
 
@@ -162,7 +171,6 @@ define('quickreply', [
 
 				return;
 			}
-			
 
 			ready = false;
 			api.post(`/topics/${ajaxify.data.tid}`, replyData, function (err, data) {
@@ -194,16 +202,19 @@ define('quickreply', [
 			element.val(draft);
 		}
 
-		element.on('keyup', utils.debounce(function () {
-			const text = element.val();
-			if (text) {
-				storage.setItem(qrDraftId, text);
-			} else {
-				storage.removeItem(qrDraftId);
-			}
-		}, 1000));
+		element.on(
+			'keyup',
+			utils.debounce(function () {
+				const text = element.val();
+				if (text) {
+					storage.setItem(qrDraftId, text);
+				} else {
+					storage.removeItem(qrDraftId);
+				}
+			}, 1000),
+		);
 
-		components.get('topic/quickreply/expand').on('click', (e) => {
+		components.get('topic/quickreply/expand').on('click', e => {
 			e.preventDefault();
 			storage.removeItem(qrDraftId);
 			const textEl = components.get('topic/quickreply/text');

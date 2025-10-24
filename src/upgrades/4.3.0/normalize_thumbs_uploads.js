@@ -28,13 +28,12 @@ module.exports = {
 			return path;
 		}
 
-		const md5 = (filename) =>
-			crypto.createHash('md5').update(filename).digest('hex');
+		const md5 = filename => crypto.createHash('md5').update(filename).digest('hex');
 
 		await batch.processSortedSet(
 			'topics:tid',
-			async (tids) => {
-				const keys = tids.map((tid) => `topic:${tid}:thumbs`);
+			async tids => {
+				const keys = tids.map(tid => `topic:${tid}:thumbs`);
 
 				const topicThumbsData = await db.getSortedSetsMembersWithScores(keys);
 				const bulkAdd = [];
@@ -43,14 +42,10 @@ module.exports = {
 				topicThumbsData.forEach((topicThumbs, idx) => {
 					const tid = tids[idx];
 					if (Array.isArray(topicThumbs)) {
-						topicThumbs.forEach((thumb) => {
+						topicThumbs.forEach(thumb => {
 							const normalizedPath = normalizePath(thumb.value);
 							if (normalizedPath !== thumb.value) {
-								bulkAdd.push([
-									`topic:${tid}:thumbs`,
-									thumb.score,
-									normalizedPath,
-								]);
+								bulkAdd.push([`topic:${tid}:thumbs`, thumb.score, normalizedPath]);
 								bulkRemove.push([`topic:${tid}:thumbs`, thumb.value]);
 							}
 						});
@@ -64,13 +59,13 @@ module.exports = {
 			},
 			{
 				batch: 500,
-			}
+			},
 		);
 
 		await batch.processSortedSet(
 			'posts:pid',
-			async (pids) => {
-				const keys = pids.map((pid) => `post:${pid}:uploads`);
+			async pids => {
+				const keys = pids.map(pid => `post:${pid}:uploads`);
 
 				const postUploadData = await db.getSortedSetsMembersWithScores(keys);
 				const bulkAdd = [];
@@ -79,19 +74,11 @@ module.exports = {
 				postUploadData.forEach((postUploads, idx) => {
 					const pid = pids[idx];
 					if (Array.isArray(postUploads)) {
-						postUploads.forEach((postUpload) => {
+						postUploads.forEach(postUpload => {
 							const normalizedPath = normalizePath(postUpload.value);
 							if (normalizedPath !== postUpload.value) {
-								bulkAdd.push([
-									`post:${pid}:uploads`,
-									postUpload.score,
-									normalizedPath,
-								]);
-								bulkAdd.push([
-									`upload:${md5(normalizedPath)}:pids`,
-									postUpload.score,
-									pid,
-								]);
+								bulkAdd.push([`post:${pid}:uploads`, postUpload.score, normalizedPath]);
+								bulkAdd.push([`upload:${md5(normalizedPath)}:pids`, postUpload.score, pid]);
 								bulkRemove.push([`post:${pid}:uploads`, postUpload.value]);
 								bulkRemove.push([`upload:${md5(postUpload.value)}:pids`, pid]);
 							}
@@ -106,13 +93,13 @@ module.exports = {
 			},
 			{
 				batch: 500,
-			}
+			},
 		);
 
 		await batch.processSortedSet(
 			'users:joindate',
-			async (uids) => {
-				const keys = uids.map((uid) => `uid:${uid}:uploads`);
+			async uids => {
+				const keys = uids.map(uid => `uid:${uid}:uploads`);
 
 				const userUploadData = await db.getSortedSetsMembersWithScores(keys);
 				const bulkAdd = [];
@@ -122,17 +109,11 @@ module.exports = {
 				userUploadData.forEach((userUploads, idx) => {
 					const uid = uids[idx];
 					if (Array.isArray(userUploads)) {
-						userUploads.forEach((userUpload) => {
+						userUploads.forEach(userUpload => {
 							const normalizedPath = normalizePath(userUpload.value);
 							if (normalizedPath !== userUpload.value) {
-								bulkAdd.push([
-									`uid:${uid}:uploads`,
-									userUpload.score,
-									normalizedPath,
-								]);
-								promises.push(
-									db.setObjectField(`upload:${md5(normalizedPath)}`, 'uid', uid)
-								);
+								bulkAdd.push([`uid:${uid}:uploads`, userUpload.score, normalizedPath]);
+								promises.push(db.setObjectField(`upload:${md5(normalizedPath)}`, 'uid', uid));
 
 								bulkRemove.push([`uid:${uid}:uploads`, userUpload.value]);
 								promises.push(db.delete(`upload:${md5(userUpload.value)}`));
@@ -149,7 +130,7 @@ module.exports = {
 			},
 			{
 				batch: 500,
-			}
+			},
 		);
 	},
 };

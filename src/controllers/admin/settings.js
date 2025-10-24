@@ -21,7 +21,7 @@ settingsController.general = async (req, res) => {
 	const routes = await helpers.getHomePageRoutes(req.uid);
 	const postSharing = await social.getPostSharing();
 	const languageData = await languages.list();
-	languageData.forEach((language) => {
+	languageData.forEach(language => {
 		language.selected = language.code === meta.config.defaultLang;
 	});
 
@@ -42,7 +42,7 @@ settingsController.navigation = async function (req, res) {
 
 	allGroups.sort((a, b) => b.system - a.system);
 
-	admin.groups = allGroups.map((group) => ({
+	admin.groups = allGroups.map(group => ({
 		name: group.name,
 		displayName: group.displayName,
 	}));
@@ -52,15 +52,15 @@ settingsController.navigation = async function (req, res) {
 		enabled.title = translator.escape(enabled.title);
 		enabled.text = translator.escape(enabled.text);
 		enabled.dropdownContent = translator.escape(
-			validator.escape(String(enabled.dropdownContent || ''))
+			validator.escape(String(enabled.dropdownContent || '')),
 		);
-		enabled.groups = admin.groups.map((group) => ({
+		enabled.groups = admin.groups.map(group => ({
 			displayName: group.displayName,
 			selected: enabled.groups.includes(group.name),
 		}));
 	});
 
-	admin.available.forEach((available) => {
+	admin.available.forEach(available => {
 		available.groups = admin.groups;
 	});
 
@@ -74,7 +74,7 @@ settingsController.user = async (req, res) => {
 		notifications.getAllNotificationTypes(),
 		groups.getNonPrivilegeGroups('groups:createtime', 0, -1),
 	]);
-	const notificationSettings = notificationTypes.map((type) => ({
+	const notificationSettings = notificationTypes.map(type => ({
 		name: type,
 		label: `[[notifications:${type.replace(/_/g, '-')}]]`,
 	}));
@@ -104,11 +104,7 @@ settingsController.tags = async (req, res) => {
 };
 
 settingsController.post = async (req, res) => {
-	const groupData = await groups.getNonPrivilegeGroups(
-		'groups:createtime',
-		0,
-		-1
-	);
+	const groupData = await groups.getNonPrivilegeGroups('groups:createtime', 0, -1);
 	res.render('admin/settings/post', {
 		title: '[[admin/menu:settings/post]]',
 		groupsExemptFromPostQueue: groupData,
@@ -128,10 +124,8 @@ settingsController.email = async (req, res) => {
 		title: '[[admin/menu:settings/email]]',
 		emails: emails,
 		sendable: emails
-			.filter(
-				(e) => !e.path.includes('_plaintext') && !e.path.includes('partials')
-			)
-			.map((tpl) => tpl.path),
+			.filter(e => !e.path.includes('_plaintext') && !e.path.includes('partials'))
+			.map(tpl => tpl.path),
 		services: emailer.listServices(),
 	});
 };
@@ -193,11 +187,7 @@ settingsController.webCrawler = async (req, res) => {
 };
 
 settingsController.advanced = async (req, res) => {
-	const groupData = await groups.getNonPrivilegeGroups(
-		'groups:createtime',
-		0,
-		-1
-	);
+	const groupData = await groups.getNonPrivilegeGroups('groups:createtime', 0, -1);
 	res.render('admin/settings/advanced', {
 		title: '[[admin/menu:settings/advanced]]',
 		groupsExemptFromMaintenanceMode: groupData,

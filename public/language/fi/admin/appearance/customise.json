@@ -1,20 +1,20 @@
 {
-	"customise": "Mukauta",
-	"custom-css": "Mukautettu CSS/SASS",
-	"custom-css.description": "Enter your own CSS/SASS declarations here, which will be applied after all other styles.",
-	"custom-css.enable": "Käytä mukautettuja CSS/SASS-määrityksiä",
+  "customise": "Mukauta",
+  "custom-css": "Mukautettu CSS/SASS",
+  "custom-css.description": "Enter your own CSS/SASS declarations here, which will be applied after all other styles.",
+  "custom-css.enable": "Käytä mukautettuja CSS/SASS-määrityksiä",
 
-	"custom-js": "Mukautettu JavaScript",
-	"custom-js.description": "Syötä Javascript-sisältö tähän. Se suoritetaan, kun sivu on latautunut valmiiksi.",
-	"custom-js.enable": "Käytä JavaScript-mukautusta",
+  "custom-js": "Mukautettu JavaScript",
+  "custom-js.description": "Syötä Javascript-sisältö tähän. Se suoritetaan, kun sivu on latautunut valmiiksi.",
+  "custom-js.enable": "Käytä JavaScript-mukautusta",
 
-	"custom-header": "Mukauta otsaketta",
-	"custom-header.description": "Syötä otsakkeeseen, eli <code>&lt;head&gt;</code>-osioon sisällytettävät HTML-määritykset tähän (esim. meta-tagit yms.). Myös script-tagien käyttö on mahdollista, mutta ei suositeltavaa, koska <a href=\"#custom-js\" data-toggle=\"tab\">Mukautettu JavaScript</a> -välilehti on käytettävissä.",
-	"custom-header.enable": "Käytä otsakemukautusta",
+  "custom-header": "Mukauta otsaketta",
+  "custom-header.description": "Syötä otsakkeeseen, eli <code>&lt;head&gt;</code>-osioon sisällytettävät HTML-määritykset tähän (esim. meta-tagit yms.). Myös script-tagien käyttö on mahdollista, mutta ei suositeltavaa, koska <a href=\"#custom-js\" data-toggle=\"tab\">Mukautettu JavaScript</a> -välilehti on käytettävissä.",
+  "custom-header.enable": "Käytä otsakemukautusta",
 
-	"custom-css.livereload": "Salli sivun päivitys livenä",
-	"custom-css.livereload.description": "Salli tämä, jos haluat mahdollistaa kaikkien tililläsi olevien laitteiden istuntojen päivittymisen, kun tallennat tekemäsi muutokset.",
-	"bsvariables": "_variables.scss",
-	"bsvariables.description": "Override bootstrap variables here. You can also use a tool like <a href=\"https://bootstrap.build/app\">bootstrap.build</a> and paste the output here.<br/>Changes require a rebuild & restart.",
-	"bsvariables.enable": "Enable _variables.scss"
+  "custom-css.livereload": "Salli sivun päivitys livenä",
+  "custom-css.livereload.description": "Salli tämä, jos haluat mahdollistaa kaikkien tililläsi olevien laitteiden istuntojen päivittymisen, kun tallennat tekemäsi muutokset.",
+  "bsvariables": "_variables.scss",
+  "bsvariables.description": "Override bootstrap variables here. You can also use a tool like <a href=\"https://bootstrap.build/app\">bootstrap.build</a> and paste the output here.<br/>Changes require a rebuild & restart.",
+  "bsvariables.enable": "Enable _variables.scss"
 }

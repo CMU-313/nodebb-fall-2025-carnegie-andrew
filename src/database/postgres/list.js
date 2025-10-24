@@ -8,7 +8,7 @@ module.exports = function (module) {
 			return;
 		}
 
-		await module.transaction(async (client) => {
+		await module.transaction(async client => {
 			await helpers.ensureLegacyObjectType(client, key, 'list');
 			value = Array.isArray(value) ? value : [value];
 			value.reverse();
@@ -28,7 +28,7 @@ DO UPDATE SET "array" = EXCLUDED.array || "legacy_list"."array"`,
 		if (!key) {
 			return;
 		}
-		await module.transaction(async (client) => {
+		await module.transaction(async client => {
 			value = Array.isArray(value) ? value : [value];
 
 			await helpers.ensureLegacyObjectType(client, key, 'list');
@@ -148,7 +148,7 @@ UPDATE "legacy_list" l
    AND o."type" = l."type"
    AND o."_key" = $1::TEXT`,
 						values: [key, start, stop],
-					}
+					},
 		);
 	};
 
@@ -210,7 +210,7 @@ SELECT ARRAY(SELECT m.m
         AND o."type" = l."type"
  WHERE o."_key" = $1::TEXT`,
 						values: [key, start, stop],
-					}
+					},
 		);
 
 		return res.rows.length ? res.rows[0].l : [];

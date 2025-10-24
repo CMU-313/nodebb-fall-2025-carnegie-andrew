@@ -67,9 +67,7 @@ searchController.search = async function (req, res, next) {
 		timeRange: validator.escape(String(req.query.timeRange || '')),
 		timeFilter: validator.escape(String(req.query.timeFilter || '')),
 		sortBy:
-			validator.escape(String(req.query.sortBy || '')) ||
-			meta.config.searchDefaultSortBy ||
-			'',
+			validator.escape(String(req.query.sortBy || '')) || meta.config.searchDefaultSortBy || '',
 		sortDirection: validator.escape(String(req.query.sortDirection || '')),
 		page: page,
 		itemsPerPage: req.query.itemsPerPage,
@@ -77,16 +75,9 @@ searchController.search = async function (req, res, next) {
 		qs: req.query,
 	};
 
-	const [searchData] = await Promise.all([
-		search.search(data),
-		recordSearch(data),
-	]);
+	const [searchData] = await Promise.all([search.search(data), recordSearch(data)]);
 
-	searchData.pagination = pagination.create(
-		page,
-		searchData.pageCount,
-		req.query
-	);
+	searchData.pagination = pagination.create(page, searchData.pageCount, req.query);
 	searchData.multiplePages = searchData.pageCount > 1;
 	searchData.search_query = validator.escape(String(req.query.term || ''));
 	searchData.term = req.query.term;
@@ -95,20 +86,13 @@ searchController.search = async function (req, res, next) {
 		return res.json(searchData);
 	}
 
-	searchData.breadcrumbs = helpers.buildBreadcrumbs([
-		{ text: '[[global:search]]' },
-	]);
+	searchData.breadcrumbs = helpers.buildBreadcrumbs([{ text: '[[global:search]]' }]);
 	searchData.showAsPosts = !req.query.showAs || req.query.showAs === 'posts';
 	searchData.showAsTopics = req.query.showAs === 'topics';
 	searchData.title = '[[global:header.search]]';
 	if (Array.isArray(data.categories)) {
-		searchData.selectedCids = data.categories.map((cid) =>
-			validator.escape(String(cid))
-		);
-		if (
-			!searchData.selectedCids.includes('all') &&
-			searchData.selectedCids.length
-		) {
+		searchData.selectedCids = data.categories.map(cid => validator.escape(String(cid)));
+		if (!searchData.selectedCids.includes('all') && searchData.selectedCids.length) {
 			searchData.selectedCategory = { cid: 0 };
 		}
 	}
@@ -131,8 +115,8 @@ searchController.search = async function (req, res, next) {
 			label: translator.compile(
 				'search:posted-by-usernames',
 				(Array.isArray(data.postedBy) ? data.postedBy : [])
-					.map((u) => validator.escape(String(u)))
-					.join(', ')
+					.map(u => validator.escape(String(u)))
+					.join(', '),
 			),
 		},
 		tags: {
@@ -140,8 +124,8 @@ searchController.search = async function (req, res, next) {
 			label: translator.compile(
 				'search:tags-x',
 				(Array.isArray(data.hasTags) ? data.hasTags : [])
-					.map((u) => validator.escape(String(u)))
-					.join(', ')
+					.map(u => validator.escape(String(u)))
+					.join(', '),
 			),
 		},
 		categories: {
@@ -171,10 +155,7 @@ async function recordSearch(data) {
 		return;
 	}
 	const cleanedQuery = String(query).trim().toLowerCase().slice(0, 255);
-	if (
-		['titles', 'titlesposts', 'posts'].includes(searchIn) &&
-		cleanedQuery.length > 2
-	) {
+	if (['titles', 'titlesposts', 'posts'].includes(searchIn) && cleanedQuery.length > 2) {
 		searches[data.uid] = searches[data.uid] || { timeoutId: 0, queries: [] };
 		searches[data.uid].queries.push(cleanedQuery);
 		if (searches[data.uid].timeoutId) {
@@ -184,23 +165,16 @@ async function recordSearch(data) {
 			if (searches[data.uid] && searches[data.uid].queries) {
 				const copy = searches[data.uid].queries.slice();
 				const filtered = searches[data.uid].queries.filter(
-					(q) =>
-						!copy.find(
-							(query) => query.startsWith(q) && query.length > q.length
-						)
+					q => !copy.find(query => query.startsWith(q) && query.length > q.length),
 				);
 				delete searches[data.uid];
 				const dayTimestamp = new Date();
 				dayTimestamp.setHours(0, 0, 0, 0);
 				await Promise.all(
-					_.uniq(filtered).map(async (query) => {
+					_.uniq(filtered).map(async query => {
 						await db.sortedSetIncrBy('searches:all', 1, query);
-						await db.sortedSetIncrBy(
-							`searches:${dayTimestamp.getTime()}`,
-							1,
-							query
-						);
-					})
+						await db.sortedSetIncrBy(`searches:${dayTimestamp.getTime()}`, 1, query);
+					}),
 				);
 			}
 		}, 5000);
@@ -219,7 +193,7 @@ function getSelectedTags(hasTags) {
 	if (!Array.isArray(hasTags) || !hasTags.length) {
 		return [];
 	}
-	const tags = hasTags.map((tag) => ({ value: tag }));
+	const tags = hasTags.map(tag => ({ value: tag }));
 	return topics.getTagData(tags);
 }
 

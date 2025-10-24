@@ -17,7 +17,7 @@ Meta.config = {};
 // called after data is loaded from db
 function deserialize(config) {
 	const deserialized = {};
-	Object.keys(config).forEach((key) => {
+	Object.keys(config).forEach(key => {
 		const defaultType = typeof defaults[key];
 		const type = typeof config[key];
 		const number = parseFloat(config[key]);
@@ -36,11 +36,7 @@ function deserialize(config) {
 			deserialized[key] = false;
 		} else if (config[key] === null) {
 			deserialized[key] = defaults[key];
-		} else if (
-			defaultType === 'undefined' &&
-			!isNaN(number) &&
-			isFinite(config[key])
-		) {
+		} else if (defaultType === 'undefined' && !isNaN(number) && isFinite(config[key])) {
 			deserialized[key] = number;
 		} else if (Array.isArray(defaults[key]) && !Array.isArray(config[key])) {
 			try {
@@ -59,7 +55,7 @@ function deserialize(config) {
 // called before data is saved to db
 function serialize(config) {
 	const serialized = {};
-	Object.keys(config).forEach((key) => {
+	Object.keys(config).forEach(key => {
 		const defaultType = typeof defaults[key];
 		const type = typeof config[key];
 		const number = parseFloat(config[key]);
@@ -74,11 +70,7 @@ function serialize(config) {
 			}
 		} else if (config[key] === null) {
 			serialized[key] = defaults[key];
-		} else if (
-			defaultType === 'undefined' &&
-			!isNaN(number) &&
-			isFinite(config[key])
-		) {
+		} else if (defaultType === 'undefined' && !isNaN(number) && isFinite(config[key])) {
 			serialized[key] = number;
 		} else if (Array.isArray(defaults[key]) && Array.isArray(config[key])) {
 			serialized[key] = JSON.stringify(config[key]);
@@ -105,9 +97,7 @@ Configs.list = async function () {
 
 Configs.get = async function (field) {
 	const values = await Configs.getFields([field]);
-	return values.hasOwnProperty(field) && values[field] !== undefined
-		? values[field]
-		: null;
+	return values.hasOwnProperty(field) && values[field] !== undefined ? values[field] : null;
 };
 
 Configs.getFields = async function (fields) {
@@ -217,14 +207,12 @@ async function getLogoSize(data) {
 	}
 	let size;
 	try {
-		size = await image.size(
-			path.join(nconf.get('upload_path'), 'system', 'site-logo-x50.png')
-		);
+		size = await image.size(path.join(nconf.get('upload_path'), 'system', 'site-logo-x50.png'));
 	} catch (err) {
 		if (err.code === 'ENOENT') {
 			// For whatever reason the x50 logo wasn't generated, gracefully error out
 			winston.warn(
-				"[logo] The email-safe logo doesn't seem to have been created, please re-upload your site logo."
+				"[logo] The email-safe logo doesn't seem to have been created, please re-upload your site logo.",
 			);
 			size = {
 				height: 0,
@@ -235,8 +223,7 @@ async function getLogoSize(data) {
 		}
 	}
 	data['brand:emailLogo'] =
-		nconf.get('url') +
-		path.join(nconf.get('upload_url'), 'system', 'site-logo-x50.png');
+		nconf.get('url') + path.join(nconf.get('upload_url'), 'system', 'site-logo-x50.png');
 	data['brand:emailLogo:height'] = size.height;
 	data['brand:emailLogo:width'] = size.width;
 }
@@ -259,7 +246,7 @@ function updateLocalConfig(config) {
 	Object.assign(Meta.config, config);
 }
 
-pubsub.on('config:update', (config) => {
+pubsub.on('config:update', config => {
 	if (typeof config === 'object' && Meta.config) {
 		updateLocalConfig(config);
 	}

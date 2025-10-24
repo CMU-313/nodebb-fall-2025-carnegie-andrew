@@ -5,7 +5,7 @@ module.exports = {
 	timestamp: Date.UTC(2018, 10, 10),
 	method: async function () {
 		const data = await navigationAdminGet();
-		data.forEach((navItem) => {
+		data.forEach(navItem => {
 			if (navItem && navItem.properties) {
 				navItem.groups = [];
 				if (navItem.properties.adminOnly) {
@@ -29,7 +29,7 @@ module.exports = {
 async function navigationAdminGet() {
 	const db = require('../../database');
 	const data = await db.getSortedSetRange('navigation:enabled', 0, -1);
-	return data.filter(Boolean).map((item) => {
+	return data.filter(Boolean).map(item => {
 		item = JSON.parse(item);
 		item.groups = item.groups || [];
 		if (item.groups && !Array.isArray(item.groups)) {
@@ -44,7 +44,7 @@ async function navigationAdminSave(data) {
 	const translator = require('../../translator');
 	const order = Object.keys(data);
 	const items = data.map((item, index) => {
-		Object.keys(item).forEach((key) => {
+		Object.keys(item).forEach(key => {
 			if (
 				item.hasOwnProperty(key) &&
 				typeof item[key] === 'string' &&

@@ -13,9 +13,7 @@ const sockets = require('../socket.io');
 module.exports = function (Messaging) {
 	Messaging.editMessage = async (uid, mid, roomId, content) => {
 		await Messaging.checkContent(content);
-		const isPublic =
-			parseInt(await db.getObjectField(`chat:room:${roomId}`, 'public'), 10) ===
-			1;
+		const isPublic = parseInt(await db.getObjectField(`chat:room:${roomId}`, 'public'), 10) === 1;
 		const raw = await Messaging.getMessageField(mid, 'content');
 		if (raw === content) {
 			return;
@@ -34,9 +32,7 @@ module.exports = function (Messaging) {
 		// Propagate this change to users in the room
 		const messages = await Messaging.getMessagesData([mid], uid, roomId, true);
 		if (messages[0]) {
-			const roomName = messages[0].deleted
-				? `uid_${uid}`
-				: `chat_room_${roomId}`;
+			const roomName = messages[0].deleted ? `uid_${uid}` : `chat_room_${roomId}`;
 			sockets.in(roomName).emit('event:chats.edit', {
 				messages: messages,
 			});
@@ -44,7 +40,7 @@ module.exports = function (Messaging) {
 			if (!isPublic && utils.isNumber(messages[0].fromuid)) {
 				api.activitypub.update.privateNote(
 					{ uid: messages[0].fromuid },
-					{ messageObj: messages[0] }
+					{ messageObj: messages[0] },
 				);
 			}
 		}
@@ -80,10 +76,7 @@ module.exports = function (Messaging) {
 			throw new Error('[[error:user-banned]]');
 		}
 
-		const canChat = await privileges.global.can(
-			['chat', 'chat:privileged'],
-			uid
-		);
+		const canChat = await privileges.global.can(['chat', 'chat:privileged'], uid);
 		if (!canChat.includes(true)) {
 			throw new Error('[[error:no-privileges]]');
 		}
@@ -98,13 +91,8 @@ module.exports = function (Messaging) {
 		}
 
 		const chatConfigDuration = meta.config[durationConfig];
-		if (
-			chatConfigDuration &&
-			Date.now() - messageData.timestamp > chatConfigDuration * 1000
-		) {
-			throw new Error(
-				`[[error:chat-${type}-duration-expired, ${meta.config[durationConfig]}]]`
-			);
+		if (chatConfigDuration && Date.now() - messageData.timestamp > chatConfigDuration * 1000) {
+			throw new Error(`[[error:chat-${type}-duration-expired, ${meta.config[durationConfig]}]]`);
 		}
 
 		if (String(messageData.fromuid) === String(uid) && !messageData.system) {
@@ -114,10 +102,8 @@ module.exports = function (Messaging) {
 		throw new Error(`[[error:cant-${type}-chat-message]]`);
 	};
 
-	Messaging.canEdit = async (messageId, uid) =>
-		await canEditDelete(messageId, uid, 'edit');
-	Messaging.canDelete = async (messageId, uid) =>
-		await canEditDelete(messageId, uid, 'delete');
+	Messaging.canEdit = async (messageId, uid) => await canEditDelete(messageId, uid, 'edit');
+	Messaging.canDelete = async (messageId, uid) => await canEditDelete(messageId, uid, 'delete');
 
 	Messaging.canPin = async (roomId, uid) => {
 		const [isAdmin, isGlobalMod, inRoom, isRoomOwner] = await Promise.all([

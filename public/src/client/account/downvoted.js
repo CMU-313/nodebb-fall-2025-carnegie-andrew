@@ -1,7 +1,9 @@
 'use strict';
 
-
-define('forum/account/downvoted', ['forum/account/header', 'forum/account/posts'], function (header, posts) {
+define('forum/account/downvoted', ['forum/account/header', 'forum/account/posts'], function (
+	header,
+	posts,
+) {
 	const Downvoted = {};
 
 	Downvoted.init = function () {

@@ -9,7 +9,7 @@ module.exports = {
 		const activated = await db.getSetMembers('social:posts.activated');
 		if (activated.length) {
 			const data = {};
-			activated.forEach((id) => {
+			activated.forEach(id => {
 				data[`post-sharing-${id}`] = 1;
 			});
 			await db.setObject('config', data);

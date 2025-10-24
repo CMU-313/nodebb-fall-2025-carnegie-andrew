@@ -55,8 +55,8 @@ exports.reset = async function (options) {
 	};
 
 	const tasks = Object.keys(map)
-		.filter((x) => options[x])
-		.map((x) => map[x]);
+		.filter(x => options[x])
+		.map(x => map[x]);
 
 	if (!tasks.length) {
 		console.log(
@@ -72,7 +72,7 @@ exports.reset = async function (options) {
 				'Plugin and theme reset flags (-p & -t) can take a single argument',
 				'    e.g. ./nodebb reset -p nodebb-plugin-mentions, ./nodebb reset -t nodebb-theme-harmony',
 				'         Prefix is optional, e.g. ./nodebb reset -p markdown, ./nodebb reset -t harmony',
-			].join('\n')
+			].join('\n'),
 		);
 
 		process.exit(0);
@@ -84,14 +84,10 @@ exports.reset = async function (options) {
 			/* eslint-disable no-await-in-loop */
 			await task();
 		}
-		winston.info(
-			'[reset] Reset complete. Please run `./nodebb build` to rebuild assets.'
-		);
+		winston.info('[reset] Reset complete. Please run `./nodebb build` to rebuild assets.');
 		process.exit(0);
 	} catch (err) {
-		winston.error(
-			`[reset] Errors were encountered during reset -- ${err.message}`
-		);
+		winston.error(`[reset] Errors were encountered during reset -- ${err.message}`);
 		process.exit(1);
 	}
 };
@@ -104,9 +100,7 @@ async function resetSettings() {
 
 async function resetTheme(themeId) {
 	try {
-		await fs.promises.access(
-			path.join(paths.nodeModules, themeId, 'package.json')
-		);
+		await fs.promises.access(path.join(paths.nodeModules, themeId, 'package.json'));
 	} catch (err) {
 		winston.warn('[reset] Theme `%s` is not installed on this forum', themeId);
 		throw new Error('theme-not-found');
@@ -131,7 +125,7 @@ async function resetPlugin(pluginId) {
 	try {
 		if (nconf.get('plugins:active')) {
 			winston.error(
-				'Cannot reset plugins while plugin state is set in the configuration (config.json, environmental variables or terminal arguments), please modify the configuration instead'
+				'Cannot reset plugins while plugin state is set in the configuration (config.json, environmental variables or terminal arguments), please modify the configuration instead',
 			);
 			process.exit(1);
 		}
@@ -144,15 +138,12 @@ async function resetPlugin(pluginId) {
 			});
 			winston.info('[reset] Plugin `%s` disabled', pluginId);
 		} else {
-			winston.warn(
-				'[reset] Plugin `%s` was not active on this forum',
-				pluginId
-			);
+			winston.warn('[reset] Plugin `%s` was not active on this forum', pluginId);
 			winston.info('[reset] No action taken.');
 		}
 	} catch (err) {
 		winston.error(
-			`[reset] Could not disable plugin: ${pluginId} encountered error %s\n${err.stack}`
+			`[reset] Could not disable plugin: ${pluginId} encountered error %s\n${err.stack}`,
 		);
 		throw err;
 	}
@@ -161,7 +152,7 @@ async function resetPlugin(pluginId) {
 async function resetPlugins() {
 	if (nconf.get('plugins:active')) {
 		winston.error(
-			'Cannot reset plugins while plugin state is set in the configuration (config.json, environmental variables or terminal arguments), please modify the configuration instead'
+			'Cannot reset plugins while plugin state is set in the configuration (config.json, environmental variables or terminal arguments), please modify the configuration instead',
 		);
 		process.exit(1);
 	}

@@ -3,7 +3,7 @@ get:
     - admin
   summary: Get detailed user registration analytics
   responses:
-    "200":
+    '200':
       description: A JSON object containing more detailed analytics related to user registrations.
       content:
         application/json:

@@ -36,9 +36,9 @@ CLUSTER "session";
 ANALYZE "session";
 
 COMMIT;`,
-			(err) => {
+			err => {
 				callback(err);
-			}
+			},
 		);
 	},
 };

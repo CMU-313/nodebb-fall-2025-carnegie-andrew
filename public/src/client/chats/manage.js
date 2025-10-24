@@ -1,8 +1,11 @@
 'use strict';
 
-
 define('forum/chats/manage', [
-	'api', 'alerts', 'translator', 'autocomplete', 'forum/chats/user-list',
+	'api',
+	'alerts',
+	'translator',
+	'autocomplete',
+	'forum/chats/user-list',
 ], function (api, alerts, translator, autocomplete, userList) {
 	const manage = {};
 
@@ -13,13 +16,15 @@ define('forum/chats/manage', [
 			let groups = [];
 			if (app.user.isAdmin) {
 				({ groups } = await api.get('/admin/groups'));
-				groups.sort((a, b) => b.system - a.system).map((g) => {
-					const { name, displayName } = g;
-					return { name, displayName };
-				});
+				groups
+					.sort((a, b) => b.system - a.system)
+					.map(g => {
+						const { name, displayName } = g;
+						return { name, displayName };
+					});
 
 				if (Array.isArray(ajaxify.data.groups)) {
-					groups.forEach((g) => {
+					groups.forEach(g => {
 						g.selected = ajaxify.data.groups.includes(g.name);
 					});
 				}
@@ -45,7 +50,7 @@ define('forum/chats/manage', [
 
 			const userListEl = modal.find('[component="chat/manage/user/list"]');
 			const userListElSearch = modal.find('[component="chat/manage/user/list/search"]');
-			userList.addSearchHandler(roomId, userListElSearch, async (data) => {
+			userList.addSearchHandler(roomId, userListElSearch, async data => {
 				if (userListElSearch.val()) {
 					userListEl.html(await app.parseAndTranslate('partials/chats/manage-room-users', data));
 				} else {
@@ -61,41 +66,48 @@ define('forum/chats/manage', [
 			const errorEl = modal.find('.text-danger');
 			autocomplete.user(searchInput, function (event, selected) {
 				errorEl.text('');
-				api.post(`/chats/${roomId}/users`, {
-					uids: [selected.item.user.uid],
-				}).then((body) => {
-					refreshParticipantsList(roomId, modal, body);
-					searchInput.val('');
-				}).catch((err) => {
-					translator.translate(err.message, function (translated) {
-						errorEl.text(translated);
+				api
+					.post(`/chats/${roomId}/users`, {
+						uids: [selected.item.user.uid],
+					})
+					.then(body => {
+						refreshParticipantsList(roomId, modal, body);
+						searchInput.val('');
+					})
+					.catch(err => {
+						translator.translate(err.message, function (translated) {
+							errorEl.text(translated);
+						});
 					});
-				});
 			});
 
 			modal.find('[component="chat/manage/save"]').on('click', () => {
 				const notifSettingEl = modal.find('[component="chat/room/notification/setting"]');
-				api.put(`/chats/${roomId}`, {
-					groups: modal.find('[component="chat/room/groups"]').val(),
-					notificationSetting: notifSettingEl.val(),
-				}).then((payload) => {
-					ajaxify.data.groups = payload.groups;
-					ajaxify.data.notificationSetting = payload.notificationSetting;
-					const roomDefaultOption = payload.notificationOptions[0];
-					$('[component="chat/notification/setting"] [data-icon]').first().attr(
-						'data-icon', roomDefaultOption.icon
-					);
-					$('[component="chat/notification/setting/sub-label"]').translateText(
-						roomDefaultOption.subLabel
-					);
-					if (roomDefaultOption.selected) {
-						$('[component="chat/notification/setting/icon"]').attr(
-							'class', `fa ${roomDefaultOption.icon}`
+				api
+					.put(`/chats/${roomId}`, {
+						groups: modal.find('[component="chat/room/groups"]').val(),
+						notificationSetting: notifSettingEl.val(),
+					})
+					.then(payload => {
+						ajaxify.data.groups = payload.groups;
+						ajaxify.data.notificationSetting = payload.notificationSetting;
+						const roomDefaultOption = payload.notificationOptions[0];
+						$('[component="chat/notification/setting"] [data-icon]')
+							.first()
+							.attr('data-icon', roomDefaultOption.icon);
+						$('[component="chat/notification/setting/sub-label"]').translateText(
+							roomDefaultOption.subLabel,
 						);
-					}
+						if (roomDefaultOption.selected) {
+							$('[component="chat/notification/setting/icon"]').attr(
+								'class',
+								`fa ${roomDefaultOption.icon}`,
+							);
+						}
 
-					modal.modal('hide');
-				}).catch(alerts.error);
+						modal.modal('hide');
+					})
+					.catch(alerts.error);
 			});
 		});
 	};
@@ -104,16 +116,23 @@ define('forum/chats/manage', [
 		modal.on('click', '[data-action="kick"]', function () {
 			const uid = encodeURIComponent(this.getAttribute('data-uid'));
 
-			api.del(`/chats/${roomId}/users/${uid}`, {}).then((body) => {
-				refreshParticipantsList(roomId, modal, body);
-			}).catch(alerts.error);
+			api
+				.del(`/chats/${roomId}/users/${uid}`, {})
+				.then(body => {
+					refreshParticipantsList(roomId, modal, body);
+				})
+				.catch(alerts.error);
 		});
 	}
 
 	function addToggleOwnerHandler(roomId, modal) {
 		modal.on('click', '[data-action="toggleOwner"]', async function () {
 			const uid = String(this.getAttribute('data-uid'));
-			const iconEl = modal.get(0).querySelector(`[component="chat/manage/user/list"] > [data-uid="${uid}"] [component="chat/manage/user/owner/icon"]`);
+			const iconEl = modal
+				.get(0)
+				.querySelector(
+					`[component="chat/manage/user/list"] > [data-uid="${uid}"] [component="chat/manage/user/owner/icon"]`,
+				);
 			const current = !iconEl.classList.contains('hidden');
 
 			if (!utils.isNumber(uid)) {

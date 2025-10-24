@@ -11,12 +11,10 @@ module.exports = {
 
 		await batch.processSortedSet(
 			`events:time`,
-			async (eids) => {
-				const eventData = await db.getObjects(
-					eids.map((eid) => `event:${eid}`)
-				);
+			async eids => {
+				const eventData = await db.getObjects(eids.map(eid => `event:${eid}`));
 				const bulkAdd = [];
-				eventData.forEach((event) => {
+				eventData.forEach(event => {
 					if (event && event.hasOwnProperty('uid') && event.uid && event.eid) {
 						bulkAdd.push([
 							`events:time:uid:${event.uid}`,
@@ -31,7 +29,7 @@ module.exports = {
 			{
 				batch: 500,
 				progress,
-			}
+			},
 		);
 	},
 };

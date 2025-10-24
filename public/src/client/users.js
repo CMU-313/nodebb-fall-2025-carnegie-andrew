@@ -1,9 +1,6 @@
 'use strict';
 
-
-define('forum/users', [
-	'api', 'alerts', 'accounts/invite',
-], function (api, alerts, AccountInvite) {
+define('forum/users', ['api', 'alerts', 'accounts/invite'], function (api, alerts, AccountInvite) {
 	const Users = {};
 
 	let searchResultCount = 0;
@@ -11,11 +8,10 @@ define('forum/users', [
 	Users.init = function () {
 		app.enterRoom('user_list');
 
-		const section = utils.param('section') ? ('?section=' + utils.param('section')) : '';
+		const section = utils.param('section') ? '?section=' + utils.param('section') : '';
 		const navItems = $('[component="user/list/menu"]');
 		navItems.find('a').removeClass('active');
-		navItems.find('a[href="' + window.location.pathname + section + '"]')
-			.addClass('active');
+		navItems.find('a[href="' + window.location.pathname + section + '"]').addClass('active');
 
 		Users.handleSearch();
 
@@ -69,7 +65,7 @@ define('forum/users', [
 		}
 
 		const filters = [];
-		if ($('.search .online-only').is(':checked') || (activeSection === 'online')) {
+		if ($('.search .online-only').is(':checked') || activeSection === 'online') {
 			filters.push('online');
 		}
 		if (activeSection === 'banned') {
@@ -98,11 +94,8 @@ define('forum/users', [
 		return sortBy;
 	}
 
-
 	function loadPage(query) {
-		api.get('/api/users', query)
-			.then(renderSearchResults)
-			.catch(alerts.error);
+		api.get('/api/users', query).then(renderSearchResults).catch(alerts.error);
 
 		// Update query string
 		const search = new URLSearchParams(query);
@@ -110,11 +103,13 @@ define('forum/users', [
 	}
 
 	function renderSearchResults(data) {
-		app.parseAndTranslate('partials/paginator', {
-			pagination: data.pagination,
-		}).then(function (html) {
-			$('.pagination-container').replaceWith(html);
-		});
+		app
+			.parseAndTranslate('partials/paginator', {
+				pagination: data.pagination,
+			})
+			.then(function (html) {
+				$('.pagination-container').replaceWith(html);
+			});
 
 		if (searchResultCount) {
 			data.users = data.users.slice(0, searchResultCount);
@@ -131,13 +126,16 @@ define('forum/users', [
 	function onUserStatusChange(data) {
 		const section = getActiveSection();
 
-		if ((section.startsWith('online') || section.startsWith('users'))) {
+		if (section.startsWith('online') || section.startsWith('users')) {
 			updateUser(data);
 		}
 	}
 
 	function updateUser(data) {
-		app.updateUserStatus($('#users-container [data-uid="' + data.uid + '"] [component="user/status"]'), data.status);
+		app.updateUserStatus(
+			$('#users-container [data-uid="' + data.uid + '"] [component="user/status"]'),
+			data.status,
+		);
 	}
 
 	function getActiveSection() {

@@ -27,9 +27,7 @@ Object.defineProperty(Minifier, 'maxThreads', {
 	set: function (val) {
 		maxThreads = val;
 		if (!process.env.minifier_child) {
-			winston.verbose(
-				`[minifier] utilizing a maximum of ${maxThreads} additional threads`
-			);
+			winston.verbose(`[minifier] utilizing a maximum of ${maxThreads} additional threads`);
 		}
 	},
 	configurable: true,
@@ -39,7 +37,7 @@ Object.defineProperty(Minifier, 'maxThreads', {
 Minifier.maxThreads = Math.max(1, os.cpus().length - 1);
 
 Minifier.killAll = function () {
-	pool.forEach((child) => {
+	pool.forEach(child => {
 		child.kill('SIGTERM');
 	});
 
@@ -78,7 +76,7 @@ function removeChild(proc) {
 function forkAction(action) {
 	return new Promise((resolve, reject) => {
 		const proc = getChild();
-		proc.on('message', (message) => {
+		proc.on('message', message => {
 			freeChild(proc);
 
 			if (message.type === 'error') {
@@ -89,7 +87,7 @@ function forkAction(action) {
 				resolve(message.result);
 			}
 		});
-		proc.on('error', (err) => {
+		proc.on('error', err => {
 			proc.kill();
 			removeChild(proc);
 			reject(err);
@@ -105,7 +103,7 @@ function forkAction(action) {
 const actions = {};
 
 if (process.env.minifier_child) {
-	process.on('message', async (message) => {
+	process.on('message', async message => {
 		if (message.type === 'action') {
 			const { action } = message;
 			if (typeof actions[action.act] !== 'function') {
@@ -146,7 +144,7 @@ actions.concat = async function concat(data) {
 		const files = await async.mapLimit(
 			data.files,
 			1000,
-			async (ref) => await fs.promises.readFile(ref.srcPath, 'utf8')
+			async ref => await fs.promises.readFile(ref.srcPath, 'utf8'),
 		);
 		const output = files.join('\n;');
 		await fs.promises.writeFile(data.destPath, output);
@@ -162,7 +160,7 @@ Minifier.js.bundle = async function (data, fork) {
 			filename: data.filename,
 			destPath: data.destPath,
 		},
-		fork
+		fork,
 	);
 };
 
@@ -198,7 +196,7 @@ actions.buildCSS = async function buildCSS(data) {
 			postcssArgs.push(
 				clean({
 					processImportFrom: ['local'],
-				})
+				}),
 			);
 		}
 		return await postcss(postcssArgs).process(css, {
@@ -206,10 +204,7 @@ actions.buildCSS = async function buildCSS(data) {
 		});
 	}
 
-	const [ltrresult, rtlresult] = await Promise.all([
-		processScss('ltr'),
-		processScss('rtl'),
-	]);
+	const [ltrresult, rtlresult] = await Promise.all([processScss('ltr'), processScss('rtl')]);
 
 	return {
 		ltr: { code: ltrresult.css },
@@ -226,7 +221,7 @@ Minifier.css.bundle = async function (source, paths, minify, fork) {
 			paths: paths,
 			minify: minify,
 		},
-		fork
+		fork,
 	);
 };
 

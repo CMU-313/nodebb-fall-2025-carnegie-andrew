@@ -1,18 +1,18 @@
 {
-	"alert.confirm-rebuild-and-restart": "Är du säker på att du vill ombygga och starta om NodeBB?",
-	"alert.confirm-restart": "Är du säker på att du vill starta om NodeBB?",
+  "alert.confirm-rebuild-and-restart": "Är du säker på att du vill ombygga och starta om NodeBB?",
+  "alert.confirm-restart": "Är du säker på att du vill starta om NodeBB?",
 
-	"acp-title": "%1 | NodeBB Admin Kontrollpanel",
-	"settings-header-contents": "Innehåll",
-	"changes-saved": "Changes Saved",
-	"changes-saved-message": "Your changes to the NodeBB configuration have been saved.",
-	"changes-not-saved": "Ändringar Sparades Ej",
-	"changes-not-saved-message": "NodeBB kunde inte spara dina ändringar. (%1)",
-	"save-changes": "Save changes",
-	"min": "Min:",
-	"max": "Max:",
-	"view": "View",
-	"edit": "Edit",
-	"add": "Add",
-	"select-icon": "Select Icon"
+  "acp-title": "%1 | NodeBB Admin Kontrollpanel",
+  "settings-header-contents": "Innehåll",
+  "changes-saved": "Changes Saved",
+  "changes-saved-message": "Your changes to the NodeBB configuration have been saved.",
+  "changes-not-saved": "Ändringar Sparades Ej",
+  "changes-not-saved-message": "NodeBB kunde inte spara dina ändringar. (%1)",
+  "save-changes": "Save changes",
+  "min": "Min:",
+  "max": "Max:",
+  "view": "View",
+  "edit": "Edit",
+  "add": "Add",
+  "select-icon": "Select Icon"
 }

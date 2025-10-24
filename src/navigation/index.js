@@ -13,8 +13,8 @@ navigation.get = async function (uid) {
 	let data = await admin.get();
 
 	data = data
-		.filter((item) => item && item.enabled)
-		.map((item) => {
+		.filter(item => item && item.enabled)
+		.map(item => {
 			item.originalRoute = validator.unescape(item.route);
 
 			if (!item.route.startsWith('http')) {
@@ -25,12 +25,12 @@ navigation.get = async function (uid) {
 		});
 
 	const pass = await Promise.all(
-		data.map(async (navItem) => {
+		data.map(async navItem => {
 			if (!navItem.groups.length) {
 				return true;
 			}
 			return await groups.isMemberOfAny(uid, navItem.groups);
-		})
+		}),
 	);
 	return data.filter((navItem, i) => pass[i]);
 };

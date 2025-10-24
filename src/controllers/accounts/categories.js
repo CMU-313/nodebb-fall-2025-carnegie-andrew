@@ -13,32 +13,21 @@ categoriesController.get = async function (req, res) {
 	const { username, userslug } = payload;
 	const [states, allCategoriesData] = await Promise.all([
 		user.getCategoryWatchState(res.locals.uid),
-		categories.buildForSelect(res.locals.uid, 'find', [
-			'descriptionParsed',
-			'depth',
-			'slug',
-		]),
+		categories.buildForSelect(res.locals.uid, 'find', ['descriptionParsed', 'depth', 'slug']),
 	]);
-	const watchCategories = allCategoriesData.filter((c) => c && c.cid !== -1);
-	const pageCount = Math.max(
-		1,
-		Math.ceil(watchCategories.length / meta.config.categoriesPerPage)
-	);
+	const watchCategories = allCategoriesData.filter(c => c && c.cid !== -1);
+	const pageCount = Math.max(1, Math.ceil(watchCategories.length / meta.config.categoriesPerPage));
 	const page = Math.min(parseInt(req.query.page, 10) || 1, pageCount);
 	const start = Math.max(0, (page - 1) * meta.config.categoriesPerPage);
 	const stop = start + meta.config.categoriesPerPage - 1;
 	const categoriesData = watchCategories.slice(start, stop + 1);
 
-	categoriesData.forEach((category) => {
+	categoriesData.forEach(category => {
 		if (category) {
-			category.isWatched =
-				states[category.cid] === categories.watchStates.watching;
-			category.isTracked =
-				states[category.cid] === categories.watchStates.tracking;
-			category.isNotWatched =
-				states[category.cid] === categories.watchStates.notwatching;
-			category.isIgnored =
-				states[category.cid] === categories.watchStates.ignoring;
+			category.isWatched = states[category.cid] === categories.watchStates.watching;
+			category.isTracked = states[category.cid] === categories.watchStates.tracking;
+			category.isNotWatched = states[category.cid] === categories.watchStates.notwatching;
+			category.isIgnored = states[category.cid] === categories.watchStates.ignoring;
 		}
 	});
 

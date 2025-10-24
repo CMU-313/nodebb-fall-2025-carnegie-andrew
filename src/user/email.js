@@ -50,16 +50,12 @@ UserEmail.remove = async function (uid, sessionId) {
 	]);
 };
 
-UserEmail.getEmailForValidation = async (uid) => {
+UserEmail.getEmailForValidation = async uid => {
 	let email = '';
 	// check email from confirmObj
 	const code = await db.get(`confirm:byUid:${uid}`);
 	const confirmObj = code ? await db.getObject(`confirm:${code}`) : null;
-	if (
-		confirmObj &&
-		confirmObj.email &&
-		parseInt(uid, 10) === parseInt(confirmObj.uid, 10)
-	) {
+	if (confirmObj && confirmObj.email && parseInt(uid, 10) === parseInt(confirmObj.uid, 10)) {
 		email = confirmObj.email;
 	}
 
@@ -79,13 +75,13 @@ UserEmail.isValidationPending = async (uid, email) => {
 	);
 };
 
-UserEmail.getValidationExpiry = async (uid) => {
+UserEmail.getValidationExpiry = async uid => {
 	const code = await db.get(`confirm:byUid:${uid}`);
 	const confirmObj = await db.getObject(`confirm:${code}`);
 	return confirmObj ? Math.max(0, confirmObj.expires - Date.now()) : null;
 };
 
-UserEmail.expireValidation = async (uid) => {
+UserEmail.expireValidation = async uid => {
 	const keys = [`confirm:byUid:${uid}`];
 	const code = await db.get(`confirm:byUid:${uid}`);
 	if (code) {
@@ -116,9 +112,7 @@ UserEmail.sendValidationEmail = async function (uid, options) {
 	 */
 
 	if (meta.config.sendValidationEmail !== 1) {
-		winston.verbose(
-			`[user/email] Validation email for uid ${uid} not sent due to config settings`
-		);
+		winston.verbose(`[user/email] Validation email for uid ${uid} not sent due to config settings`);
 		return;
 	}
 
@@ -141,13 +135,8 @@ UserEmail.sendValidationEmail = async function (uid, options) {
 	}
 
 	const { emailConfirmInterval, emailConfirmExpiry } = meta.config;
-	if (
-		!options.force &&
-		!(await UserEmail.canSendValidation(uid, options.email))
-	) {
-		throw new Error(
-			`[[error:confirm-email-already-sent, ${emailConfirmInterval}]]`
-		);
+	if (!options.force && !(await UserEmail.canSendValidation(uid, options.email))) {
+		throw new Error(`[[error:confirm-email-already-sent, ${emailConfirmInterval}]]`);
 	}
 
 	const confirm_code = utils.generateUUID();
@@ -173,9 +162,7 @@ UserEmail.sendValidationEmail = async function (uid, options) {
 		expires: Date.now() + emailConfirmExpiry * 60 * 60 * 1000,
 	});
 
-	winston.verbose(
-		`[user/email] Validation email for uid ${uid} sent to ${options.email}`
-	);
+	winston.verbose(`[user/email] Validation email for uid ${uid} sent to ${options.email}`);
 	events.log({
 		type: 'email-confirmation-sent',
 		uid,
@@ -203,10 +190,7 @@ UserEmail.confirmByCode = async function (code, sessionId) {
 	}
 
 	// If another uid has the same email, remove it
-	const oldUid = await db.sortedSetScore(
-		'email:uid',
-		confirmObj.email.toLowerCase()
-	);
+	const oldUid = await db.sortedSetScore('email:uid', confirmObj.email.toLowerCase());
 	if (oldUid) {
 		await UserEmail.remove(oldUid, sessionId);
 	}
@@ -243,40 +227,24 @@ UserEmail.confirmByUid = async function (uid, callerUid = 0) {
 	}
 
 	// If another uid has the same email throw error
-	const oldUid = await db.sortedSetScore(
-		'email:uid',
-		currentEmail.toLowerCase()
-	);
+	const oldUid = await db.sortedSetScore('email:uid', currentEmail.toLowerCase());
 	if (oldUid && oldUid !== parseInt(uid, 10)) {
 		throw new Error('[[error:email-taken]]');
 	}
 
-	const confirmedEmails = await db.getSortedSetRangeByScore(
-		`email:uid`,
-		0,
-		-1,
-		uid,
-		uid
-	);
+	const confirmedEmails = await db.getSortedSetRangeByScore(`email:uid`, 0, -1, uid, uid);
 	if (confirmedEmails.length) {
 		// remove old email of user by uid
 		await db.sortedSetsRemoveRangeByScore([`email:uid`], uid, uid);
 		await db.sortedSetRemoveBulk(
-			confirmedEmails.map((email) => [
-				`email:sorted`,
-				`${email.toLowerCase()}:${uid}`,
-			])
+			confirmedEmails.map(email => [`email:sorted`, `${email.toLowerCase()}:${uid}`]),
 		);
 	}
 	await Promise.all([
 		db.sortedSetAddBulk([
 			['email:uid', uid, currentEmail.toLowerCase()],
 			['email:sorted', 0, `${currentEmail.toLowerCase()}:${uid}`],
-			[
-				`user:${uid}:emails`,
-				Date.now(),
-				`${currentEmail}:${Date.now()}:${callerUid}`,
-			],
+			[`user:${uid}:emails`, Date.now(), `${currentEmail}:${Date.now()}:${callerUid}`],
 		]),
 		user.setUserField(uid, 'email:confirmed', 1),
 		groups.join('verified-users', uid),

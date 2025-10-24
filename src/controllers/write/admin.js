@@ -31,7 +31,7 @@ Admin.getAnalyticsData = async (req, res) => {
 			until: parseInt(req.query.until, 10) || Date.now(),
 			amount: req.query.amount,
 			units: req.query.units,
-		})
+		}),
 	);
 };
 
@@ -42,22 +42,14 @@ Admin.generateToken = async (req, res) => {
 };
 
 Admin.getToken = async (req, res) => {
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.utils.tokens.get(req.params.token)
-	);
+	helpers.formatApiResponse(200, res, await api.utils.tokens.get(req.params.token));
 };
 
 Admin.updateToken = async (req, res) => {
 	const { uid, description } = req.body;
 	const { token } = req.params;
 
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.utils.tokens.update(token, { uid, description })
-	);
+	helpers.formatApiResponse(200, res, await api.utils.tokens.update(token, { uid, description }));
 };
 
 Admin.rollToken = async (req, res) => {

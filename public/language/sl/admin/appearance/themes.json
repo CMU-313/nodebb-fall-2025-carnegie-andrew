@@ -1,13 +1,13 @@
 {
-    "themes": "Themes",
-    "checking-for-installed": "Iščem nameščene teme...",
-    "homepage": "Domača stran",
-    "select-theme": "Izberi temo",
-    "revert-theme": "Revert Theme",
-    "current-theme": "Trenutna tema",
-    "no-themes": "Ni najdenih nameščenih tem",
-    "revert-confirm": "Ste prepričani, da želite obnoviti privzeto NodeBB temo?",
-    "theme-changed": "Tema je spremenjena",
-    "revert-success": "Uspešno ste povrnili vaš NodeBB nazaj na privzeto temo.",
-    "restart-to-activate": "Za popolno aktivacijo te teme obnovite in ponovno zaženete vaš NodeB."
+  "themes": "Themes",
+  "checking-for-installed": "Iščem nameščene teme...",
+  "homepage": "Domača stran",
+  "select-theme": "Izberi temo",
+  "revert-theme": "Revert Theme",
+  "current-theme": "Trenutna tema",
+  "no-themes": "Ni najdenih nameščenih tem",
+  "revert-confirm": "Ste prepričani, da želite obnoviti privzeto NodeBB temo?",
+  "theme-changed": "Tema je spremenjena",
+  "revert-success": "Uspešno ste povrnili vaš NodeBB nazaj na privzeto temo.",
+  "restart-to-activate": "Za popolno aktivacijo te teme obnovite in ponovno zaženete vaš NodeB."
 }

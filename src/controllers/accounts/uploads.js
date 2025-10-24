@@ -23,7 +23,7 @@ uploadsController.get = async function (req, res) {
 		db.getSortedSetRevRange(`uid:${res.locals.uid}:uploads`, start, stop),
 	]);
 
-	payload.uploads = uploadNames.map((uploadName) => ({
+	payload.uploads = uploadNames.map(uploadName => ({
 		name: uploadName,
 		url: path.posix.join(nconf.get('upload_url'), uploadName),
 	}));

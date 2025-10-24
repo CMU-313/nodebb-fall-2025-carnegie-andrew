@@ -50,9 +50,7 @@ async function runSteps(tasks, options) {
 		for (let i = 0; i < tasks.length; i++) {
 			const step = steps[tasks[i]];
 			if (step && step.message && step.handler) {
-				process.stdout.write(
-					`\n${chalk.bold(`${i + 1}. `)}${chalk.yellow(step.message)}`
-				);
+				process.stdout.write(`\n${chalk.bold(`${i + 1}. `)}${chalk.yellow(step.message)}`);
 				/* eslint-disable-next-line */
 				await step.handler(options);
 			}
@@ -83,11 +81,7 @@ async function runUpgrade(upgrades, options) {
 				handleExceptions: true,
 			}),
 			new winston.transports.File({
-				filename: path.join(
-					__dirname,
-					'../../',
-					nconf.get('logFile') || 'logs/output.log'
-				),
+				filename: path.join(__dirname, '../../', nconf.get('logFile') || 'logs/output.log'),
 			}),
 		],
 	});
@@ -99,14 +93,8 @@ async function runUpgrade(upgrades, options) {
 
 	if (upgrades === true) {
 		let tasks = Object.keys(steps);
-		if (
-			options.package ||
-			options.install ||
-			options.plugins ||
-			options.schema ||
-			options.build
-		) {
-			tasks = tasks.filter((key) => options[key]);
+		if (options.package || options.install || options.plugins || options.schema || options.build) {
+			tasks = tasks.filter(key => options[key]);
 		}
 		await runSteps(tasks, options);
 		return;

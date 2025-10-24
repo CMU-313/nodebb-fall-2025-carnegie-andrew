@@ -1,13 +1,13 @@
 {
-    "manage-admins-and-mods": "Manage Admins & Mods",
-    "administrators": "Адміністратори",
-    "global-moderators": "Глобальні Модератори",
-    "moderators": "Moderators",
-    "no-global-moderators": "Відсутні Глобальні Модератори",
-    "no-sub-categories": "No subcategories",
-    "view-children": "View children (%1)",
-    "no-moderators": "Відсутні Модератори",
-    "add-administrator": "Додати Адміністратора",
-    "add-global-moderator": "Додати Глобального Модератора",
-    "add-moderator": "Додати Модератора"
+  "manage-admins-and-mods": "Manage Admins & Mods",
+  "administrators": "Адміністратори",
+  "global-moderators": "Глобальні Модератори",
+  "moderators": "Moderators",
+  "no-global-moderators": "Відсутні Глобальні Модератори",
+  "no-sub-categories": "No subcategories",
+  "view-children": "View children (%1)",
+  "no-moderators": "Відсутні Модератори",
+  "add-administrator": "Додати Адміністратора",
+  "add-global-moderator": "Додати Глобального Модератора",
+  "add-moderator": "Додати Модератора"
 }

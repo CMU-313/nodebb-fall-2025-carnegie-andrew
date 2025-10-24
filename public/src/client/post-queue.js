@@ -1,12 +1,21 @@
 'use strict';
 
-
 define('forum/post-queue', [
-	'categoryFilter', 'categorySelector', 'api', 'alerts', 'bootbox',
-	'accounts/moderate', 'accounts/delete',
+	'categoryFilter',
+	'categorySelector',
+	'api',
+	'alerts',
+	'bootbox',
+	'accounts/moderate',
+	'accounts/delete',
 ], function (
-	categoryFilter, categorySelector, api, alerts, bootbox,
-	AccountModerate, AccountsDelete
+	categoryFilter,
+	categorySelector,
+	api,
+	alerts,
+	bootbox,
+	AccountModerate,
+	AccountsDelete,
 ) {
 	const PostQueue = {};
 
@@ -19,8 +28,18 @@ define('forum/post-queue', [
 
 		handleActions();
 		handleBulkActions();
-		handleContentEdit('[data-action="editContent"]', '.post-content-editable', 'textarea', '.post-content');
-		handleContentEdit('[data-action="editTitle"]', '.topic-title-editable', 'input', '.topic-title');
+		handleContentEdit(
+			'[data-action="editContent"]',
+			'.post-content-editable',
+			'textarea',
+			'.post-content',
+		);
+		handleContentEdit(
+			'[data-action="editTitle"]',
+			'.topic-title-editable',
+			'input',
+			'.topic-title',
+		);
 
 		$('.posts-list').on('click', '.topic-category[data-editable]', function (e) {
 			handleCategoryChange(this);
@@ -47,7 +66,7 @@ define('forum/post-queue', [
 	}
 
 	function confirmReject(msg) {
-		return new Promise((resolve) => {
+		return new Promise(resolve => {
 			bootbox.confirm(msg, resolve);
 		});
 	}
@@ -69,19 +88,22 @@ define('forum/post-queue', [
 			const id = textarea.parents('[data-id]').attr('data-id');
 			const titleEdit = triggerClass === '[data-action="editTitle"]';
 
-			api.put(`/posts/queue/${id}`, {
-				title: titleEdit ? textarea.val() : undefined,
-				content: titleEdit ? undefined : textarea.val(),
-			}).then((data) => {
-				if (titleEdit) {
-					preview.find('.title-text').text(data.postData.title);
-				} else {
-					preview.html(data.postData.content);
-				}
+			api
+				.put(`/posts/queue/${id}`, {
+					title: titleEdit ? textarea.val() : undefined,
+					content: titleEdit ? undefined : textarea.val(),
+				})
+				.then(data => {
+					if (titleEdit) {
+						preview.find('.title-text').text(data.postData.title);
+					} else {
+						preview.html(data.postData.content);
+					}
 
-				textarea.parent().addClass('hidden');
-				preview.removeClass('hidden');
-			}).catch(alerts.error);
+					textarea.parent().addClass('hidden');
+					preview.removeClass('hidden');
+				})
+				.catch(alerts.error);
 		});
 	}
 
@@ -95,21 +117,32 @@ define('forum/post-queue', [
 					api.put(`/posts/queue/${id}`, {
 						cid: selectedCategory.cid,
 					}),
-				]).then(function (result) {
-					const category = result[0];
-					app.parseAndTranslate('post-queue', 'posts', {
-						posts: [{
-							category: category,
-						}],
-					}, function (html) {
-						if ($this.find('.category-text').length) {
-							$this.find('.category-text').text(html.find('.topic-category .category-text').text());
-						} else {
-							// for backwards compatibility, remove in 1.16.0
-							$this.replaceWith(html.find('.topic-category'));
-						}
-					});
-				}).catch(alerts.error);
+				])
+					.then(function (result) {
+						const category = result[0];
+						app.parseAndTranslate(
+							'post-queue',
+							'posts',
+							{
+								posts: [
+									{
+										category: category,
+									},
+								],
+							},
+							function (html) {
+								if ($this.find('.category-text').length) {
+									$this
+										.find('.category-text')
+										.text(html.find('.topic-category .category-text').text());
+								} else {
+									// for backwards compatibility, remove in 1.16.0
+									$this.replaceWith(html.find('.topic-category'));
+								}
+							},
+						);
+					})
+					.catch(alerts.error);
 			},
 		});
 		return false;
@@ -118,7 +151,7 @@ define('forum/post-queue', [
 	function handleActions() {
 		const listEl = document.querySelector('.posts-list');
 		if (listEl) {
-			listEl.addEventListener('click', (e) => {
+			listEl.addEventListener('click', e => {
 				const subselector = e.target.closest('[data-action]');
 				if (subselector) {
 					const action = subselector.getAttribute('data-action');
@@ -175,31 +208,40 @@ define('forum/post-queue', [
 		const id = parent.attr('data-id');
 		const listContainer = parent.get(0).parentNode;
 
-		if ((!['accept', 'reject', 'notify'].includes(action)) ||
-			(action === 'reject' && !await confirmReject(ajaxify.data.canAccept ? '[[post-queue:confirm-reject]]' : '[[post-queue:confirm-remove]]'))) {
+		if (
+			!['accept', 'reject', 'notify'].includes(action) ||
+			(action === 'reject' &&
+				!(await confirmReject(
+					ajaxify.data.canAccept
+						? '[[post-queue:confirm-reject]]'
+						: '[[post-queue:confirm-remove]]',
+				)))
+		) {
 			return;
 		}
 
-		doAction(action, id).then(function () {
-			if (action === 'accept' || action === 'reject') {
-				parent.remove();
-			}
-
-			if (listContainer.childElementCount === 0) {
-				if (ajaxify.data.singlePost) {
-					ajaxify.go('/post-queue' + window.location.search);
-				} else {
-					ajaxify.refresh();
+		doAction(action, id)
+			.then(function () {
+				if (action === 'accept' || action === 'reject') {
+					parent.remove();
 				}
-			}
-		}).catch(alerts.error);
+
+				if (listContainer.childElementCount === 0) {
+					if (ajaxify.data.singlePost) {
+						ajaxify.go('/post-queue' + window.location.search);
+					} else {
+						ajaxify.refresh();
+					}
+				}
+			})
+			.catch(alerts.error);
 
 		return false;
 	}
 
 	async function doAction(action, id) {
 		function getMessage() {
-			return new Promise((resolve) => {
+			return new Promise(resolve => {
 				const modal = bootbox.dialog({
 					title: '[[post-queue:notify-user]]',
 					message: '<textarea class="form-control"></textarea>',
@@ -225,7 +267,7 @@ define('forum/post-queue', [
 		};
 		if (actionsMap[action]) {
 			const result = actionsMap[action]();
-			return (result instanceof Promise ? result : Promise.resolve(result));
+			return result instanceof Promise ? result : Promise.resolve(result);
 		}
 		throw new Error(`Unknown action: ${action}`);
 	}
@@ -235,16 +277,18 @@ define('forum/post-queue', [
 			const bulkAction = $(this).attr('data-action');
 			let queueEls = $('.posts-list [data-id]');
 			if (bulkAction === 'accept-selected' || bulkAction === 'reject-selected') {
-				queueEls = queueEls.filter(
-					(i, el) => $(el).find('input[type="checkbox"]').is(':checked')
-				);
+				queueEls = queueEls.filter((i, el) => $(el).find('input[type="checkbox"]').is(':checked'));
 			}
 			const ids = queueEls.map((i, el) => $(el).attr('data-id')).get();
 			const showConfirm = bulkAction === 'reject-all' || bulkAction === 'reject-selected';
-			const translationString = ajaxify.data.canAccept ?
-				`${bulkAction}-confirm` :
-				`${bulkAction.replace(/^reject/, 'remove')}-confirm`;
-			if (!ids.length || (showConfirm && !(await confirmReject(`[[post-queue:${translationString}, ${ids.length}]]`)))) {
+			const translationString = ajaxify.data.canAccept
+				? `${bulkAction}-confirm`
+				: `${bulkAction.replace(/^reject/, 'remove')}-confirm`;
+			if (
+				!ids.length ||
+				(showConfirm &&
+					!(await confirmReject(`[[post-queue:${translationString}, ${ids.length}]]`)))
+			) {
 				return;
 			}
 			const action = bulkAction.split('-')[0];

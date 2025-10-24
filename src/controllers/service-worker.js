@@ -9,10 +9,7 @@ const plugins = require('../plugins');
 const Controller = module.exports;
 
 Controller.generate = async (req, res) => {
-	const swPath = path.join(
-		__dirname,
-		'../../build/public/src/service-worker.js'
-	);
+	const swPath = path.join(__dirname, '../../build/public/src/service-worker.js');
 	let swContents = await readFile(swPath, { encoding: 'utf-8' });
 
 	res
@@ -34,17 +31,14 @@ Controller.generate = async (req, res) => {
 		res.sendFile(swPath);
 	} else {
 		const urls = await Promise.all(
-			Array.from(scripts).map(async (pathname) => {
+			Array.from(scripts).map(async pathname => {
 				try {
 					const url = new URL(pathname, `${nconf.get('url')}/assets/plugins/`);
 					if (url.href.startsWith(nconf.get('url'))) {
 						const fullPath = path.resolve(
 							__dirname,
 							'../../build/public/plugins',
-							url.pathname.replace(
-								`${nconf.get('relative_path')}/assets/plugins/`,
-								''
-							)
+							url.pathname.replace(`${nconf.get('relative_path')}/assets/plugins/`, ''),
 						);
 						await access(fullPath, constants.R_OK);
 					}
@@ -52,10 +46,10 @@ Controller.generate = async (req, res) => {
 				} catch (e) {
 					return null;
 				}
-			})
+			}),
 		);
 
-		const payload = urls.map((urlObj) => urlObj.href).join("', '");
+		const payload = urls.map(urlObj => urlObj.href).join("', '");
 		swContents += `\nimportScripts('${payload}')`;
 		res.send(swContents);
 	}

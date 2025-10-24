@@ -20,19 +20,13 @@ const packageInfo = require('../../package.json');
 
 winston.add(
 	new winston.transports.Console({
-		format: winston.format.combine(
-			winston.format.splat(),
-			winston.format.simple()
-		),
-	})
+		format: winston.format.combine(winston.format.splat(), winston.format.simple()),
+	}),
 );
 
 try {
 	const fs = require('fs');
-	const configJSON = fs.readFileSync(
-		path.join(__dirname, '../../config.json'),
-		'utf-8'
-	);
+	const configJSON = fs.readFileSync(path.join(__dirname, '../../config.json'), 'utf-8');
 	winston.info('configJSON');
 	winston.info(configJSON);
 } catch (err) {
@@ -53,10 +47,7 @@ const urlObject = url.parse(nconf.get('url'));
 const relativePath = urlObject.pathname !== '/' ? urlObject.pathname : '';
 nconf.set('relative_path', relativePath);
 nconf.set('asset_base_url', `${relativePath}/assets`);
-nconf.set(
-	'upload_path',
-	path.join(nconf.get('base_dir'), nconf.get('upload_path'))
-);
+nconf.set('upload_path', path.join(nconf.get('base_dir'), nconf.get('upload_path')));
 nconf.set('upload_url', '/assets/uploads');
 nconf.set('url_parsed', urlObject);
 nconf.set('base_url', `${urlObject.protocol}//${urlObject.host}`);
@@ -66,16 +57,13 @@ nconf.set(
 	'port',
 	urlObject.port ||
 		nconf.get('port') ||
-		(nconf.get('PORT_ENV_VAR')
-			? nconf.get(nconf.get('PORT_ENV_VAR'))
-			: false) ||
-		4567
+		(nconf.get('PORT_ENV_VAR') ? nconf.get(nconf.get('PORT_ENV_VAR')) : false) ||
+		4567,
 );
 
 // cookies don't provide isolation by port: http://stackoverflow.com/a/16328399/122353
 const domain = nconf.get('cookieDomain') || urlObject.hostname;
-const origins =
-	nconf.get('socket.io:origins') || `${urlObject.protocol}//${domain}:*`;
+const origins = nconf.get('socket.io:origins') || `${urlObject.protocol}//${domain}:*`;
 nconf.set('socket.io:origins', origins);
 
 if (nconf.get('isCluster') === undefined) {
@@ -123,7 +111,7 @@ if (!testDbConfig) {
 			'    "password": "",\n' +
 			'    "database": "nodebb_test"\n' +
 			'}\n' +
-			'==========================================================='
+			'===========================================================',
 	);
 	winston.error(errorText);
 	throw new Error(errorText);
@@ -157,11 +145,11 @@ before(async function () {
 	nconf.set('core_templates_path', path.join(__dirname, '../../src/views'));
 	nconf.set(
 		'base_templates_path',
-		path.join(nconf.get('themes_path'), 'nodebb-theme-persona/templates')
+		path.join(nconf.get('themes_path'), 'nodebb-theme-persona/templates'),
 	);
 	nconf.set(
 		'theme_config',
-		path.join(nconf.get('themes_path'), 'nodebb-theme-persona', 'theme.json')
+		path.join(nconf.get('themes_path'), 'nodebb-theme-persona', 'theme.json'),
 	);
 	nconf.set('bcrypt_rounds', 1);
 	nconf.set('socket.io:origins', '*:*');
@@ -181,12 +169,8 @@ before(async function () {
 	nconf.set(
 		'theme_templates_path',
 		meta.config['theme:templates']
-			? path.join(
-					nconf.get('themes_path'),
-					meta.config['theme:id'],
-					meta.config['theme:templates']
-				)
-			: nconf.get('base_templates_path')
+			? path.join(nconf.get('themes_path'), meta.config['theme:id'], meta.config['theme:templates'])
+			: nconf.get('base_templates_path'),
 	);
 	// nconf defaults, if not set in config
 	if (!nconf.get('sessionKey')) {
@@ -205,7 +189,7 @@ before(async function () {
 	await webserver.listen();
 
 	// Iterate over all of the test suites/contexts
-	this.test.parent.suites.forEach((suite) => {
+	this.test.parent.suites.forEach(suite => {
 		// Attach an afterAll listener that resets the defaults
 		suite.afterAll(async () => {
 			await setupMockDefaults();
@@ -259,13 +243,9 @@ async function setupMockDefaults() {
 db.setupMockDefaults = setupMockDefaults;
 
 async function setupDefaultConfigs(meta) {
-	winston.info(
-		'Populating database with default configs, if not already set...\n'
-	);
+	winston.info('Populating database with default configs, if not already set...\n');
 
-	const defaults = require(
-		path.join(nconf.get('base_dir'), 'install/data/defaults.json')
-	);
+	const defaults = require(path.join(nconf.get('base_dir'), 'install/data/defaults.json'));
 	defaults.eventLoopCheckEnabled = 0;
 	defaults.minimumPasswordStrength = 0;
 	await meta.configs.setOnEmpty(defaults);
@@ -287,34 +267,25 @@ async function giveDefaultGlobalPrivileges() {
 			'groups:view:tags',
 			'groups:view:groups',
 		],
-		'registered-users'
+		'registered-users',
 	);
 	await privileges.global.give(
 		['groups:view:users', 'groups:view:tags', 'groups:view:groups'],
-		'guests'
+		'guests',
 	);
 	await privileges.global.give(['groups:view:users'], 'fediverse');
 }
 
 async function enableDefaultPlugins() {
 	winston.info('Enabling default plugins\n');
-	const testPlugins = Array.isArray(nconf.get('test_plugins'))
-		? nconf.get('test_plugins')
-		: [];
+	const testPlugins = Array.isArray(nconf.get('test_plugins')) ? nconf.get('test_plugins') : [];
 	const defaultEnabled = [
 		'nodebb-plugin-dbsearch',
 		'nodebb-widget-essentials',
 		'nodebb-plugin-composer-default',
 	].concat(testPlugins);
 
-	winston.info(
-		'[install/enableDefaultPlugins] activating default plugins',
-		defaultEnabled
-	);
+	winston.info('[install/enableDefaultPlugins] activating default plugins', defaultEnabled);
 
-	await db.sortedSetAdd(
-		'plugins:active',
-		Object.keys(defaultEnabled),
-		defaultEnabled
-	);
+	await db.sortedSetAdd('plugins:active', Object.keys(defaultEnabled), defaultEnabled);
 }

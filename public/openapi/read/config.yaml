@@ -4,8 +4,8 @@ get:
   summary: Get forum settings
   description: This route retrieves forum settings and user-specific settings for client-side options on the forum.
   responses:
-    "200":
-      description: ""
+    '200':
+      description: ''
       content:
         application/json:
           schema:

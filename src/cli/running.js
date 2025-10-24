@@ -28,7 +28,7 @@ function getRunningPid(callback) {
 			} catch (e) {
 				callback(e);
 			}
-		}
+		},
 	);
 }
 
@@ -49,7 +49,7 @@ function start(options) {
 				chalk.red('Hit ') + chalk.bold('Ctrl-C ') + chalk.red('to exit'),
 				'The NodeBB process will continue to run in the background',
 				`Use "${chalk.yellow('./nodebb stop')}" to stop the NodeBB server`,
-			].join('\n')}`
+			].join('\n')}`,
 		);
 	} else if (!options.silent) {
 		console.log(
@@ -58,7 +58,7 @@ function start(options) {
 				`  "${chalk.yellow('./nodebb stop')}" to stop the NodeBB server`,
 				`  "${chalk.yellow('./nodebb log')}" to view server output`,
 				`  "${chalk.yellow('./nodebb help')}" for more commands\n`,
-			].join('\n')}`
+			].join('\n')}`,
 		);
 	}
 
@@ -97,9 +97,7 @@ function restart(options) {
 			options.silent = true;
 			start(options);
 		} else {
-			console.warn(
-				'NodeBB could not be restarted, as a running instance could not be found.'
-			);
+			console.warn('NodeBB could not be restarted, as a running instance could not be found.');
 		}
 	});
 }
@@ -113,21 +111,17 @@ function status() {
 					`\t"${chalk.yellow('./nodebb stop')}" to stop the NodeBB server`,
 					`\t"${chalk.yellow('./nodebb log')}" to view server output`,
 					`\t"${chalk.yellow('./nodebb restart')}" to restart NodeBB\n`,
-				].join('\n')}`
+				].join('\n')}`,
 			);
 		} else {
 			console.log(chalk.bold('\nNodeBB is not running'));
-			console.log(
-				`\t"${chalk.yellow('./nodebb start')}" to launch the NodeBB server\n`
-			);
+			console.log(`\t"${chalk.yellow('./nodebb start')}" to launch the NodeBB server\n`);
 		}
 	});
 }
 
 function log() {
-	console.log(
-		`${chalk.red('\nHit ') + chalk.bold('Ctrl-C ') + chalk.red('to exit\n')}\n`
-	);
+	console.log(`${chalk.red('\nHit ') + chalk.bold('Ctrl-C ') + chalk.red('to exit\n')}\n`);
 	childProcess.spawn('tail', ['-F', './logs/output.log'], {
 		stdio: 'inherit',
 		cwd,

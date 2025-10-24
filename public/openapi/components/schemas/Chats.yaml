@@ -103,7 +103,7 @@ MessageObject:
             value is used in conjunction with
             `icon:text` for the user's
             auto-generated icon
-          example: "#f44336"
+          example: '#f44336'
         banned_until_readable:
           type: string
           description: An ISO 8601 formatted date string representing the moment a ban will be lifted, or the words "Not Banned"
@@ -150,7 +150,7 @@ RoomUserList:
               value is used in conjunction with
               `icon:text` for the user's
               auto-generated icon
-            example: "#f44336"
+            example: '#f44336'
           isOwner:
             type: boolean
           canKick:
@@ -200,7 +200,7 @@ RoomObjectFull:
                   value is used in conjunction with
                   `icon:text` for the user's
                   auto-generated icon
-                example: "#f44336"
+                example: '#f44336'
               isOwner:
                 type: boolean
         canReply:

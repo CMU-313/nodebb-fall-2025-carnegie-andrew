@@ -12,16 +12,13 @@ module.exports = {
 
 		await batch.processSortedSet(
 			'topics:tid',
-			async (tids) => {
-				const keys = tids.map((tid) => `topic:${tid}:thumbs`);
+			async tids => {
+				const keys = tids.map(tid => `topic:${tid}:thumbs`);
 				const counts = await db.sortedSetsCard(keys);
 				const tidToCount = _.zipObject(tids, counts);
 				const tidsWithThumbs = tids.filter((t, i) => counts[i] > 0);
 				await db.setObjectBulk(
-					tidsWithThumbs.map((tid) => [
-						`topic:${tid}`,
-						{ numThumbs: tidToCount[tid] },
-					])
+					tidsWithThumbs.map(tid => [`topic:${tid}`, { numThumbs: tidToCount[tid] }]),
 				);
 
 				progress.incr(tids.length);
@@ -29,7 +26,7 @@ module.exports = {
 			{
 				batch: 500,
 				progress: progress,
-			}
+			},
 		);
 	},
 };

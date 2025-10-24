@@ -17,10 +17,8 @@ module.exports = {
 		}
 		await batch.processArray(
 			ids,
-			async (eids) => {
-				const eventData = await db.getObjects(
-					eids.map((eid) => `topicEvent:${eid}`)
-				);
+			async eids => {
+				const eventData = await db.getObjects(eids.map(eid => `topicEvent:${eid}`));
 				const bulkSet = [];
 				eventData.forEach((event, idx) => {
 					if (event && event.type) {
@@ -34,7 +32,7 @@ module.exports = {
 			{
 				batch: 500,
 				progress,
-			}
+			},
 		);
 	},
 };

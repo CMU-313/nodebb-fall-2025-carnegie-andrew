@@ -1,7 +1,11 @@
 'use strict';
 
 define('forum/account/edit/password', [
-	'forum/account/header', 'translator', 'zxcvbn', 'api', 'alerts',
+	'forum/account/header',
+	'translator',
+	'zxcvbn',
+	'api',
+	'alerts',
 ], function (header, translator, zxcvbn, api, alerts) {
 	const AccountEditPassword = {};
 
@@ -66,10 +70,11 @@ define('forum/account/edit/password', [
 			const btn = $(this);
 			if (passwordvalid && passwordsmatch) {
 				btn.addClass('disabled').find('i').removeClass('hide');
-				api.put('/users/' + ajaxify.data.theirid + '/password', {
-					currentPassword: currentPassword.val(),
-					newPassword: password.val(),
-				})
+				api
+					.put('/users/' + ajaxify.data.theirid + '/password', {
+						currentPassword: currentPassword.val(),
+						newPassword: password.val(),
+					})
 					.then(() => {
 						if (parseInt(app.user.uid, 10) === parseInt(ajaxify.data.uid, 10)) {
 							window.location.href = config.relative_path + '/login';
@@ -103,14 +108,12 @@ define('forum/account/edit/password', [
 
 	function showError(element, msg) {
 		translator.translate(msg, function (msg) {
-			element.html(msg).removeClass('text-success')
-				.addClass('text-danger');
+			element.html(msg).removeClass('text-success').addClass('text-danger');
 		});
 	}
 
 	function showSuccess(element) {
-		element.html('').removeClass('text-danger')
-			.addClass('text-success');
+		element.html('').removeClass('text-danger').addClass('text-success');
 	}
 
 	return AccountEditPassword;

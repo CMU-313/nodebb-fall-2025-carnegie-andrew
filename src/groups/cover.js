@@ -24,9 +24,7 @@ module.exports = function (Groups) {
 			if (!data.imageData && !data.file && data.position) {
 				return await Groups.updateCoverPosition(data.groupName, data.position);
 			}
-			const type = data.file
-				? data.file.type
-				: image.mimeFromBase64(data.imageData);
+			const type = data.file ? data.file.type : image.mimeFromBase64(data.imageData);
 			if (!type || !allowedTypes.includes(type)) {
 				throw new Error('[[error:invalid-image]]');
 			}
@@ -55,13 +53,9 @@ module.exports = function (Groups) {
 					path: tempPath,
 					uid: uid,
 					name: 'groupCover',
-				}
+				},
 			);
-			await Groups.setGroupField(
-				data.groupName,
-				'cover:thumb:url',
-				thumbUploadData.url
-			);
+			await Groups.setGroupField(data.groupName, 'cover:thumb:url', thumbUploadData.url);
 
 			if (data.position) {
 				await Groups.updateCoverPosition(data.groupName, data.position);
@@ -77,19 +71,17 @@ module.exports = function (Groups) {
 		const fields = ['cover:url', 'cover:thumb:url'];
 		const values = await Groups.getGroupFields(data.groupName, fields);
 		await Promise.all(
-			fields.map((field) => {
+			fields.map(field => {
 				if (
 					!values[field] ||
-					!values[field].startsWith(
-						`${nconf.get('relative_path')}/assets/uploads/files/`
-					)
+					!values[field].startsWith(`${nconf.get('relative_path')}/assets/uploads/files/`)
 				) {
 					return;
 				}
 				const filename = values[field].split('/').pop();
 				const filePath = path.join(nconf.get('upload_path'), 'files', filename);
 				return file.delete(filePath);
-			})
+			}),
 		);
 
 		await db.deleteObjectFields(`group:${data.groupName}`, [

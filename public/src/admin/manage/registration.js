@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('admin/manage/registration', ['bootbox', 'alerts'], function (bootbox, alerts) {
 	const Registration = {};
 
@@ -37,16 +36,19 @@ define('admin/manage/registration', ['bootbox', 'alerts'], function (bootbox, al
 				parent.remove();
 			};
 			if (action === 'delete') {
-				bootbox.confirm('[[admin/manage/registration:invitations.confirm-delete]]', function (confirm) {
-					if (confirm) {
-						socket.emit(method, { email: email, invitedBy: invitedBy }, function (err) {
-							if (err) {
-								return alerts.error(err);
-							}
-							removeRow();
-						});
-					}
-				});
+				bootbox.confirm(
+					'[[admin/manage/registration:invitations.confirm-delete]]',
+					function (confirm) {
+						if (confirm) {
+							socket.emit(method, { email: email, invitedBy: invitedBy }, function (err) {
+								if (err) {
+									return alerts.error(err);
+								}
+								removeRow();
+							});
+						}
+					},
+				);
 			}
 			return false;
 		});

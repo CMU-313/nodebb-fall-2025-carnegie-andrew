@@ -1,13 +1,13 @@
 {
-    "manage-admins-and-mods": "Admins & Mods verwalten",
-    "administrators": "Administratoren",
-    "global-moderators": "Globale Moderatoren",
-    "moderators": "Moderatoren",
-    "no-global-moderators": "Keine globalen Moderatoren",
-    "no-sub-categories": "Keine Unterkategorien",
-    "view-children": "Aufklappen (%1)",
-    "no-moderators": "Keine Moderatoren",
-    "add-administrator": "Administrator hinzufügen",
-    "add-global-moderator": "Globalen Moderator hinzufügen",
-    "add-moderator": "Moderator hinzufügen"
+  "manage-admins-and-mods": "Admins & Mods verwalten",
+  "administrators": "Administratoren",
+  "global-moderators": "Globale Moderatoren",
+  "moderators": "Moderatoren",
+  "no-global-moderators": "Keine globalen Moderatoren",
+  "no-sub-categories": "Keine Unterkategorien",
+  "view-children": "Aufklappen (%1)",
+  "no-moderators": "Keine Moderatoren",
+  "add-administrator": "Administrator hinzufügen",
+  "add-global-moderator": "Globalen Moderator hinzufügen",
+  "add-moderator": "Moderator hinzufügen"
 }

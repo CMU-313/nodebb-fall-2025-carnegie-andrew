@@ -12,10 +12,7 @@ consentController.get = async function (req, res, next) {
 	}
 	const payload = res.locals.userData;
 	const { username, userslug } = payload;
-	const consented = await db.getObjectField(
-		`user:${res.locals.uid}`,
-		'gdpr_consent'
-	);
+	const consented = await db.getObjectField(`user:${res.locals.uid}`, 'gdpr_consent');
 
 	payload.gdpr_consent = parseInt(consented, 10) === 1;
 	payload.digest = {

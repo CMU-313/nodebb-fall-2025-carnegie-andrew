@@ -20,13 +20,9 @@ const hasAdminPrivilege = async (uid, privilege = 'categories') => {
 	}
 };
 
-categoriesAPI.list = async (caller) => {
+categoriesAPI.list = async caller => {
 	async function getCategories() {
-		const cids = await categories.getCidsByPrivilege(
-			'categories:cid',
-			caller.uid,
-			'find'
-		);
+		const cids = await categories.getCidsByPrivilege('categories:cid', caller.uid, 'find');
 		return await categories.getCategoriesData(cids);
 	}
 
@@ -36,9 +32,7 @@ categoriesAPI.list = async (caller) => {
 	]);
 
 	return {
-		categories: categoriesData.filter(
-			(category) => category && (!category.disabled || isAdmin)
-		),
+		categories: categoriesData.filter(category => category && (!category.disabled || isAdmin)),
 	};
 };
 
@@ -118,10 +112,7 @@ categoriesAPI.getChildren = async (caller, { cid, start }) => {
 	categories.flattenCategories(allCategories, category.children);
 	await categories.getRecentTopicReplies(allCategories, caller.uid);
 
-	const payload = category.children.slice(
-		start,
-		start + category.subCategoriesPerPage
-	);
+	const payload = category.children.slice(start, start + category.subCategoriesPerPage);
 	return { categories: payload };
 };
 
@@ -139,10 +130,7 @@ categoriesAPI.getTopics = async (caller, data) => {
 
 	const infScrollTopicsPerPage = 20;
 	const sort =
-		data.sort ||
-		data.categoryTopicSort ||
-		meta.config.categoryTopicSort ||
-		'recently_replied';
+		data.sort || data.categoryTopicSort || meta.config.categoryTopicSort || 'recently_replied';
 
 	let start = Math.max(0, parseInt(data.after || 0, 10));
 
@@ -173,24 +161,19 @@ categoriesAPI.getTopics = async (caller, data) => {
 categoriesAPI.setWatchState = async (caller, { cid, state, uid }) => {
 	let targetUid = caller.uid;
 	let cids = Array.isArray(cid) ? cid : [cid];
-	cids = cids.map((cid) => (utils.isNumber(cid) ? parseInt(cid, 10) : cid));
+	cids = cids.map(cid => (utils.isNumber(cid) ? parseInt(cid, 10) : cid));
 
 	if (uid) {
 		targetUid = uid;
 	}
 	await user.isAdminOrGlobalModOrSelf(caller.uid, targetUid);
 	const allCids = await categories.getAllCidsFromSet('categories:cid');
-	const categoryData = await categories.getCategoriesFields(allCids, [
-		'cid',
-		'parentCid',
-	]);
+	const categoryData = await categories.getCategoriesFields(allCids, ['cid', 'parentCid']);
 
 	// filter to subcategories of cid
 	let cat;
 	do {
-		cat = categoryData.find(
-			(c) => !cids.includes(c.cid) && cids.includes(c.parentCid)
-		);
+		cat = categoryData.find(c => !cids.includes(c.cid) && cids.includes(c.parentCid));
 		if (cat) {
 			cids.push(cat.cid);
 		}
@@ -229,29 +212,25 @@ categoriesAPI.setPrivilege = async (caller, data) => {
 	if (!userExists && !groupExists) {
 		throw new Error('[[error:no-user-or-group]]');
 	}
-	const privs = Array.isArray(data.privilege)
-		? data.privilege
-		: [data.privilege];
+	const privs = Array.isArray(data.privilege) ? data.privilege : [data.privilege];
 	const type = data.set ? 'give' : 'rescind';
 	if (!privs.length) {
 		throw new Error('[[error:invalid-data]]');
 	}
 	if (parseInt(data.cid, 10) === 0) {
 		const adminPrivList = await privileges.admin.getPrivilegeList();
-		const adminPrivs = privs.filter((priv) => adminPrivList.includes(priv));
+		const adminPrivs = privs.filter(priv => adminPrivList.includes(priv));
 		if (adminPrivs.length) {
 			await privileges.admin[type](adminPrivs, data.member);
 		}
 		const globalPrivList = await privileges.global.getPrivilegeList();
-		const globalPrivs = privs.filter((priv) => globalPrivList.includes(priv));
+		const globalPrivs = privs.filter(priv => globalPrivList.includes(priv));
 		if (globalPrivs.length) {
 			await privileges.global[type](globalPrivs, data.member);
 		}
 	} else {
 		const categoryPrivList = await privileges.categories.getPrivilegeList();
-		const categoryPrivs = privs.filter((priv) =>
-			categoryPrivList.includes(priv)
-		);
+		const categoryPrivs = privs.filter(priv => categoryPrivList.includes(priv));
 		await privileges.categories[type](categoryPrivs, data.cid, data.member);
 	}
 

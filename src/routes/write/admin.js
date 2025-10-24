@@ -8,17 +8,14 @@ const routeHelpers = require('../helpers');
 const { setupApiRoute } = routeHelpers;
 
 module.exports = function () {
-	const middlewares = [
-		middleware.ensureLoggedIn,
-		middleware.admin.checkPrivileges,
-	];
+	const middlewares = [middleware.ensureLoggedIn, middleware.admin.checkPrivileges];
 
 	setupApiRoute(
 		router,
 		'put',
 		'/settings/:setting',
 		[...middlewares, middleware.checkRequired.bind(null, ['value'])],
-		controllers.write.admin.updateSetting
+		controllers.write.admin.updateSetting,
 	);
 
 	setupApiRoute(
@@ -26,50 +23,44 @@ module.exports = function () {
 		'get',
 		'/analytics',
 		[...middlewares],
-		controllers.write.admin.getAnalyticsKeys
+		controllers.write.admin.getAnalyticsKeys,
 	);
 	setupApiRoute(
 		router,
 		'get',
 		'/analytics/:set',
 		[...middlewares],
-		controllers.write.admin.getAnalyticsData
+		controllers.write.admin.getAnalyticsData,
 	);
 
-	setupApiRoute(
-		router,
-		'post',
-		'/tokens',
-		[...middlewares],
-		controllers.write.admin.generateToken
-	);
+	setupApiRoute(router, 'post', '/tokens', [...middlewares], controllers.write.admin.generateToken);
 	setupApiRoute(
 		router,
 		'get',
 		'/tokens/:token',
 		[...middlewares],
-		controllers.write.admin.getToken
+		controllers.write.admin.getToken,
 	);
 	setupApiRoute(
 		router,
 		'put',
 		'/tokens/:token',
 		[...middlewares],
-		controllers.write.admin.updateToken
+		controllers.write.admin.updateToken,
 	);
 	setupApiRoute(
 		router,
 		'delete',
 		'/tokens/:token',
 		[...middlewares],
-		controllers.write.admin.deleteToken
+		controllers.write.admin.deleteToken,
 	);
 	setupApiRoute(
 		router,
 		'post',
 		'/tokens/:token/roll',
 		[...middlewares],
-		controllers.write.admin.rollToken
+		controllers.write.admin.rollToken,
 	);
 
 	setupApiRoute(
@@ -77,16 +68,10 @@ module.exports = function () {
 		'delete',
 		'/chats/:roomId',
 		[...middlewares, middleware.assert.room],
-		controllers.write.admin.chats.deleteRoom
+		controllers.write.admin.chats.deleteRoom,
 	);
 
-	setupApiRoute(
-		router,
-		'get',
-		'/groups',
-		[...middlewares],
-		controllers.write.admin.listGroups
-	);
+	setupApiRoute(router, 'get', '/groups', [...middlewares], controllers.write.admin.listGroups);
 
 	return router;
 };

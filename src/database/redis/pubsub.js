@@ -11,7 +11,7 @@ const PubSub = function () {
 	const self = this;
 	channelName = `db:${nconf.get('redis:database')}:pubsub_channel`;
 	self.queue = [];
-	connection.connect().then((client) => {
+	connection.connect().then(client => {
 		self.subClient = client;
 		self.subClient.subscribe(channelName);
 		self.subClient.on('message', (channel, message) => {
@@ -28,9 +28,9 @@ const PubSub = function () {
 		});
 	});
 
-	connection.connect().then((client) => {
+	connection.connect().then(client => {
 		self.pubClient = client;
-		self.queue.forEach((payload) => client.publish(channelName, payload));
+		self.queue.forEach(payload => client.publish(channelName, payload));
 		self.queue.length = 0;
 	});
 };

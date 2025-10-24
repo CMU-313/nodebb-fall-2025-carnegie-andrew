@@ -110,7 +110,7 @@ module.exports = function (Posts) {
 
 	Posts.clearCachedPost = function (pid) {
 		const cache = require('./cache');
-		cache.del(Array.from(allowedTypes).map((type) => `${String(pid)}|${type}`));
+		cache.del(Array.from(allowedTypes).map(type => `${String(pid)}|${type}`));
 	};
 
 	Posts.parseSignature = async function (userData, uid) {
@@ -166,51 +166,48 @@ module.exports = function (Posts) {
 		});
 	};
 
-	Posts.sanitizePlaintext = (content) =>
+	Posts.sanitizePlaintext = content =>
 		sanitize(content, {
 			allowedTags: [],
 		});
 
 	Posts.configureSanitize = async () => {
 		// Each allowed tags should have some common global attributes...
-		sanitizeConfig.allowedTags.forEach((tag) => {
+		sanitizeConfig.allowedTags.forEach(tag => {
 			sanitizeConfig.allowedAttributes[tag] = _.union(
 				sanitizeConfig.allowedAttributes[tag],
-				sanitizeConfig.nonBooleanAttributes
+				sanitizeConfig.nonBooleanAttributes,
 			);
 		});
 
 		// Some plugins might need to adjust or whitelist their own tags...
-		sanitizeConfig = await plugins.hooks.fire(
-			'filter:sanitize.config',
-			sanitizeConfig
-		);
+		sanitizeConfig = await plugins.hooks.fire('filter:sanitize.config', sanitizeConfig);
 	};
 
 	Posts.registerHooks = () => {
 		plugins.hooks.register('core', {
 			hook: 'filter:parse.post',
-			method: async (data) => {
-				data.postData.content = Posts[
-					data.type !== 'plaintext' ? 'sanitize' : 'sanitizePlaintext'
-				](data.postData.content);
+			method: async data => {
+				data.postData.content = Posts[data.type !== 'plaintext' ? 'sanitize' : 'sanitizePlaintext'](
+					data.postData.content,
+				);
 				return data;
 			},
 		});
 
 		plugins.hooks.register('core', {
 			hook: 'filter:parse.raw',
-			method: async (content) => Posts.sanitize(content),
+			method: async content => Posts.sanitize(content),
 		});
 
 		plugins.hooks.register('core', {
 			hook: 'filter:parse.aboutme',
-			method: async (content) => Posts.sanitize(content),
+			method: async content => Posts.sanitize(content),
 		});
 
 		plugins.hooks.register('core', {
 			hook: 'filter:parse.signature',
-			method: async (data) => {
+			method: async data => {
 				data.userData.signature = Posts.sanitize(data.userData.signature);
 				return data;
 			},

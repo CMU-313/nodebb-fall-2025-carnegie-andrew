@@ -1,13 +1,14 @@
 'use strict';
 
-
 define('forum/chats/pinned-messages', ['api', 'alerts'], function (api, alerts) {
 	const pinnedMessages = {};
 	let container;
 	pinnedMessages.init = function (_container) {
 		container = _container;
 		$('[component="chat/pinned/messages/btn"]').on('click', async () => {
-			const pinnedMessagesContainer = container.find('[component="chat/messages/pinned/container"]');
+			const pinnedMessagesContainer = container.find(
+				'[component="chat/messages/pinned/container"]',
+			);
 			if (!pinnedMessagesContainer.hasClass('hidden')) {
 				return pinnedMessagesContainer.addClass('hidden');
 			}
@@ -22,17 +23,20 @@ define('forum/chats/pinned-messages', ['api', 'alerts'], function (api, alerts) 
 
 	function handleInfiniteScroll(container) {
 		const listEl = container.find('[component="chat/messages/pinned"]');
-		listEl.on('scroll', utils.debounce(async () => {
-			const bottom = (listEl[0].scrollHeight - listEl.height()) * 0.85;
-			if (listEl.scrollTop() > bottom) {
-				const lastIndex = listEl.find('[data-index]').last().attr('data-index');
-				const data = await loadData(parseInt(lastIndex, 10) + 1);
-				if (data && data.length) {
-					const html = await parseMessages(data);
-					container.find('[component="chat/messages/pinned"]').append(html);
+		listEl.on(
+			'scroll',
+			utils.debounce(async () => {
+				const bottom = (listEl[0].scrollHeight - listEl.height()) * 0.85;
+				if (listEl.scrollTop() > bottom) {
+					const lastIndex = listEl.find('[data-index]').last().attr('data-index');
+					const data = await loadData(parseInt(lastIndex, 10) + 1);
+					if (data && data.length) {
+						const html = await parseMessages(data);
+						container.find('[component="chat/messages/pinned"]').append(html);
+					}
 				}
-			}
-		}, 200));
+			}, 200),
+		);
 	}
 
 	pinnedMessages.refreshList = async function () {
@@ -63,20 +67,26 @@ define('forum/chats/pinned-messages', ['api', 'alerts'], function (api, alerts) 
 	}
 
 	pinnedMessages.pin = function (mid, roomId) {
-		api.put(`/chats/${roomId}/messages/${mid}/pin`, {}).then(() => {
-			$(`[component="chat/message"][data-mid="${mid}"]`).toggleClass('pinned', true);
-			pinnedMessages.refreshList();
-		}).catch(alerts.error);
+		api
+			.put(`/chats/${roomId}/messages/${mid}/pin`, {})
+			.then(() => {
+				$(`[component="chat/message"][data-mid="${mid}"]`).toggleClass('pinned', true);
+				pinnedMessages.refreshList();
+			})
+			.catch(alerts.error);
 	};
 
 	pinnedMessages.unpin = function (mid, roomId) {
-		api.del(`/chats/${roomId}/messages/${mid}/pin`, {}).then(() => {
-			$(`[component="chat/message"][data-mid="${mid}"]`).toggleClass('pinned', false);
-			container.find(`[component="chat/messages/pinned"] [data-mid="${mid}"]`).remove();
-			if (!container.find(`[component="chat/messages/pinned"] [data-mid]`).length) {
-				container.find('[component="chat/messages/pinned/empty"]').removeClass('hidden');
-			}
-		}).catch(alerts.error);
+		api
+			.del(`/chats/${roomId}/messages/${mid}/pin`, {})
+			.then(() => {
+				$(`[component="chat/message"][data-mid="${mid}"]`).toggleClass('pinned', false);
+				container.find(`[component="chat/messages/pinned"] [data-mid="${mid}"]`).remove();
+				if (!container.find(`[component="chat/messages/pinned"] [data-mid]`).length) {
+					container.find('[component="chat/messages/pinned/empty"]').removeClass('hidden');
+				}
+			})
+			.catch(alerts.error);
 	};
 
 	return pinnedMessages;

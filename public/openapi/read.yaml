@@ -84,7 +84,7 @@ paths:
     $ref: 'read/admin/dashboard/topics.yaml'
   /api/admin/dashboard/searches:
     $ref: 'read/admin/dashboard/searches.yaml'
-  "/api/admin/settings/general":
+  '/api/admin/settings/general':
     $ref: 'read/admin/settings/general.yaml'
   /api/admin/settings/navigation:
     $ref: 'read/admin/settings/navigation.yaml'
@@ -120,13 +120,13 @@ paths:
     $ref: 'read/admin/settings/advanced.yaml'
   /api/admin/manage/categories:
     $ref: 'read/admin/manage/categories.yaml'
-  "/api/admin/manage/categories/{category_id}":
+  '/api/admin/manage/categories/{category_id}':
     $ref: 'read/admin/manage/categories/category_id.yaml'
-  "/api/admin/manage/categories/{category_id}/analytics":
+  '/api/admin/manage/categories/{category_id}/analytics':
     $ref: 'read/admin/manage/categories/category_id/analytics.yaml'
-  "/api/admin/manage/categories/{category_id}/federation":
+  '/api/admin/manage/categories/{category_id}/federation':
     $ref: 'read/admin/manage/categories/category_id/federation.yaml'
-  "/api/admin/manage/privileges/{cid}":
+  '/api/admin/manage/privileges/{cid}':
     $ref: 'read/admin/manage/privileges/cid.yaml'
   /api/admin/manage/tags:
     $ref: 'read/admin/manage/tags.yaml'
@@ -140,17 +140,17 @@ paths:
     $ref: 'read/admin/manage/admins-mods.yaml'
   /api/admin/manage/groups:
     $ref: 'read/admin/manage/groups.yaml'
-  "/api/admin/manage/groups/{slug}":
+  '/api/admin/manage/groups/{slug}':
     $ref: 'read/admin/manage/groups/slug.yaml'
   /api/admin/manage/uploads:
     $ref: 'read/admin/manage/uploads.yaml'
   /api/admin/manage/digest:
     $ref: 'read/admin/manage/digest.yaml'
-  "/api/admin/appearance/themes":
+  '/api/admin/appearance/themes':
     $ref: 'read/admin/appearance/themes.yaml'
-  "/api/admin/appearance/skins":
+  '/api/admin/appearance/skins':
     $ref: 'read/admin/appearance/skins.yaml'
-  "/api/admin/appearance/customise":
+  '/api/admin/appearance/customise':
     $ref: 'read/admin/appearance/customise.yaml'
   /api/admin/extend/plugins:
     $ref: 'read/admin/extend/plugins.yaml'
@@ -206,31 +206,31 @@ paths:
     $ref: 'read/config.yaml'
   /api/users:
     $ref: 'read/users.yaml'
-  "/api/user/uid/{uid}":
+  '/api/user/uid/{uid}':
     $ref: 'read/user/uid/uid.yaml'
-  "/api/user/username/{username}":
+  '/api/user/username/{username}':
     $ref: 'read/user/username/username.yaml'
-  "/api/user/email/{email}":
+  '/api/user/email/{email}':
     $ref: 'read/user/email/email.yaml'
   /api/categories:
     $ref: 'read/categories.yaml'
-  "/api/categories/{cid}/moderators":
+  '/api/categories/{cid}/moderators':
     $ref: 'read/categories/cid/moderators.yaml'
-  "/api/topic/{topic_id}/{slug}":
+  '/api/topic/{topic_id}/{slug}':
     $ref: 'read/topic/topic_id.yaml'
-  "/api/topic/{topic_id}/{slug}/{post_index}":
+  '/api/topic/{topic_id}/{slug}/{post_index}':
     $ref: 'read/topic/topic_id.yaml'
   /api/recent:
     $ref: 'read/recent.yaml'
-  "/api/recent/posts/{term}":
+  '/api/recent/posts/{term}':
     $ref: 'read/recent/posts/term.yaml'
   /api/unread:
     $ref: 'read/unread.yaml'
   /api/unread/total:
     $ref: 'read/unread/total.yaml'
-  "/api/topic/teaser/{topic_id}":
+  '/api/topic/teaser/{topic_id}':
     $ref: 'read/topic/teaser/topic_id.yaml'
-  "/api/topic/pagination/{topic_id}":
+  '/api/topic/pagination/{topic_id}':
     $ref: 'read/topic/pagination/topic_id.yaml'
   /api/post/upload:
     $ref: 'read/post/upload.yaml'
@@ -242,27 +242,27 @@ paths:
     $ref: 'read/register.yaml'
   /api/register/complete:
     $ref: 'read/register/complete.yaml'
-  "/api/confirm/{code}":
+  '/api/confirm/{code}':
     $ref: 'read/confirm/code.yaml'
   /api/tos:
     $ref: 'read/tos.yaml'
   /api/search:
     $ref: 'read/search.yaml'
-  "/api/reset":
+  '/api/reset':
     $ref: 'read/reset.yaml'
-  "/api/reset/{code}":
+  '/api/reset/{code}':
     $ref: 'read/reset/code.yaml'
-  "/api/email/unsubscribe/{token}":
+  '/api/email/unsubscribe/{token}':
     $ref: 'read/email/unsubscribe/token.yaml'
-  "/api/post/{pid}":
+  '/api/post/{pid}':
     $ref: 'read/post/pid.yaml'
   /api/flags:
     $ref: 'read/flags.yaml'
-  "/api/flags/{flagId}":
+  '/api/flags/{flagId}':
     $ref: 'read/flags/flagId.yaml'
   /api/post-queue:
     $ref: 'read/post-queue.yaml'
-  "/api/post-queue/{id}":
+  '/api/post-queue/{id}':
     $ref: 'read/post-queue.yaml'
   /api/ip-blacklist:
     $ref: 'read/ip-blacklist.yaml'
@@ -270,15 +270,15 @@ paths:
     $ref: 'read/registration-queue.yaml'
   /api/tags:
     $ref: 'read/tags.yaml'
-  "/api/tags/{tag}":
+  '/api/tags/{tag}':
     $ref: 'read/tags/tag.yaml'
   /api/popular:
     $ref: 'read/popular.yaml'
   /api/top:
     $ref: 'read/top.yaml'
-  "/api/category/{category_id}/{slug}":
+  '/api/category/{category_id}/{slug}':
     $ref: 'read/category/category_id.yaml'
-  "/api/category/{category_id}/{slug}/{topic_index}":
+  '/api/category/{category_id}/{slug}/{topic_index}':
     $ref: 'read/category/category_id.yaml'
   /api/self:
     $ref: 'read/self.yaml'
@@ -286,81 +286,81 @@ paths:
     $ref: 'read/me.yaml'
   /api/me/*:
     $ref: 'read/me.yaml'
-  "/api/uid/{uid*}":
+  '/api/uid/{uid*}':
     $ref: 'read/uid/uid.yaml'
-  "/api/user/{userslug}":
+  '/api/user/{userslug}':
     $ref: 'read/user/userslug.yaml'
-  "/api/user/{userslug}/following":
+  '/api/user/{userslug}/following':
     $ref: 'read/user/userslug/following.yaml'
-  "/api/user/{userslug}/followers":
+  '/api/user/{userslug}/followers':
     $ref: 'read/user/userslug/followers.yaml'
-  "/api/user/{userslug}/categories":
+  '/api/user/{userslug}/categories':
     $ref: 'read/user/userslug/categories.yaml'
-  "/api/user/{userslug}/tags":
+  '/api/user/{userslug}/tags':
     $ref: 'read/user/userslug/tags.yaml'
-  "/api/user/{userslug}/posts":
+  '/api/user/{userslug}/posts':
     $ref: 'read/user/userslug/posts.yaml'
-  "/api/user/{userslug}/topics":
+  '/api/user/{userslug}/topics':
     $ref: 'read/user/userslug/topics.yaml'
-  "/api/user/{userslug}/shares":
+  '/api/user/{userslug}/shares':
     $ref: 'read/user/userslug/shares.yaml'
-  "/api/user/{userslug}/best":
+  '/api/user/{userslug}/best':
     $ref: 'read/user/userslug/best.yaml'
-  "/api/user/{userslug}/controversial":
+  '/api/user/{userslug}/controversial':
     $ref: 'read/user/userslug/controversial.yaml'
-  "/api/user/{userslug}/groups":
+  '/api/user/{userslug}/groups':
     $ref: 'read/user/userslug/groups.yaml'
-  "/api/user/{userslug}/bookmarks":
+  '/api/user/{userslug}/bookmarks':
     $ref: 'read/user/userslug/bookmarks.yaml'
-  "/api/user/{userslug}/watched":
+  '/api/user/{userslug}/watched':
     $ref: 'read/user/userslug/watched.yaml'
-  "/api/user/{userslug}/ignored":
+  '/api/user/{userslug}/ignored':
     $ref: 'read/user/userslug/ignored.yaml'
-  "/api/user/{userslug}/read":
+  '/api/user/{userslug}/read':
     $ref: 'read/user/userslug/read.yaml'
-  "/api/user/{userslug}/upvoted":
+  '/api/user/{userslug}/upvoted':
     $ref: 'read/user/userslug/upvoted.yaml'
-  "/api/user/{userslug}/downvoted":
+  '/api/user/{userslug}/downvoted':
     $ref: 'read/user/userslug/downvoted.yaml'
-  "/api/user/{userslug}/edit":
+  '/api/user/{userslug}/edit':
     $ref: 'read/user/userslug/edit.yaml'
-  "/api/user/{userslug}/edit/username":
+  '/api/user/{userslug}/edit/username':
     $ref: 'read/user/userslug/edit/username.yaml'
-  "/api/user/{userslug}/edit/email":
+  '/api/user/{userslug}/edit/email':
     $ref: 'read/user/userslug/edit/email.yaml'
-  "/api/user/{userslug}/edit/password":
+  '/api/user/{userslug}/edit/password':
     $ref: 'read/user/userslug/edit/password.yaml'
-  "/api/user/{userslug}/info":
+  '/api/user/{userslug}/info':
     $ref: 'read/user/userslug/info.yaml'
-  "/api/user/{userslug}/settings":
+  '/api/user/{userslug}/settings':
     $ref: 'read/user/userslug/settings.yaml'
-  "/api/user/{userslug}/uploads":
+  '/api/user/{userslug}/uploads':
     $ref: 'read/user/userslug/uploads.yaml'
-  "/api/user/{userslug}/consent":
+  '/api/user/{userslug}/consent':
     $ref: 'read/user/userslug/consent.yaml'
-  "/api/user/{userslug}/blocks":
+  '/api/user/{userslug}/blocks':
     $ref: 'read/user/userslug/blocks.yaml'
-  "/api/user/{userslug}/sessions":
+  '/api/user/{userslug}/sessions':
     $ref: 'read/user/userslug/sessions.yaml'
-  "/api/user/{userslug}/session/{uuid}":
+  '/api/user/{userslug}/session/{uuid}':
     $ref: 'read/user/userslug/session/uuid.yaml'
   /api/notifications:
     $ref: 'read/notifications.yaml'
-  "/api/user/{userslug}/chats/{roomid}":
+  '/api/user/{userslug}/chats/{roomid}':
     $ref: 'read/user/userslug/chats/roomid.yaml'
-  "/api/user/{userslug}/chats/{roomid}/{index}":
+  '/api/user/{userslug}/chats/{roomid}/{index}':
     $ref: 'read/user/userslug/chats/roomid.yaml'
-  "/api/chats/{roomid}":
+  '/api/chats/{roomid}':
     $ref: 'read/chats/roomid.yaml'
-  "/api/chats/{roomid}/{index}":
+  '/api/chats/{roomid}/{index}':
     $ref: 'read/chats/roomid.yaml'
-  "/api/message/{mid}":
+  '/api/message/{mid}':
     $ref: 'read/message/mid.yaml'
   /api/groups:
     $ref: 'read/groups.yaml'
-  "/api/groups/{slug}":
+  '/api/groups/{slug}':
     $ref: 'read/groups/slug.yaml'
-  "/api/groups/{slug}/members":
+  '/api/groups/{slug}/members':
     $ref: 'read/groups/slug/members.yaml'
   /api/world:
     $ref: 'read/world.yaml'

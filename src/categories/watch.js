@@ -18,7 +18,7 @@ module.exports = function (Categories) {
 			return cids.map(() => false);
 		}
 		const states = await Categories.getWatchState(cids, uid);
-		return states.map((state) => state === Categories.watchStates.ignoring);
+		return states.map(state => state === Categories.watchStates.ignoring);
 	};
 
 	Categories.getWatchState = async function (cids, uid) {
@@ -28,16 +28,16 @@ module.exports = function (Categories) {
 		if (!Array.isArray(cids) || !cids.length) {
 			return [];
 		}
-		const keys = cids.map((cid) => `cid:${cid}:uid:watch:state`);
+		const keys = cids.map(cid => `cid:${cid}:uid:watch:state`);
 		const [userSettings, states] = await Promise.all([
 			user.getSettings(uid),
 			db.sortedSetsScore(keys, uid),
 		]);
 
-		const fallbacks = cids.map((cid) =>
+		const fallbacks = cids.map(cid =>
 			utils.isNumber(cid)
 				? Categories.watchStates[userSettings.categoryWatchState]
-				: Categories.watchStates.notwatching
+				: Categories.watchStates.notwatching,
 		);
 
 		return states.map((state, idx) => state || fallbacks[idx]);
@@ -50,14 +50,14 @@ module.exports = function (Categories) {
 			start,
 			count,
 			Categories.watchStates.ignoring,
-			Categories.watchStates.ignoring
+			Categories.watchStates.ignoring,
 		);
 	};
 
 	Categories.filterIgnoringUids = async function (cid, uids) {
 		const states = await Categories.getUidsWatchStates(cid, uids);
 		const readingUids = uids.filter(
-			(uid, index) => uid && states[index] !== Categories.watchStates.ignoring
+			(uid, index) => uid && states[index] !== Categories.watchStates.ignoring,
 		);
 		return readingUids;
 	};
@@ -68,8 +68,7 @@ module.exports = function (Categories) {
 			db.sortedSetScores(`cid:${cid}:uid:watch:state`, uids),
 		]);
 		return states.map(
-			(state, index) =>
-				state || Categories.watchStates[userSettings[index].categoryWatchState]
+			(state, index) => state || Categories.watchStates[userSettings[index].categoryWatchState],
 		);
 	};
 };

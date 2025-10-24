@@ -126,8 +126,7 @@ describe.skip('Actor asserton', () => {
 				helpers.mocks.group({ id });
 				await activitypub.actors.assertGroup([id]);
 
-				const { topic_count, post_count } =
-					await categories.getCategoryData(id);
+				const { topic_count, post_count } = await categories.getCategoryData(id);
 				assert.strictEqual(topic_count, 2);
 				assert.strictEqual(post_count, 2);
 			});
@@ -160,8 +159,7 @@ describe.skip('Actor asserton', () => {
 				helpers.mocks.group({ id });
 				await activitypub.actors.assertGroup([id]);
 
-				const { topic_count, post_count } =
-					await categories.getCategoryData(id);
+				const { topic_count, post_count } = await categories.getCategoryData(id);
 				assert.strictEqual(topic_count, 1);
 				assert.strictEqual(post_count, 1);
 			});
@@ -196,7 +194,7 @@ describe.skip('Actor asserton', () => {
 
 				const uid = await db.getObjectField(
 					'handle:uid',
-					`${preferredUsername.toLowerCase()}@example.org`
+					`${preferredUsername.toLowerCase()}@example.org`,
 				);
 				assert.strictEqual(uid, id);
 			});
@@ -209,7 +207,7 @@ describe.skip('Actor asserton', () => {
 
 				const uid = await db.getObjectField(
 					'handle:uid',
-					`${preferredUsername.toLowerCase()}@example.org`
+					`${preferredUsername.toLowerCase()}@example.org`,
 				);
 				assert.strictEqual(uid, id);
 			});
@@ -226,8 +224,7 @@ describe.skip('Actor asserton', () => {
 					actorUri,
 				});
 
-				const { actorUri: confirm } =
-					await activitypub.helpers.query('foobar@example.org');
+				const { actorUri: confirm } = await activitypub.helpers.query('foobar@example.org');
 				assert.strictEqual(confirm, actorUri);
 
 				const response = await activitypub.actors.assert([id]);
@@ -251,9 +248,7 @@ describe.skip('Actor asserton', () => {
 			const handleExists = await db.isObjectField('handle:uid', handle);
 			assert.strictEqual(handleExists, false);
 
-			const userRemoteHashExists = await db.exists(
-				`userRemote:${nconf.get('url')}/uid/${uid}`
-			);
+			const userRemoteHashExists = await db.exists(`userRemote:${nconf.get('url')}/uid/${uid}`);
 			assert.strictEqual(userRemoteHashExists, false);
 		});
 
@@ -298,7 +293,7 @@ describe.skip('as:Group', () => {
 		it('should contain an entry in categories search zset', async () => {
 			const exists = await db.isSortedSetMember(
 				'categories:name',
-				`${actorData.name.toLowerCase()}:${actorUri}`
+				`${actorData.name.toLowerCase()}:${actorUri}`,
 			);
 
 			assert(exists);
@@ -342,10 +337,7 @@ describe.skip('as:Group', () => {
 				await categories.purge(id, 0);
 
 				const isMember = await db.isObjectField('handle:cid', handle);
-				const inSearch = await db.isSortedSetMember(
-					'categories:name',
-					`${slug}:${id}`
-				);
+				const inSearch = await db.isSortedSetMember('categories:name', `${slug}:${id}`);
 				assert(!isMember);
 				assert(!inSearch);
 			});
@@ -374,29 +366,17 @@ describe.skip('as:Group', () => {
 
 			it('should do nothing when category is a local category', async () => {
 				const { cid } = await categories.create({ name: utils.generateUUID() });
-				await user.setCategoryWatchState(
-					uid,
-					cid,
-					categories.watchStates.tracking
-				);
+				await user.setCategoryWatchState(uid, cid, categories.watchStates.tracking);
 				assert.strictEqual(activitypub._sent.size, 0);
 			});
 
 			it('should do nothing when watch state changes to "ignoring"', async () => {
-				await user.setCategoryWatchState(
-					uid,
-					cid,
-					categories.watchStates.ignoring
-				);
+				await user.setCategoryWatchState(uid, cid, categories.watchStates.ignoring);
 				assert.strictEqual(activitypub._sent.size, 0);
 			});
 
 			it('should send out a Follow activity when watch state changes to "tracking"', async () => {
-				await user.setCategoryWatchState(
-					uid,
-					cid,
-					categories.watchStates.tracking
-				);
+				await user.setCategoryWatchState(uid, cid, categories.watchStates.tracking);
 
 				assert.strictEqual(activitypub._sent.size, 1);
 
@@ -406,28 +386,18 @@ describe.skip('as:Group', () => {
 			});
 
 			it('should send out a Follow activity when the watch state changes to "watching"', async () => {
-				await user.setCategoryWatchState(
-					uid,
-					cid,
-					categories.watchStates.watching
-				);
+				await user.setCategoryWatchState(uid, cid, categories.watchStates.watching);
 
 				assert.strictEqual(activitypub._sent.size, 1);
 
 				const activity = Array.from(activitypub._sent.values()).pop();
-				assert(
-					activity && activity.object && typeof activity.object === 'string'
-				);
+				assert(activity && activity.object && typeof activity.object === 'string');
 				assert.strictEqual(activity.type, 'Follow');
 				assert.strictEqual(activity.object, cid);
 			});
 
 			it("should not show up in the user's following list", async () => {
-				await user.setCategoryWatchState(
-					uid,
-					cid,
-					categories.watchStates.watching
-				);
+				await user.setCategoryWatchState(uid, cid, categories.watchStates.watching);
 
 				// Trigger inbox accept
 				const { activity: body } = helpers.mocks.accept(cid, {
@@ -459,51 +429,30 @@ describe.skip('as:Group', () => {
 
 			it('should do nothing when category is a local category', async () => {
 				const { cid } = await categories.create({ name: utils.generateUUID() });
-				await user.setCategoryWatchState(
-					uid,
-					cid,
-					categories.watchStates.ignoring
-				);
+				await user.setCategoryWatchState(uid, cid, categories.watchStates.ignoring);
 				assert.strictEqual(activitypub._sent.size, 0);
 			});
 
 			it('should do nothing when watch state changes to "tracking"', async () => {
-				await user.setCategoryWatchState(
-					uid,
-					cid,
-					categories.watchStates.tracking
-				);
+				await user.setCategoryWatchState(uid, cid, categories.watchStates.tracking);
 				assert.strictEqual(activitypub._sent.size, 0);
 			});
 
 			it('should do nothing when watch state changes to "watching"', async () => {
-				await user.setCategoryWatchState(
-					uid,
-					cid,
-					categories.watchStates.watching
-				);
+				await user.setCategoryWatchState(uid, cid, categories.watchStates.watching);
 				assert.strictEqual(activitypub._sent.size, 0);
 			});
 
 			it('should send out an Undo(Follow) activity when watch state changes to "ignoring"', async () => {
-				await user.setCategoryWatchState(
-					uid,
-					cid,
-					categories.watchStates.ignoring
-				);
+				await user.setCategoryWatchState(uid, cid, categories.watchStates.ignoring);
 
 				assert.strictEqual(activitypub._sent.size, 1);
 
 				const activity = Array.from(activitypub._sent.values()).pop();
-				assert(
-					activity && activity.object && typeof activity.object === 'object'
-				);
+				assert(activity && activity.object && typeof activity.object === 'object');
 				assert.strictEqual(activity.type, 'Undo');
 				assert.strictEqual(activity.object.type, 'Follow');
-				assert.strictEqual(
-					activity.object.actor,
-					`${nconf.get('url')}/uid/${uid}`
-				);
+				assert.strictEqual(activity.object.actor, `${nconf.get('url')}/uid/${uid}`);
 				assert.strictEqual(activity.object.object, cid);
 			});
 		});
@@ -579,51 +528,35 @@ describe.skip('Controllers', () => {
 		});
 
 		it('should return a valid ActivityPub Actor JSON-LD payload', async () => {
-			const { response, body } = await request.get(
-				`${nconf.get('url')}/uid/${uid}`,
-				{
-					headers: {
-						Accept:
-							'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-					},
-				}
-			);
+			const { response, body } = await request.get(`${nconf.get('url')}/uid/${uid}`, {
+				headers: {
+					Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+				},
+			});
 
 			assert(response);
 			assert.strictEqual(response.statusCode, 200);
 			assert(body.hasOwnProperty('@context'));
-			assert(
-				body['@context'].includes('https://www.w3.org/ns/activitystreams')
-			);
+			assert(body['@context'].includes('https://www.w3.org/ns/activitystreams'));
 
-			['id', 'url', 'followers', 'following', 'inbox', 'outbox'].forEach(
-				(prop) => {
-					assert(body.hasOwnProperty(prop));
-					assert(body[prop]);
-				}
-			);
+			['id', 'url', 'followers', 'following', 'inbox', 'outbox'].forEach(prop => {
+				assert(body.hasOwnProperty(prop));
+				assert(body[prop]);
+			});
 
 			assert.strictEqual(body.id, `${nconf.get('url')}/uid/${uid}`);
 			assert.strictEqual(body.type, 'Person');
 		});
 
 		it('should contain a `publicKey` property with a public key', async () => {
-			const { response, body } = await request.get(
-				`${nconf.get('url')}/uid/${uid}`,
-				{
-					headers: {
-						Accept:
-							'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-					},
-				}
-			);
+			const { response, body } = await request.get(`${nconf.get('url')}/uid/${uid}`, {
+				headers: {
+					Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+				},
+			});
 
 			assert(body.hasOwnProperty('publicKey'));
-			assert(
-				['id', 'owner', 'publicKeyPem'].every((prop) =>
-					body.publicKey.hasOwnProperty(prop)
-				)
-			);
+			assert(['id', 'owner', 'publicKeyPem'].every(prop => body.publicKey.hasOwnProperty(prop)));
 		});
 	});
 
@@ -642,29 +575,21 @@ describe.skip('Controllers', () => {
 		});
 
 		it('should return a valid ActivityPub Actor JSON-LD payload', async () => {
-			const { response, body } = await request.get(
-				`${nconf.get('url')}/category/${cid}`,
-				{
-					headers: {
-						Accept:
-							'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-					},
-				}
-			);
+			const { response, body } = await request.get(`${nconf.get('url')}/category/${cid}`, {
+				headers: {
+					Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+				},
+			});
 
 			assert(response);
 			assert.strictEqual(response.statusCode, 200);
 			assert(body.hasOwnProperty('@context'));
-			assert(
-				body['@context'].includes('https://www.w3.org/ns/activitystreams')
-			);
+			assert(body['@context'].includes('https://www.w3.org/ns/activitystreams'));
 
-			['id', 'url', /* 'followers', 'following', */ 'inbox', 'outbox'].forEach(
-				(prop) => {
-					assert(body.hasOwnProperty(prop));
-					assert(body[prop]);
-				}
-			);
+			['id', 'url', /* 'followers', 'following', */ 'inbox', 'outbox'].forEach(prop => {
+				assert(body.hasOwnProperty(prop));
+				assert(body[prop]);
+			});
 
 			assert.strictEqual(body.id, `${nconf.get('url')}/category/${cid}`);
 			assert.strictEqual(body.type, 'Group');
@@ -677,22 +602,14 @@ describe.skip('Controllers', () => {
 		});
 
 		it('should contain a `publicKey` property with a public key', async () => {
-			const { body } = await request.get(
-				`${nconf.get('url')}/category/${cid}`,
-				{
-					headers: {
-						Accept:
-							'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-					},
-				}
-			);
+			const { body } = await request.get(`${nconf.get('url')}/category/${cid}`, {
+				headers: {
+					Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+				},
+			});
 
 			assert(body.hasOwnProperty('publicKey'));
-			assert(
-				['id', 'owner', 'publicKeyPem'].every((prop) =>
-					body.publicKey.hasOwnProperty(prop)
-				)
-			);
+			assert(['id', 'owner', 'publicKeyPem'].every(prop => body.publicKey.hasOwnProperty(prop)));
 		});
 
 		it('should serve the the backgroundImage in `icon` if set', async () => {
@@ -702,15 +619,11 @@ describe.skip('Controllers', () => {
 			};
 			await categories.update(payload);
 
-			const { body } = await request.get(
-				`${nconf.get('url')}/category/${cid}`,
-				{
-					headers: {
-						Accept:
-							'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-					},
-				}
-			);
+			const { body } = await request.get(`${nconf.get('url')}/category/${cid}`, {
+				headers: {
+					Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+				},
+			});
 
 			assert.deepStrictEqual(body.icon, {
 				type: 'Image',
@@ -727,8 +640,7 @@ describe.skip('Controllers', () => {
 		before(async () => {
 			({ response, body } = await request.get(`${nconf.get('url')}/actor`, {
 				headers: {
-					Accept:
-						'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+					Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
 				},
 			}));
 		});
@@ -740,38 +652,27 @@ describe.skip('Controllers', () => {
 
 		it('should return a valid ActivityPub Actor JSON-LD payload', async () => {
 			assert(body.hasOwnProperty('@context'));
-			assert(
-				body['@context'].includes('https://www.w3.org/ns/activitystreams')
-			);
+			assert(body['@context'].includes('https://www.w3.org/ns/activitystreams'));
 
-			['id', 'url', 'inbox', 'outbox', 'name', 'preferredUsername'].forEach(
-				(prop) => {
-					assert(body.hasOwnProperty(prop));
-					assert(body[prop]);
-				}
-			);
+			['id', 'url', 'inbox', 'outbox', 'name', 'preferredUsername'].forEach(prop => {
+				assert(body.hasOwnProperty(prop));
+				assert(body[prop]);
+			});
 
 			assert.strictEqual(body.id, body.url);
 			assert.strictEqual(body.type, 'Application');
 			assert.strictEqual(body.name, meta.config.site_title || 'NodeBB');
-			assert.strictEqual(
-				body.preferredUsername,
-				nconf.get('url_parsed').hostname
-			);
+			assert.strictEqual(body.preferredUsername, nconf.get('url_parsed').hostname);
 		});
 
 		it('should contain a `publicKey` property with a public key', async () => {
 			assert(body.hasOwnProperty('publicKey'));
-			assert(
-				['id', 'owner', 'publicKeyPem'].every((prop) =>
-					body.publicKey.hasOwnProperty(prop)
-				)
-			);
+			assert(['id', 'owner', 'publicKeyPem'].every(prop => body.publicKey.hasOwnProperty(prop)));
 		});
 
 		it('should also have a valid WebFinger response tied to `preferredUsername`', async () => {
 			const { response, body: body2 } = await request.get(
-				`${nconf.get('url')}/.well-known/webfinger?resource=acct%3a${body.preferredUsername}@${nconf.get('url_parsed').host}`
+				`${nconf.get('url')}/.well-known/webfinger?resource=acct%3a${body.preferredUsername}@${nconf.get('url_parsed').host}`,
 			);
 
 			assert.strictEqual(response.statusCode, 200);
@@ -779,11 +680,11 @@ describe.skip('Controllers', () => {
 			assert(body2.aliases.includes(nconf.get('url')));
 			assert(
 				body2.links.some(
-					(item) =>
+					item =>
 						item.rel === 'self' &&
 						item.type === 'application/activity+json' &&
-						item.href === `${nconf.get('url')}/actor`
-				)
+						item.href === `${nconf.get('url')}/actor`,
+				),
 			);
 		});
 	});
@@ -813,15 +714,11 @@ describe.skip('Controllers', () => {
 					content: 'Lorem ipsum dolor sit amet',
 				}));
 
-				({ response, body } = await request.get(
-					`${nconf.get('url')}/topic/${topicData.slug}`,
-					{
-						headers: {
-							Accept:
-								'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-						},
-					}
-				));
+				({ response, body } = await request.get(`${nconf.get('url')}/topic/${topicData.slug}`, {
+					headers: {
+						Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+					},
+				}));
 			});
 
 			it('should respond properly', async () => {
@@ -833,10 +730,7 @@ describe.skip('Controllers', () => {
 				assert.strictEqual(body.type, 'OrderedCollection');
 				assert.strictEqual(body.totalItems, 1);
 				assert(Array.isArray(body.orderedItems));
-				assert.strictEqual(
-					body.orderedItems[0],
-					`${nconf.get('url')}/post/${topicData.mainPid}`
-				);
+				assert.strictEqual(body.orderedItems[0], `${nconf.get('url')}/post/${topicData.mainPid}`);
 			});
 		});
 
@@ -854,15 +748,11 @@ describe.skip('Controllers', () => {
 					timestamp: Date.now() + 1000 * 60 * 60, // 1 hour in the future
 				}));
 
-				({ response, body } = await request.get(
-					`${nconf.get('url')}/topic/${topicData.slug}`,
-					{
-						headers: {
-							Accept:
-								'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-						},
-					}
-				));
+				({ response, body } = await request.get(`${nconf.get('url')}/topic/${topicData.slug}`, {
+					headers: {
+						Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+					},
+				}));
 			});
 
 			it('should respond with a 404 Not Found', async () => {
@@ -897,15 +787,11 @@ describe.skip('Controllers', () => {
 					content: 'Lorem ipsum dolor sit amet',
 				}));
 
-				({ response, body } = await request.get(
-					`${nconf.get('url')}/post/${postData.pid}`,
-					{
-						headers: {
-							Accept:
-								'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-						},
-					}
-				));
+				({ response, body } = await request.get(`${nconf.get('url')}/post/${postData.pid}`, {
+					headers: {
+						Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+					},
+				}));
 			});
 
 			it('should respond properly', async () => {
@@ -933,15 +819,11 @@ describe.skip('Controllers', () => {
 					timestamp: Date.now() + 1000 * 60 * 60, // 1 hour in the future
 				}));
 
-				({ response, body } = await request.get(
-					`${nconf.get('url')}/post/${postData.pid}`,
-					{
-						headers: {
-							Accept:
-								'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
-						},
-					}
-				));
+				({ response, body } = await request.get(`${nconf.get('url')}/post/${postData.pid}`, {
+					headers: {
+						Accept: 'application/ld+json; profile="https://www.w3.org/ns/activitystreams"',
+					},
+				}));
 			});
 
 			it('should respond with a 404 Not Found', async () => {

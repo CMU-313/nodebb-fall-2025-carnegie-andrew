@@ -1,12 +1,12 @@
 {
-    "username-email": "اسم المستخدم / البريد الإلكتروني",
-    "username": "اسم المستخدم",
-    "remember-me": "تذكرني؟",
-    "forgot-password": "نسيت كلمة المرور؟",
-    "alternative-logins": "تسجيلات الدخول البديلة",
-    "failed-login-attempt": "تسجيل الدخول غير ناجح",
-    "login-successful": "قمت بتسجيل الدخول بنجاح!",
-    "dont-have-account": "لا تملك حساب؟",
-    "logged-out-due-to-inactivity": "لقد تم تسجيل خروجك من لوحة تحكم بسبب عدم نشاطك",
-    "caps-lock-enabled": "Caps Lock is enabled"
+  "username-email": "اسم المستخدم / البريد الإلكتروني",
+  "username": "اسم المستخدم",
+  "remember-me": "تذكرني؟",
+  "forgot-password": "نسيت كلمة المرور؟",
+  "alternative-logins": "تسجيلات الدخول البديلة",
+  "failed-login-attempt": "تسجيل الدخول غير ناجح",
+  "login-successful": "قمت بتسجيل الدخول بنجاح!",
+  "dont-have-account": "لا تملك حساب؟",
+  "logged-out-due-to-inactivity": "لقد تم تسجيل خروجك من لوحة تحكم بسبب عدم نشاطك",
+  "caps-lock-enabled": "Caps Lock is enabled"
 }

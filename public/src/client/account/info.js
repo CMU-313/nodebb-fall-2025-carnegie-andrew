@@ -1,7 +1,10 @@
 'use strict';
 
-
-define('forum/account/info', ['forum/account/header', 'alerts', 'forum/account/sessions'], function (header, alerts, sessions) {
+define('forum/account/info', [
+	'forum/account/header',
+	'alerts',
+	'forum/account/sessions',
+], function (header, alerts, sessions) {
 	const Info = {};
 
 	Info.init = function () {
@@ -14,22 +17,30 @@ define('forum/account/info', ['forum/account/header', 'alerts', 'forum/account/s
 		$('[component="account/save-moderation-note"]').on('click', function () {
 			const noteEl = $('[component="account/moderation-note"]');
 			const note = noteEl.val();
-			socket.emit('user.setModerationNote', {
-				uid: ajaxify.data.uid,
-				note: note,
-			}, function (err, notes) {
-				if (err) {
-					return alerts.error(err);
-				}
-				noteEl.val('');
+			socket.emit(
+				'user.setModerationNote',
+				{
+					uid: ajaxify.data.uid,
+					note: note,
+				},
+				function (err, notes) {
+					if (err) {
+						return alerts.error(err);
+					}
+					noteEl.val('');
 
-				app.parseAndTranslate('account/info', 'moderationNotes', { moderationNotes: notes }, function (html) {
-					$('[component="account/moderation-note/list"]').prepend(html);
-					html.find('.timeago').timeago();
-				});
-			});
+					app.parseAndTranslate(
+						'account/info',
+						'moderationNotes',
+						{ moderationNotes: notes },
+						function (html) {
+							$('[component="account/moderation-note/list"]').prepend(html);
+							html.find('.timeago').timeago();
+						},
+					);
+				},
+			);
 		});
-
 
 		$('[component="account/moderation-note/edit"]').on('click', function () {
 			const parent = $(this).parents('[data-id]');
@@ -47,20 +58,24 @@ define('forum/account/info', ['forum/account/header', 'alerts', 'forum/account/s
 			contentArea.removeClass('hidden');
 			const textarea = editArea.find('textarea');
 
-			socket.emit('user.editModerationNote', {
-				uid: ajaxify.data.uid,
-				id: parent.attr('data-id'),
-				note: textarea.val(),
-			}, function (err, notes) {
-				if (err) {
-					return alerts.error(err);
-				}
-				textarea.css({
-					height: textarea.prop('scrollHeight') + 'px',
-				});
-				editArea.addClass('hidden');
-				contentArea.find('.content').html(notes[0].note);
-			});
+			socket.emit(
+				'user.editModerationNote',
+				{
+					uid: ajaxify.data.uid,
+					id: parent.attr('data-id'),
+					note: textarea.val(),
+				},
+				function (err, notes) {
+					if (err) {
+						return alerts.error(err);
+					}
+					textarea.css({
+						height: textarea.prop('scrollHeight') + 'px',
+					});
+					editArea.addClass('hidden');
+					contentArea.find('.content').html(notes[0].note);
+				},
+			);
 		});
 
 		$('[component="account/moderation-note/cancel-edit"]').on('click', function () {
@@ -73,9 +88,12 @@ define('forum/account/info', ['forum/account/header', 'alerts', 'forum/account/s
 
 		$('[component="account/moderation-note/edit-area"] textarea').each((i, el) => {
 			const $el = $(el);
-			$el.css({
-				height: $el.prop('scrollHeight') + 'px',
-			}).parent().addClass('hidden');
+			$el
+				.css({
+					height: $el.prop('scrollHeight') + 'px',
+				})
+				.parent()
+				.addClass('hidden');
 		});
 	}
 

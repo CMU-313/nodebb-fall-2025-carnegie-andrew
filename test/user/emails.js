@@ -101,10 +101,7 @@ describe('email confirmation (library methods)', () => {
 			await user.email.expireValidation(uid);
 
 			assert.strictEqual(await user.email.isValidationPending(uid), false);
-			assert.strictEqual(
-				await user.email.isValidationPending(uid, email),
-				false
-			);
+			assert.strictEqual(await user.email.isValidationPending(uid, email), false);
 			assert.strictEqual(await user.email.canSendValidation(uid, email), true);
 		});
 	});
@@ -160,28 +157,19 @@ describe('email confirmation (v3 api)', () => {
 	});
 
 	it('should have a pending validation', async () => {
-		assert.strictEqual(
-			await user.email.isValidationPending(userObj.uid, 'test@example.org'),
-			true
-		);
+		assert.strictEqual(await user.email.isValidationPending(userObj.uid, 'test@example.org'), true);
 	});
 
 	it('should not list their email', async () => {
-		const { response, body } = await helpers.request(
-			'get',
-			`/api/v3/users/${userObj.uid}/emails`,
-			{
-				jar,
-				json: true,
-			}
-		);
+		const { response, body } = await helpers.request('get', `/api/v3/users/${userObj.uid}/emails`, {
+			jar,
+			json: true,
+		});
 
 		assert.strictEqual(response.statusCode, 200);
 		assert.deepStrictEqual(
 			body,
-			JSON.parse(
-				'{"status":{"code":"ok","message":"OK"},"response":{"emails":[]}}'
-			)
+			JSON.parse('{"status":{"code":"ok","message":"OK"},"response":{"emails":[]}}'),
 		);
 	});
 
@@ -191,7 +179,7 @@ describe('email confirmation (v3 api)', () => {
 			`/api/v3/users/${userObj.uid}/emails/${encodeURIComponent('test@example.org')}/confirm`,
 			{
 				jar,
-			}
+			},
 		);
 
 		assert.strictEqual(response.statusCode, 403);
@@ -204,7 +192,7 @@ describe('email confirmation (v3 api)', () => {
 			`/api/v3/users/${userObj.uid}/emails/${encodeURIComponent('fake@example.org')}/confirm`,
 			{
 				jar,
-			}
+			},
 		);
 
 		assert.strictEqual(response.statusCode, 404);
@@ -218,13 +206,13 @@ describe('email confirmation (v3 api)', () => {
 			`/api/v3/users/${userObj.uid}/emails/${encodeURIComponent('test@example.org')}/confirm`,
 			{
 				jar,
-			}
+			},
 		);
 
 		assert.strictEqual(response.statusCode, 200);
 		assert.deepStrictEqual(
 			body,
-			JSON.parse('{"status":{"code":"ok","message":"OK"},"response":{}}')
+			JSON.parse('{"status":{"code":"ok","message":"OK"},"response":{}}'),
 		);
 		await groups.leave('administrators', userObj.uid);
 	});
@@ -241,13 +229,13 @@ describe('email confirmation (v3 api)', () => {
 			{
 				jar,
 				json: true,
-			}
+			},
 		);
 
 		assert.strictEqual(response.statusCode, 200);
 		assert.deepStrictEqual(
 			body,
-			JSON.parse('{"status":{"code":"ok","message":"OK"},"response":{}}')
+			JSON.parse('{"status":{"code":"ok","message":"OK"},"response":{}}'),
 		);
 		await groups.leave('administrators', userObj.uid);
 	});

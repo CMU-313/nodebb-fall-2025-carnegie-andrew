@@ -16,8 +16,8 @@ get:
       required: true
       example: registered-users
   responses:
-    "200":
-      description: "A CSV file containing all users in the group"
+    '200':
+      description: 'A CSV file containing all users in the group'
       content:
         text/csv:
           schema:

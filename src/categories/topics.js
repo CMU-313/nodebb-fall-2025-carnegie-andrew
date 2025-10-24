@@ -13,10 +13,7 @@ const utils = require('../utils');
 
 module.exports = function (Categories) {
 	Categories.getCategoryTopics = async function (data) {
-		let results = await plugins.hooks.fire(
-			'filter:category.topics.prepare',
-			data
-		);
+		let results = await plugins.hooks.fire('filter:category.topics.prepare', data);
 		const tids = await Categories.getTopicIds(results);
 		let topicsData = await topics.getTopicsByTids(tids, data.uid);
 		topicsData = await user.blocks.filter(data.uid, topicsData);
@@ -43,7 +40,7 @@ module.exports = function (Categories) {
 		const totalPinnedCount = pinnedTids.length;
 		const pinnedTidsOnPage = pinnedTids.slice(
 			data.start,
-			data.stop !== -1 ? data.stop + 1 : undefined
+			data.stop !== -1 ? data.stop + 1 : undefined,
 		);
 		const pinnedCountOnPage = pinnedTidsOnPage.length;
 		const topicsPerPage = data.stop - data.start + 1;
@@ -83,19 +80,16 @@ module.exports = function (Categories) {
 		} else {
 			normalTids = await db.getSortedSetRevRange(set, start, stop);
 		}
-		normalTids = normalTids.filter((tid) => !pinnedTids.includes(tid));
+		normalTids = normalTids.filter(tid => !pinnedTids.includes(tid));
 		return pinnedTidsOnPage.concat(normalTids);
 	};
 
 	Categories.getTopicCount = async function (data) {
 		if (plugins.hooks.hasListeners('filter:categories.getTopicCount')) {
-			const result = await plugins.hooks.fire(
-				'filter:categories.getTopicCount',
-				{
-					topicCount: data.category.topic_count,
-					data: data,
-				}
-			);
+			const result = await plugins.hooks.fire('filter:categories.getTopicCount', {
+				topicCount: data.category.topic_count,
+				data: data,
+			});
 			return result && result.topicCount;
 		}
 		const set = await Categories.buildTopicsSortedSet(data);
@@ -122,14 +116,12 @@ module.exports = function (Categories) {
 			most_views: `cid:${cid}:tids:views`,
 		};
 
-		const mainSet = sortToSet.hasOwnProperty(sort)
-			? sortToSet[sort]
-			: `cid:${cid}:tids`;
+		const mainSet = sortToSet.hasOwnProperty(sort) ? sortToSet[sort] : `cid:${cid}:tids`;
 		const set = new Set([mainSet]);
 
 		if (data.tag) {
 			if (Array.isArray(data.tag)) {
-				data.tag.forEach((tag) => {
+				data.tag.forEach(tag => {
 					set.add(`tag:${tag}:topics`);
 				});
 			} else {
@@ -146,67 +138,43 @@ module.exports = function (Categories) {
 			set.add(`uid:${uid}:inbox`);
 		}
 		const setValue = Array.from(set);
-		const result = await plugins.hooks.fire(
-			'filter:categories.buildTopicsSortedSet',
-			{
-				set: set.size > 1 ? setValue : setValue[0],
-				data: data,
-			}
-		);
+		const result = await plugins.hooks.fire('filter:categories.buildTopicsSortedSet', {
+			set: set.size > 1 ? setValue : setValue[0],
+			data: data,
+		});
 		return result && result.set;
 	};
 
 	Categories.getSortedSetRangeDirection = async function (sort) {
 		console.warn('[deprecated] Will be removed in 4.x');
 		sort = sort || 'recently_replied';
-		const direction = [
-			'newest_to_oldest',
-			'most_posts',
-			'most_votes',
-			'most_views',
-		].includes(sort)
+		const direction = ['newest_to_oldest', 'most_posts', 'most_votes', 'most_views'].includes(sort)
 			? 'highest-to-lowest'
 			: 'lowest-to-highest';
-		const result = await plugins.hooks.fire(
-			'filter:categories.getSortedSetRangeDirection',
-			{
-				sort: sort,
-				direction: direction,
-			}
-		);
+		const result = await plugins.hooks.fire('filter:categories.getSortedSetRangeDirection', {
+			sort: sort,
+			direction: direction,
+		});
 		return result && result.direction;
 	};
 
 	Categories.getAllTopicIds = async function (cid, start, stop) {
-		return await db.getSortedSetRange(
-			[`cid:${cid}:tids:pinned`, `cid:${cid}:tids`],
-			start,
-			stop
-		);
+		return await db.getSortedSetRange([`cid:${cid}:tids:pinned`, `cid:${cid}:tids`], start, stop);
 	};
 
 	Categories.getPinnedTids = async function (data) {
 		if (plugins.hooks.hasListeners('filter:categories.getPinnedTids')) {
-			const result = await plugins.hooks.fire(
-				'filter:categories.getPinnedTids',
-				{
-					pinnedTids: [],
-					data: data,
-				}
-			);
+			const result = await plugins.hooks.fire('filter:categories.getPinnedTids', {
+				pinnedTids: [],
+				data: data,
+			});
 			return result && result.pinnedTids;
 		}
 		const [allPinnedTids, canSchedule] = await Promise.all([
-			db.getSortedSetRevRange(
-				`cid:${data.cid}:tids:pinned`,
-				data.start,
-				data.stop
-			),
+			db.getSortedSetRevRange(`cid:${data.cid}:tids:pinned`, data.start, data.stop),
 			privileges.categories.can('topics:schedule', data.cid, data.uid),
 		]);
-		const pinnedTids = canSchedule
-			? allPinnedTids
-			: await filterScheduledTids(allPinnedTids);
+		const pinnedTids = canSchedule ? allPinnedTids : await filterScheduledTids(allPinnedTids);
 
 		return await topics.tools.checkPinExpiry(pinnedTids);
 	};
@@ -216,7 +184,7 @@ module.exports = function (Categories) {
 			return;
 		}
 
-		topics.forEach((topic) => {
+		topics.forEach(topic => {
 			if (!topic.scheduled && topic.deleted && !topic.isOwner) {
 				topic.title = '[[topic:topic-is-deleted]]';
 				if (topic.hasOwnProperty('titleRaw')) {
@@ -239,44 +207,36 @@ module.exports = function (Categories) {
 			db.sortedSetAdd(`cid:${cid}:pids`, postData.timestamp, postData.pid),
 			db.incrObjectField(
 				`${utils.isNumber(cid) ? 'category' : 'categoryRemote'}:${cid}`,
-				'post_count'
+				'post_count',
 			),
 		];
 		if (!pinned) {
-			promises.push(
-				db.sortedSetIncrBy(`cid:${cid}:tids:posts`, 1, postData.tid)
-			);
+			promises.push(db.sortedSetIncrBy(`cid:${cid}:tids:posts`, 1, postData.tid));
 		}
 		await Promise.all(promises);
 		await Categories.updateRecentTidForCid(cid);
 	};
 
-	Categories.onTopicsMoved = async (cids) => {
+	Categories.onTopicsMoved = async cids => {
 		await Promise.all(
-			cids.map(async (cid) => {
+			cids.map(async cid => {
 				await Promise.all([
 					Categories.setCategoryField(
 						cid,
 						'topic_count',
-						await db.sortedSetCard(`cid:${cid}:tids:lastposttime`)
+						await db.sortedSetCard(`cid:${cid}:tids:lastposttime`),
 					),
-					Categories.setCategoryField(
-						cid,
-						'post_count',
-						await db.sortedSetCard(`cid:${cid}:pids`)
-					),
+					Categories.setCategoryField(cid, 'post_count', await db.sortedSetCard(`cid:${cid}:pids`)),
 					Categories.updateRecentTidForCid(cid),
 				]);
-			})
+			}),
 		);
 	};
 
 	async function filterScheduledTids(tids) {
 		const scores = await db.sortedSetScores('topics:scheduled', tids);
 		const now = Date.now();
-		return tids.filter(
-			(tid, index) => tid && (!scores[index] || scores[index] <= now)
-		);
+		return tids.filter((tid, index) => tid && (!scores[index] || scores[index] <= now));
 	}
 
 	Categories.notifyCategoryFollowers = async (postData, exceptUid) => {
@@ -284,16 +244,14 @@ module.exports = function (Categories) {
 		const followers = [];
 		await batch.processSortedSet(
 			`cid:${cid}:uid:watch:state`,
-			async (uids) => {
-				followers.push(
-					...(await privileges.categories.filterUids('topics:read', cid, uids))
-				);
+			async uids => {
+				followers.push(...(await privileges.categories.filterUids('topics:read', cid, uids)));
 			},
 			{
 				batch: 500,
 				min: Categories.watchStates.watching,
 				max: Categories.watchStates.watching,
-			}
+			},
 		);
 		const index = followers.indexOf(String(exceptUid));
 		if (index !== -1) {
@@ -344,7 +302,7 @@ module.exports = function (Categories) {
 				const cid = cids[idx];
 				const orderBy = getSet(cid, sort);
 				return await db.sortedSetScore(orderBy, tid);
-			})
+			}),
 		);
 
 		const sorted = tids

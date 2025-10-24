@@ -5,8 +5,8 @@
 */
 
 .page-flags {
-	// hide the all categories li element
-	[component="flags/filters"] [component="category/dropdown"] [data-cid="all"] {
-		display: none;
-	}
+  // hide the all categories li element
+  [component='flags/filters'] [component='category/dropdown'] [data-cid='all'] {
+    display: none;
+  }
 }

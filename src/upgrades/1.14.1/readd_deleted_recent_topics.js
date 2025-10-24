@@ -12,23 +12,16 @@ module.exports = {
 
 		await batch.processSortedSet(
 			'topics:tid',
-			async (tids) => {
+			async tids => {
 				progress.incr(tids.length);
 				const topicData = await db.getObjectsFields(
-					tids.map((tid) => `topic:${tid}`),
-					[
-						'tid',
-						'lastposttime',
-						'viewcount',
-						'postcount',
-						'upvotes',
-						'downvotes',
-					]
+					tids.map(tid => `topic:${tid}`),
+					['tid', 'lastposttime', 'viewcount', 'postcount', 'upvotes', 'downvotes'],
 				);
 				if (!topicData.tid) {
 					return;
 				}
-				topicData.forEach((t) => {
+				topicData.forEach(t => {
 					if (t.hasOwnProperty('upvotes') && t.hasOwnProperty('downvotes')) {
 						t.votes = parseInt(t.upvotes, 10) - parseInt(t.downvotes, 10);
 					}
@@ -36,32 +29,32 @@ module.exports = {
 
 				await db.sortedSetAdd(
 					'topics:recent',
-					topicData.map((t) => t.lastposttime || 0),
-					topicData.map((t) => t.tid)
+					topicData.map(t => t.lastposttime || 0),
+					topicData.map(t => t.tid),
 				);
 
 				await db.sortedSetAdd(
 					'topics:views',
-					topicData.map((t) => t.viewcount || 0),
-					topicData.map((t) => t.tid)
+					topicData.map(t => t.viewcount || 0),
+					topicData.map(t => t.tid),
 				);
 
 				await db.sortedSetAdd(
 					'topics:posts',
-					topicData.map((t) => t.postcount || 0),
-					topicData.map((t) => t.tid)
+					topicData.map(t => t.postcount || 0),
+					topicData.map(t => t.tid),
 				);
 
 				await db.sortedSetAdd(
 					'topics:votes',
-					topicData.map((t) => t.votes || 0),
-					topicData.map((t) => t.tid)
+					topicData.map(t => t.votes || 0),
+					topicData.map(t => t.tid),
 				);
 			},
 			{
 				progress: progress,
 				batchSize: 500,
-			}
+			},
 		);
 	},
 };

@@ -1,8 +1,6 @@
 'use strict';
 
-define('admin/modules/change-email', [
-	'api', 'bootbox', 'alerts',
-], function (api, bootbox, alerts) {
+define('admin/modules/change-email', ['api', 'bootbox', 'alerts'], function (api, bootbox, alerts) {
 	const ChangeEmail = {};
 
 	ChangeEmail.init = function (params) {
@@ -23,13 +21,16 @@ define('admin/modules/change-email', [
 					className: 'btn-primary',
 					callback: function () {
 						const newEmail = modal.find('#newEmail').val();
-						api.post('/users/' + params.uid + '/emails', {
-							skipConfirmation: true,
-							email: newEmail,
-						}).then(() => {
-							modal.modal('hide');
-							params.onSuccess(newEmail);
-						}).catch(alerts.error);
+						api
+							.post('/users/' + params.uid + '/emails', {
+								skipConfirmation: true,
+								email: newEmail,
+							})
+							.then(() => {
+								modal.modal('hide');
+								params.onSuccess(newEmail);
+							})
+							.catch(alerts.error);
 						return false;
 					},
 				},

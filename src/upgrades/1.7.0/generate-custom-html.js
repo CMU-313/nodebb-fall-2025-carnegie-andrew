@@ -15,8 +15,7 @@ module.exports = {
 			let newJS = [];
 
 			// Forgive me for parsing HTML with regex...
-			const scriptMatch =
-				/^<script\s?(?!async|deferred)?>([\s\S]+?)<\/script>/m;
+			const scriptMatch = /^<script\s?(?!async|deferred)?>([\s\S]+?)<\/script>/m;
 			let match = scriptMatch.exec(newHTML);
 
 			while (match) {
@@ -43,7 +42,7 @@ module.exports = {
 					customHTML: newHTML,
 					customJS: newJS,
 				},
-				callback
+				callback,
 			);
 		});
 	},

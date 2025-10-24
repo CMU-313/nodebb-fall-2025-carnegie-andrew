@@ -19,10 +19,7 @@ connection.connect = async function (options) {
 				sentinels: options.sentinels,
 				...options.options,
 			});
-		} else if (
-			redis_socket_or_host &&
-			String(redis_socket_or_host).indexOf('/') >= 0
-		) {
+		} else if (redis_socket_or_host && String(redis_socket_or_host).indexOf('/') >= 0) {
 			// If redis.host contains a path name character, use the unix dom sock connection. ie, /tmp/redis.sock
 			cxn = new Redis({
 				...options.options,
@@ -46,7 +43,7 @@ connection.connect = async function (options) {
 			throw new Error('[[error:no-database-selected]]');
 		}
 
-		cxn.on('error', (err) => {
+		cxn.on('error', err => {
 			winston.error(err.stack);
 			reject(err);
 		});

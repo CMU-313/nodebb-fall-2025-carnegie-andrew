@@ -29,11 +29,11 @@ Errors.init = async function () {
 			}
 		},
 		null,
-		true
+		true,
 	);
 
 	if (runJobs) {
-		pubsub.on('errors:publish', (data) => {
+		pubsub.on('errors:publish', data => {
 			for (const [key, value] of Object.entries(data.local)) {
 				if (utils.isNumber(value)) {
 					total[key] = total[key] || 0;
@@ -82,10 +82,8 @@ Errors.log404 = function (route) {
 
 Errors.get = async function (escape) {
 	const data = await db.getSortedSetRevRangeWithScores('errors:404', 0, 199);
-	data.forEach((nfObject) => {
-		nfObject.value = escape
-			? validator.escape(String(nfObject.value || ''))
-			: nfObject.value;
+	data.forEach(nfObject => {
+		nfObject.value = escape ? validator.escape(String(nfObject.value || '')) : nfObject.value;
 	});
 	return data;
 };

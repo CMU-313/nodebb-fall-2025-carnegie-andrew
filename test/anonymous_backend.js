@@ -9,14 +9,13 @@ describe('Anonymous Backend (isolated)', () => {
 
 	const dbStub = {
 		setObject: async (k, v) => store.set(k, v),
-		getObject: async (k) => store.get(k) || null,
+		getObject: async k => store.get(k) || null,
 		sortedSetAdd: async (k, score, v) => {
 			const set = store.get(`${k}:sorted`) || [];
 			set.push({ score, value: v });
 			store.set(`${k}:sorted`, set);
 		},
-		getSortedSetRevRange: async (k) =>
-			(store.get(`${k}:sorted`) || []).map((item) => item.value),
+		getSortedSetRevRange: async k => (store.get(`${k}:sorted`) || []).map(item => item.value),
 	};
 
 	beforeEach(() => {

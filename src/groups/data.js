@@ -32,15 +32,15 @@ module.exports = function (Groups) {
 			return memo;
 		}, []);
 
-		const keys = groupNames.map((groupName) => `group:${groupName}`);
+		const keys = groupNames.map(groupName => `group:${groupName}`);
 		const groupData = await db.getObjects(keys, fields);
 		if (ephemeralIdx.length) {
-			ephemeralIdx.forEach((idx) => {
+			ephemeralIdx.forEach(idx => {
 				groupData[idx] = Groups.getEphemeralGroup(groupNames[idx]);
 			});
 		}
 
-		groupData.forEach((group) => modifyGroup(group, fields));
+		groupData.forEach(group => modifyGroup(group, fields));
 
 		const results = await plugins.hooks.fire('filter:groups.get', {
 			groups: groupData,
@@ -59,9 +59,7 @@ module.exports = function (Groups) {
 
 	Groups.getGroupField = async function (groupName, field) {
 		const groupData = await Groups.getGroupFields(groupName, [field]);
-		return groupData && groupData.hasOwnProperty(field)
-			? groupData[field]
-			: null;
+		return groupData && groupData.hasOwnProperty(field) ? groupData[field] : null;
 	};
 
 	Groups.getGroupFields = async function (groupName, fields) {
@@ -91,13 +89,11 @@ function modifyGroup(group, fields) {
 		group.textColor = validator.escape(String(group.textColor || '#ffffff'));
 		group.icon = validator.escape(String(group.icon || ''));
 		group.createtimeISO = utils.toISOString(group.createtime);
-		group.private = [null, undefined].includes(group.private)
-			? 1
-			: group.private;
+		group.private = [null, undefined].includes(group.private) ? 1 : group.private;
 		group.memberPostCids = group.memberPostCids || '';
 		group.memberPostCidsArray = group.memberPostCids
 			.split(',')
-			.map((cid) => parseInt(cid, 10))
+			.map(cid => parseInt(cid, 10))
 			.filter(Boolean);
 
 		group['cover:thumb:url'] = group['cover:thumb:url'] || group['cover:url'];
@@ -107,9 +103,7 @@ function modifyGroup(group, fields) {
 				? group['cover:url']
 				: nconf.get('relative_path') + group['cover:url'];
 		} else {
-			group['cover:url'] = require('../coverPhoto').getDefaultGroupCover(
-				group.name
-			);
+			group['cover:url'] = require('../coverPhoto').getDefaultGroupCover(group.name);
 		}
 
 		if (group['cover:thumb:url']) {
@@ -117,14 +111,10 @@ function modifyGroup(group, fields) {
 				? group['cover:thumb:url']
 				: nconf.get('relative_path') + group['cover:thumb:url'];
 		} else {
-			group['cover:thumb:url'] = require('../coverPhoto').getDefaultGroupCover(
-				group.name
-			);
+			group['cover:thumb:url'] = require('../coverPhoto').getDefaultGroupCover(group.name);
 		}
 
-		group['cover:position'] = validator.escape(
-			String(group['cover:position'] || '50% 50%')
-		);
+		group['cover:position'] = validator.escape(String(group['cover:position'] || '50% 50%'));
 	}
 }
 

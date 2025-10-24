@@ -1,17 +1,25 @@
 'use strict';
 
-define('admin/manage/uploads', ['api', 'bootbox', 'alerts', 'uploader'], function (api, bootbox, alerts, uploader) {
+define('admin/manage/uploads', ['api', 'bootbox', 'alerts', 'uploader'], function (
+	api,
+	bootbox,
+	alerts,
+	uploader,
+) {
 	const Uploads = {};
 
 	Uploads.init = function () {
 		$('#upload').on('click', function () {
-			uploader.show({
-				title: '[[admin/manage/uploads:upload-file]]',
-				route: config.relative_path + '/api/admin/upload/file',
-				params: { folder: ajaxify.data.currentFolder },
-			}, function () {
-				ajaxify.refresh();
-			});
+			uploader.show(
+				{
+					title: '[[admin/manage/uploads:upload-file]]',
+					route: config.relative_path + '/api/admin/upload/file',
+					params: { folder: ajaxify.data.currentFolder },
+				},
+				function () {
+					ajaxify.refresh();
+				},
+			);
 		});
 
 		$('.delete').on('click', function () {
@@ -21,26 +29,32 @@ define('admin/manage/uploads', ['api', 'bootbox', 'alerts', 'uploader'], functio
 					return;
 				}
 
-				api.del('/files', {
-					path: file.attr('data-path'),
-				}).then(() => {
-					file.remove();
-				}).catch(alerts.error);
+				api
+					.del('/files', {
+						path: file.attr('data-path'),
+					})
+					.then(() => {
+						file.remove();
+					})
+					.catch(alerts.error);
 			});
 		});
 
 		$('#new-folder').on('click', async function () {
-			bootbox.prompt('[[admin/manage/uploads:name-new-folder]]', (newFolderName) => {
+			bootbox.prompt('[[admin/manage/uploads:name-new-folder]]', newFolderName => {
 				if (!newFolderName || !newFolderName.trim()) {
 					return;
 				}
 
-				api.put('/files/folder', {
-					path: ajaxify.data.currentFolder,
-					folderName: newFolderName,
-				}).then(() => {
-					ajaxify.refresh();
-				}).catch(alerts.error);
+				api
+					.put('/files/folder', {
+						path: ajaxify.data.currentFolder,
+						folderName: newFolderName,
+					})
+					.then(() => {
+						ajaxify.refresh();
+					})
+					.catch(alerts.error);
 			});
 		});
 	};

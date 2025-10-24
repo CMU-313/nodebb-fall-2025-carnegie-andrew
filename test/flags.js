@@ -30,7 +30,7 @@ describe('Flags', () => {
 	let csrfToken;
 	let category;
 	before(async () => {
-		const dummyEmailerHook = async (data) => {};
+		const dummyEmailerHook = async data => {};
 		// Attach an emailer hook so related requests do not error
 		plugins.hooks.register('flags-test', {
 			hook: 'static:email.send',
@@ -71,9 +71,7 @@ describe('Flags', () => {
 			username: 'moderator',
 			password: 'abcdef',
 		});
-		await Privileges.categories.give(['moderate'], category.cid, [
-			moderatorUid,
-		]);
+		await Privileges.categories.give(['moderate'], category.cid, [moderatorUid]);
 
 		const login = await helpers.loginUser('moderator', 'abcdef');
 		jar = login.jar;
@@ -85,7 +83,7 @@ describe('Flags', () => {
 	});
 
 	describe('.create()', () => {
-		it('should create a flag and return its data', (done) => {
+		it('should create a flag and return its data', done => {
 			Flags.create('post', 1, 1, 'Test flag', (err, flagData) => {
 				assert.ifError(err);
 				const compare = {
@@ -105,7 +103,7 @@ describe('Flags', () => {
 			});
 		});
 
-		it('should add the flag to the byCid zset for category 1 if it is of type post', (done) => {
+		it('should add the flag to the byCid zset for category 1 if it is of type post', done => {
 			db.isSortedSetMember(`flags:byCid:${1}`, 1, (err, isMember) => {
 				assert.ifError(err);
 				assert.ok(isMember);
@@ -113,7 +111,7 @@ describe('Flags', () => {
 			});
 		});
 
-		it('should add the flag to the byPid zset for pid 1 if it is of type post', (done) => {
+		it('should add the flag to the byPid zset for pid 1 if it is of type post', done => {
 			db.isSortedSetMember(`flags:byPid:${1}`, 1, (err, isMember) => {
 				assert.ifError(err);
 				assert.ok(isMember);
@@ -134,12 +132,7 @@ describe('Flags', () => {
 				title: utils.generateUUID(),
 				content: utils.generateUUID(),
 			}));
-			({ flagId } = await Flags.create(
-				'post',
-				postData.pid,
-				adminUid,
-				utils.generateUUID()
-			));
+			({ flagId } = await Flags.create('post', postData.pid, adminUid, utils.generateUUID()));
 		});
 
 		after(async () => {
@@ -147,14 +140,7 @@ describe('Flags', () => {
 		});
 
 		it('should add a report to an existing flag', async () => {
-			await Flags.addReport(
-				flagId,
-				'post',
-				postData.pid,
-				uid3,
-				utils.generateUUID(),
-				Date.now()
-			);
+			await Flags.addReport(flagId, 'post', postData.pid, uid3, utils.generateUUID(), Date.now());
 
 			const reports = await db.getSortedSetMembers(`flag:${flagId}:reports`);
 			assert.strictEqual(reports.length, 2);
@@ -162,14 +148,7 @@ describe('Flags', () => {
 
 		it('should add an additional report even if same user calls it again', async () => {
 			// This isn't exposed to the end user, but is possible via direct method call
-			await Flags.addReport(
-				flagId,
-				'post',
-				postData.pid,
-				uid3,
-				utils.generateUUID(),
-				Date.now()
-			);
+			await Flags.addReport(flagId, 'post', postData.pid, uid3, utils.generateUUID(), Date.now());
 
 			const reports = await db.getSortedSetMembers(`flag:${flagId}:reports`);
 			assert.strictEqual(reports.length, 3);
@@ -188,12 +167,7 @@ describe('Flags', () => {
 				title: utils.generateUUID(),
 				content: utils.generateUUID(),
 			}));
-			({ flagId } = await Flags.create(
-				'post',
-				postData.pid,
-				adminUid,
-				utils.generateUUID()
-			));
+			({ flagId } = await Flags.create('post', postData.pid, adminUid, utils.generateUUID()));
 		});
 
 		after(async () => {
@@ -220,7 +194,7 @@ describe('Flags', () => {
 	});
 
 	describe('.exists()', () => {
-		it('should return Boolean True if a flag matching the flag hash already exists', (done) => {
+		it('should return Boolean True if a flag matching the flag hash already exists', done => {
 			Flags.exists('post', 1, 1, (err, exists) => {
 				assert.ifError(err);
 				assert.strictEqual(true, exists);
@@ -228,7 +202,7 @@ describe('Flags', () => {
 			});
 		});
 
-		it('should return Boolean False if a flag matching the flag hash does not already exists', (done) => {
+		it('should return Boolean False if a flag matching the flag hash does not already exists', done => {
 			Flags.exists('post', 1, 2, (err, exists) => {
 				assert.ifError(err);
 				assert.strictEqual(false, exists);
@@ -238,7 +212,7 @@ describe('Flags', () => {
 	});
 
 	describe('.targetExists()', () => {
-		it('should return Boolean True if the targeted element exists', (done) => {
+		it('should return Boolean True if the targeted element exists', done => {
 			Flags.targetExists('post', 1, (err, exists) => {
 				assert.ifError(err);
 				assert.strictEqual(true, exists);
@@ -246,7 +220,7 @@ describe('Flags', () => {
 			});
 		});
 
-		it('should return Boolean False if the targeted element does not exist', (done) => {
+		it('should return Boolean False if the targeted element does not exist', done => {
 			Flags.targetExists('post', 15, (err, exists) => {
 				assert.ifError(err);
 				assert.strictEqual(false, exists);
@@ -256,7 +230,7 @@ describe('Flags', () => {
 	});
 
 	describe('.get()', () => {
-		it("should retrieve and display a flag's data", (done) => {
+		it("should retrieve and display a flag's data", done => {
 			Flags.get(1, (err, flagData) => {
 				assert.ifError(err);
 				const compare = {
@@ -278,15 +252,12 @@ describe('Flags', () => {
 
 		it('should show user history for admins', async () => {
 			await Groups.join('administrators', moderatorUid);
-			const { body: flagData } = await request.get(
-				`${nconf.get('url')}/api/flags/1`,
-				{
-					jar,
-					headers: {
-						'x-csrf-token': csrfToken,
-					},
-				}
-			);
+			const { body: flagData } = await request.get(`${nconf.get('url')}/api/flags/1`, {
+				jar,
+				headers: {
+					'x-csrf-token': csrfToken,
+				},
+			});
 
 			assert(flagData.history);
 			assert(Array.isArray(flagData.history));
@@ -296,15 +267,12 @@ describe('Flags', () => {
 
 		it('should show user history for global moderators', async () => {
 			await Groups.join('Global Moderators', moderatorUid);
-			const { body: flagData } = await request.get(
-				`${nconf.get('url')}/api/flags/1`,
-				{
-					jar,
-					headers: {
-						'x-csrf-token': csrfToken,
-					},
-				}
-			);
+			const { body: flagData } = await request.get(`${nconf.get('url')}/api/flags/1`, {
+				jar,
+				headers: {
+					'x-csrf-token': csrfToken,
+				},
+			});
 
 			assert(flagData.history);
 			assert(Array.isArray(flagData.history));
@@ -314,7 +282,7 @@ describe('Flags', () => {
 	});
 
 	describe('.list()', () => {
-		it('should show a list of flags (with one item)', (done) => {
+		it('should show a list of flags (with one item)', done => {
 			Flags.list(
 				{
 					filters: {},
@@ -334,12 +302,12 @@ describe('Flags', () => {
 						assert.equal(payload.flags[0].description, flagData.description);
 						done();
 					});
-				}
+				},
 			);
 		});
 
 		describe('(with filters)', () => {
-			it('should return a filtered list of flags if said filters are passed in', (done) => {
+			it('should return a filtered list of flags if said filters are passed in', done => {
 				Flags.list(
 					{
 						filters: {
@@ -355,11 +323,11 @@ describe('Flags', () => {
 						assert.ok(Array.isArray(payload.flags));
 						assert.strictEqual(1, parseInt(payload.flags[0].flagId, 10));
 						done();
-					}
+					},
 				);
 			});
 
-			it('should return no flags if a filter with no matching flags is used', (done) => {
+			it('should return no flags if a filter with no matching flags is used', done => {
 				Flags.list(
 					{
 						filters: {
@@ -375,11 +343,11 @@ describe('Flags', () => {
 						assert.ok(Array.isArray(payload.flags));
 						assert.strictEqual(0, payload.flags.length);
 						done();
-					}
+					},
 				);
 			});
 
-			it('should return a flag when filtered by cid 1', (done) => {
+			it('should return a flag when filtered by cid 1', done => {
 				Flags.list(
 					{
 						filters: {
@@ -395,11 +363,11 @@ describe('Flags', () => {
 						assert.ok(Array.isArray(payload.flags));
 						assert.strictEqual(1, payload.flags.length);
 						done();
-					}
+					},
 				);
 			});
 
-			it("shouldn't return a flag when filtered by cid 2", (done) => {
+			it("shouldn't return a flag when filtered by cid 2", done => {
 				Flags.list(
 					{
 						filters: {
@@ -415,11 +383,11 @@ describe('Flags', () => {
 						assert.ok(Array.isArray(payload.flags));
 						assert.strictEqual(0, payload.flags.length);
 						done();
-					}
+					},
 				);
 			});
 
-			it('should return a flag when filtered by both cid 1 and 2', (done) => {
+			it('should return a flag when filtered by both cid 1 and 2', done => {
 				Flags.list(
 					{
 						filters: {
@@ -435,11 +403,11 @@ describe('Flags', () => {
 						assert.ok(Array.isArray(payload.flags));
 						assert.strictEqual(1, payload.flags.length);
 						done();
-					}
+					},
 				);
 			});
 
-			it('should return one flag if filtered by both cid 1 and 2 and open state', (done) => {
+			it('should return one flag if filtered by both cid 1 and 2 and open state', done => {
 				Flags.list(
 					{
 						filters: {
@@ -456,11 +424,11 @@ describe('Flags', () => {
 						assert.ok(Array.isArray(payload.flags));
 						assert.strictEqual(1, payload.flags.length);
 						done();
-					}
+					},
 				);
 			});
 
-			it('should return no flag if filtered by both cid 1 and 2 and non-open state', (done) => {
+			it('should return no flag if filtered by both cid 1 and 2 and non-open state', done => {
 				Flags.list(
 					{
 						filters: {
@@ -477,7 +445,7 @@ describe('Flags', () => {
 						assert.ok(Array.isArray(payload.flags));
 						assert.strictEqual(0, payload.flags.length);
 						done();
-					}
+					},
 				);
 			});
 		});
@@ -507,7 +475,7 @@ describe('Flags', () => {
 
 						const next = payload.flags[idx + 1];
 						return parseInt(cur.datetime, 10) > parseInt(next.datetime, 10);
-					})
+					}),
 				);
 			});
 
@@ -525,7 +493,7 @@ describe('Flags', () => {
 
 						const next = payload.flags[idx + 1];
 						return parseInt(cur.datetime, 10) < parseInt(next.datetime, 10);
-					})
+					}),
 				);
 			});
 
@@ -543,14 +511,14 @@ describe('Flags', () => {
 
 						const next = payload.flags[idx + 1];
 						return parseInt(cur.heat, 10) >= parseInt(next.heat, 10);
-					})
+					}),
 				);
 			});
 		});
 	});
 
 	describe('.update()', () => {
-		it("should alter a flag's various attributes and persist them to the database", (done) => {
+		it("should alter a flag's various attributes and persist them to the database", done => {
 			Flags.update(
 				1,
 				adminUid,
@@ -558,7 +526,7 @@ describe('Flags', () => {
 					state: 'wip',
 					assignee: adminUid,
 				},
-				(err) => {
+				err => {
 					assert.ifError(err);
 					db.getObjectFields('flag:1', ['state', 'assignee'], (err, data) => {
 						if (err) {
@@ -570,17 +538,17 @@ describe('Flags', () => {
 						assert.strictEqual(adminUid, parseInt(data.assignee, 10));
 						done();
 					});
-				}
+				},
 			);
 		});
 
-		it("should persist to the flag's history", (done) => {
+		it("should persist to the flag's history", done => {
 			Flags.getHistory(1, (err, history) => {
 				if (err) {
 					throw err;
 				}
 
-				history.forEach((change) => {
+				history.forEach(change => {
 					switch (change.attribute) {
 						case 'state':
 							assert.strictEqual('[[flags:state-wip]]', change.value);
@@ -667,7 +635,7 @@ describe('Flags', () => {
 				});
 				flagObj = await api.flags.create(
 					{ uid: uid1 },
-					{ type: 'post', id: result.postData.pid, reason: 'spam' }
+					{ type: 'post', id: result.postData.pid, reason: 'spam' },
 				);
 				await sleep(2000);
 			});
@@ -681,9 +649,7 @@ describe('Flags', () => {
 				});
 
 				userNotifs = await User.notifications.getAll(adminUid);
-				assert(
-					!userNotifs.includes(`flag:post:${result.postData.pid}:${uid1}`)
-				);
+				assert(!userNotifs.includes(`flag:post:${result.postData.pid}:${uid1}`));
 			});
 
 			it('should rescind notification if flag is rejected', async () => {
@@ -695,9 +661,7 @@ describe('Flags', () => {
 				});
 
 				userNotifs = await User.notifications.getAll(adminUid);
-				assert(
-					!userNotifs.includes(`flag:post:${result.postData.pid}:${uid1}`)
-				);
+				assert(!userNotifs.includes(`flag:post:${result.postData.pid}:${uid1}`));
 			});
 
 			it('should do nothing if flag is resolved but ACP action is not "rescind"', async () => {
@@ -735,7 +699,7 @@ describe('Flags', () => {
 	});
 
 	describe('.getTarget()', () => {
-		it('should return a post\'s data if queried with type "post"', (done) => {
+		it('should return a post\'s data if queried with type "post"', done => {
 			Flags.getTarget('post', 1, 1, (err, data) => {
 				assert.ifError(err);
 				const compare = {
@@ -753,7 +717,7 @@ describe('Flags', () => {
 			});
 		});
 
-		it('should return a user\'s data if queried with type "user"', (done) => {
+		it('should return a user\'s data if queried with type "user"', done => {
 			Flags.getTarget('user', 1, 1, (err, data) => {
 				assert.ifError(err);
 				const compare = {
@@ -771,7 +735,7 @@ describe('Flags', () => {
 			});
 		});
 
-		it('should return a plain object with no properties if the target no longer exists', (done) => {
+		it('should return a plain object with no properties if the target no longer exists', done => {
 			Flags.getTarget('user', 15, 1, (err, data) => {
 				assert.ifError(err);
 				assert.strictEqual(0, Object.keys(data).length);
@@ -781,8 +745,8 @@ describe('Flags', () => {
 	});
 
 	describe('.validate()', () => {
-		it('should error out if type is post and post is deleted', (done) => {
-			Posts.delete(1, 1, (err) => {
+		it('should error out if type is post and post is deleted', done => {
+			Posts.delete(1, 1, err => {
 				if (err) {
 					throw err;
 				}
@@ -793,17 +757,17 @@ describe('Flags', () => {
 						id: 1,
 						uid: 1,
 					},
-					(err) => {
+					err => {
 						assert.ok(err);
 						assert.strictEqual('[[error:post-deleted]]', err.message);
 						Posts.restore(1, 1, done);
-					}
+					},
 				);
 			});
 		});
 
-		it('should not pass validation if flag threshold is set and user rep does not meet it', (done) => {
-			Meta.configs.set('min:rep:flag', '50', (err) => {
+		it('should not pass validation if flag threshold is set and user rep does not meet it', done => {
+			Meta.configs.set('min:rep:flag', '50', err => {
 				assert.ifError(err);
 
 				Flags.validate(
@@ -812,14 +776,11 @@ describe('Flags', () => {
 						id: 1,
 						uid: 3,
 					},
-					(err) => {
+					err => {
 						assert.ok(err);
-						assert.strictEqual(
-							'[[error:not-enough-reputation-to-flag, 50]]',
-							err.message
-						);
+						assert.strictEqual('[[error:not-enough-reputation-to-flag, 50]]', err.message);
 						Meta.configs.set('min:rep:flag', 0, done);
-					}
+					},
 				);
 			});
 		});
@@ -841,12 +802,12 @@ describe('Flags', () => {
 					type: 'post',
 					id: data.postData.pid,
 					reason: 'spam',
-				}
+				},
 			);
 		});
 
-		it('should send back error if reporter does not exist', (done) => {
-			Flags.validate({ uid: 123123123, id: 1, type: 'post' }, (err) => {
+		it('should send back error if reporter does not exist', done => {
+			Flags.validate({ uid: 123123123, id: 1, type: 'post' }, err => {
 				assert.equal(err.message, '[[error:no-user]]');
 				done();
 			});
@@ -854,8 +815,8 @@ describe('Flags', () => {
 	});
 
 	describe('.appendNote()', () => {
-		it('should add a note to a flag', (done) => {
-			Flags.appendNote(1, 1, 'this is my note', (err) => {
+		it('should add a note to a flag', done => {
+			Flags.appendNote(1, 1, 'this is my note', err => {
 				assert.ifError(err);
 
 				db.getSortedSetRange('flag:1:notes', 0, -1, (err, notes) => {
@@ -869,7 +830,7 @@ describe('Flags', () => {
 			});
 		});
 
-		it('should be a JSON string', (done) => {
+		it('should be a JSON string', done => {
 			db.getSortedSetRange('flag:1:notes', 0, -1, (err, notes) => {
 				if (err) {
 					throw err;
@@ -893,12 +854,12 @@ describe('Flags', () => {
 	});
 
 	describe('.getNotes()', () => {
-		before((done) => {
+		before(done => {
 			// Add a second note
 			Flags.appendNote(1, 1, 'this is the second note', done);
 		});
 
-		it('return should match a predefined spec', (done) => {
+		it('return should match a predefined spec', done => {
 			Flags.getNotes(1, (err, notes) => {
 				assert.ifError(err);
 				const compare = {
@@ -916,13 +877,10 @@ describe('Flags', () => {
 			});
 		});
 
-		it('should retrieve a list of notes, from newest to oldest', (done) => {
+		it('should retrieve a list of notes, from newest to oldest', done => {
 			Flags.getNotes(1, (err, notes) => {
 				assert.ifError(err);
-				assert(
-					notes[0].datetime > notes[1].datetime,
-					`${notes[0].datetime}-${notes[1].datetime}`
-				);
+				assert(notes[0].datetime > notes[1].datetime, `${notes[0].datetime}-${notes[1].datetime}`);
 				assert.strictEqual('this is the second note', notes[0].content);
 				done();
 			});
@@ -931,21 +889,21 @@ describe('Flags', () => {
 
 	describe('.appendHistory()', () => {
 		let entries;
-		before((done) => {
+		before(done => {
 			db.sortedSetCard('flag:1:history', (err, count) => {
 				entries = count;
 				done(err);
 			});
 		});
 
-		it("should add a new entry into a flag's history", (done) => {
+		it("should add a new entry into a flag's history", done => {
 			Flags.appendHistory(
 				1,
 				1,
 				{
 					state: 'rejected',
 				},
-				(err) => {
+				err => {
 					assert.ifError(err);
 
 					Flags.getHistory(1, (err, history) => {
@@ -957,13 +915,13 @@ describe('Flags', () => {
 						assert.strictEqual(entries + 3, history.length);
 						done();
 					});
-				}
+				},
 			);
 		});
 	});
 
 	describe('.getHistory()', () => {
-		it("should retrieve a flag's history", (done) => {
+		it("should retrieve a flag's history", done => {
 			Flags.getHistory(1, (err, history) => {
 				assert.ifError(err);
 				assert.strictEqual(history[0].fields.state, '[[flags:state-rejected]]');
@@ -1017,36 +975,33 @@ describe('Flags', () => {
 					content: 'This is flaggable content',
 				});
 
-				const { body } = await request.post(
-					`${nconf.get('url')}/api/v3/flags`,
-					{
-						jar,
-						headers: {
-							'x-csrf-token': csrfToken,
-						},
-						body: {
-							type: 'post',
-							id: postData.pid,
-							reason: "\"<script>alert('ok');</script>",
-						},
-					}
-				);
+				const { body } = await request.post(`${nconf.get('url')}/api/v3/flags`, {
+					jar,
+					headers: {
+						'x-csrf-token': csrfToken,
+					},
+					body: {
+						type: 'post',
+						id: postData.pid,
+						reason: "\"<script>alert('ok');</script>",
+					},
+				});
 
 				const flagData = await Flags.get(body.response.flagId);
 				assert.strictEqual(
 					flagData.reports[0].value,
-					'&quot;&lt;script&gt;alert(&#x27;ok&#x27;);&lt;&#x2F;script&gt;'
+					'&quot;&lt;script&gt;alert(&#x27;ok&#x27;);&lt;&#x2F;script&gt;',
 				);
 			});
 
 			it('should escape filters', async () => {
 				const { body } = await request.get(
 					`${nconf.get('url')}/api/flags?quick="<script>alert('foo');</script>`,
-					{ jar }
+					{ jar },
 				);
 				assert.strictEqual(
 					body.filters.quick,
-					'&quot;&lt;script&gt;alert(&#x27;foo&#x27;);&lt;&#x2F;script&gt;'
+					'&quot;&lt;script&gt;alert(&#x27;foo&#x27;);&lt;&#x2F;script&gt;',
 				);
 			});
 
@@ -1056,7 +1011,7 @@ describe('Flags', () => {
 				await Privileges.categories.rescind(
 					['groups:topics:read'],
 					category.cid,
-					'registered-users'
+					'registered-users',
 				);
 				await Groups.join('private category', uid3);
 				const result = await Topics.post({
@@ -1069,20 +1024,17 @@ describe('Flags', () => {
 				const jar3 = login.jar;
 				const csrfToken = await helpers.getCsrfToken(jar3);
 
-				const { response, body } = await request.post(
-					`${nconf.get('url')}/api/v3/flags`,
-					{
-						jar: jar3,
-						headers: {
-							'x-csrf-token': csrfToken,
-						},
-						body: {
-							type: 'post',
-							id: result.postData.pid,
-							reason: 'foobar',
-						},
-					}
-				);
+				const { response, body } = await request.post(`${nconf.get('url')}/api/v3/flags`, {
+					jar: jar3,
+					headers: {
+						'x-csrf-token': csrfToken,
+					},
+					body: {
+						type: 'post',
+						id: result.postData.pid,
+						reason: 'foobar',
+					},
+				});
 				assert.strictEqual(response.statusCode, 403);
 
 				// Handle dev mode test
@@ -1100,18 +1052,15 @@ describe('Flags', () => {
 
 		describe('.update()', () => {
 			it("should update a flag's properties", async () => {
-				const { body } = await request.put(
-					`${nconf.get('url')}/api/v3/flags/4`,
-					{
-						jar,
-						headers: {
-							'x-csrf-token': csrfToken,
-						},
-						body: {
-							state: 'wip',
-						},
-					}
-				);
+				const { body } = await request.put(`${nconf.get('url')}/api/v3/flags/4`, {
+					jar,
+					headers: {
+						'x-csrf-token': csrfToken,
+					},
+					body: {
+						state: 'wip',
+					},
+				});
 
 				const { history } = body.response;
 				assert(Array.isArray(history));
@@ -1122,15 +1071,12 @@ describe('Flags', () => {
 
 		describe('.rescind()', () => {
 			it("should remove a flag's report", async () => {
-				const { response } = await request.del(
-					`${nconf.get('url')}/api/v3/flags/4/report`,
-					{
-						jar,
-						headers: {
-							'x-csrf-token': csrfToken,
-						},
-					}
-				);
+				const { response } = await request.del(`${nconf.get('url')}/api/v3/flags/4/report`, {
+					jar,
+					headers: {
+						'x-csrf-token': csrfToken,
+					},
+				});
 
 				assert.strictEqual(response.statusCode, 200);
 			});
@@ -1138,40 +1084,29 @@ describe('Flags', () => {
 
 		describe('.appendNote()', () => {
 			it('should append a note to the flag', async () => {
-				const { body } = await request.post(
-					`${nconf.get('url')}/api/v3/flags/4/notes`,
-					{
-						jar,
-						headers: {
-							'x-csrf-token': csrfToken,
-						},
-						body: {
-							note: 'lorem ipsum dolor sit amet',
-							datetime: 1626446956652,
-						},
-					}
-				);
+				const { body } = await request.post(`${nconf.get('url')}/api/v3/flags/4/notes`, {
+					jar,
+					headers: {
+						'x-csrf-token': csrfToken,
+					},
+					body: {
+						note: 'lorem ipsum dolor sit amet',
+						datetime: 1626446956652,
+					},
+				});
 				const { response } = body;
 				assert(response.hasOwnProperty('notes'));
 				assert(Array.isArray(response.notes));
-				assert.strictEqual(
-					'lorem ipsum dolor sit amet',
-					response.notes[0].content
-				);
+				assert.strictEqual('lorem ipsum dolor sit amet', response.notes[0].content);
 				assert.strictEqual(2, response.notes[0].uid);
 
 				assert(response.hasOwnProperty('history'));
 				assert(Array.isArray(response.history));
 				assert.strictEqual(
 					1,
-					Object.keys(response.history[response.history.length - 1].fields)
-						.length
+					Object.keys(response.history[response.history.length - 1].fields).length,
 				);
-				assert(
-					response.history[response.history.length - 1].fields.hasOwnProperty(
-						'notes'
-					)
-				);
+				assert(response.history[response.history.length - 1].fields.hasOwnProperty('notes'));
 			});
 		});
 
@@ -1184,7 +1119,7 @@ describe('Flags', () => {
 						headers: {
 							'x-csrf-token': csrfToken,
 						},
-					}
+					},
 				);
 				const { response } = body;
 				assert(Array.isArray(response.history));
@@ -1209,10 +1144,7 @@ describe('Flags', () => {
 					username: 'flags-access-control',
 					password: 'abcdef',
 				});
-				({ jar, csrf_token } = await helpers.loginUser(
-					'flags-access-control',
-					'abcdef'
-				));
+				({ jar, csrf_token } = await helpers.loginUser('flags-access-control', 'abcdef'));
 				console.log('cs', csrfToken);
 				flaggerUid = await User.create({
 					username: 'flags-access-control-flagger',
@@ -1233,12 +1165,7 @@ describe('Flags', () => {
 					content: utils.generateUUID(),
 				});
 
-				({ flagId } = await Flags.create(
-					'post',
-					postData.pid,
-					flaggerUid,
-					'spam'
-				));
+				({ flagId } = await Flags.create('post', postData.pid, flaggerUid, 'spam'));
 				const commonOpts = {
 					jar,
 					headers: {
@@ -1292,7 +1219,7 @@ describe('Flags', () => {
 					const { statusCode } = response;
 					assert(
 						statusCode.toString().startsWith(4),
-						`${opts.method.toUpperCase()} ${opts.uri} => ${statusCode}`
+						`${opts.method.toUpperCase()} ${opts.uri} => ${statusCode}`,
 					);
 				}
 			});
@@ -1304,7 +1231,7 @@ describe('Flags', () => {
 					const { statusCode } = response;
 					assert(
 						statusCode.toString().startsWith(4),
-						`${opts.method.toUpperCase()} ${opts.uri} => ${statusCode}`
+						`${opts.method.toUpperCase()} ${opts.uri} => ${statusCode}`,
 					);
 				}
 			});
@@ -1319,7 +1246,7 @@ describe('Flags', () => {
 					assert.strictEqual(
 						statusCode,
 						200,
-						`${opts.method.toUpperCase()} ${opts.uri} => ${statusCode}`
+						`${opts.method.toUpperCase()} ${opts.uri} => ${statusCode}`,
 					);
 				}
 			});
@@ -1334,7 +1261,7 @@ describe('Flags', () => {
 					assert.strictEqual(
 						statusCode,
 						200,
-						`${opts.method.toUpperCase()} ${opts.uri} => ${statusCode}`
+						`${opts.method.toUpperCase()} ${opts.uri} => ${statusCode}`,
 					);
 				}
 			});
@@ -1349,7 +1276,7 @@ describe('Flags', () => {
 					assert.strictEqual(
 						statusCode,
 						200,
-						`${opts.method.toUpperCase()} ${opts.uri} => ${statusCode}`
+						`${opts.method.toUpperCase()} ${opts.uri} => ${statusCode}`,
 					);
 				}
 			});
@@ -1367,7 +1294,7 @@ describe('Flags', () => {
 					const { statusCode } = response;
 					assert(
 						statusCode.toString().startsWith(4),
-						`${opts.method.toUpperCase()} ${opts.uri} => ${statusCode}`
+						`${opts.method.toUpperCase()} ${opts.uri} => ${statusCode}`,
 					);
 				}
 			});

@@ -52,39 +52,27 @@ module.exports = function (middleware) {
 					res.set('cache-control', 'private');
 				}
 
-				const buildResult = await plugins.hooks.fire(
-					`filter:${template}.build`,
-					{
-						req: req,
-						res: res,
-						templateData: options,
-					}
-				);
+				const buildResult = await plugins.hooks.fire(`filter:${template}.build`, {
+					req: req,
+					res: res,
+					templateData: options,
+				});
 				if (res.headersSent) {
 					return;
 				}
-				const templateToRender =
-					buildResult.templateData.templateToRender || template;
+				const templateToRender = buildResult.templateData.templateToRender || template;
 
-				const renderResult = await plugins.hooks.fire(
-					'filter:middleware.render',
-					{
-						req: req,
-						res: res,
-						templateData: buildResult.templateData,
-					}
-				);
+				const renderResult = await plugins.hooks.fire('filter:middleware.render', {
+					req: req,
+					res: res,
+					templateData: buildResult.templateData,
+				});
 				if (res.headersSent) {
 					return;
 				}
 				options = renderResult.templateData;
 				options._header = {
-					tags: await meta.tags.parse(
-						req,
-						renderResult,
-						res.locals.metaTags,
-						res.locals.linkTags
-					),
+					tags: await meta.tags.parse(req, renderResult, res.locals.metaTags, res.locals.linkTags),
 				};
 				options.widgets = await widgets.render(req.uid, {
 					template: `${template}.tpl`,
@@ -100,30 +88,15 @@ module.exports = function (middleware) {
 					if (req.route && req.route.path === '/api/') {
 						options.title = '[[pages:home]]';
 					}
-					req.app.set(
-						'json spaces',
-						global.env === 'development' || req.query.pretty ? 4 : 0
-					);
+					req.app.set('json spaces', global.env === 'development' || req.query.pretty ? 4 : 0);
 					return res.json(options);
 				}
 				const optionsString = JSON.stringify(options).replace(/<\//g, '<\\/');
 				const headerFooterData = await loadHeaderFooterData(req, res, options);
 				const results = await utils.promiseParallel({
-					header: renderHeaderFooter(
-						'renderHeader',
-						req,
-						res,
-						options,
-						headerFooterData
-					),
+					header: renderHeaderFooter('renderHeader', req, res, options, headerFooterData),
 					content: renderContent(render, templateToRender, req, res, options),
-					footer: renderHeaderFooter(
-						'renderFooter',
-						req,
-						res,
-						options,
-						headerFooterData
-					),
+					footer: renderHeaderFooter('renderFooter', req, res, options, headerFooterData),
 				});
 
 				const str = `${
@@ -174,8 +147,7 @@ module.exports = function (middleware) {
 	async function loadClientHeaderFooterData(req, res, options) {
 		const registrationType = meta.config.registrationType || 'normal';
 		res.locals.config = res.locals.config || {};
-		const userLang =
-			res.locals.config.userLang || meta.config.userLang || 'en-GB';
+		const userLang = res.locals.config.userLang || meta.config.userLang || 'en-GB';
 		const templateValues = {
 			title: meta.config.title || '',
 			'title:url': meta.config['title:url'] || '',
@@ -210,19 +182,12 @@ module.exports = function (middleware) {
 			privileges: privileges.global.get(req.uid),
 			blocks: user.blocks.list(req.uid),
 			user: user.getUserData(req.uid),
-			isEmailConfirmSent:
-				req.uid <= 0 ? false : await user.email.isValidationPending(req.uid),
+			isEmailConfirmSent: req.uid <= 0 ? false : await user.email.isValidationPending(req.uid),
 			languageDirection: translator.translate('[[language:dir]]', userLang),
 			timeagoCode: languages.userTimeagoCode(userLang),
-			browserTitle: translator.translate(
-				controllersHelpers.buildTitle(title),
-				userLang
-			),
+			browserTitle: translator.translate(controllersHelpers.buildTitle(title), userLang),
 			navigation: navigation.get(req.uid),
-			roomIds:
-				req.uid > 0
-					? db.getSortedSetRevRange(`uid:${req.uid}:chat:rooms`, 0, 0)
-					: [],
+			roomIds: req.uid > 0 ? db.getSortedSetRevRange(`uid:${req.uid}:chat:rooms`, 0, 0) : [],
 		});
 
 		const unreadData = {
@@ -240,9 +205,7 @@ module.exports = function (middleware) {
 		results.user.blocks = results.blocks;
 		results.user.timeagoCode = results.timeagoCode;
 		results.user[results.user.status] = true;
-		results.user.lastRoomId = results.roomIds.length
-			? results.roomIds[0]
-			: null;
+		results.user.lastRoomId = results.roomIds.length ? results.roomIds[0] : null;
 
 		results.user.email = String(results.user.email);
 		results.user['email:confirmed'] = results.user['email:confirmed'] === 1;
@@ -250,15 +213,13 @@ module.exports = function (middleware) {
 
 		templateValues.bootswatchSkin = res.locals.config.bootswatchSkin || '';
 		templateValues.browserTitle = results.browserTitle;
-		({
-			navigation: templateValues.navigation,
-			unreadCount: templateValues.unreadCount,
-		} = await appendUnreadCounts({
-			uid: req.uid,
-			query: req.query,
-			navigation: results.navigation,
-			unreadData,
-		}));
+		({ navigation: templateValues.navigation, unreadCount: templateValues.unreadCount } =
+			await appendUnreadCounts({
+				uid: req.uid,
+				query: req.query,
+				navigation: results.navigation,
+				unreadData,
+			}));
 		templateValues.isAdmin = results.user.isAdmin;
 		templateValues.isGlobalMod = results.user.isGlobalMod;
 		templateValues.showModMenu =
@@ -270,24 +231,18 @@ module.exports = function (middleware) {
 		templateValues.userJSON = jsesc(JSON.stringify(results.user), {
 			isScriptContext: true,
 		});
-		templateValues.useCustomCSS =
-			meta.config.useCustomCSS && meta.config.customCSS;
+		templateValues.useCustomCSS = meta.config.useCustomCSS && meta.config.customCSS;
 		templateValues.customCSS = templateValues.useCustomCSS
 			? meta.config.renderedCustomCSS || ''
 			: '';
 		templateValues.useCustomHTML = meta.config.useCustomHTML;
-		templateValues.customHTML = templateValues.useCustomHTML
-			? meta.config.customHTML
-			: '';
-		templateValues.maintenanceHeader =
-			meta.config.maintenanceMode && !results.isAdmin;
+		templateValues.customHTML = templateValues.useCustomHTML ? meta.config.customHTML : '';
+		templateValues.maintenanceHeader = meta.config.maintenanceMode && !results.isAdmin;
 		templateValues.defaultLang = meta.config.defaultLang || 'en-GB';
 		templateValues.userLang = res.locals.config.userLang;
 		templateValues.languageDirection = results.languageDirection;
 		if (req.query.noScriptMessage) {
-			templateValues.noScriptMessage = validator.escape(
-				String(req.query.noScriptMessage)
-			);
+			templateValues.noScriptMessage = validator.escape(String(req.query.noScriptMessage));
 		}
 
 		templateValues.template = { name: res.locals.template };
@@ -320,18 +275,12 @@ module.exports = function (middleware) {
 				'email:confirmed',
 			]),
 			scripts: getAdminScripts(),
-			custom_header: plugins.hooks.fire(
-				'filter:admin.header.build',
-				custom_header
-			),
+			custom_header: plugins.hooks.fire('filter:admin.header.build', custom_header),
 			configs: meta.configs.list(),
 			latestVersion: getLatestVersion(),
 			privileges: privileges.admin.get(req.uid),
 			tags: meta.tags.parse(req, {}, [], []),
-			languageDirection: translator.translate(
-				'[[language:dir]]',
-				res.locals.config.acpLang
-			),
+			languageDirection: translator.translate('[[language:dir]]', res.locals.config.acpLang),
 		});
 
 		const { userData } = results;
@@ -347,8 +296,7 @@ module.exports = function (middleware) {
 
 		const version = nconf.get('version');
 
-		res.locals.config.userLang =
-			res.locals.config.acpLang || res.locals.config.userLang;
+		res.locals.config.userLang = res.locals.config.acpLang || res.locals.config.userLang;
 		res.locals.config.isRTL = results.languageDirection === 'rtl';
 		const templateValues = {
 			config: res.locals.config,
@@ -370,19 +318,12 @@ module.exports = function (middleware) {
 			bodyClass: options.bodyClass,
 			version: version,
 			latestVersion: results.latestVersion,
-			upgradeAvailable:
-				results.latestVersion && semver.gt(results.latestVersion, version),
+			upgradeAvailable: results.latestVersion && semver.gt(results.latestVersion, version),
 			showManageMenu:
 				results.privileges.superadmin ||
-				[
-					'categories',
-					'privileges',
-					'users',
-					'admins-mods',
-					'groups',
-					'tags',
-					'settings',
-				].some((priv) => results.privileges[`admin:${priv}`]),
+				['categories', 'privileges', 'users', 'admins-mods', 'groups', 'tags', 'settings'].some(
+					priv => results.privileges[`admin:${priv}`],
+				),
 			defaultLang: meta.config.defaultLang || 'en-GB',
 			acpLang: res.locals.config.acpLang,
 			languageDirection: results.languageDirection,
@@ -403,35 +344,29 @@ module.exports = function (middleware) {
 	}
 
 	async function renderHeader(req, res, options, headerFooterData) {
-		const hookReturn = await plugins.hooks.fire(
-			'filter:middleware.renderHeader',
-			{
-				req: req,
-				res: res,
-				templateValues: headerFooterData, // TODO: deprecate
-				templateData: headerFooterData,
-				data: options,
-			}
-		);
+		const hookReturn = await plugins.hooks.fire('filter:middleware.renderHeader', {
+			req: req,
+			res: res,
+			templateValues: headerFooterData, // TODO: deprecate
+			templateData: headerFooterData,
+			data: options,
+		});
 
 		return await req.app.renderAsync('header', hookReturn.templateData);
 	}
 
 	async function renderFooter(req, res, options, headerFooterData) {
-		const hookReturn = await plugins.hooks.fire(
-			'filter:middleware.renderFooter',
-			{
-				req,
-				res,
-				templateValues: headerFooterData, // TODO: deprecate
-				templateData: headerFooterData,
-				data: options,
-			}
-		);
+		const hookReturn = await plugins.hooks.fire('filter:middleware.renderFooter', {
+			req,
+			res,
+			templateValues: headerFooterData, // TODO: deprecate
+			templateData: headerFooterData,
+			data: options,
+		});
 
 		const scripts = await plugins.hooks.fire('filter:scripts.get', []);
 
-		hookReturn.templateData.scripts = scripts.map((script) => ({
+		hookReturn.templateData.scripts = scripts.map(script => ({
 			src: script,
 		}));
 
@@ -445,42 +380,30 @@ module.exports = function (middleware) {
 	}
 
 	async function renderAdminHeader(req, res, options, headerFooterData) {
-		const hookReturn = await plugins.hooks.fire(
-			'filter:middleware.renderAdminHeader',
-			{
-				req,
-				res,
-				templateValues: headerFooterData, // TODO: deprecate
-				templateData: headerFooterData,
-				data: options,
-			}
-		);
+		const hookReturn = await plugins.hooks.fire('filter:middleware.renderAdminHeader', {
+			req,
+			res,
+			templateValues: headerFooterData, // TODO: deprecate
+			templateData: headerFooterData,
+			data: options,
+		});
 
 		return await req.app.renderAsync('admin/header', hookReturn.templateData);
 	}
 
 	async function renderAdminFooter(req, res, options, headerFooterData) {
-		const hookReturn = await plugins.hooks.fire(
-			'filter:middleware.renderAdminFooter',
-			{
-				req,
-				res,
-				templateValues: headerFooterData, // TODO: deprecate
-				templateData: headerFooterData,
-				data: options,
-			}
-		);
+		const hookReturn = await plugins.hooks.fire('filter:middleware.renderAdminFooter', {
+			req,
+			res,
+			templateValues: headerFooterData, // TODO: deprecate
+			templateData: headerFooterData,
+			data: options,
+		});
 
 		return await req.app.renderAsync('admin/footer', hookReturn.templateData);
 	}
 
-	async function renderHeaderFooter(
-		method,
-		req,
-		res,
-		options,
-		headerFooterData
-	) {
+	async function renderHeaderFooter(method, req, res, options, headerFooterData) {
 		let str = '';
 		if (res.locals.renderHeader) {
 			if (method === 'renderHeader') {
@@ -512,24 +435,19 @@ module.exports = function (middleware) {
 	}
 
 	async function appendUnreadCounts({ uid, navigation, unreadData, query }) {
-		const originalRoutes = navigation.map((nav) => nav.originalRoute);
+		const originalRoutes = navigation.map(nav => nav.originalRoute);
 		const calls = {
 			unreadData: topics.getUnreadData({ uid: uid, query: query }),
 			unreadChatCount: messaging.getUnreadCount(uid),
 			unreadNotificationCount: user.notifications.getUnreadCount(uid),
 			unreadFlagCount: (async function () {
-				if (
-					originalRoutes.includes('/flags') &&
-					(await user.isPrivileged(uid))
-				) {
+				if (originalRoutes.includes('/flags') && (await user.isPrivileged(uid))) {
 					return flags.getCount({
 						uid,
 						query,
 						filters: {
 							quick: 'unresolved',
-							cid: (await user.isAdminOrGlobalMod(uid))
-								? []
-								: await user.getModeratedCids(uid),
+							cid: (await user.isAdminOrGlobalMod(uid)) ? [] : await user.getModeratedCids(uid),
 						},
 					});
 				}
@@ -551,19 +469,19 @@ module.exports = function (middleware) {
 			flags: results.unreadFlagCount || 0,
 		};
 
-		Object.keys(unreadCount).forEach((key) => {
+		Object.keys(unreadCount).forEach(key => {
 			if (unreadCount[key] > 99) {
 				unreadCount[key] = '99+';
 			}
 		});
 
 		const { tidsByFilter } = results.unreadData;
-		navigation = navigation.map((item) => {
+		navigation = navigation.map(item => {
 			function modifyNavItem(item, route, filter, content) {
 				if (item && item.originalRoute === route) {
 					unreadData[filter] = _.zipObject(
 						tidsByFilter[filter],
-						tidsByFilter[filter].map(() => true)
+						tidsByFilter[filter].map(() => true),
 					);
 					item.content = content;
 					unreadCount.mobileUnread = content;
@@ -575,25 +493,11 @@ module.exports = function (middleware) {
 			}
 			modifyNavItem(item, '/unread', '', unreadCount.topic);
 			modifyNavItem(item, '/unread?filter=new', 'new', unreadCount.newTopic);
-			modifyNavItem(
-				item,
-				'/unread?filter=watched',
-				'watched',
-				unreadCount.watchedTopic
-			);
-			modifyNavItem(
-				item,
-				'/unread?filter=unreplied',
-				'unreplied',
-				unreadCount.unrepliedTopic
-			);
+			modifyNavItem(item, '/unread?filter=watched', 'watched', unreadCount.watchedTopic);
+			modifyNavItem(item, '/unread?filter=unreplied', 'unreplied', unreadCount.unrepliedTopic);
 
-			['flags'].forEach((prop) => {
-				if (
-					item &&
-					item.originalRoute === `/${prop}` &&
-					unreadCount[prop] > 0
-				) {
+			['flags'].forEach(prop => {
+				if (item && item.originalRoute === `/${prop}` && unreadCount[prop] > 0) {
 					item.iconClass += ' unread-count';
 					item.content = unreadCount.flags;
 				}
@@ -606,9 +510,7 @@ module.exports = function (middleware) {
 	}
 
 	function modifyTitle(obj) {
-		const title = controllersHelpers.buildTitle(
-			meta.config.homePageTitle || '[[pages:home]]'
-		);
+		const title = controllersHelpers.buildTitle(meta.config.homePageTitle || '[[pages:home]]');
 		obj.browserTitle = title;
 
 		if (obj.metaTags) {
@@ -624,7 +526,7 @@ module.exports = function (middleware) {
 
 	async function getAdminScripts() {
 		const scripts = await plugins.hooks.fire('filter:admin.scripts.get', []);
-		return scripts.map((script) => ({ src: script }));
+		return scripts.map(script => ({ src: script }));
 	}
 
 	async function getLatestVersion() {

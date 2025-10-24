@@ -20,11 +20,10 @@ module.exports = {
 
 		await batch.processSortedSet(
 			'topics:tid',
-			async (tids) => {
-				const keys = tids.map((tid) => `topic:${tid}`);
-				const topicThumbs = (await db.getObjectsFields(keys, ['thumb'])).map(
-					(obj) =>
-						obj.thumb ? obj.thumb.replace(nconf.get('upload_url'), '') : null
+			async tids => {
+				const keys = tids.map(tid => `topic:${tid}`);
+				const topicThumbs = (await db.getObjectsFields(keys, ['thumb'])).map(obj =>
+					obj.thumb ? obj.thumb.replace(nconf.get('upload_url'), '') : null,
 				);
 
 				await Promise.all(
@@ -38,13 +37,13 @@ module.exports = {
 						}
 
 						progress.incr();
-					})
+					}),
 				);
 			},
 			{
 				batch: 500,
 				progress: progress,
-			}
+			},
 		);
 	},
 };

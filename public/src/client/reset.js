@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/reset', ['alerts'], function (alerts) {
 	const ResetPassword = {};
 

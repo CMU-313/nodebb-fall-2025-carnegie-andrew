@@ -10,7 +10,7 @@ get:
         type: string
       example: admin
   responses:
-    "302":
+    '302':
       description: A redirect to the new URL format (without the `/uid` prefix)
       headers:
         Location:

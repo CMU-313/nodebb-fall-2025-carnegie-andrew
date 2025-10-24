@@ -15,24 +15,20 @@ describe.skip('i18n', () => {
 
 	before(async function () {
 		if (
-			(process.env.GITHUB_REF &&
-				process.env.GITHUB_REF !== 'refs/heads/develop') ||
+			(process.env.GITHUB_REF && process.env.GITHUB_REF !== 'refs/heads/develop') ||
 			process.env.GITHUB_EVENT_NAME === 'pull_request'
 		) {
 			this.skip();
 		}
 
-		folders = await fs.promises.readdir(
-			path.resolve(__dirname, '../public/language')
-		);
-		folders = folders.filter((f) => f !== 'README.md');
+		folders = await fs.promises.readdir(path.resolve(__dirname, '../public/language'));
+		folders = folders.filter(f => f !== 'README.md');
 	});
 
 	it('should contain folders named after the language code', async () => {
-		const valid =
-			/(?:README.md|^[a-z]{2}(?:-[A-Z]{2})?$|^[a-z]{2}(?:-x-[a-z]+)?$)/; // good luck
+		const valid = /(?:README.md|^[a-z]{2}(?:-[A-Z]{2})?$|^[a-z]{2}(?:-x-[a-z]+)?$)/; // good luck
 
-		folders.forEach((folder) => {
+		folders.forEach(folder => {
 			assert(valid.test(folder));
 		});
 	});
@@ -41,7 +37,7 @@ describe.skip('i18n', () => {
 	it('', async () => {
 		const sourcePath = path.resolve(__dirname, '../public/language/en-GB');
 		const fullPaths = await file.walk(sourcePath);
-		const sourceFiles = fullPaths.map((path) => path.replace(sourcePath, ''));
+		const sourceFiles = fullPaths.map(path => path.replace(sourcePath, ''));
 		const sourceStrings = new Map();
 
 		describe('source language file structure', () => {
@@ -49,7 +45,7 @@ describe.skip('i18n', () => {
 
 			it('should only contain valid JSON files', async () => {
 				try {
-					fullPaths.forEach((fullPath) => {
+					fullPaths.forEach(fullPath => {
 						if (fullPath.endsWith('_DO_NOT_EDIT_FILES_HERE.md')) {
 							return;
 						}
@@ -91,19 +87,19 @@ describe.skip('i18n', () => {
 						'camelCase.With-Dashes.isAlsoInvalid', // PascalCase "With" is not allowed
 					];
 
-					valid.forEach((key) => {
+					valid.forEach(key => {
 						it(key, () => {
 							assert(test.test(key));
 						});
 					});
-					invalid.forEach((key) => {
+					invalid.forEach(key => {
 						it(key, () => {
 							assert(!test.test(key));
 						});
 					});
 				});
 
-				fullPaths.forEach((fullPath) => {
+				fullPaths.forEach(fullPath => {
 					if (fullPath.endsWith('_DO_NOT_EDIT_FILES_HERE.md')) {
 						return;
 					}
@@ -111,7 +107,7 @@ describe.skip('i18n', () => {
 					const hash = require(fullPath);
 					const keys = Object.keys(hash);
 
-					keys.forEach((key) => {
+					keys.forEach(key => {
 						it(key, () => {
 							assert(test.test(key), `${key} contains invalid characters`);
 						});
@@ -120,34 +116,29 @@ describe.skip('i18n', () => {
 			});
 		});
 
-		folders.forEach((language) => {
+		folders.forEach(language => {
 			describe(`"${language}" file structure`, () => {
 				let files;
 
 				before(async () => {
-					const translationPath = path.resolve(
-						__dirname,
-						`../public/language/${language}`
-					);
-					files = (await file.walk(translationPath)).map((path) =>
-						path.replace(translationPath, '')
-					);
+					const translationPath = path.resolve(__dirname, `../public/language/${language}`);
+					files = (await file.walk(translationPath)).map(path => path.replace(translationPath, ''));
 				});
 
 				it('translations should contain every language file contained in the source language directory', () => {
-					sourceFiles.forEach((relativePath) => {
+					sourceFiles.forEach(relativePath => {
 						assert(
 							files.includes(relativePath),
-							`${relativePath.slice(1)} was found in source files but was not found in language "${language}" (likely not internationalized)`
+							`${relativePath.slice(1)} was found in source files but was not found in language "${language}" (likely not internationalized)`,
 						);
 					});
 				});
 
 				it('should not contain any extraneous files not included in the source language directory', () => {
-					files.forEach((relativePath) => {
+					files.forEach(relativePath => {
 						assert(
 							sourceFiles.includes(relativePath),
-							`${relativePath.slice(1)} was found in language "${language}" but there is no source file for it (likely removed from en-GB)`
+							`${relativePath.slice(1)} was found in language "${language}" but there is no source file for it (likely removed from en-GB)`,
 						);
 					});
 				});
@@ -155,10 +146,7 @@ describe.skip('i18n', () => {
 
 			describe(`"${language}" file contents`, () => {
 				let fullPaths;
-				const translationPath = path.resolve(
-					__dirname,
-					`../public/language/${language}`
-				);
+				const translationPath = path.resolve(__dirname, `../public/language/${language}`);
 				const strings = new Map();
 
 				before(async () => {
@@ -167,7 +155,7 @@ describe.skip('i18n', () => {
 
 				it('should contain only valid JSON files', () => {
 					try {
-						fullPaths.forEach((fullPath) => {
+						fullPaths.forEach(fullPath => {
 							if (fullPath.endsWith('_DO_NOT_EDIT_FILES_HERE.md')) {
 								return;
 							}
@@ -182,21 +170,21 @@ describe.skip('i18n', () => {
 
 				it('should contain every translation key contained in its source counterpart', () => {
 					const sourceArr = Array.from(sourceStrings.keys());
-					sourceArr.forEach((namespace) => {
+					sourceArr.forEach(namespace => {
 						const sourceKeys = Object.keys(sourceStrings.get(namespace));
 						const translationKeys = Object.keys(strings.get(namespace));
 
 						assert(sourceKeys && translationKeys);
-						sourceKeys.forEach((key) => {
+						sourceKeys.forEach(key => {
 							assert(
 								translationKeys.includes(key),
-								`${namespace.slice(1, -5)}:${key} missing in ${language}`
+								`${namespace.slice(1, -5)}:${key} missing in ${language}`,
 							);
 						});
 						assert.strictEqual(
 							sourceKeys.length,
 							translationKeys.length,
-							`Extra keys found in namespace ${namespace.slice(1, -5)} for language "${language}"`
+							`Extra keys found in namespace ${namespace.slice(1, -5)} for language "${language}"`,
 						);
 					});
 				});

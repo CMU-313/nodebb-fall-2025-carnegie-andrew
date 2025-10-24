@@ -1,17 +1,17 @@
 {
-	"rewards": "Rewards",
-	"add-reward": "เพิ่มรางวัล",
-	"condition-if-users": "ถ้า ... ของผู้ใช้งาน",
-	"condition-is": "มีค่า:",
-	"condition-then": "แล้ว:",
-	"max-claims": "จำนวนครั้งที่สามารถรับรางวัลได้",
-	"zero-infinite": "ใส่ 0 ถ้ารับได้ไม่จำกัด",
-	"select-reward": "เลือกรางวัล",
-	"delete": "ลบ",
-	"enable": "เปิดการใช้งาน",
-	"disable": "ปิดการใช้งาน",
+  "rewards": "Rewards",
+  "add-reward": "เพิ่มรางวัล",
+  "condition-if-users": "ถ้า ... ของผู้ใช้งาน",
+  "condition-is": "มีค่า:",
+  "condition-then": "แล้ว:",
+  "max-claims": "จำนวนครั้งที่สามารถรับรางวัลได้",
+  "zero-infinite": "ใส่ 0 ถ้ารับได้ไม่จำกัด",
+  "select-reward": "เลือกรางวัล",
+  "delete": "ลบ",
+  "enable": "เปิดการใช้งาน",
+  "disable": "ปิดการใช้งาน",
 
-	"alert.delete-success": "ลบรางวัลสำเร็จ",
-	"alert.no-inputs-found": "รางวัลไม่ถูกต้อง - ยังไม่ได้ใส่ข้อมูล!",
-	"alert.save-success": "บันทึกรางวัลสำเร็จ"
+  "alert.delete-success": "ลบรางวัลสำเร็จ",
+  "alert.no-inputs-found": "รางวัลไม่ถูกต้อง - ยังไม่ได้ใส่ข้อมูล!",
+  "alert.save-success": "บันทึกรางวัลสำเร็จ"
 }

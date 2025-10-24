@@ -1,6 +1,11 @@
 'use strict';
 
-define('forum/groups/memberlist', ['api', 'bootbox', 'alerts', 'helpers'], function (api, bootbox, alerts, helpers) {
+define('forum/groups/memberlist', ['api', 'bootbox', 'alerts', 'helpers'], function (
+	api,
+	bootbox,
+	alerts,
+	helpers,
+) {
 	const MemberList = {};
 	let templateName;
 
@@ -16,15 +21,9 @@ define('forum/groups/memberlist', ['api', 'bootbox', 'alerts', 'helpers'], funct
 		const { group } = await api.get(`/api/groups/${ajaxify.data.group.slug}`);
 		const html = await parseAndTranslate(group.members);
 		$('[component="groups/members"] tbody').html(html);
-		$('[component="group/member/count"]').text(
-			helpers.humanReadableNumber(group.memberCount)
-		);
-		$('[component="group/pending/count"]').text(
-			helpers.humanReadableNumber(group.pending.length)
-		);
-		$('[component="group/invited/count"]').text(
-			helpers.humanReadableNumber(group.invited.length)
-		);
+		$('[component="group/member/count"]').text(helpers.humanReadableNumber(group.memberCount));
+		$('[component="group/pending/count"]').text(helpers.humanReadableNumber(group.pending.length));
+		$('[component="group/invited/count"]').text(helpers.humanReadableNumber(group.invited.length));
 		ajaxify.data.group.members = group.members;
 		ajaxify.data.group.memberCount = group.memberCount;
 		ajaxify.data.group.invited = group.invited;
@@ -63,20 +62,29 @@ define('forum/groups/memberlist', ['api', 'bootbox', 'alerts', 'helpers'], funct
 					$(this).find('i').toggleClass('invisible');
 				});
 				modal.find('input').on('keyup', function () {
-					api.get('/api/users', {
-						query: $(this).val(),
-						paginate: false,
-					}, function (err, result) {
-						if (err) {
-							return alerts.error(err);
-						}
-						result.users.forEach(function (user) {
-							foundUsers[user.uid] = user;
-						});
-						app.parseAndTranslate('admin/partials/groups/add-members', 'users', { users: result.users }, function (html) {
-							modal.find('#search-result').html(html);
-						});
-					});
+					api.get(
+						'/api/users',
+						{
+							query: $(this).val(),
+							paginate: false,
+						},
+						function (err, result) {
+							if (err) {
+								return alerts.error(err);
+							}
+							result.users.forEach(function (user) {
+								foundUsers[user.uid] = user;
+							});
+							app.parseAndTranslate(
+								'admin/partials/groups/add-members',
+								'users',
+								{ users: result.users },
+								function (html) {
+									modal.find('#search-result').html(html);
+								},
+							);
+						},
+					);
 				});
 			});
 		});
@@ -87,34 +95,44 @@ define('forum/groups/memberlist', ['api', 'bootbox', 'alerts', 'helpers'], funct
 		if (ajaxify.data.group.name === 'administrators') {
 			await socket.emit('admin.user.makeAdmins', uids).catch(alerts.error);
 		} else {
-			await Promise.all(uids.map(uid => api.put('/groups/' + ajaxify.data.group.slug + '/membership/' + uid))).catch(alerts.error);
+			await Promise.all(
+				uids.map(uid => api.put('/groups/' + ajaxify.data.group.slug + '/membership/' + uid)),
+			).catch(alerts.error);
 		}
 
-		users = users.filter(user => !$('[component="groups/members"] [data-uid="' + user.uid + '"]').length);
+		users = users.filter(
+			user => !$('[component="groups/members"] [data-uid="' + user.uid + '"]').length,
+		);
 		const html = await parseAndTranslate(users);
 		$('[component="groups/members"] tbody').prepend(html);
 	}
 
 	function handleMemberSearch() {
 		const searchEl = $('[component="groups/members/search"]');
-		searchEl.on('keyup', utils.debounce(async function () {
-			const query = searchEl.val();
-			const results = await api.get(`/groups/${ajaxify.data.group.slug}/members`, { query });
-			const html = await parseAndTranslate(results.users);
-			$('[component="groups/members"] tbody').html(html);
-			$('[component="groups/members"]').attr('data-nextstart', 20);
-		}, 250));
+		searchEl.on(
+			'keyup',
+			utils.debounce(async function () {
+				const query = searchEl.val();
+				const results = await api.get(`/groups/${ajaxify.data.group.slug}/members`, { query });
+				const html = await parseAndTranslate(results.users);
+				$('[component="groups/members"] tbody').html(html);
+				$('[component="groups/members"]').attr('data-nextstart', 20);
+			}, 250),
+		);
 	}
 
 	function handleMemberInfiniteScroll() {
-		$('[component="groups/members"]').on('scroll', utils.debounce(function () {
-			const $this = $(this);
-			const bottom = ($this[0].scrollHeight - $this.innerHeight()) * 0.9;
+		$('[component="groups/members"]').on(
+			'scroll',
+			utils.debounce(function () {
+				const $this = $(this);
+				const bottom = ($this[0].scrollHeight - $this.innerHeight()) * 0.9;
 
-			if ($this.scrollTop() > bottom && !$('[component="groups/members/search"]').val()) {
-				loadMoreMembers();
-			}
-		}, 250));
+				if ($this.scrollTop() > bottom && !$('[component="groups/members/search"]').val()) {
+					loadMoreMembers();
+				}
+			}, 250),
+		);
 	}
 
 	async function loadMoreMembers() {
@@ -124,9 +142,11 @@ define('forum/groups/memberlist', ['api', 'bootbox', 'alerts', 'helpers'], funct
 		}
 
 		members.attr('loading', 1);
-		const data = await api.get(`/groups/${ajaxify.data.group.slug}/members`, {
-			after: members.attr('data-nextstart'),
-		}).catch(alerts.error);
+		const data = await api
+			.get(`/groups/${ajaxify.data.group.slug}/members`, {
+				after: members.attr('data-nextstart'),
+			})
+			.catch(alerts.error);
 
 		if (data && data.users.length) {
 			await onMembersLoaded(data.users);

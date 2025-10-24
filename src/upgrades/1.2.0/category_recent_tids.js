@@ -19,24 +19,15 @@ module.exports = {
 						if (err || !pid) {
 							return next(err);
 						}
-						db.getObjectFields(
-							`post:${pid}`,
-							['tid', 'timestamp'],
-							(err, postData) => {
-								if (err || !postData || !postData.tid) {
-									return next(err);
-								}
-								db.sortedSetAdd(
-									`cid:${cid}:recent_tids`,
-									postData.timestamp,
-									postData.tid,
-									next
-								);
+						db.getObjectFields(`post:${pid}`, ['tid', 'timestamp'], (err, postData) => {
+							if (err || !postData || !postData.tid) {
+								return next(err);
 							}
-						);
+							db.sortedSetAdd(`cid:${cid}:recent_tids`, postData.timestamp, postData.tid, next);
+						});
 					});
 				},
-				callback
+				callback,
 			);
 		});
 	},

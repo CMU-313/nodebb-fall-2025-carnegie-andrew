@@ -11,9 +11,9 @@ module.exports = {
 
 		await batch.processSortedSet(
 			'topics:tid',
-			async (tids) => {
+			async tids => {
 				await Promise.all(
-					tids.map(async (tid) => {
+					tids.map(async tid => {
 						progress.incr();
 						const topicData = await db.getObjectFields(`topic:${tid}`, [
 							'cid',
@@ -25,27 +25,24 @@ module.exports = {
 						if (topicData.cid && topicData.oldCid) {
 							const isMember = await db.isSortedSetMember(
 								`cid:${topicData.oldCid}:uid:${topicData.uid}:tids`,
-								topicData.tid
+								topicData.tid,
 							);
 							if (isMember) {
-								await db.sortedSetRemove(
-									`cid:${topicData.oldCid}:uid:${topicData.uid}:tids`,
-									tid
-								);
+								await db.sortedSetRemove(`cid:${topicData.oldCid}:uid:${topicData.uid}:tids`, tid);
 								await db.sortedSetAdd(
 									`cid:${topicData.cid}:uid:${topicData.uid}:tids`,
 									topicData.timestamp,
-									tid
+									tid,
 								);
 							}
 						}
-					})
+					}),
 				);
 			},
 			{
 				progress: progress,
 				batch: 500,
-			}
+			},
 		);
 	},
 };

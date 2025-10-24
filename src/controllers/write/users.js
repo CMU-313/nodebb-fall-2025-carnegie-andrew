@@ -19,8 +19,7 @@ Users.redirectBySlug = async (req, res) => {
 		const urlObj = new URL(nconf.get('url') + req.url);
 		res.redirect(
 			308,
-			nconf.get('relative_path') +
-				encodeURI(`/api/v3/users/${uid}/${path}${urlObj.search}`)
+			nconf.get('relative_path') + encodeURI(`/api/v3/users/${uid}/${path}${urlObj.search}`),
 		);
 	} else {
 		helpers.formatApiResponse(404, res);
@@ -37,11 +36,7 @@ Users.exists = async (req, res) => {
 };
 
 Users.get = async (req, res) => {
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.users.get(req, { ...req.params })
-	);
+	helpers.formatApiResponse(200, res, await api.users.get(req, { ...req.params }));
 };
 
 Users.update = async (req, res) => {
@@ -84,11 +79,7 @@ Users.changePicture = async (req, res) => {
 };
 
 Users.getStatus = async (req, res) => {
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.users.getStatus(req, { ...req.params })
-	);
+	helpers.formatApiResponse(200, res, await api.users.getStatus(req, { ...req.params }));
 };
 
 Users.checkStatus = async (req, res) => {
@@ -99,11 +90,7 @@ Users.checkStatus = async (req, res) => {
 };
 
 Users.getPrivateRoomId = async (req, res) => {
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.users.getPrivateRoomId(req, { ...req.params })
-	);
+	helpers.formatApiResponse(200, res, await api.users.getPrivateRoomId(req, { ...req.params }));
 };
 
 Users.updateSettings = async (req, res) => {
@@ -206,7 +193,7 @@ Users.getInviteGroups = async function (req, res) {
 	return helpers.formatApiResponse(
 		200,
 		res,
-		await api.users.getInviteGroups(req, { ...req.params })
+		await api.users.getInviteGroups(req, { ...req.params }),
 	);
 };
 
@@ -247,10 +234,7 @@ Users.checkExportByType = async (req, res) => {
 	const stat = await api.users.checkExportByType(req, { ...req.params });
 	const modified = new Date(stat.mtimeMs);
 	res.set('Last-Modified', modified.toUTCString());
-	res.set(
-		'ETag',
-		`"${crypto.createHash('md5').update(String(stat.mtimeMs)).digest('hex')}"`
-	);
+	res.set('ETag', `"${crypto.createHash('md5').update(String(stat.mtimeMs)).digest('hex')}"`);
 	res.sendStatus(204);
 };
 
@@ -270,11 +254,11 @@ Users.getExportByType = async (req, res, next) => {
 				'Content-Disposition': `attachment; filename=${data.filename}`,
 			},
 		},
-		(err) => {
+		err => {
 			if (err) {
 				throw err;
 			}
-		}
+		},
 	);
 };
 

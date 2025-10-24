@@ -3,7 +3,7 @@ get:
     - admin
   summary: Get detailed login analytics
   responses:
-    "200":
+    '200':
       description: A JSON object containing more detailed analytics related to user login sessions.
       content:
         application/json:

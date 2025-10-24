@@ -13,9 +13,7 @@ const { secureRandom } = require('../utils');
 
 exports.handle404 = helpers.try(async (req, res) => {
 	const relativePath = nconf.get('relative_path');
-	const isClientScript = new RegExp(
-		`^${relativePath}\\/assets\\/src\\/.+\\.js(\\?v=\\w+)?$`
-	);
+	const isClientScript = new RegExp(`^${relativePath}\\/assets\\/src\\/.+\\.js(\\?v=\\w+)?$`);
 
 	if (plugins.hooks.hasListeners('action:meta.override404')) {
 		return plugins.hooks.fire('action:meta.override404', {
@@ -30,9 +28,7 @@ exports.handle404 = helpers.try(async (req, res) => {
 	} else if (
 		activitypub.helpers.assertAccept(req.headers.accept) ||
 		(req.headers['Content-Type'] &&
-			activitypub._constants.acceptableTypes.includes(
-				req.headers['Content-Type']
-			))
+			activitypub._constants.acceptableTypes.includes(req.headers['Content-Type']))
 	) {
 		// todo: separate logging of AP 404s
 		res.sendStatus(404);

@@ -11,11 +11,7 @@ function expandObjBy(obj1, obj2) {
 	for (const [key, val2] of Object.entries(obj2)) {
 		const val1 = obj1[key];
 		const xorIsArray = Array.isArray(val1) !== Array.isArray(val2);
-		if (
-			xorIsArray ||
-			!obj1.hasOwnProperty(key) ||
-			typeof val2 !== typeof val1
-		) {
+		if (xorIsArray || !obj1.hasOwnProperty(key) || typeof val2 !== typeof val1) {
 			obj1[key] = val2;
 			changed = true;
 		} else if (typeof val2 === 'object' && !Array.isArray(val2)) {
@@ -73,7 +69,7 @@ function Settings(hash, version, defCfg, callback, forceUpdate, reset) {
 			this.checkStructure(callback, forceUpdate);
 		});
 	}
-	pubsub.on(`action:settings.set.${hash}`, (data) => {
+	pubsub.on(`action:settings.set.${hash}`, data => {
 		try {
 			self.cfg._ = JSON.parse(data._);
 		} catch (err) {}
@@ -119,15 +115,11 @@ Settings.prototype.persist = function (callback) {
 	if (typeof conf === 'object') {
 		conf = JSON.stringify(conf);
 	}
-	meta.settings.set(
-		this.hash,
-		this.createWrapper(this.cfg.v, conf),
-		(...args) => {
-			if (typeof callback === 'function') {
-				callback.apply(_this, args || []);
-			}
+	meta.settings.set(this.hash, this.createWrapper(this.cfg.v, conf), (...args) => {
+		if (typeof callback === 'function') {
+			callback.apply(_this, args || []);
 		}
-	);
+	});
 	return this;
 };
 

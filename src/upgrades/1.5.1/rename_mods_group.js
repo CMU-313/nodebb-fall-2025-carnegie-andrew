@@ -29,13 +29,13 @@ module.exports = {
 							groups.renameGroup(groupName, newName, next);
 						});
 					},
-					next
+					next,
 				);
 			},
 			{
 				progress: progress,
 			},
-			callback
+			callback,
 		);
 	},
 };

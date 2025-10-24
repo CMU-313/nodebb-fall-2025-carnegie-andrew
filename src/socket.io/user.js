@@ -82,7 +82,7 @@ SocketUser.reset.commit = async function (socket, data) {
 			date: parsedDate,
 			subject: '[[email:reset.notify.subject]]',
 		})
-		.catch((err) => winston.error(`[emailer.send] ${err.stack}`));
+		.catch(err => winston.error(`[emailer.send] ${err.stack}`));
 };
 
 SocketUser.isFollowing = async function (socket, data) {
@@ -128,11 +128,7 @@ SocketUser.getUserByUID = async function (socket, uid) {
 };
 
 SocketUser.getUserByUsername = async function (socket, username) {
-	return await userController.getUserDataByField(
-		socket.uid,
-		'username',
-		username
-	);
+	return await userController.getUserDataByField(socket.uid, 'username', username);
 };
 
 SocketUser.getUserByEmail = async function (socket, email) {

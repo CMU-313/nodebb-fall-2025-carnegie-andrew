@@ -20,87 +20,69 @@ function authenticatedRoutes() {
 		'post',
 		'/',
 		[...middlewares, middleware.checkRequired.bind(null, ['username'])],
-		controllers.write.users.create
+		controllers.write.users.create,
 	);
 	setupApiRoute(
 		router,
 		'delete',
 		'/',
 		[...middlewares, middleware.checkRequired.bind(null, ['uids'])],
-		controllers.write.users.deleteMany
+		controllers.write.users.deleteMany,
 	);
 
-	setupApiRoute(
-		router,
-		'head',
-		'/:uid',
-		[middleware.assert.user],
-		controllers.write.users.exists
-	);
+	setupApiRoute(router, 'head', '/:uid', [middleware.assert.user], controllers.write.users.exists);
 	setupApiRoute(
 		router,
 		'get',
 		'/:uid',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.get
+		controllers.write.users.get,
 	);
 	setupApiRoute(
 		router,
 		'put',
 		'/:uid',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.update
+		controllers.write.users.update,
 	);
 	setupApiRoute(
 		router,
 		'delete',
 		'/:uid',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.delete
+		controllers.write.users.delete,
 	);
 	setupApiRoute(
 		router,
 		'put',
 		'/:uid/picture',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.changePicture
+		controllers.write.users.changePicture,
 	);
 	setupApiRoute(
 		router,
 		'delete',
 		'/:uid/content',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.deleteContent
+		controllers.write.users.deleteContent,
 	);
 	setupApiRoute(
 		router,
 		'delete',
 		'/:uid/account',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.deleteAccount
+		controllers.write.users.deleteAccount,
 	);
 
-	setupApiRoute(
-		router,
-		'get',
-		'/:uid/status',
-		[],
-		controllers.write.users.getStatus
-	);
-	setupApiRoute(
-		router,
-		'head',
-		'/:uid/status/:status',
-		[],
-		controllers.write.users.checkStatus
-	);
+	setupApiRoute(router, 'get', '/:uid/status', [], controllers.write.users.getStatus);
+	setupApiRoute(router, 'head', '/:uid/status/:status', [], controllers.write.users.checkStatus);
 
 	setupApiRoute(
 		router,
 		'get',
 		'/:uid/chat',
 		[...middlewares],
-		controllers.write.users.getPrivateRoomId
+		controllers.write.users.getPrivateRoomId,
 	);
 
 	setupApiRoute(
@@ -108,19 +90,15 @@ function authenticatedRoutes() {
 		'put',
 		'/:uid/settings',
 		[...middlewares, middleware.checkRequired.bind(null, ['settings'])],
-		controllers.write.users.updateSettings
+		controllers.write.users.updateSettings,
 	);
 
 	setupApiRoute(
 		router,
 		'put',
 		'/:uid/password',
-		[
-			...middlewares,
-			middleware.checkRequired.bind(null, ['newPassword']),
-			middleware.assert.user,
-		],
-		controllers.write.users.changePassword
+		[...middlewares, middleware.checkRequired.bind(null, ['newPassword']), middleware.assert.user],
+		controllers.write.users.changePassword,
 	);
 
 	setupApiRoute(
@@ -128,14 +106,14 @@ function authenticatedRoutes() {
 		'put',
 		'/:uid/follow',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.follow
+		controllers.write.users.follow,
 	);
 	setupApiRoute(
 		router,
 		'delete',
 		'/:uid/follow',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.unfollow
+		controllers.write.users.unfollow,
 	);
 
 	setupApiRoute(
@@ -143,14 +121,14 @@ function authenticatedRoutes() {
 		'put',
 		'/:uid/ban',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.ban
+		controllers.write.users.ban,
 	);
 	setupApiRoute(
 		router,
 		'delete',
 		'/:uid/ban',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.unban
+		controllers.write.users.unban,
 	);
 
 	setupApiRoute(
@@ -158,14 +136,14 @@ function authenticatedRoutes() {
 		'put',
 		'/:uid/mute',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.mute
+		controllers.write.users.mute,
 	);
 	setupApiRoute(
 		router,
 		'delete',
 		'/:uid/mute',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.unmute
+		controllers.write.users.unmute,
 	);
 
 	setupApiRoute(
@@ -173,14 +151,14 @@ function authenticatedRoutes() {
 		'post',
 		'/:uid/tokens',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.generateToken
+		controllers.write.users.generateToken,
 	);
 	setupApiRoute(
 		router,
 		'delete',
 		'/:uid/tokens/:token',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.deleteToken
+		controllers.write.users.deleteToken,
 	);
 
 	setupApiRoute(
@@ -188,22 +166,16 @@ function authenticatedRoutes() {
 		'delete',
 		'/:uid/sessions/:uuid',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.revokeSession
+		controllers.write.users.revokeSession,
 	);
 
-	setupApiRoute(
-		router,
-		'post',
-		'/:uid/invites',
-		middlewares,
-		controllers.write.users.invite
-	);
+	setupApiRoute(router, 'post', '/:uid/invites', middlewares, controllers.write.users.invite);
 	setupApiRoute(
 		router,
 		'get',
 		'/:uid/invites/groups',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.getInviteGroups
+		controllers.write.users.getInviteGroups,
 	);
 
 	setupApiRoute(
@@ -211,70 +183,54 @@ function authenticatedRoutes() {
 		'get',
 		'/:uid/emails',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.listEmails
+		controllers.write.users.listEmails,
 	);
 	setupApiRoute(
 		router,
 		'post',
 		'/:uid/emails',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.addEmail
+		controllers.write.users.addEmail,
 	);
 	setupApiRoute(
 		router,
 		'get',
 		'/:uid/emails/:email',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.getEmail
+		controllers.write.users.getEmail,
 	);
 	setupApiRoute(
 		router,
 		'post',
 		'/:uid/emails/:email/confirm',
 		[...middlewares, middleware.assert.user],
-		controllers.write.users.confirmEmail
+		controllers.write.users.confirmEmail,
 	);
 
 	setupApiRoute(
 		router,
 		'head',
 		'/:uid/exports/:type',
-		[
-			...middlewares,
-			middleware.assert.user,
-			middleware.checkAccountPermissions,
-		],
-		controllers.write.users.checkExportByType
+		[...middlewares, middleware.assert.user, middleware.checkAccountPermissions],
+		controllers.write.users.checkExportByType,
 	);
 	setupApiRoute(
 		router,
 		'get',
 		'/:uid/exports/:type',
-		[
-			...middlewares,
-			middleware.assert.user,
-			middleware.checkAccountPermissions,
-		],
-		controllers.write.users.getExportByType
+		[...middlewares, middleware.assert.user, middleware.checkAccountPermissions],
+		controllers.write.users.getExportByType,
 	);
 	setupApiRoute(
 		router,
 		'post',
 		'/:uid/exports/:type',
-		[
-			...middlewares,
-			middleware.assert.user,
-			middleware.checkAccountPermissions,
-		],
-		controllers.write.users.generateExportsByType
+		[...middlewares, middleware.assert.user, middleware.checkAccountPermissions],
+		controllers.write.users.generateExportsByType,
 	);
 
 	// Shorthand route to access user routes by userslug
-	router.all(
-		'/+bySlug/:userslug*?',
-		[],
-		controllers.write.users.redirectBySlug
-	);
+	router.all('/+bySlug/:userslug*?', [], controllers.write.users.redirectBySlug);
 }
 
 module.exports = function () {

@@ -1,8 +1,6 @@
 'use strict';
 
-define('admin/modules/instance', [
-	'alerts',
-], function (alerts) {
+define('admin/modules/instance', ['alerts'], function (alerts) {
 	const instance = {};
 
 	instance.rebuildAndRestart = function (callback) {

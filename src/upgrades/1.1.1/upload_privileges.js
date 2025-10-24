@@ -25,28 +25,20 @@ module.exports = {
 						async.eachSeries(
 							data.groups,
 							(group, next) => {
-								if (
-									group.name === 'guests' &&
-									parseInt(meta.config.allowGuestUploads, 10) !== 1
-								) {
+								if (group.name === 'guests' && parseInt(meta.config.allowGuestUploads, 10) !== 1) {
 									return next();
 								}
 								if (group.privileges['groups:read']) {
-									privilegesAPI.categories.give(
-										['upload:post:image'],
-										cid,
-										group.name,
-										next
-									);
+									privilegesAPI.categories.give(['upload:post:image'], cid, group.name, next);
 								} else {
 									next();
 								}
 							},
-							next
+							next,
 						);
 					});
 				},
-				callback
+				callback,
 			);
 		});
 	},

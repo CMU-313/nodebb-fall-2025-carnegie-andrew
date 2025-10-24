@@ -26,8 +26,8 @@ async function getActiveIds() {
 Data.getPluginPaths = async function () {
 	const plugins = await getActiveIds();
 	const pluginPaths = plugins
-		.filter((plugin) => plugin && typeof plugin === 'string')
-		.map((plugin) => path.join(paths.nodeModules, plugin));
+		.filter(plugin => plugin && typeof plugin === 'string')
+		.map(plugin => path.join(paths.nodeModules, plugin));
 	const exists = await Promise.all(pluginPaths.map(file.exists));
 	exists.forEach((exists, i) => {
 		if (!exists) {
@@ -61,9 +61,7 @@ Data.loadPluginInfo = async function (pluginPath) {
 	} catch (err) {
 		const pluginDir = path.basename(pluginPath);
 
-		winston.error(
-			`[plugins/${pluginDir}] Error in plugin.json or package.json!${err.stack}`
-		);
+		winston.error(`[plugins/${pluginDir}] Error in plugin.json or package.json!${err.stack}`);
 		throw new Error('[[error:parse-error]]');
 	}
 	return pluginData;
@@ -71,9 +69,7 @@ Data.loadPluginInfo = async function (pluginPath) {
 
 function parseLicense(packageData) {
 	try {
-		const licenseData = require(
-			`spdx-license-list/licenses/${packageData.license}`
-		);
+		const licenseData = require(`spdx-license-list/licenses/${packageData.license}`);
 		return {
 			name: licenseData.name,
 			text: licenseData.licenseText,
@@ -86,7 +82,7 @@ function parseLicense(packageData) {
 
 Data.getActive = async function () {
 	const pluginPaths = await Data.getPluginPaths();
-	return await Promise.all(pluginPaths.map((p) => Data.loadPluginInfo(p)));
+	return await Promise.all(pluginPaths.map(p => Data.loadPluginInfo(p)));
 };
 
 Data.getStaticDirectories = async function (pluginData) {
@@ -108,19 +104,16 @@ Data.getStaticDirectories = async function (pluginData) {
 			winston.warn(
 				`[plugins/${pluginData.id}] Invalid mapped path specified: ${
 					route
-				}. Path must adhere to: ${validMappedPath.toString()}`
+				}. Path must adhere to: ${validMappedPath.toString()}`,
 			);
 			return;
 		}
-		const dirPath = await resolveModulePath(
-			pluginData.path,
-			pluginData.staticDirs[route]
-		);
+		const dirPath = await resolveModulePath(pluginData.path, pluginData.staticDirs[route]);
 		if (!dirPath) {
 			winston.warn(
 				`[plugins/${pluginData.id}] Invalid mapped path specified: ${
 					route
-				} => ${pluginData.staticDirs[route]}`
+				} => ${pluginData.staticDirs[route]}`,
 			);
 			return;
 		}
@@ -128,9 +121,7 @@ Data.getStaticDirectories = async function (pluginData) {
 			const stats = await fs.promises.stat(dirPath);
 			if (!stats.isDirectory()) {
 				winston.warn(
-					`[plugins/${pluginData.id}] Mapped path '${
-						route
-					} => ${dirPath}' is not a directory.`
+					`[plugins/${pluginData.id}] Mapped path '${route} => ${dirPath}' is not a directory.`,
 				);
 				return;
 			}
@@ -138,20 +129,16 @@ Data.getStaticDirectories = async function (pluginData) {
 			staticDirs[`${pluginData.id}/${route}`] = dirPath;
 		} catch (err) {
 			if (err.code === 'ENOENT') {
-				winston.warn(
-					`[plugins/${pluginData.id}] Mapped path '${
-						route
-					} => ${dirPath}' not found.`
-				);
+				winston.warn(`[plugins/${pluginData.id}] Mapped path '${route} => ${dirPath}' not found.`);
 				return;
 			}
 			throw err;
 		}
 	}
 
-	await Promise.all(dirs.map((route) => processDir(route)));
+	await Promise.all(dirs.map(route => processDir(route)));
 	winston.verbose(
-		`[plugins] found ${Object.keys(staticDirs).length} static directories for ${pluginData.id}`
+		`[plugins] found ${Object.keys(staticDirs).length} static directories for ${pluginData.id}`,
 	);
 	return staticDirs;
 };
@@ -162,10 +149,10 @@ Data.getFiles = async function (pluginData, type) {
 	}
 
 	winston.verbose(
-		`[plugins] Found ${pluginData[type].length} ${type} file(s) for plugin ${pluginData.id}`
+		`[plugins] Found ${pluginData[type].length} ${type} file(s) for plugin ${pluginData.id}`,
 	);
 
-	return pluginData[type].map((file) => path.join(pluginData.id, file));
+	return pluginData[type].map(file => path.join(pluginData.id, file));
 };
 
 /**
@@ -212,9 +199,7 @@ Data.getScripts = async function getScripts(pluginData, target) {
 		}
 	}
 	if (scripts.length) {
-		winston.verbose(
-			`[plugins] Found ${scripts.length} js file(s) for plugin ${pluginData.id}`
-		);
+		winston.verbose(`[plugins] Found ${scripts.length} js file(s) for plugin ${pluginData.id}`);
 	}
 	return scripts;
 };
@@ -244,23 +229,16 @@ Data.getModules = async function getModules(pluginData) {
 
 	const modules = {};
 	async function processModule(key) {
-		const modulePath = await resolveModulePath(
-			pluginData.path,
-			pluginModules[key]
-		);
+		const modulePath = await resolveModulePath(pluginData.path, pluginModules[key]);
 		if (modulePath) {
 			modules[key] = path.relative(basePath, modulePath);
 		}
 	}
 
-	await Promise.all(
-		Object.keys(pluginModules).map((key) => processModule(key))
-	);
+	await Promise.all(Object.keys(pluginModules).map(key => processModule(key)));
 
 	const len = Object.keys(modules).length;
-	winston.verbose(
-		`[plugins] Found ${len} AMD-style module(s) for plugin ${pluginData.id}`
-	);
+	winston.verbose(`[plugins] Found ${len} AMD-style module(s) for plugin ${pluginData.id}`);
 	return modules;
 };
 
@@ -269,17 +247,13 @@ Data.getLanguageData = async function getLanguageData(pluginData) {
 		return;
 	}
 
-	const pathToFolder = path.join(
-		paths.nodeModules,
-		pluginData.id,
-		pluginData.languages
-	);
+	const pathToFolder = path.join(paths.nodeModules, pluginData.id, pluginData.languages);
 	const filepaths = await file.walk(pathToFolder);
 
 	const namespaces = [];
 	const languages = [];
 
-	filepaths.forEach((p) => {
+	filepaths.forEach(p => {
 		const rel = path.relative(pathToFolder, p).split(/[/\\]/);
 		const language = rel.shift().replace('_', '-').replace('@', '-x-');
 		const namespace = rel.join('/').replace(/\.json$/, '');

@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('admin/manage/digest', ['bootbox', 'alerts'], function (bootbox, alerts) {
 	const Digest = {};
 
@@ -35,10 +34,14 @@ define('admin/manage/digest', ['bootbox', 'alerts'], function (bootbox, alerts) 
 	};
 
 	Digest.send = function (action, uid, callback) {
-		socket.emit('admin.digest.resend', {
-			action: action,
-			uid: uid,
-		}, callback);
+		socket.emit(
+			'admin.digest.resend',
+			{
+				action: action,
+				uid: uid,
+			},
+			callback,
+		);
 	};
 
 	return Digest;

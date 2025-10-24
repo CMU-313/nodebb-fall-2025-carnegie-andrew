@@ -9,7 +9,7 @@ Chats.list = async (req, res) => {
 	let stop;
 	let { page, perPage, start, uid } = req.query;
 	[page, perPage, start, uid] = [page, perPage, start, uid].map(
-		(value) => isFinite(value) && parseInt(value, 10)
+		value => isFinite(value) && parseInt(value, 10),
 	);
 	page = page || 1;
 	perPage = Math.min(100, perPage || 20);
@@ -54,7 +54,7 @@ Chats.get = async (req, res) => {
 		await api.chats.get(req, {
 			uid: req.query.uid || req.uid,
 			roomId: req.params.roomId,
-		})
+		}),
 	);
 };
 
@@ -96,8 +96,7 @@ Chats.mark = async (req, res) => {
 };
 
 Chats.watch = async (req, res) => {
-	const state =
-		req.method === 'DELETE' ? -1 : parseInt(req.body.value, 10) || -1;
+	const state = req.method === 'DELETE' ? -1 : parseInt(req.body.value, 10) || -1;
 
 	await api.chats.watch(req, { state, ...req.params });
 	helpers.formatApiResponse(200, res);
@@ -176,34 +175,22 @@ Chats.messages.getPinned = async (req, res) => {
 	helpers.formatApiResponse(
 		200,
 		res,
-		await api.chats.getPinnedMessages(req, { start, ...req.params })
+		await api.chats.getPinnedMessages(req, { start, ...req.params }),
 	);
 };
 
 Chats.messages.get = async (req, res) => {
 	const { mid, roomId } = req.params;
 
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.chats.getMessage(req, { mid, roomId })
-	);
+	helpers.formatApiResponse(200, res, await api.chats.getMessage(req, { mid, roomId }));
 };
 
 Chats.messages.getRaw = async (req, res) => {
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.chats.getRawMessage(req, { ...req.params })
-	);
+	helpers.formatApiResponse(200, res, await api.chats.getRawMessage(req, { ...req.params }));
 };
 
 Chats.messages.getIpAddress = async (req, res) => {
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.chats.getIpAddress(req, { ...req.params })
-	);
+	helpers.formatApiResponse(200, res, await api.chats.getIpAddress(req, { ...req.params }));
 };
 
 Chats.messages.edit = async (req, res) => {
@@ -211,11 +198,7 @@ Chats.messages.edit = async (req, res) => {
 	const { message } = req.body;
 	await api.chats.editMessage(req, { mid, roomId, message });
 
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.chats.getMessage(req, { mid, roomId })
-	);
+	helpers.formatApiResponse(200, res, await api.chats.getMessage(req, { mid, roomId }));
 };
 
 Chats.messages.delete = async (req, res) => {

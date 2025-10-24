@@ -1,7 +1,7 @@
 {
-	"notifications": "Varsler",
-	"welcome-notification": "Velkomstvarsel",
-	"welcome-notification-link": "Lenke for velkomstvarsel",
-	"welcome-notification-uid": "Bruker-ID for velkomstvarsel (UID)",
-	"post-queue-notification-uid": "Bruker-ID for innleggskø (UID)"
+  "notifications": "Varsler",
+  "welcome-notification": "Velkomstvarsel",
+  "welcome-notification-link": "Lenke for velkomstvarsel",
+  "welcome-notification-uid": "Bruker-ID for velkomstvarsel (UID)",
+  "post-queue-notification-uid": "Bruker-ID for innleggskø (UID)"
 }

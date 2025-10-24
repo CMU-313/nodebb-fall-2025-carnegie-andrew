@@ -23,9 +23,9 @@ const request = require('../src/request');
 const emptyUploadsFolder = async () => {
 	const files = await fs.readdir(`${nconf.get('upload_path')}/files`);
 	await Promise.all(
-		files.map(async (filename) => {
+		files.map(async filename => {
 			await file.delete(`${nconf.get('upload_path')}/files/${filename}`);
-		})
+		}),
 	);
 };
 
@@ -37,7 +37,7 @@ describe('Upload Controllers', () => {
 	let regularUid;
 	let maliciousUid;
 
-	before((done) => {
+	before(done => {
 		async.series(
 			{
 				category: function (next) {
@@ -46,7 +46,7 @@ describe('Upload Controllers', () => {
 							name: 'Test Category',
 							description: 'Test category created by testing script',
 						},
-						next
+						next,
 					);
 				},
 				adminUid: function (next) {
@@ -56,10 +56,7 @@ describe('Upload Controllers', () => {
 					user.create({ username: 'regular', password: 'zugzug' }, next);
 				},
 				maliciousUid: function (next) {
-					user.create(
-						{ username: 'malicioususer', password: 'herpderp' },
-						next
-					);
+					user.create({ username: 'malicioususer', password: 'herpderp' }, next);
 				},
 			},
 			(err, results) => {
@@ -85,9 +82,9 @@ describe('Upload Controllers', () => {
 						tid = result.topicData.tid;
 						pid = result.postData.pid;
 						groups.join('administrators', adminUid, done);
-					}
+					},
 				);
-			}
+			},
 		);
 	});
 
@@ -96,14 +93,8 @@ describe('Upload Controllers', () => {
 		let csrf_token;
 
 		before(async () => {
-			({ jar, csrf_token } = await helpers.loginUser(
-				'malicioususer',
-				'herpderp'
-			));
-			await privileges.global.give(
-				['groups:upload:post:file'],
-				'registered-users'
-			);
+			({ jar, csrf_token } = await helpers.loginUser('malicioususer', 'herpderp'));
+			await privileges.global.give(['groups:upload:post:file'], 'registered-users');
 		});
 
 		it('should fail if the user exceeds the upload rate limit threshold', async () => {
@@ -118,7 +109,7 @@ describe('Upload Controllers', () => {
 					path.join(__dirname, '../test/files/503.html'),
 					{},
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				if (i + 1 >= times) {
 					assert.strictEqual(response.statusCode, 500);
@@ -141,10 +132,7 @@ describe('Upload Controllers', () => {
 		before(async () => {
 			meta.config.uploadRateLimitThreshold = 1000;
 			({ jar, csrf_token } = await helpers.loginUser('regular', 'zugzug'));
-			await privileges.global.give(
-				['groups:upload:post:file'],
-				'registered-users'
-			);
+			await privileges.global.give(['groups:upload:post:file'], 'registered-users');
 		});
 
 		it('should upload an image to a post', async () => {
@@ -153,7 +141,7 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/test.png'),
 				{},
 				jar,
-				csrf_token
+				csrf_token,
 			);
 			assert.equal(response.statusCode, 200);
 			assert(body && body.status && body.response && body.response.images);
@@ -167,7 +155,7 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/test.png'),
 				{},
 				jar,
-				csrf_token
+				csrf_token,
 			);
 
 			assert.strictEqual(response.statusCode, 200);
@@ -176,40 +164,33 @@ describe('Upload Controllers', () => {
 			assert(body.response.images[0].url);
 			const name = body.response.images[0].url.replace(
 				`${nconf.get('relative_path') + nconf.get('upload_url')}`,
-				''
+				'',
 			);
-			await socketUser.deleteUpload(
-				{ uid: regularUid },
-				{ uid: regularUid, name: name }
-			);
+			await socketUser.deleteUpload({ uid: regularUid }, { uid: regularUid, name: name });
 
-			const uploads = await db.getSortedSetRange(
-				`uid:${regularUid}:uploads`,
-				0,
-				-1
-			);
+			const uploads = await db.getSortedSetRange(`uid:${regularUid}:uploads`, 0, -1);
 			assert.equal(uploads.includes(name), false);
 		});
 
-		it('should not allow deleting if path is not correct', (done) => {
+		it('should not allow deleting if path is not correct', done => {
 			socketUser.deleteUpload(
 				{ uid: adminUid },
 				{ uid: regularUid, name: '../../bkconfig.json' },
-				(err) => {
+				err => {
 					assert.equal(err.message, '[[error:invalid-path]]');
 					done();
-				}
+				},
 			);
 		});
 
-		it('should not allow deleting if path is not correct', (done) => {
+		it('should not allow deleting if path is not correct', done => {
 			socketUser.deleteUpload(
 				{ uid: adminUid },
 				{ uid: regularUid, name: '/files/../../bkconfig.json' },
-				(err) => {
+				err => {
 					assert.equal(err.message, '[[error:invalid-path]]');
 					done();
-				}
+				},
 			);
 		});
 
@@ -222,18 +203,14 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/test.png'),
 				{},
 				jar,
-				csrf_token
+				csrf_token,
 			);
 
 			assert.equal(response.statusCode, 200);
 			assert(body && body.status && body.response && body.response.images);
 			assert(Array.isArray(body.response.images));
 			assert(body.response.images[0].url);
-			assert(
-				body.response.images[0].url.match(
-					/\/assets\/uploads\/files\/\d+-test-resized\.png/
-				)
-			);
+			assert(body.response.images[0].url.match(/\/assets\/uploads\/files\/\d+-test-resized\.png/));
 			meta.config.resizeImageWidth = oldValue;
 			meta.config.resizeImageWidthThreshold = 2000;
 		});
@@ -249,18 +226,14 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/test.png'),
 				{},
 				jar,
-				csrf_token
+				csrf_token,
 			);
 
 			assert.equal(response.statusCode, 200);
 			assert(body && body.status && body.response && body.response.images);
 			assert(Array.isArray(body.response.images));
 			assert(body.response.images[0].url);
-			assert(
-				body.response.images[0].url.match(
-					/\/assets\/uploads\/files\/\d+-test.png/
-				)
-			);
+			assert(body.response.images[0].url.match(/\/assets\/uploads\/files\/\d+-test.png/));
 			meta.config.resizeImageWidth = oldValue;
 			meta.config.resizeImageWidthThreshold = 2000;
 			meta.config.resizeImageKeepOriginal = keepOldValue;
@@ -274,7 +247,7 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/503.html'),
 				{},
 				jar,
-				csrf_token
+				csrf_token,
 			);
 			meta.config.allowedFileExtensions = oldValue;
 
@@ -290,7 +263,7 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/toobig.png'),
 				{},
 				jar,
-				csrf_token
+				csrf_token,
 			);
 			assert.strictEqual(response.statusCode, 500);
 			assert(body && body.status && body.status.message);
@@ -303,140 +276,112 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/brokenimage.png'),
 				{},
 				jar,
-				csrf_token
+				csrf_token,
 			);
 			assert.strictEqual(response.statusCode, 500);
 			assert(body && body.status && body.status.message);
-			assert.strictEqual(
-				body.status.message,
-				'Input file contains unsupported image format'
-			);
+			assert.strictEqual(body.status.message, 'Input file contains unsupported image format');
 		});
 
-		it('should fail if file is not an image', (done) => {
-			image.isFileTypeAllowed(
-				path.join(__dirname, '../test/files/notanimage.png'),
-				(err) => {
-					assert.strictEqual(
-						err.message,
-						'Input file contains unsupported image format'
-					);
-					done();
-				}
-			);
+		it('should fail if file is not an image', done => {
+			image.isFileTypeAllowed(path.join(__dirname, '../test/files/notanimage.png'), err => {
+				assert.strictEqual(err.message, 'Input file contains unsupported image format');
+				done();
+			});
 		});
 
-		it('should fail if file is not an image', (done) => {
-			image.isFileTypeAllowed(
-				path.join(__dirname, '../test/files/notanimage.png'),
-				(err) => {
-					assert.strictEqual(
-						err.message,
-						'Input file contains unsupported image format'
-					);
-					done();
-				}
-			);
+		it('should fail if file is not an image', done => {
+			image.isFileTypeAllowed(path.join(__dirname, '../test/files/notanimage.png'), err => {
+				assert.strictEqual(err.message, 'Input file contains unsupported image format');
+				done();
+			});
 		});
 
-		it('should fail if file is not an image', (done) => {
-			image.size(
-				path.join(__dirname, '../test/files/notanimage.png'),
-				(err) => {
-					assert.strictEqual(
-						err.message,
-						'Input file contains unsupported image format'
-					);
-					done();
-				}
-			);
+		it('should fail if file is not an image', done => {
+			image.size(path.join(__dirname, '../test/files/notanimage.png'), err => {
+				assert.strictEqual(err.message, 'Input file contains unsupported image format');
+				done();
+			});
 		});
 
-		it('should fail if file is missing', (done) => {
-			image.size(
-				path.join(__dirname, '../test/files/doesnotexist.png'),
-				(err) => {
-					assert(err.message.startsWith('Input file is missing'));
-					done();
-				}
-			);
+		it('should fail if file is missing', done => {
+			image.size(path.join(__dirname, '../test/files/doesnotexist.png'), err => {
+				assert(err.message.startsWith('Input file is missing'));
+				done();
+			});
 		});
 
-		it('should not allow non image uploads', (done) => {
-			socketUser.updateCover(
-				{ uid: 1 },
-				{ uid: 1, file: { path: '../../text.txt' } },
-				(err) => {
-					assert.equal(err.message, '[[error:invalid-data]]');
-					done();
-				}
-			);
+		it('should not allow non image uploads', done => {
+			socketUser.updateCover({ uid: 1 }, { uid: 1, file: { path: '../../text.txt' } }, err => {
+				assert.equal(err.message, '[[error:invalid-data]]');
+				done();
+			});
 		});
 
-		it('should not allow non image uploads', (done) => {
+		it('should not allow non image uploads', done => {
 			socketUser.updateCover(
 				{ uid: 1 },
 				{
 					uid: 1,
 					imageData: 'data:text/html;base64,PHN2Zy9vbmxvYWQ9YWxlcnQoMik+',
 				},
-				(err) => {
+				err => {
 					assert.equal(err.message, '[[error:invalid-image]]');
 					done();
-				}
+				},
 			);
 		});
 
-		it('should not allow svg uploads', (done) => {
+		it('should not allow svg uploads', done => {
 			socketUser.updateCover(
 				{ uid: 1 },
 				{
 					uid: 1,
 					imageData: 'data:image/svg;base64,PHN2Zy9vbmxvYWQ9YWxlcnQoMik+',
 				},
-				(err) => {
+				err => {
 					assert.equal(err.message, '[[error:invalid-image]]');
 					done();
-				}
+				},
 			);
 		});
 
-		it('should not allow non image uploads', (done) => {
+		it('should not allow non image uploads', done => {
 			socketUser.uploadCroppedPicture(
 				{ uid: 1 },
 				{ uid: 1, file: { path: '../../text.txt' } },
-				(err) => {
+				err => {
 					assert.equal(err.message, '[[error:invalid-data]]');
 					done();
-				}
+				},
 			);
 		});
 
-		it('should not allow non image uploads', (done) => {
+		it('should not allow non image uploads', done => {
 			socketUser.uploadCroppedPicture(
 				{ uid: 1 },
 				{
 					uid: 1,
 					imageData: 'data:text/html;base64,PHN2Zy9vbmxvYWQ9YWxlcnQoMik+',
 				},
-				(err) => {
+				err => {
 					assert.equal(err.message, '[[error:invalid-image]]');
 					done();
-				}
+				},
 			);
 		});
 
-		it('should not allow svg uploads', (done) => {
+		it('should not allow svg uploads', done => {
 			socketUser.uploadCroppedPicture(
 				{ uid: 1 },
 				{
 					uid: 1,
 					imageData: 'data:image/svg;base64,PHN2Zy9vbmxvYWQ9YWxlcnQoMik+',
 				},
-				(err) => {
+				err => {
 					assert.equal(err.message, '[[error:invalid-image]]');
 					done();
-				}
+				},
 			);
 		});
 
@@ -452,7 +397,7 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/test.png'),
 				{},
 				data.jar,
-				data.csrf_token
+				data.csrf_token,
 			);
 
 			assert(body && body.status && body.response && body.response.images);
@@ -462,10 +407,7 @@ describe('Upload Controllers', () => {
 
 			await user.delete(1, uid);
 
-			const filePath = path.join(
-				nconf.get('upload_path'),
-				url.replace('/assets/uploads', '')
-			);
+			const filePath = path.join(nconf.get('upload_path'), url.replace('/assets/uploads', ''));
 			const exists = await file.exists(filePath);
 			assert(!exists);
 		});
@@ -492,13 +434,13 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/test.png'),
 				{},
 				jar,
-				csrf_token
+				csrf_token,
 			);
 			assert.strictEqual(response.statusCode, 200);
 			assert(Array.isArray(body));
 			assert.equal(
 				body[0].url,
-				`${nconf.get('relative_path')}/assets/uploads/system/site-logo.png`
+				`${nconf.get('relative_path')}/assets/uploads/system/site-logo.png`,
 			);
 		});
 
@@ -508,12 +450,12 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/503.html'),
 				{ params: JSON.stringify({ cid: cid }) },
 				jar,
-				csrf_token
+				csrf_token,
 			);
 			assert.strictEqual(response.statusCode, 500);
 			assert.equal(
 				body.error,
-				'[[error:invalid-image-type, image&#x2F;png&amp;#44; image&#x2F;jpeg&amp;#44; image&#x2F;pjpeg&amp;#44; image&#x2F;jpg&amp;#44; image&#x2F;gif&amp;#44; image&#x2F;svg+xml]]'
+				'[[error:invalid-image-type, image&#x2F;png&amp;#44; image&#x2F;jpeg&amp;#44; image&#x2F;pjpeg&amp;#44; image&#x2F;jpg&amp;#44; image&#x2F;gif&amp;#44; image&#x2F;svg+xml]]',
 			);
 		});
 
@@ -523,7 +465,7 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/test.png'),
 				{ params: 'invalid json' },
 				jar,
-				csrf_token
+				csrf_token,
 			);
 			assert.strictEqual(response.statusCode, 500);
 			assert.equal(body.error, '[[error:invalid-json]]');
@@ -535,13 +477,13 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/test.png'),
 				{ params: JSON.stringify({ cid: cid }) },
 				jar,
-				csrf_token
+				csrf_token,
 			);
 			assert.equal(response.statusCode, 200);
 			assert(Array.isArray(body));
 			assert.equal(
 				body[0].url,
-				`${nconf.get('relative_path')}/assets/uploads/category/category-1.png`
+				`${nconf.get('relative_path')}/assets/uploads/category/category-1.png`,
 			);
 		});
 
@@ -551,17 +493,17 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/dirty.svg'),
 				{ params: JSON.stringify({ cid: cid }) },
 				jar,
-				csrf_token
+				csrf_token,
 			);
 			assert.equal(response.statusCode, 200);
 			assert(Array.isArray(body));
 			assert.equal(
 				body[0].url,
-				`${nconf.get('relative_path')}/assets/uploads/category/category-1.svg`
+				`${nconf.get('relative_path')}/assets/uploads/category/category-1.svg`,
 			);
 			const svgContents = await fs.readFile(
 				path.join(__dirname, '../test/uploads/category/category-1.svg'),
-				'utf-8'
+				'utf-8',
 			);
 			assert.strictEqual(svgContents.includes('<script>'), false);
 		});
@@ -572,12 +514,12 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/test.png'),
 				{},
 				jar,
-				csrf_token
+				csrf_token,
 			);
 			assert.equal(response.statusCode, 200);
 			assert.equal(
 				body[0].url,
-				`${nconf.get('relative_path')}/assets/uploads/system/avatar-default.png`
+				`${nconf.get('relative_path')}/assets/uploads/system/avatar-default.png`,
 			);
 		});
 
@@ -587,13 +529,10 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/test.png'),
 				{},
 				jar,
-				csrf_token
+				csrf_token,
 			);
 			assert.equal(response.statusCode, 200);
-			assert.equal(
-				body[0].url,
-				`${nconf.get('relative_path')}/assets/uploads/system/og-image.png`
-			);
+			assert.equal(body[0].url, `${nconf.get('relative_path')}/assets/uploads/system/og-image.png`);
 		});
 
 		it('should upload favicon', async () => {
@@ -602,7 +541,7 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/favicon.ico'),
 				{},
 				jar,
-				csrf_token
+				csrf_token,
 			);
 			assert.equal(response.statusCode, 200);
 			assert(Array.isArray(body));
@@ -616,7 +555,7 @@ describe('Upload Controllers', () => {
 				path.join(__dirname, '../test/files/test.png'),
 				{},
 				jar,
-				csrf_token
+				csrf_token,
 			);
 
 			assert.equal(response.statusCode, 200);
@@ -624,7 +563,7 @@ describe('Upload Controllers', () => {
 			assert.equal(body[0].url, touchiconAssetPath);
 			meta.config['brand:touchIcon'] = touchiconAssetPath;
 			const { response: res1, body: body1 } = await request.get(
-				`${nconf.get('url')}/apple-touch-icon`
+				`${nconf.get('url')}/apple-touch-icon`,
 			);
 			assert.equal(res1.statusCode, 200);
 			assert(body1);
@@ -640,17 +579,13 @@ describe('Upload Controllers', () => {
 					}),
 				},
 				jar,
-				csrf_token
+				csrf_token,
 			);
 
 			assert.equal(response.statusCode, 200);
 			assert(Array.isArray(body));
 			assert.equal(body[0].url, '/assets/uploads/system/test.png');
-			assert(
-				file.existsSync(
-					path.join(nconf.get('upload_path'), 'system', 'test.png')
-				)
-			);
+			assert(file.existsSync(path.join(nconf.get('upload_path'), 'system', 'test.png')));
 		});
 
 		it('should fail to upload regular file in wrong directory', async () => {
@@ -663,7 +598,7 @@ describe('Upload Controllers', () => {
 					}),
 				},
 				jar,
-				csrf_token
+				csrf_token,
 			);
 
 			assert.equal(response.statusCode, 500);
@@ -680,7 +615,7 @@ describe('Upload Controllers', () => {
 					}),
 				},
 				jar,
-				csrf_token
+				csrf_token,
 			);
 
 			assert.equal(response.statusCode, 500);
@@ -689,25 +624,13 @@ describe('Upload Controllers', () => {
 
 		describe('ACP uploads screen', () => {
 			it('should create a folder', async () => {
-				const { response } = await helpers.createFolder(
-					'',
-					'myfolder',
-					jar,
-					csrf_token
-				);
+				const { response } = await helpers.createFolder('', 'myfolder', jar, csrf_token);
 				assert.strictEqual(response.statusCode, 200);
-				assert(
-					file.existsSync(path.join(nconf.get('upload_path'), 'myfolder'))
-				);
+				assert(file.existsSync(path.join(nconf.get('upload_path'), 'myfolder')));
 			});
 
 			it('should fail to create a folder if it already exists', async () => {
-				const { response, body } = await helpers.createFolder(
-					'',
-					'myfolder',
-					jar,
-					csrf_token
-				);
+				const { response, body } = await helpers.createFolder('', 'myfolder', jar, csrf_token);
 				assert.strictEqual(response.statusCode, 403);
 				assert.deepStrictEqual(body.status, {
 					code: 'forbidden',
@@ -720,7 +643,7 @@ describe('Upload Controllers', () => {
 					'',
 					'hisfolder',
 					regularJar,
-					regular_csrf_token
+					regular_csrf_token,
 				);
 				assert.strictEqual(response.statusCode, 403);
 				assert.deepStrictEqual(body.status, {
@@ -734,7 +657,7 @@ describe('Upload Controllers', () => {
 					'../traversing',
 					'unexpectedfolder',
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				assert.strictEqual(response.statusCode, 403);
 				assert.deepStrictEqual(body.status, {
@@ -748,30 +671,23 @@ describe('Upload Controllers', () => {
 					'/myfolder',
 					'../another folder',
 					jar,
-					csrf_token
+					csrf_token,
 				);
 				assert.strictEqual(response.statusCode, 200);
 				const slugifiedName = 'another-folder';
-				assert(
-					file.existsSync(
-						path.join(nconf.get('upload_path'), 'myfolder', slugifiedName)
-					)
-				);
+				assert(file.existsSync(path.join(nconf.get('upload_path'), 'myfolder', slugifiedName)));
 			});
 
 			it('should fail to delete a file as a non-admin', async () => {
-				const { response, body } = await request.delete(
-					`${nconf.get('url')}/api/v3/files`,
-					{
-						body: {
-							path: '/system/test.png',
-						},
-						jar: regularJar,
-						headers: {
-							'x-csrf-token': regular_csrf_token,
-						},
-					}
-				);
+				const { response, body } = await request.delete(`${nconf.get('url')}/api/v3/files`, {
+					body: {
+						path: '/system/test.png',
+					},
+					jar: regularJar,
+					headers: {
+						'x-csrf-token': regular_csrf_token,
+					},
+				});
 				assert.strictEqual(response.statusCode, 403);
 				assert.deepStrictEqual(body.status, {
 					code: 'forbidden',
@@ -786,16 +702,13 @@ describe('Upload Controllers', () => {
 	describe('library methods', () => {
 		describe('.getOrphans()', () => {
 			before(async () => {
-				const { jar, csrf_token } = await helpers.loginUser(
-					'regular',
-					'zugzug'
-				);
+				const { jar, csrf_token } = await helpers.loginUser('regular', 'zugzug');
 				await helpers.uploadFile(
 					`${nconf.get('url')}/api/post/upload`,
 					path.join(__dirname, '../test/files/test.png'),
 					{},
 					jar,
-					csrf_token
+					csrf_token,
 				);
 			});
 
@@ -803,7 +716,7 @@ describe('Upload Controllers', () => {
 				const orphans = await posts.uploads.getOrphans();
 
 				assert.strictEqual(orphans.length, 1);
-				orphans.forEach((relPath) => {
+				orphans.forEach(relPath => {
 					assert(relPath.startsWith('/files/'));
 					assert(relPath.endsWith('test.png'));
 				});
@@ -816,29 +729,22 @@ describe('Upload Controllers', () => {
 			let _orphanExpiryDays;
 
 			before(async () => {
-				const { jar, csrf_token } = await helpers.loginUser(
-					'regular',
-					'zugzug'
-				);
+				const { jar, csrf_token } = await helpers.loginUser('regular', 'zugzug');
 				await helpers.uploadFile(
 					`${nconf.get('url')}/api/post/upload`,
 					path.join(__dirname, '../test/files/test.png'),
 					{},
 					jar,
-					csrf_token
+					csrf_token,
 				);
 
 				// modify all files in uploads folder to be 30 days old
 				const files = await fs.readdir(`${nconf.get('upload_path')}/files`);
 				const p30d = (Date.now() - 1000 * 60 * 60 * 24 * 30) / 1000;
 				await Promise.all(
-					files.map(async (filename) => {
-						await fs.utimes(
-							`${nconf.get('upload_path')}/files/${filename}`,
-							p30d,
-							p30d
-						);
-					})
+					files.map(async filename => {
+						await fs.utimes(`${nconf.get('upload_path')}/files/${filename}`, p30d, p30d);
+					}),
 				);
 
 				_orphanExpiryDays = meta.config.orphanExpiryDays;

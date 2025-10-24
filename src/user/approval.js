@@ -24,7 +24,7 @@ module.exports = function (User) {
 			}
 		},
 		null,
-		true
+		true,
 	);
 
 	User.addToApprovalQueue = async function (userData) {
@@ -42,10 +42,7 @@ module.exports = function (User) {
 			data: data,
 			userData: userData,
 		});
-		await db.setObject(
-			`registration:queue:name:${userData.username}`,
-			results.data
-		);
+		await db.setObject(`registration:queue:name:${userData.username}`, results.data);
 		await db.sortedSetAdd('registration:queue', Date.now(), userData.username);
 		await sendNotificationToAdmins(userData.username);
 	};
@@ -56,11 +53,9 @@ module.exports = function (User) {
 		if (usernames.includes(userData.username)) {
 			throw new Error('[[error:username-taken]]');
 		}
-		const keys = usernames
-			.filter(Boolean)
-			.map((username) => `registration:queue:name:${username}`);
+		const keys = usernames.filter(Boolean).map(username => `registration:queue:name:${username}`);
 		const data = await db.getObjectsFields(keys, ['email']);
-		const emails = data.map((data) => data && data.email).filter(Boolean);
+		const emails = data.map(data => data && data.email).filter(Boolean);
 		if (userData.email && emails.includes(userData.email)) {
 			throw new Error('[[error:email-taken]]');
 		}
@@ -82,10 +77,7 @@ module.exports = function (User) {
 		if (!userData) {
 			throw new Error('[[error:invalid-data]]');
 		}
-		const creation_time = await db.sortedSetScore(
-			'registration:queue',
-			username
-		);
+		const creation_time = await db.sortedSetScore('registration:queue', username);
 		const uid = await User.create(userData);
 		await User.setUserFields(uid, {
 			password: userData.hashedPassword,
@@ -101,28 +93,21 @@ module.exports = function (User) {
 				template: 'registration_accepted',
 				uid: uid,
 			})
-			.catch((err) => winston.error(`[emailer.send] ${err.stack}`));
+			.catch(err => winston.error(`[emailer.send] ${err.stack}`));
 		const total = await db.incrObjectFieldBy(
 			'registration:queue:approval:times',
 			'totalTime',
-			Math.floor((Date.now() - creation_time) / 60000)
+			Math.floor((Date.now() - creation_time) / 60000),
 		);
-		const counter = await db.incrObjectField(
-			'registration:queue:approval:times',
-			'counter'
-		);
-		await db.setObjectField(
-			'registration:queue:approval:times',
-			'average',
-			total / counter
-		);
+		const counter = await db.incrObjectField('registration:queue:approval:times', 'counter');
+		await db.setObjectField('registration:queue:approval:times', 'average', total / counter);
 		return uid;
 	};
 
 	async function markNotificationRead(username) {
 		const nid = `new-register:${username}`;
 		const uids = await groups.getMembers('administrators', 0, -1);
-		const promises = uids.map((uid) => notifications.markRead(nid, uid));
+		const promises = uids.map(uid => notifications.markRead(nid, uid));
 		await Promise.all(promises);
 	}
 
@@ -150,14 +135,8 @@ module.exports = function (User) {
 	};
 
 	User.getRegistrationQueue = async function (start, stop) {
-		const data = await db.getSortedSetRevRangeWithScores(
-			'registration:queue',
-			start,
-			stop
-		);
-		const keys = data
-			.filter(Boolean)
-			.map((user) => `registration:queue:name:${user.value}`);
+		const data = await db.getSortedSetRevRangeWithScores('registration:queue', start, stop);
+		const keys = data.filter(Boolean).map(user => `registration:queue:name:${user.value}`);
 		let users = await db.getObjects(keys);
 		users = users.filter(Boolean).map((user, index) => {
 			user.timestampISO = utils.toISOString(data[index].score);
@@ -167,7 +146,7 @@ module.exports = function (User) {
 			return user;
 		});
 		await Promise.all(
-			users.map(async (user) => {
+			users.map(async user => {
 				// temporary: see http://www.stopforumspam.com/forum/viewtopic.php?id=6392
 				// need to keep this for getIPMatchedUsers
 				user.ip = user.ip.replace('::ffff:', '');
@@ -182,37 +161,26 @@ module.exports = function (User) {
 					icon: 'fa-flag'
 				});
 			 */
-			})
+			}),
 		);
 
-		const results = await plugins.hooks.fire(
-			'filter:user.getRegistrationQueue',
-			{ users: users }
-		);
+		const results = await plugins.hooks.fire('filter:user.getRegistrationQueue', { users: users });
 		return results.users;
 	};
 
 	async function getIPMatchedUsers(user) {
 		const uids = await User.getUidsFromSet(`ip:${user.ip}:uid`, 0, -1);
-		user.ipMatch = await User.getUsersFields(uids, [
-			'uid',
-			'username',
-			'picture',
-		]);
+		user.ipMatch = await User.getUsersFields(uids, ['uid', 'username', 'picture']);
 	}
 
 	User.autoApprove = async function () {
 		if (meta.config.autoApproveTime <= 0) {
 			return;
 		}
-		const users = await db.getSortedSetRevRangeWithScores(
-			'registration:queue',
-			0,
-			-1
-		);
+		const users = await db.getSortedSetRevRangeWithScores('registration:queue', 0, -1);
 		const now = Date.now();
 		for (const user of users.filter(
-			(user) => now - user.score >= meta.config.autoApproveTime * 3600000
+			user => now - user.score >= meta.config.autoApproveTime * 3600000,
 		)) {
 			try {
 				// eslint-disable-next-line no-await-in-loop

@@ -29,9 +29,7 @@ Categories.icons = require('./icon');
 Categories.exists = async function (cids) {
 	let keys;
 	if (Array.isArray(cids)) {
-		keys = cids.map((cid) =>
-			utils.isNumber(cid) ? `category:${cid}` : `categoryRemote:${cid}`
-		);
+		keys = cids.map(cid => (utils.isNumber(cid) ? `category:${cid}` : `categoryRemote:${cid}`));
 	} else {
 		keys = utils.isNumber(cids) ? `category:${cids}` : `categoryRemote:${cids}`;
 	}
@@ -59,16 +57,13 @@ Categories.getCategoryById = async function (data) {
 		Categories.getTopicCount(data),
 		Categories.getWatchState([data.cid], data.uid),
 		getChildrenTree(category, data.uid),
-		!utils.isNumber(data.cid)
-			? activitypub.actors.getLocalFollowers(data.cid)
-			: null,
+		!utils.isNumber(data.cid) ? activitypub.actors.getLocalFollowers(data.cid) : null,
 	];
 
 	if (category.parentCid) {
 		promises.push(Categories.getCategoryData(category.parentCid));
 	}
-	const [topics, topicCount, watchState, , localFollowers, parent] =
-		await Promise.all(promises);
+	const [topics, topicCount, watchState, , localFollowers, parent] = await Promise.all(promises);
 
 	category.topics = topics.topics;
 	category.nextStart = topics.nextStart;
@@ -107,7 +102,7 @@ Categories.getAllCidsFromSet = async function (key) {
 	}
 
 	cids = await db.getSortedSetRange(key, 0, -1);
-	cids = cids.map((cid) => parseInt(cid, 10));
+	cids = cids.map(cid => parseInt(cid, 10));
 	cache.set(key, cids);
 	return cids.slice();
 };
@@ -133,12 +128,7 @@ Categories.getCategoriesByPrivilege = async function (set, uid, privilege) {
 
 Categories.getModerators = async function (cid) {
 	const uids = await Categories.getModeratorUids([cid]);
-	return await user.getUsersFields(uids[0], [
-		'uid',
-		'username',
-		'userslug',
-		'picture',
-	]);
+	return await user.getUsersFields(uids[0], ['uid', 'username', 'userslug', 'picture']);
 };
 
 Categories.getModeratorUids = async function (cids) {
@@ -185,7 +175,7 @@ Categories.setUnread = async function (tree, cids, uid) {
 				category.unread = category.topic_count > 0;
 			} else if (category.children.length) {
 				category.children.forEach(setCategoryUnread);
-				category.unread = category.children.some((c) => c && c.unread);
+				category.unread = category.children.some(c => c && c.unread);
 			}
 			category['unread-class'] = category.unread ? 'unread' : '';
 		}
@@ -196,7 +186,7 @@ Categories.setUnread = async function (tree, cids, uid) {
 Categories.getTagWhitelist = async function (cids) {
 	const cachedData = {};
 
-	const nonCachedCids = cids.filter((cid) => {
+	const nonCachedCids = cids.filter(cid => {
 		const data = cache.get(`cid:${cid}:tag:whitelist`);
 		const isInCache = data !== undefined;
 		if (isInCache) {
@@ -206,24 +196,24 @@ Categories.getTagWhitelist = async function (cids) {
 	});
 
 	if (!nonCachedCids.length) {
-		return cids.map((cid) => cachedData[cid]);
+		return cids.map(cid => cachedData[cid]);
 	}
 
-	const keys = nonCachedCids.map((cid) => `cid:${cid}:tag:whitelist`);
+	const keys = nonCachedCids.map(cid => `cid:${cid}:tag:whitelist`);
 	const data = await db.getSortedSetsMembers(keys);
 
 	nonCachedCids.forEach((cid, index) => {
 		cachedData[cid] = data[index];
 		cache.set(`cid:${cid}:tag:whitelist`, data[index]);
 	});
-	return cids.map((cid) => cachedData[cid]);
+	return cids.map(cid => cachedData[cid]);
 };
 
 // remove system tags from tag whitelist for non privileged user
 Categories.filterTagWhitelist = function (tagWhitelist, isAdminOrMod) {
 	const systemTags = (meta.config.systemTags || '').split(',');
 	if (!isAdminOrMod && systemTags.length) {
-		return tagWhitelist.filter((tag) => !systemTags.includes(tag));
+		return tagWhitelist.filter(tag => !systemTags.includes(tag));
 	}
 	return tagWhitelist;
 };
@@ -236,7 +226,7 @@ function calculateTopicPostCount(category) {
 	let postCount = category.post_count;
 	let topicCount = category.topic_count;
 	if (Array.isArray(category.children)) {
-		category.children.forEach((child) => {
+		category.children.forEach(child => {
 			calculateTopicPostCount(child);
 			postCount += parseInt(child.totalPostCount, 10) || 0;
 			topicCount += parseInt(child.totalTopicCount, 10) || 0;
@@ -249,49 +239,37 @@ function calculateTopicPostCount(category) {
 Categories.calculateTopicPostCount = calculateTopicPostCount;
 
 Categories.getParents = async function (cids) {
-	const categoriesData = await Categories.getCategoriesFields(cids, [
-		'parentCid',
-	]);
-	const parentCids = categoriesData
-		.filter((c) => c && c.parentCid)
-		.map((c) => c.parentCid);
+	const categoriesData = await Categories.getCategoriesFields(cids, ['parentCid']);
+	const parentCids = categoriesData.filter(c => c && c.parentCid).map(c => c.parentCid);
 	if (!parentCids.length) {
 		return cids.map(() => null);
 	}
 	const parentData = await Categories.getCategoriesData(parentCids);
 	const cidToParent = _.zipObject(parentCids, parentData);
-	return categoriesData.map((category) => cidToParent[category.parentCid]);
+	return categoriesData.map(category => cidToParent[category.parentCid]);
 };
 
 Categories.getChildren = async function (cids, uid) {
-	const categoryData = await Categories.getCategoriesFields(cids, [
-		'parentCid',
-	]);
+	const categoryData = await Categories.getCategoriesFields(cids, ['parentCid']);
 	const categories = categoryData.map((category, index) => ({
 		cid: cids[index],
 		parentCid: category.parentCid,
 	}));
-	await Promise.all(categories.map((c) => getChildrenTree(c, uid)));
-	return categories.map((c) => c && c.children);
+	await Promise.all(categories.map(c => getChildrenTree(c, uid)));
+	return categories.map(c => c && c.children);
 };
 
 async function getChildrenTree(category, uid) {
 	let childrenCids = await Categories.getChildrenCids(category.cid);
-	childrenCids = await privileges.categories.filterCids(
-		'find',
-		childrenCids,
-		uid
-	);
-	childrenCids = childrenCids.filter(
-		(cid) => parseInt(category.cid, 10) !== parseInt(cid, 10)
-	);
+	childrenCids = await privileges.categories.filterCids('find', childrenCids, uid);
+	childrenCids = childrenCids.filter(cid => parseInt(category.cid, 10) !== parseInt(cid, 10));
 	if (!childrenCids.length) {
 		category.children = [];
 		return;
 	}
 	let childrenData = await Categories.getCategoriesData(childrenCids);
 	childrenData = childrenData.filter(Boolean);
-	childrenCids = childrenData.map((child) => child.cid);
+	childrenCids = childrenData.map(child => child.cid);
 	Categories.getTree([category].concat(childrenData), category.parentCid);
 }
 
@@ -315,14 +293,12 @@ Categories.getChildrenCids = async function (rootCid) {
 	async function recursive(keys) {
 		let childrenCids = await db.getSortedSetRange(keys, 0, -1);
 
-		childrenCids = childrenCids.filter(
-			(cid) => !allCids.includes(parseInt(cid, 10))
-		);
+		childrenCids = childrenCids.filter(cid => !allCids.includes(parseInt(cid, 10)));
 		if (!childrenCids.length) {
 			return;
 		}
-		keys = childrenCids.map((cid) => `cid:${cid}:children`);
-		childrenCids.forEach((cid) => allCids.push(parseInt(cid, 10)));
+		keys = childrenCids.map(cid => `cid:${cid}:children`);
+		childrenCids.forEach(cid => allCids.push(parseInt(cid, 10)));
 		await recursive(keys);
 	}
 	const key = `cid:${rootCid}:children`;
@@ -339,7 +315,7 @@ Categories.getChildrenCids = async function (rootCid) {
 };
 
 Categories.flattenCategories = function (allCategories, categoryData) {
-	categoryData.forEach((category) => {
+	categoryData.forEach(category => {
 		if (category) {
 			allCategories.push(category);
 
@@ -358,7 +334,7 @@ Categories.flattenCategories = function (allCategories, categoryData) {
  */
 Categories.getTree = function (categories, parentCid) {
 	parentCid = parentCid || 0;
-	const cids = categories.map((category) => category && category.cid);
+	const cids = categories.map(category => category && category.cid);
 	const cidToCategory = {};
 	const parents = {};
 	cids.forEach((cid, index) => {
@@ -371,16 +347,13 @@ Categories.getTree = function (categories, parentCid) {
 
 	const tree = [];
 
-	categories.forEach((category) => {
+	categories.forEach(category => {
 		if (category) {
 			category.children = category.children || [];
 			if (!category.cid) {
 				return;
 			}
-			if (
-				!category.hasOwnProperty('parentCid') ||
-				category.parentCid === null
-			) {
+			if (!category.hasOwnProperty('parentCid') || category.parentCid === null) {
 				category.parentCid = 0;
 			}
 			if (category.parentCid === parentCid) {
@@ -403,7 +376,7 @@ Categories.getTree = function (categories, parentCid) {
 			}
 			return a.cid - b.cid;
 		});
-		tree.forEach((category) => {
+		tree.forEach(category => {
 			if (category && Array.isArray(category.children)) {
 				sortTree(category.children);
 			}
@@ -411,16 +384,12 @@ Categories.getTree = function (categories, parentCid) {
 	}
 	sortTree(tree);
 
-	categories.forEach((c) => calculateTopicPostCount(c));
+	categories.forEach(c => calculateTopicPostCount(c));
 	return tree;
 };
 
 Categories.buildForSelect = async function (uid, privilege, fields) {
-	const cids = await Categories.getCidsByPrivilege(
-		'categories:cid',
-		uid,
-		privilege
-	);
+	const cids = await Categories.getCidsByPrivilege('categories:cid', uid, privilege);
 	return await getSelectData(cids, fields);
 };
 
@@ -444,13 +413,8 @@ Categories.buildForSelectCategories = function (categories, fields, parentCid) {
 		category.depth = depth;
 		categoriesData.push(category);
 		if (Array.isArray(category.children)) {
-			category.children.forEach((child) =>
-				recursive(
-					child,
-					categoriesData,
-					`&nbsp;&nbsp;&nbsp;&nbsp;${level}`,
-					depth + 1
-				)
+			category.children.forEach(child =>
+				recursive(child, categoriesData, `&nbsp;&nbsp;&nbsp;&nbsp;${level}`, depth + 1),
 			);
 		}
 	}
@@ -458,7 +422,7 @@ Categories.buildForSelectCategories = function (categories, fields, parentCid) {
 	const categoriesData = [];
 
 	const rootCategories = categories.filter(
-		(category) => category && category.parentCid === parentCid
+		category => category && category.parentCid === parentCid,
 	);
 
 	rootCategories.sort((a, b) => {
@@ -468,9 +432,7 @@ Categories.buildForSelectCategories = function (categories, fields, parentCid) {
 		return a.cid - b.cid;
 	});
 
-	rootCategories.forEach((category) =>
-		recursive(category, categoriesData, '', 0)
-	);
+	rootCategories.forEach(category => recursive(category, categoriesData, '', 0));
 
 	const pickFields = [
 		'cid',
@@ -485,13 +447,13 @@ Categories.buildForSelectCategories = function (categories, fields, parentCid) {
 	];
 	fields = fields || [];
 	if (fields.includes('text') && fields.includes('value')) {
-		return categoriesData.map((category) => _.pick(category, fields));
+		return categoriesData.map(category => _.pick(category, fields));
 	}
 	if (fields.length) {
 		pickFields.push(...fields);
 	}
 
-	return categoriesData.map((category) => _.pick(category, pickFields));
+	return categoriesData.map(category => _.pick(category, pickFields));
 };
 
 require('../promisify')(Categories);

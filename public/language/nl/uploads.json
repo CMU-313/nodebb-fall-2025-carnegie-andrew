@@ -1,9 +1,9 @@
 {
-    "uploading-file": "Bestand word geüpload...",
-    "select-file-to-upload": "Selecteer een bestand om te uploaden!",
-    "upload-success": "Bestand succesvol geüpload!",
-    "maximum-file-size": "Maximaal %1 kb",
-    "no-uploads-found": "Geen uploads gevonden",
-    "public-uploads-info": "Uploads zijn publiek, alle bezoekers en gasten kunnen ze zien.",
-    "private-uploads-info": "Uploads zijn afgeschermd, alleen ingelogde gebruikers kunnen ze zien."
+  "uploading-file": "Bestand word geüpload...",
+  "select-file-to-upload": "Selecteer een bestand om te uploaden!",
+  "upload-success": "Bestand succesvol geüpload!",
+  "maximum-file-size": "Maximaal %1 kb",
+  "no-uploads-found": "Geen uploads gevonden",
+  "public-uploads-info": "Uploads zijn publiek, alle bezoekers en gasten kunnen ze zien.",
+  "private-uploads-info": "Uploads zijn afgeschermd, alleen ingelogde gebruikers kunnen ze zien."
 }

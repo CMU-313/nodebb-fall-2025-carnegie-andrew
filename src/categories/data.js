@@ -45,9 +45,9 @@ module.exports = function (Categories) {
 			return [];
 		}
 
-		cids = cids.map((cid) => (utils.isNumber(cid) ? parseInt(cid, 10) : cid));
-		const keys = cids.map((cid) =>
-			utils.isNumber(cid) ? `category:${cid}` : `categoryRemote:${cid}`
+		cids = cids.map(cid => (utils.isNumber(cid) ? parseInt(cid, 10) : cid));
+		const keys = cids.map(cid =>
+			utils.isNumber(cid) ? `category:${cid}` : `categoryRemote:${cid}`,
 		);
 		const categories = await db.getObjects(keys, fields);
 
@@ -69,7 +69,7 @@ module.exports = function (Categories) {
 			fields: fields,
 			keys: keys,
 		});
-		result.categories.forEach((category) => modifyCategory(category, fields));
+		result.categories.forEach(category => modifyCategory(category, fields));
 		return result.categories;
 	};
 
@@ -101,7 +101,7 @@ module.exports = function (Categories) {
 		await db.setObjectField(
 			`${utils.isNumber(cid) ? 'category' : 'categoryRemote'}:${cid}`,
 			field,
-			value
+			value,
 		);
 	};
 
@@ -109,7 +109,7 @@ module.exports = function (Categories) {
 		await db.incrObjectFieldBy(
 			`${utils.isNumber(cid) ? 'category' : 'categoryRemote'}:${cid}`,
 			field,
-			value
+			value,
 		);
 	};
 };
@@ -122,9 +122,7 @@ function defaultIntField(category, fields, fieldName, defaultField) {
 			category[fieldName] === '' ||
 			!utils.isNumber(category[fieldName]);
 
-		category[fieldName] = useDefault
-			? meta.config[defaultField]
-			: category[fieldName];
+		category[fieldName] = useDefault ? meta.config[defaultField] : category[fieldName];
 	}
 }
 
@@ -150,7 +148,7 @@ function modifyCategory(category, fields) {
 		'class',
 		'link',
 	];
-	escapeFields.forEach((field) => {
+	escapeFields.forEach(field => {
 		if (category.hasOwnProperty(field)) {
 			category[field] = validator.escape(String(category[field] || ''));
 		}
@@ -169,7 +167,6 @@ function modifyCategory(category, fields) {
 	}
 
 	if (category.description) {
-		category.descriptionParsed =
-			category.descriptionParsed || category.description;
+		category.descriptionParsed = category.descriptionParsed || category.description;
 	}
 }

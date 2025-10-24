@@ -88,7 +88,7 @@ Logger.open = function (value) {
 		}
 
 		if (stream) {
-			stream.on('error', (err) => {
+			stream.on('error', err => {
 				winston.error(err.stack);
 			});
 		}
@@ -155,12 +155,7 @@ Logger.io_close = function (socket) {
 	/*
 	 * Restore all hijacked sockets to their original emit/on functions
 	 */
-	if (
-		!socket ||
-		!socket.io ||
-		!socket.io.sockets ||
-		!socket.io.sockets.sockets
-	) {
+	if (!socket || !socket.io || !socket.io.sockets || !socket.io.sockets.sockets) {
 		return;
 	}
 
@@ -182,12 +177,7 @@ Logger.io = function (socket) {
 	 * Go through all of the currently established sockets & hook their .emit/.on
 	 */
 
-	if (
-		!socket ||
-		!socket.io ||
-		!socket.io.sockets ||
-		!socket.io.sockets.sockets
-	) {
+	if (!socket || !socket.io || !socket.io.sockets || !socket.io.sockets.sockets) {
 		return;
 	}
 
@@ -223,10 +213,6 @@ Logger.io_one = function (socket, uid) {
 
 		socket.$onvent = socket.onevent;
 		const $onevent = socket.onevent;
-		socket.onevent = override(
-			$onevent,
-			'on',
-			'Logger.io_one: $emit.apply: Failed'
-		);
+		socket.onevent = override($onevent, 'on', 'Logger.io_one: $emit.apply: Failed');
 	}
 };

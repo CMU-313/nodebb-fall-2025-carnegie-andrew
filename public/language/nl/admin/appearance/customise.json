@@ -1,20 +1,20 @@
 {
-	"customise": "Customise",
-	"custom-css": "Custom CSS/SASS",
-	"custom-css.description": "Enter your own CSS/SASS declarations here, which will be applied after all other styles.",
-	"custom-css.enable": "Enable Custom CSS/SASS",
+  "customise": "Customise",
+  "custom-css": "Custom CSS/SASS",
+  "custom-css.description": "Enter your own CSS/SASS declarations here, which will be applied after all other styles.",
+  "custom-css.enable": "Enable Custom CSS/SASS",
 
-	"custom-js": "Aangepast Javascript",
-	"custom-js.description": "Voer hier je eigen javascript code in. Deze zullen worden uitgevoerd als de pagina volledig is geladen.",
-	"custom-js.enable": "Activeer aangepast javascript",
+  "custom-js": "Aangepast Javascript",
+  "custom-js.description": "Voer hier je eigen javascript code in. Deze zullen worden uitgevoerd als de pagina volledig is geladen.",
+  "custom-js.enable": "Activeer aangepast javascript",
 
-	"custom-header": "Aangepaste header",
-	"custom-header.description": "Voer hier je aangepaste HTML in (bv. Meta Tags, etc.). Deze wordt toegevoegd aan de <code>&lt;head&gt;</code> sectie van de markup van je vforum. Script tags zijn toegestaan, maar worden ontmoedigd, aangezien de <a href=\"#custom-js\" data-toggle=\"tab\">Custom Javascript</a> tab hiervoor beschikbaar is.",
-	"custom-header.enable": "Activeer aangepaste header",
+  "custom-header": "Aangepaste header",
+  "custom-header.description": "Voer hier je aangepaste HTML in (bv. Meta Tags, etc.). Deze wordt toegevoegd aan de <code>&lt;head&gt;</code> sectie van de markup van je vforum. Script tags zijn toegestaan, maar worden ontmoedigd, aangezien de <a href=\"#custom-js\" data-toggle=\"tab\">Custom Javascript</a> tab hiervoor beschikbaar is.",
+  "custom-header.enable": "Activeer aangepaste header",
 
-	"custom-css.livereload": "Activeer Live Reload",
-	"custom-css.livereload.description": "Activeer dit om alle sessies op elk apparaat ingelogd onder jouw account te verversen elke keer wanneer je op opslaan klikt.",
-	"bsvariables": "_variables.scss",
-	"bsvariables.description": "Override bootstrap variables here. You can also use a tool like <a href=\"https://bootstrap.build/app\">bootstrap.build</a> and paste the output here.<br/>Changes require a rebuild & restart.",
-	"bsvariables.enable": "Enable _variables.scss"
+  "custom-css.livereload": "Activeer Live Reload",
+  "custom-css.livereload.description": "Activeer dit om alle sessies op elk apparaat ingelogd onder jouw account te verversen elke keer wanneer je op opslaan klikt.",
+  "bsvariables": "_variables.scss",
+  "bsvariables.description": "Override bootstrap variables here. You can also use a tool like <a href=\"https://bootstrap.build/app\">bootstrap.build</a> and paste the output here.<br/>Changes require a rebuild & restart.",
+  "bsvariables.enable": "Enable _variables.scss"
 }

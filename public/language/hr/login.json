@@ -1,12 +1,12 @@
 {
-    "username-email": "Korisničko ime / Email",
-    "username": "Korisničko ime",
-    "remember-me": "Zapamti me?",
-    "forgot-password": "Zaboravljena lozinka?",
-    "alternative-logins": "Alternativne prijave",
-    "failed-login-attempt": "Neuspješna prijava",
-    "login-successful": "Uspješno ste prijavljeni!",
-    "dont-have-account": "Nemate korisnički račun?",
-    "logged-out-due-to-inactivity": "Odjavljeni ste iz administratorske kontrolne ploče zbog neaktivnosti.",
-    "caps-lock-enabled": "Caps Lock is enabled"
+  "username-email": "Korisničko ime / Email",
+  "username": "Korisničko ime",
+  "remember-me": "Zapamti me?",
+  "forgot-password": "Zaboravljena lozinka?",
+  "alternative-logins": "Alternativne prijave",
+  "failed-login-attempt": "Neuspješna prijava",
+  "login-successful": "Uspješno ste prijavljeni!",
+  "dont-have-account": "Nemate korisnički račun?",
+  "logged-out-due-to-inactivity": "Odjavljeni ste iz administratorske kontrolne ploče zbog neaktivnosti.",
+  "caps-lock-enabled": "Caps Lock is enabled"
 }

@@ -26,23 +26,23 @@ module.exports = function (module) {
 					{
 						_key: { $in: key },
 					},
-					{ _id: 0, _key: 1 }
+					{ _id: 0, _key: 1 },
 				)
 				.toArray();
 
 			const map = Object.create(null);
-			data.forEach((item) => {
+			data.forEach(item => {
 				map[item._key] = true;
 			});
 
-			return key.map((key) => !!map[key]);
+			return key.map(key => !!map[key]);
 		}
 
 		const item = await module.client.collection('objects').findOne(
 			{
 				_key: key,
 			},
-			{ _id: 0, _key: 1 }
+			{ _id: 0, _key: 1 },
 		);
 		return item !== undefined && item !== null;
 	};
@@ -66,9 +66,7 @@ module.exports = function (module) {
 		if (!Array.isArray(keys) || !keys.length) {
 			return;
 		}
-		await module.client
-			.collection('objects')
-			.deleteMany({ _key: { $in: keys } });
+		await module.client.collection('objects').deleteMany({ _key: { $in: keys } });
 		module.objectCache.del(keys);
 	};
 
@@ -104,11 +102,11 @@ module.exports = function (module) {
 			.toArray();
 
 		const map = {};
-		data.forEach((d) => {
+		data.forEach(d => {
 			map[d._key] = d.data;
 		});
 
-		return keys.map((k) => (map.hasOwnProperty(k) ? map[k] : null));
+		return keys.map(k => (map.hasOwnProperty(k) ? map[k] : null));
 	};
 
 	module.set = async function (key, value) {
@@ -133,7 +131,7 @@ module.exports = function (module) {
 				returnDocument: 'after',
 				includeResultMetadata: true,
 				upsert: true,
-			}
+			},
 		);
 		return result && result.value ? result.value.data : null;
 	};
@@ -146,9 +144,7 @@ module.exports = function (module) {
 	};
 
 	module.type = async function (key) {
-		const data = await module.client
-			.collection('objects')
-			.findOne({ _key: key });
+		const data = await module.client.collection('objects').findOne({ _key: key });
 		if (!data) {
 			return null;
 		}
@@ -161,23 +157,11 @@ module.exports = function (module) {
 			data.hasOwnProperty('value')
 		) {
 			return 'zset';
-		} else if (
-			keys.length === 3 &&
-			data.hasOwnProperty('_key') &&
-			data.hasOwnProperty('members')
-		) {
+		} else if (keys.length === 3 && data.hasOwnProperty('_key') && data.hasOwnProperty('members')) {
 			return 'set';
-		} else if (
-			keys.length === 3 &&
-			data.hasOwnProperty('_key') &&
-			data.hasOwnProperty('array')
-		) {
+		} else if (keys.length === 3 && data.hasOwnProperty('_key') && data.hasOwnProperty('array')) {
 			return 'list';
-		} else if (
-			keys.length === 3 &&
-			data.hasOwnProperty('_key') &&
-			data.hasOwnProperty('data')
-		) {
+		} else if (keys.length === 3 && data.hasOwnProperty('_key') && data.hasOwnProperty('data')) {
 			return 'string';
 		}
 		return 'hash';
@@ -201,9 +185,7 @@ module.exports = function (module) {
 	};
 
 	module.ttl = async function (key) {
-		return Math.round(
-			((await module.getObjectField(key, 'expireAt')) - Date.now()) / 1000
-		);
+		return Math.round(((await module.getObjectField(key, 'expireAt')) - Date.now()) / 1000);
 	};
 
 	module.pttl = async function (key) {

@@ -1,12 +1,12 @@
 {
-    "username-email": "Nome utente / Email",
-    "username": "Nome utente",
-    "remember-me": "Ricordami?",
-    "forgot-password": "Password dimenticata?",
-    "alternative-logins": "Accessi alternativi",
-    "failed-login-attempt": "Accesso non riuscito",
-    "login-successful": "Hai effettuato l'accesso con successo!",
-    "dont-have-account": "Non hai un account?",
-    "logged-out-due-to-inactivity": "Sei stato disconnesso dal Pannello di Controllo Amministratore per inattività",
-    "caps-lock-enabled": "Il blocco delle maiuscole è abilitato"
+  "username-email": "Nome utente / Email",
+  "username": "Nome utente",
+  "remember-me": "Ricordami?",
+  "forgot-password": "Password dimenticata?",
+  "alternative-logins": "Accessi alternativi",
+  "failed-login-attempt": "Accesso non riuscito",
+  "login-successful": "Hai effettuato l'accesso con successo!",
+  "dont-have-account": "Non hai un account?",
+  "logged-out-due-to-inactivity": "Sei stato disconnesso dal Pannello di Controllo Amministratore per inattività",
+  "caps-lock-enabled": "Il blocco delle maiuscole è abilitato"
 }

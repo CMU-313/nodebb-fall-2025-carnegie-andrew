@@ -16,14 +16,10 @@ module.exports = function (Posts) {
 			return [];
 		}
 
-		options.stripTags = options.hasOwnProperty('stripTags')
-			? options.stripTags
-			: false;
+		options.stripTags = options.hasOwnProperty('stripTags') ? options.stripTags : false;
 		options.parse = options.hasOwnProperty('parse') ? options.parse : true;
 		options.escape = options.hasOwnProperty('escape') ? options.escape : false;
-		options.extraFields = options.hasOwnProperty('extraFields')
-			? options.extraFields
-			: [];
+		options.extraFields = options.hasOwnProperty('extraFields') ? options.extraFields : [];
 
 		const fields = [
 			'pid',
@@ -45,17 +41,11 @@ module.exports = function (Posts) {
 		posts = posts.filter(Boolean);
 		posts = await user.blocks.filter(uid, posts);
 
-		const uids = _.uniq(posts.map((p) => p && p.uid));
-		const tids = _.uniq(posts.map((p) => p && p.tid));
+		const uids = _.uniq(posts.map(p => p && p.uid));
+		const tids = _.uniq(posts.map(p => p && p.tid));
 
 		const [users, topicsAndCategories] = await Promise.all([
-			user.getUsersFields(uids, [
-				'uid',
-				'username',
-				'userslug',
-				'picture',
-				'status',
-			]),
+			user.getUsersFields(uids, ['uid', 'username', 'userslug', 'picture', 'status']),
 			getTopicAndCategories(tids),
 		]);
 
@@ -63,7 +53,7 @@ module.exports = function (Posts) {
 		const tidToTopic = toObject('tid', topicsAndCategories.topics);
 		const cidToCategory = toObject('cid', topicsAndCategories.categories);
 
-		posts.forEach((post) => {
+		posts.forEach(post => {
 			// If the post author isn't represented in the retrieved users' data,
 			// then it means they were deleted, assume guest.
 			if (!uidToUser.hasOwnProperty(post.uid)) {
@@ -71,9 +61,7 @@ module.exports = function (Posts) {
 			}
 
 			// toPid is nullable so it is casted separately
-			post.toPid = utils.isNumber(post.toPid)
-				? parseInt(post.toPid, 10)
-				: post.toPid;
+			post.toPid = utils.isNumber(post.toPid) ? parseInt(post.toPid, 10) : post.toPid;
 
 			post.user = uidToUser[post.uid];
 			Posts.overrideGuestHandle(post, post.handle);
@@ -90,19 +78,19 @@ module.exports = function (Posts) {
 			}
 		});
 
-		posts = posts.filter((post) => tidToTopic[post.tid]);
+		posts = posts.filter(post => tidToTopic[post.tid]);
 
 		posts = await parsePosts(posts, options);
-		const result = await plugins.hooks.fire(
-			'filter:post.getPostSummaryByPids',
-			{ posts: posts, uid: uid }
-		);
+		const result = await plugins.hooks.fire('filter:post.getPostSummaryByPids', {
+			posts: posts,
+			uid: uid,
+		});
 		return result.posts;
 	};
 
 	async function parsePosts(posts, options) {
 		return await Promise.all(
-			posts.map(async (post) => {
+			posts.map(async post => {
 				if (!post.content && !post.sourceContent) {
 					return post;
 				}
@@ -113,13 +101,11 @@ module.exports = function (Posts) {
 					post.content = stripTags(post.content);
 				}
 				if (options.escape) {
-					post.content = post.content
-						? validator.escape(String(post.content))
-						: post.content;
+					post.content = post.content ? validator.escape(String(post.content)) : post.content;
 				}
 
 				return post;
-			})
+			}),
 		);
 	}
 
@@ -138,7 +124,7 @@ module.exports = function (Posts) {
 			'teaserPid',
 		]);
 
-		const cids = _.uniq(topicsData.map((topic) => topic && topic.cid));
+		const cids = _.uniq(topicsData.map(topic => topic && topic.cid));
 		const categoriesData = await categories.getCategoriesFields(cids, [
 			'cid',
 			'name',

@@ -57,10 +57,7 @@ usersAPI.update = async function (caller, data) {
 		throw new Error('[[error:invalid-data]]');
 	}
 
-	const oldUserData = await db.getObjectFields(`user:${data.uid}`, [
-		'email',
-		'username',
-	]);
+	const oldUserData = await db.getObjectFields(`user:${data.uid}`, ['email', 'username']);
 	if (!oldUserData || !oldUserData.username) {
 		throw new Error('[[error:invalid-data]]');
 	}
@@ -70,8 +67,7 @@ usersAPI.update = async function (caller, data) {
 		privileges.users.canEdit(caller.uid, data.uid),
 	]);
 
-	const isChangingEmailOrUsername =
-		data.hasOwnProperty('email') || data.hasOwnProperty('username');
+	const isChangingEmailOrUsername = data.hasOwnProperty('email') || data.hasOwnProperty('username');
 	if (isChangingEmailOrUsername) {
 		await isPrivilegedOrSelfAndPasswordMatch(caller, data);
 	}
@@ -120,9 +116,7 @@ usersAPI.deleteMany = async function (caller, data) {
 	await hasAdminPrivilege(caller.uid, 'users');
 
 	if (await canDeleteUids(data.uids)) {
-		await Promise.all(
-			data.uids.map((uid) => processDeletion({ uid, method: 'delete', caller }))
-		);
+		await Promise.all(data.uids.map(uid => processDeletion({ uid, method: 'delete', caller })));
 	}
 };
 
@@ -204,11 +198,7 @@ usersAPI.ban = async function (caller, data) {
 	}
 
 	const banData = await user.bans.ban(data.uid, data.until, data.reason);
-	await db.setObjectField(
-		`uid:${data.uid}:ban:${banData.timestamp}`,
-		'fromUid',
-		caller.uid
-	);
+	await db.setObjectField(`uid:${data.uid}:ban:${banData.timestamp}`, 'fromUid', caller.uid);
 
 	if (!data.reason) {
 		data.reason = await translator.translate('[[user:info.banned-no-reason]]');
@@ -247,11 +237,7 @@ usersAPI.unban = async function (caller, data) {
 	}
 
 	const unbanData = await user.bans.unban(data.uid, data.reason);
-	await db.setObjectField(
-		`uid:${data.uid}:unban:${unbanData.timestamp}`,
-		'fromUid',
-		caller.uid
-	);
+	await db.setObjectField(`uid:${data.uid}:unban:${unbanData.timestamp}`, 'fromUid', caller.uid);
 
 	sockets.in(`uid_${data.uid}`).emit('event:unbanned');
 
@@ -314,10 +300,7 @@ usersAPI.unmute = async function (caller, data) {
 		throw new Error('[[error:no-privileges]]');
 	}
 
-	await db.deleteObjectFields(`user:${data.uid}`, [
-		'mutedUntil',
-		'mutedReason',
-	]);
+	await db.deleteObjectFields(`user:${data.uid}`, ['mutedUntil', 'mutedReason']);
 	const now = Date.now();
 	const unmuteKey = `uid:${data.uid}:unmute:${now}`;
 	const unmuteData = {
@@ -368,10 +351,7 @@ usersAPI.deleteToken = async (caller, { uid, token }) => {
 
 usersAPI.revokeSession = async (caller, { uid, uuid }) => {
 	// Only admins or global mods (besides the user themselves) can revoke sessions
-	if (
-		parseInt(uid, 10) !== caller.uid &&
-		!(await user.isAdminOrGlobalMod(caller.uid))
-	) {
+	if (parseInt(uid, 10) !== caller.uid && !(await user.isAdminOrGlobalMod(caller.uid))) {
 		throw new Error('[[error:invalid-uid]]');
 	}
 
@@ -414,12 +394,8 @@ usersAPI.invite = async (caller, { emails, groupsToJoin, uid }) => {
 		throw new Error('[[error:no-privileges]]');
 	}
 
-	const inviteGroups = (await groups.getUserInviteGroups(caller.uid)).map(
-		(group) => group.name
-	);
-	const cannotInvite = groupsToJoin.some(
-		(group) => !inviteGroups.includes(group)
-	);
+	const inviteGroups = (await groups.getUserInviteGroups(caller.uid)).map(group => group.name);
+	const cannotInvite = groupsToJoin.some(group => !inviteGroups.includes(group));
 	if (groupsToJoin.length > 0 && cannotInvite) {
 		throw new Error('[[error:no-privileges]]');
 	}
@@ -427,7 +403,7 @@ usersAPI.invite = async (caller, { emails, groupsToJoin, uid }) => {
 	const max = meta.config.maximumInvites;
 	const emailsArr = emails
 		.split(',')
-		.map((email) => email.trim())
+		.map(email => email.trim())
 		.filter(Boolean);
 
 	for (const email of emailsArr) {
@@ -451,7 +427,7 @@ usersAPI.getInviteGroups = async (caller, { uid }) => {
 	}
 
 	const userInviteGroups = await groups.getUserInviteGroups(uid);
-	return userInviteGroups.map((group) => group.displayName);
+	return userInviteGroups.map(group => group.displayName);
 };
 
 usersAPI.addEmail = async (caller, { email, skipConfirmation, uid }) => {
@@ -534,9 +510,7 @@ async function isPrivilegedOrSelfAndPasswordMatch(caller, data) {
 	}
 	const [hasPassword, passwordMatch] = await Promise.all([
 		user.hasPassword(data.uid),
-		data.password
-			? user.isPasswordCorrect(data.uid, data.password, caller.ip)
-			: false,
+		data.password ? user.isPasswordCorrect(data.uid, data.password, caller.ip) : false,
 	]);
 
 	if (isSelf && hasPassword && !passwordMatch) {
@@ -547,10 +521,7 @@ async function isPrivilegedOrSelfAndPasswordMatch(caller, data) {
 async function processDeletion({ uid, method, password, caller }) {
 	const isTargetAdmin = await user.isAdministrator(uid);
 	const isSelf = String(uid) === String(caller.uid);
-	const hasAdminPrivilege = await privileges.admin.can(
-		'admin:users',
-		caller.uid
-	);
+	const hasAdminPrivilege = await privileges.admin.can('admin:users', caller.uid);
 
 	if (isSelf && meta.config.allowAccountDelete !== 1) {
 		throw new Error('[[error:account-deletion-disabled]]');
@@ -655,11 +626,7 @@ usersAPI.changePicture = async (caller, data) => {
 	const { type, url } = data;
 	let picture = '';
 
-	await user.checkMinReputation(
-		caller.uid,
-		data.uid,
-		'min:rep:profile-picture'
-	);
+	await user.checkMinReputation(caller.uid, data.uid, 'min:rep:profile-picture');
 	const canEdit = await privileges.users.canEdit(caller.uid, data.uid);
 	if (!canEdit) {
 		throw new Error('[[error:no-privileges]]');
@@ -692,7 +659,7 @@ usersAPI.changePicture = async (caller, data) => {
 			picture: picture,
 			'icon:bgColor': data.bgColor,
 		},
-		['picture', 'icon:bgColor']
+		['picture', 'icon:bgColor'],
 	);
 };
 
@@ -706,17 +673,14 @@ const prepareExport = async ({ uid, type }) => {
 	const [extension] = exportMetadata.get(type);
 	const filename = `${uid}_${type}.${extension}`;
 	try {
-		const stat = await fs.stat(
-			path.join(__dirname, '../../build/export', filename)
-		);
+		const stat = await fs.stat(path.join(__dirname, '../../build/export', filename));
 		return stat;
 	} catch (e) {
 		return false;
 	}
 };
 
-usersAPI.checkExportByType = async (caller, { uid, type }) =>
-	await prepareExport({ uid, type });
+usersAPI.checkExportByType = async (caller, { uid, type }) => await prepareExport({ uid, type });
 
 usersAPI.getExportByType = async (caller, { uid, type }) => {
 	const [extension, mime] = exportMetadata.get(type);
@@ -743,15 +707,11 @@ usersAPI.generateExport = async (caller, { uid, type }) => {
 		throw new Error('[[error:already-exporting]]');
 	}
 
-	const child = require('child_process').fork(
-		`./src/user/jobs/export-${type}.js`,
-		[],
-		{
-			env: process.env,
-		}
-	);
+	const child = require('child_process').fork(`./src/user/jobs/export-${type}.js`, [], {
+		env: process.env,
+	});
 	child.send({ uid });
-	child.on('error', async (err) => {
+	child.on('error', async err => {
 		winston.error(err.stack);
 		await db.deleteObjectField('locks', `export:${uid}${type}`);
 	});

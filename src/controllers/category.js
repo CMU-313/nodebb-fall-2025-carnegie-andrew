@@ -33,7 +33,7 @@ categoryController.get = async function (req, res, next) {
 	if (cid === '-1') {
 		return helpers.redirect(
 			res,
-			`${res.locals.isAPI ? '/api' : ''}/world?${qs.stringify(req.query)}`
+			`${res.locals.isAPI ? '/api' : ''}/world?${qs.stringify(req.query)}`,
 		);
 	}
 
@@ -56,14 +56,13 @@ categoryController.get = async function (req, res, next) {
 		return next();
 	}
 
-	const [categoryFields, userPrivileges, tagData, userSettings, rssToken] =
-		await Promise.all([
-			categories.getCategoryFields(cid, ['slug', 'disabled', 'link']),
-			privileges.categories.get(cid, req.uid),
-			helpers.getSelectedTag(req.query.tag),
-			user.getSettings(req.uid),
-			user.auth.getFeedToken(req.uid),
-		]);
+	const [categoryFields, userPrivileges, tagData, userSettings, rssToken] = await Promise.all([
+		categories.getCategoryFields(cid, ['slug', 'disabled', 'link']),
+		privileges.categories.get(cid, req.uid),
+		helpers.getSelectedTag(req.query.tag),
+		user.getSettings(req.uid),
+		user.auth.getFeedToken(req.uid),
+	]);
 
 	if (
 		!categoryFields.slug ||
@@ -73,10 +72,7 @@ categoryController.get = async function (req, res, next) {
 		return next();
 	}
 	if (topicIndex < 0) {
-		return helpers.redirect(
-			res,
-			`/category/${categoryFields.slug}?${qs.stringify(req.query)}`
-		);
+		return helpers.redirect(res, `/category/${categoryFields.slug}?${qs.stringify(req.query)}`);
 	}
 
 	if (!userPrivileges.read) {
@@ -93,7 +89,7 @@ categoryController.get = async function (req, res, next) {
 		return helpers.redirect(
 			res,
 			`/category/${categoryFields.slug}?${qs.stringify(req.query)}`,
-			true
+			true,
 		);
 	}
 
@@ -103,10 +99,7 @@ categoryController.get = async function (req, res, next) {
 	}
 
 	if (!userSettings.usePagination) {
-		topicIndex = Math.max(
-			0,
-			topicIndex - (Math.ceil(userSettings.topicsPerPage / 2) - 1)
-		);
+		topicIndex = Math.max(0, topicIndex - (Math.ceil(userSettings.topicsPerPage / 2) - 1));
 	} else if (!req.query.page) {
 		const index = Math.max(parseInt(topicIndex || 0, 10), 0);
 		currentPage = Math.ceil((index + 1) / userSettings.topicsPerPage);
@@ -139,13 +132,10 @@ categoryController.get = async function (req, res, next) {
 	if (topicIndex > Math.max(categoryData.topic_count - 1, 0)) {
 		return helpers.redirect(
 			res,
-			`/category/${categoryData.slug}/${categoryData.topic_count}?${qs.stringify(req.query)}`
+			`/category/${categoryData.slug}/${categoryData.topic_count}?${qs.stringify(req.query)}`,
 		);
 	}
-	const pageCount = Math.max(
-		1,
-		Math.ceil(categoryData.topic_count / userSettings.topicsPerPage)
-	);
+	const pageCount = Math.max(1, Math.ceil(categoryData.topic_count / userSettings.topicsPerPage));
 	if (userSettings.usePagination && currentPage > pageCount) {
 		return next();
 	}
@@ -153,7 +143,7 @@ categoryController.get = async function (req, res, next) {
 	categories.modifyTopicsByPrivilege(categoryData.topics, userPrivileges);
 	categoryData.tagWhitelist = categories.filterTagWhitelist(
 		categoryData.tagWhitelist,
-		userPrivileges.isAdminOrMod
+		userPrivileges.isAdminOrMod,
 	);
 
 	const allCategories = [];
@@ -161,27 +151,20 @@ categoryController.get = async function (req, res, next) {
 
 	await Promise.all([
 		buildBreadcrumbs(req, categoryData),
-		categories.setUnread(
-			[categoryData],
-			allCategories.map((c) => c.cid).concat(cid),
-			req.uid
-		),
+		categories.setUnread([categoryData], allCategories.map(c => c.cid).concat(cid), req.uid),
 	]);
 
 	if (categoryData.children.length) {
 		await categories.getRecentTopicReplies(allCategories, req.uid, req.query);
 		categoryData.subCategoriesLeft = Math.max(
 			0,
-			categoryData.children.length - categoryData.subCategoriesPerPage
+			categoryData.children.length - categoryData.subCategoriesPerPage,
 		);
 		categoryData.hasMoreSubCategories =
 			categoryData.children.length > categoryData.subCategoriesPerPage;
 		categoryData.nextSubCategoryStart = categoryData.subCategoriesPerPage;
-		categoryData.children = categoryData.children.slice(
-			0,
-			categoryData.subCategoriesPerPage
-		);
-		categoryData.children.forEach((child) => {
+		categoryData.children = categoryData.children.slice(0, categoryData.subCategoriesPerPage);
+		categoryData.children.forEach(child => {
 			if (child) {
 				helpers.trimChildren(child);
 				helpers.setCategoryTeaser(child);
@@ -211,12 +194,8 @@ categoryController.get = async function (req, res, next) {
 
 	categoryData['feeds:disableRSS'] = meta.config['feeds:disableRSS'] || 0;
 	categoryData['reputation:disabled'] = meta.config['reputation:disabled'];
-	categoryData.pagination = pagination.create(
-		currentPage,
-		pageCount,
-		req.query
-	);
-	categoryData.pagination.rel.forEach((rel) => {
+	categoryData.pagination = pagination.create(currentPage, pageCount, req.query);
+	categoryData.pagination.rel.forEach(rel => {
 		rel.href = `${url}/category/${categoryData.slug}${rel.href}`;
 		res.locals.linkTags.push(rel);
 	});
@@ -227,15 +206,11 @@ categoryController.get = async function (req, res, next) {
 		// Include link header for richer parsing
 		res.set(
 			'Link',
-			`<${nconf.get('url')}/actegory/${cid}>; rel="alternate"; type="application/activity+json"`
+			`<${nconf.get('url')}/actegory/${cid}>; rel="alternate"; type="application/activity+json"`,
 		);
 
 		// Category accessible
-		const remoteOk = await privileges.categories.can(
-			'read',
-			cid,
-			activitypub._constants.uid
-		);
+		const remoteOk = await privileges.categories.can('read', cid, activitypub._constants.uid);
 		if (remoteOk) {
 			categoryData.handleFull = `${categoryData.handle}@${nconf.get('url_parsed').host}`;
 		}

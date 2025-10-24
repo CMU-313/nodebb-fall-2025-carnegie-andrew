@@ -41,13 +41,12 @@ define('settings/key', function () {
 	 @returns Key | null The Key-Object the focused element should be set to.
 	 */
 	function getKey(event) {
-		const anyModChange = (
+		const anyModChange =
 			event.ctrlKey !== lastKey.c ||
 			event.altKey !== lastKey.a ||
 			event.shiftKey !== lastKey.s ||
-			event.metaKey !== lastKey.m
-		);
-		const modChange = (
+			event.metaKey !== lastKey.m;
+		const modChange =
 			event.ctrlKey +
 			event.altKey +
 			event.shiftKey +
@@ -55,8 +54,7 @@ define('settings/key', function () {
 			lastKey.c -
 			lastKey.a -
 			lastKey.s -
-			lastKey.m
-		);
+			lastKey.m;
 		const key = new Key();
 		key.c = event.ctrlKey;
 		key.a = event.altKey;
@@ -91,7 +89,7 @@ define('settings/key', function () {
 		} else if (code >= 112 && code <= 123) {
 			return 'F' + (code - 111);
 		}
-		return keyMap[code] || ('#' + code);
+		return keyMap[code] || '#' + code;
 	}
 
 	/**
@@ -182,22 +180,24 @@ define('settings/key', function () {
 		return key;
 	}
 
-
 	const SettingsKey = {
 		types: ['key'],
 		use: function () {
 			helper = this.helper;
 		},
 		init: function (element) {
-			element.focus(function () {
-				oldKey = element.data('keyData') || new Key();
-				lastKey = new Key();
-			}).keydown(function (event) {
-				event.preventDefault();
-				handleEvent(element, event);
-			}).keyup(function (event) {
-				handleEvent(element, event);
-			});
+			element
+				.focus(function () {
+					oldKey = element.data('keyData') || new Key();
+					lastKey = new Key();
+				})
+				.keydown(function (event) {
+					event.preventDefault();
+					handleEvent(element, event);
+				})
+				.keyup(function (event) {
+					handleEvent(element, event);
+				});
 			return element;
 		},
 		set: function (element, value) {

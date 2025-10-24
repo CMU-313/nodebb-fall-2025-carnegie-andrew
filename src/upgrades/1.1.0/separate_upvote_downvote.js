@@ -51,16 +51,16 @@ module.exports = {
 
 								progress.incr();
 							},
-							next
+							next,
 						);
 					},
-					next
+					next,
 				);
 			},
 			{
 				progress: progress,
 			},
-			callback
+			callback,
 		);
 	},
 };

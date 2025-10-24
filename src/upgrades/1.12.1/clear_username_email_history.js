@@ -16,10 +16,10 @@ module.exports = {
 			}
 			progress.total = nextUid;
 			async.whilst(
-				(next) => {
+				next => {
 					next(null, currentUid < nextUid);
 				},
-				(next) => {
+				next => {
 					progress.incr();
 					user.exists(currentUid, (err, exists) => {
 						if (err) {
@@ -29,21 +29,18 @@ module.exports = {
 							currentUid += 1;
 							return next();
 						}
-						db.deleteAll(
-							[`user:${currentUid}:usernames`, `user:${currentUid}:emails`],
-							(err) => {
-								if (err) {
-									return next(err);
-								}
-								currentUid += 1;
-								next();
+						db.deleteAll([`user:${currentUid}:usernames`, `user:${currentUid}:emails`], err => {
+							if (err) {
+								return next(err);
 							}
-						);
+							currentUid += 1;
+							next();
+						});
 					});
 				},
-				(err) => {
+				err => {
 					callback(err);
-				}
+				},
 			);
 		});
 	},

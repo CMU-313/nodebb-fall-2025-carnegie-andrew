@@ -11,8 +11,8 @@ get:
         type: string
       example: 1
   responses:
-    "200":
-      description: "Canonical URL of topic"
+    '200':
+      description: 'Canonical URL of topic'
       content:
         text/plain:
           schema:

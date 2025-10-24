@@ -1,12 +1,12 @@
 {
-    "username-email": "Όνομα χρήστη / Email",
-    "username": "Όνομα Χρήστη",
-    "remember-me": "Απομνημόνευση;",
-    "forgot-password": "Ξέχασες τον κωδικό σου;",
-    "alternative-logins": "Εναλλακτικά Login",
-    "failed-login-attempt": "Login Unsuccessful",
-    "login-successful": "Συνδέθηκες επιτυχώς!",
-    "dont-have-account": "Δεν έχεις λογαριασμό;",
-    "logged-out-due-to-inactivity": "You have been logged out of the Admin Control Panel due to inactivity",
-    "caps-lock-enabled": "Caps Lock is enabled"
+  "username-email": "Όνομα χρήστη / Email",
+  "username": "Όνομα Χρήστη",
+  "remember-me": "Απομνημόνευση;",
+  "forgot-password": "Ξέχασες τον κωδικό σου;",
+  "alternative-logins": "Εναλλακτικά Login",
+  "failed-login-attempt": "Login Unsuccessful",
+  "login-successful": "Συνδέθηκες επιτυχώς!",
+  "dont-have-account": "Δεν έχεις λογαριασμό;",
+  "logged-out-due-to-inactivity": "You have been logged out of the Admin Control Panel due to inactivity",
+  "caps-lock-enabled": "Caps Lock is enabled"
 }

@@ -7,28 +7,22 @@ let versionCache = '';
 let versionCacheLastModified = '';
 
 const isPrerelease = /^v?\d+\.\d+\.\d+-.+$/;
-const latestReleaseUrl =
-	'https://api.github.com/repos/NodeBB/NodeBB/releases/latest';
+const latestReleaseUrl = 'https://api.github.com/repos/NodeBB/NodeBB/releases/latest';
 
 async function getLatestVersion() {
 	const headers = {
 		Accept: 'application/vnd.github.v3+json',
-		'User-Agent': encodeURIComponent(
-			`NodeBB Admin Control Panel/${meta.config.title}`
-		),
+		'User-Agent': encodeURIComponent(`NodeBB Admin Control Panel/${meta.config.title}`),
 	};
 
 	if (versionCacheLastModified) {
 		headers['If-Modified-Since'] = versionCacheLastModified;
 	}
 
-	const { body: latestRelease, response } = await request.get(
-		latestReleaseUrl,
-		{
-			headers: headers,
-			timeout: 2000,
-		}
-	);
+	const { body: latestRelease, response } = await request.get(latestReleaseUrl, {
+		headers: headers,
+		timeout: 2000,
+	});
 	if (response.statusCode === 304) {
 		return versionCache;
 	}

@@ -13,7 +13,7 @@ module.exports = {
 			await db.sortedSetAdd(
 				'rewards:list',
 				rewards.map((id, index) => index),
-				rewards.map((id) => id)
+				rewards.map(id => id),
 			);
 		}
 	},

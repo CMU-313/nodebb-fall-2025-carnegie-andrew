@@ -30,7 +30,7 @@ module.exports = function (SocketTopics) {
 		const canMove = await privileges.categories.canMoveAllTopics(
 			data.currentCid,
 			data.cid,
-			socket.uid
+			socket.uid,
 		);
 		if (!canMove) {
 			throw new Error('[[error:no-privileges]]');
@@ -38,7 +38,7 @@ module.exports = function (SocketTopics) {
 
 		const tids = await categories.getAllTopicIds(data.currentCid, 0, -1);
 		data.uid = socket.uid;
-		await async.eachLimit(tids, 50, async (tid) => {
+		await async.eachLimit(tids, 50, async tid => {
 			await topics.tools.move(tid, data);
 		});
 		await categories.onTopicsMoved([data.currentCid, data.cid]);

@@ -34,14 +34,14 @@ pagination.create = function (currentPage, pageCount, queryObj) {
 	}
 
 	pagesToShow = _.uniq(pagesToShow)
-		.filter((page) => page > 0 && page <= pageCount)
+		.filter(page => page > 0 && page <= pageCount)
 		.sort((a, b) => a - b);
 
 	queryObj = { ...(queryObj || {}) };
 
 	delete queryObj._;
 
-	const pages = pagesToShow.map((page) => {
+	const pages = pagesToShow.map(page => {
 		queryObj.page = page;
 		return {
 			page: page,

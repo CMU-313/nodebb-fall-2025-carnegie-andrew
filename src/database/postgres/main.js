@@ -22,10 +22,8 @@ module.exports = function (module) {
 		}
 
 		async function checkIfzSetsExist(keys) {
-			const members = await Promise.all(
-				keys.map((key) => module.getSortedSetRange(key, 0, 0))
-			);
-			return members.map((member) => member.length > 0);
+			const members = await Promise.all(keys.map(key => module.getSortedSetRange(key, 0, 0)));
+			return members.map(member => member.length > 0);
 		}
 
 		async function checkIfKeysExist(keys) {
@@ -37,7 +35,7 @@ module.exports = function (module) {
  				WHERE o."_key" = ANY($1::TEXT[])`,
 				values: [keys],
 			});
-			return keys.map((k) => res.rows.some((r) => r.k === k));
+			return keys.map(k => res.rows.some(r => r.k === k));
 		}
 
 		// Redis/Mongo consider empty zsets as non-existent, match that behaviour
@@ -56,7 +54,7 @@ module.exports = function (module) {
 			otherKeys.forEach((k, i) => {
 				existsMap[k] = otherExists[i];
 			});
-			return key.map((k) => existsMap[k]);
+			return key.map(k => existsMap[k]);
 		}
 		const type = await module.type(key);
 		if (type === 'zset') {
@@ -92,7 +90,7 @@ module.exports = function (module) {
 		WHERE o."_key" LIKE '${match}'`,
 		});
 
-		return res.rows.map((r) => r._key);
+		return res.rows.map(r => r._key);
 	};
 
 	module.delete = async function (key) {
@@ -162,10 +160,10 @@ SELECT s."data", s."_key"
 			values: [keys],
 		});
 		const map = {};
-		res.rows.forEach((d) => {
+		res.rows.forEach(d => {
 			map[d._key] = d.data;
 		});
-		return keys.map((k) => (map.hasOwnProperty(k) ? map[k] : null));
+		return keys.map(k => (map.hasOwnProperty(k) ? map[k] : null));
 	};
 
 	module.set = async function (key, value) {
@@ -173,7 +171,7 @@ SELECT s."data", s."_key"
 			return;
 		}
 
-		await module.transaction(async (client) => {
+		await module.transaction(async client => {
 			await helpers.ensureLegacyObjectType(client, key, 'string');
 			await client.query({
 				name: 'set',
@@ -192,7 +190,7 @@ DO UPDATE SET "data" = $2::TEXT`,
 			return;
 		}
 
-		return await module.transaction(async (client) => {
+		return await module.transaction(async client => {
 			await helpers.ensureLegacyObjectType(client, key, 'string');
 			const res = await client.query({
 				name: 'increment',
@@ -209,7 +207,7 @@ RETURNING "data" d`,
 	};
 
 	module.rename = async function (oldKey, newKey) {
-		await module.transaction(async (client) => {
+		await module.transaction(async client => {
 			await client.query({
 				name: 'deleteRename',
 				text: `

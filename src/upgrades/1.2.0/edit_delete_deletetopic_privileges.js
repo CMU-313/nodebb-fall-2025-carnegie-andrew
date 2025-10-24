@@ -21,27 +21,18 @@ module.exports = {
 			for (const group of groups) {
 				if (group.privileges['groups:topics:reply']) {
 					await Promise.all([
-						groupsAPI.join(
-							`cid:${cid}:privileges:groups:posts:edit`,
-							group.name
-						),
-						groupsAPI.join(
-							`cid:${cid}:privileges:groups:posts:delete`,
-							group.name
-						),
+						groupsAPI.join(`cid:${cid}:privileges:groups:posts:edit`, group.name),
+						groupsAPI.join(`cid:${cid}:privileges:groups:posts:delete`, group.name),
 					]);
 					winston.verbose(
-						`cid:${cid}:privileges:groups:posts:edit, cid:${cid}:privileges:groups:posts:delete granted to gid: ${group.name}`
+						`cid:${cid}:privileges:groups:posts:edit, cid:${cid}:privileges:groups:posts:delete granted to gid: ${group.name}`,
 					);
 				}
 
 				if (group.privileges['groups:topics:create']) {
-					await groupsAPI.join(
-						`cid:${cid}:privileges:groups:topics:delete`,
-						group.name
-					);
+					await groupsAPI.join(`cid:${cid}:privileges:groups:topics:delete`, group.name);
 					winston.verbose(
-						`cid:${cid}:privileges:groups:topics:delete granted to gid: ${group.name}`
+						`cid:${cid}:privileges:groups:topics:delete granted to gid: ${group.name}`,
 					);
 				}
 			}
@@ -53,14 +44,12 @@ module.exports = {
 						groupsAPI.join(`cid:${cid}:privileges:posts:delete`, user.uid),
 					]);
 					winston.verbose(
-						`cid:${cid}:privileges:posts:edit, cid:${cid}:privileges:posts:delete granted to uid: ${user.uid}`
+						`cid:${cid}:privileges:posts:edit, cid:${cid}:privileges:posts:delete granted to uid: ${user.uid}`,
 					);
 				}
 				if (user.privileges['topics:create']) {
 					await groupsAPI.join(`cid:${cid}:privileges:topics:delete`, user.uid);
-					winston.verbose(
-						`cid:${cid}:privileges:topics:delete granted to uid: ${user.uid}`
-					);
+					winston.verbose(`cid:${cid}:privileges:topics:delete granted to uid: ${user.uid}`);
 				}
 			}
 			winston.verbose(`-- cid ${cid} upgraded`);

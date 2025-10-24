@@ -1,7 +1,7 @@
 {
-    "success": "성공",
-    "topic-post": "게시물을 성공적으로 게시했습니다.",
-    "post-queued": "게시물이 승인 대기열에 올라갔습니다. 승인되거나 거부되면 알림을 받게 됩니다.",
-    "authentication-successful": "인증 성공",
-    "settings-saved": "설정을 저장했습니다!"
+  "success": "성공",
+  "topic-post": "게시물을 성공적으로 게시했습니다.",
+  "post-queued": "게시물이 승인 대기열에 올라갔습니다. 승인되거나 거부되면 알림을 받게 됩니다.",
+  "authentication-successful": "인증 성공",
+  "settings-saved": "설정을 저장했습니다!"
 }

@@ -69,16 +69,11 @@ Auth.reloadRoutes = async function (params) {
 
 	// Local Logins
 	if (plugins.hooks.hasListeners('action:auth.overrideLogin')) {
-		winston.warn(
-			'[authentication] Login override detected, skipping local login strategy.'
-		);
+		winston.warn('[authentication] Login override detected, skipping local login strategy.');
 		plugins.hooks.fire('action:auth.overrideLogin');
 	} else {
 		passport.use(
-			new passportLocal(
-				{ passReqToCallback: true },
-				controllers.authentication.localLogin
-			)
+			new passportLocal({ passReqToCallback: true }, controllers.authentication.localLogin),
 		);
 	}
 
@@ -87,15 +82,12 @@ Auth.reloadRoutes = async function (params) {
 
 	// Additional logins via SSO plugins
 	try {
-		loginStrategies = await plugins.hooks.fire(
-			'filter:auth.init',
-			loginStrategies
-		);
+		loginStrategies = await plugins.hooks.fire('filter:auth.init', loginStrategies);
 	} catch (err) {
 		winston.error(`[authentication] ${err.stack}`);
 	}
 	loginStrategies = loginStrategies || [];
-	loginStrategies.forEach((strategy) => {
+	loginStrategies.forEach(strategy => {
 		if (strategy.url) {
 			router[strategy.urlMethod || 'get'](
 				strategy.url,
@@ -121,7 +113,7 @@ Auth.reloadRoutes = async function (params) {
 						opts,
 					}));
 					passport.authenticate(strategy.name, opts)(req, res, next);
-				}
+				},
 			);
 		}
 
@@ -133,19 +125,14 @@ Auth.reloadRoutes = async function (params) {
 					return next();
 				}
 
-				next(
-					req.query.state !== req.session.ssoState
-						? new Error('[[error:csrf-invalid]]')
-						: null
-				);
+				next(req.query.state !== req.session.ssoState ? new Error('[[error:csrf-invalid]]') : null);
 			},
 			(req, res, next) => {
 				// Trigger registration interstitial checks
 				req.session.registration = req.session.registration || {};
 				// save returnTo for later usage in /register/complete
 				// passport seems to remove `req.session.returnTo` after it redirects
-				req.session.registration.returnTo =
-					req.session.next || req.session.returnTo;
+				req.session.registration.returnTo = req.session.next || req.session.returnTo;
 
 				passport.authenticate(strategy.name, (err, user) => {
 					if (err) {
@@ -161,7 +148,7 @@ Auth.reloadRoutes = async function (params) {
 						}
 						return helpers.redirect(
 							res,
-							strategy.failureUrl !== undefined ? strategy.failureUrl : '/login'
+							strategy.failureUrl !== undefined ? strategy.failureUrl : '/login',
 						);
 					}
 
@@ -177,24 +164,17 @@ Auth.reloadRoutes = async function (params) {
 						async.apply(req.login.bind(req), res.locals.user, {
 							keepSessionInfo: true,
 						}),
-						async.apply(
-							controllers.authentication.onSuccessfulLogin,
-							req,
-							res.locals.user.uid
-						),
+						async.apply(controllers.authentication.onSuccessfulLogin, req, res.locals.user.uid),
 					],
-					(err) => {
+					err => {
 						if (err) {
 							return next(err);
 						}
 
-						helpers.redirect(
-							res,
-							strategy.successUrl !== undefined ? strategy.successUrl : '/'
-						);
-					}
+						helpers.redirect(res, strategy.successUrl !== undefined ? strategy.successUrl : '/');
+					},
 				);
-			}
+			},
 		);
 	});
 
@@ -207,27 +187,15 @@ Auth.reloadRoutes = async function (params) {
 	];
 
 	router.post('/register', middlewares, controllers.authentication.register);
-	router.post(
-		'/register/complete',
-		middlewares,
-		controllers.authentication.registerComplete
-	);
-	router.post(
-		'/register/abort',
-		middlewares,
-		controllers.authentication.registerAbort
-	);
+	router.post('/register/complete', middlewares, controllers.authentication.registerComplete);
+	router.post('/register/abort', middlewares, controllers.authentication.registerAbort);
 	router.post(
 		'/login',
 		Auth.middleware.applyCSRF,
 		Auth.middleware.applyBlacklist,
-		controllers.authentication.login
+		controllers.authentication.login,
 	);
-	router.post(
-		'/logout',
-		Auth.middleware.applyCSRF,
-		controllers.authentication.logout
-	);
+	router.post('/logout', Auth.middleware.applyCSRF, controllers.authentication.logout);
 };
 
 passport.serializeUser((user, done) => {

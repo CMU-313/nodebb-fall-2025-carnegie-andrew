@@ -1,6 +1,14 @@
 'use strict';
 
-define('forum/world', ['topicList', 'search', 'sort', 'hooks', 'alerts', 'api', 'bootbox'], function (topicList, search, sort, hooks, alerts, api, bootbox) {
+define('forum/world', [
+	'topicList',
+	'search',
+	'sort',
+	'hooks',
+	'alerts',
+	'api',
+	'bootbox',
+], function (topicList, search, sort, hooks, alerts, api, bootbox) {
 	const World = {};
 
 	World.init = function () {
@@ -33,11 +41,13 @@ define('forum/world', ['topicList', 'search', 'sort', 'hooks', 'alerts', 'api', 
 	};
 
 	function handleIgnoreWatch(cid) {
-		$('[component="category/watching"], [component="category/tracking"], [component="category/ignoring"], [component="category/notwatching"]').on('click', function () {
+		$(
+			'[component="category/watching"], [component="category/tracking"], [component="category/ignoring"], [component="category/notwatching"]',
+		).on('click', function () {
 			const $this = $(this);
 			const state = $this.attr('data-state');
 
-			api.put(`/categories/${cid}/watch`, { state }, (err) => {
+			api.put(`/categories/${cid}/watch`, { state }, err => {
 				if (err) {
 					return alerts.error(err);
 				}
@@ -49,7 +59,10 @@ define('forum/world', ['topicList', 'search', 'sort', 'hooks', 'alerts', 'api', 
 				$('[component="category/tracking/check"]').toggleClass('fa-check', state === 'tracking');
 
 				$('[component="category/notwatching/menu"]').toggleClass('hidden', state !== 'notwatching');
-				$('[component="category/notwatching/check"]').toggleClass('fa-check', state === 'notwatching');
+				$('[component="category/notwatching/check"]').toggleClass(
+					'fa-check',
+					state === 'notwatching',
+				);
 
 				$('[component="category/ignoring/menu"]').toggleClass('hidden', state !== 'ignoring');
 				$('[component="category/ignoring/check"]').toggleClass('fa-check', state === 'ignoring');

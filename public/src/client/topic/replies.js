@@ -1,7 +1,11 @@
 'use strict';
 
-
-define('forum/topic/replies', ['forum/topic/posts', 'hooks', 'alerts', 'api'], function (posts, hooks, alerts, api) {
+define('forum/topic/replies', ['forum/topic/posts', 'hooks', 'alerts', 'api'], function (
+	posts,
+	hooks,
+	alerts,
+	api,
+) {
 	const Replies = {};
 
 	Replies.init = function (button) {
@@ -10,13 +14,12 @@ define('forum/topic/replies', ['forum/topic/posts', 'hooks', 'alerts', 'api'], f
 		const open = button.find('[component="post/replies/open"]');
 
 		if (open.attr('loading') !== '1' && open.attr('loaded') !== '1') {
-			open.attr('loading', '1')
-				.removeClass('fa-chevron-down')
-				.addClass('fa-spin fa-spinner');
+			open.attr('loading', '1').removeClass('fa-chevron-down').addClass('fa-spin fa-spinner');
 
 			api.get(`/posts/${encodeURIComponent(pid)}/replies`, {}, function (err, { replies }) {
 				const postData = replies;
-				open.removeAttr('loading')
+				open
+					.removeAttr('loading')
 					.attr('loaded', '1')
 					.removeClass('fa-spin fa-spinner')
 					.addClass('fa-chevron-up');
@@ -37,10 +40,14 @@ define('forum/topic/replies', ['forum/topic/posts', 'hooks', 'alerts', 'api'], f
 					'reputation:disabled': ajaxify.data['reputation:disabled'],
 					loggedIn: !!app.user.uid,
 					hideParent: true,
-					hideReplies: config.hasOwnProperty('showNestedReplies') ? !config.showNestedReplies : true,
+					hideReplies: config.hasOwnProperty('showNestedReplies')
+						? !config.showNestedReplies
+						: true,
 				};
 				app.parseAndTranslate('topic', 'posts', tplData, async function (html) {
-					const repliesEl = $('<ul>', { component: 'post/replies', class: 'list-unstyled' }).html(html).hide();
+					const repliesEl = $('<ul>', { component: 'post/replies', class: 'list-unstyled' })
+						.html(html)
+						.hide();
 					if (button.attr('data-target-component')) {
 						post.find('[component="' + button.attr('data-target-component') + '"]').html(repliesEl);
 					} else {
@@ -53,7 +60,8 @@ define('forum/topic/replies', ['forum/topic/posts', 'hooks', 'alerts', 'api'], f
 				});
 			});
 		} else if (open.attr('loaded') === '1') {
-			open.removeAttr('loaded')
+			open
+				.removeAttr('loaded')
 				.removeAttr('loading')
 				.removeClass('fa-spin fa-spinner fa-chevron-up')
 				.addClass('fa-chevron-down');
@@ -69,9 +77,13 @@ define('forum/topic/replies', ['forum/topic/posts', 'hooks', 'alerts', 'api'], f
 			return;
 		}
 		incrementCount(post, 1);
-		data.hideReplies = config.hasOwnProperty('showNestedReplies') ? !config.showNestedReplies : true;
+		data.hideReplies = config.hasOwnProperty('showNestedReplies')
+			? !config.showNestedReplies
+			: true;
 		app.parseAndTranslate('topic', 'posts', data, async function (html) {
-			const replies = $('[component="post"][data-pid="' + post.toPid + '"] [component="post/replies"]').first();
+			const replies = $(
+				'[component="post"][data-pid="' + post.toPid + '"] [component="post/replies"]',
+			).first();
 			if (replies.length) {
 				if (config.topicPostSort === 'newest_to_oldest') {
 					replies.prepend(html);
@@ -93,7 +105,9 @@ define('forum/topic/replies', ['forum/topic/posts', 'hooks', 'alerts', 'api'], f
 			return;
 		}
 
-		const replyCount = $('[component="post"][data-pid="' + post.toPid + '"]').find('[component="post/reply-count"]').first();
+		const replyCount = $('[component="post"][data-pid="' + post.toPid + '"]')
+			.find('[component="post/reply-count"]')
+			.first();
 		const countEl = replyCount.find('[component="post/reply-count/text"]');
 		const avatars = replyCount.find('[component="post/reply-count/avatars"]');
 		const count = Math.max(0, (parseInt(countEl.attr('data-replies'), 10) || 0) + inc);
@@ -111,11 +125,16 @@ define('forum/topic/replies', ['forum/topic/posts', 'hooks', 'alerts', 'api'], f
 		}
 
 		if (!avatars.find('[data-uid="' + post.uid + '"]').length && count < 7) {
-			app.parseAndTranslate('topic', 'posts', {
-				posts: [{ replies: { count: count, hasMore: false, users: [post.user] } }],
-			}, function (html) {
-				avatars.prepend(html.find('[component="post/reply-count/avatars"]').html());
-			});
+			app.parseAndTranslate(
+				'topic',
+				'posts',
+				{
+					posts: [{ replies: { count: count, hasMore: false, users: [post.user] } }],
+				},
+				function (html) {
+					avatars.prepend(html.find('[component="post/reply-count/avatars"]').html());
+				},
+			);
 		}
 
 		avatars.addClass('hasMore');

@@ -21,7 +21,7 @@ describe('Password reset (library methods)', () => {
 		await user.email.confirmByUid(uid);
 	});
 
-	it('.generate() should generate a new reset code', (done) => {
+	it('.generate() should generate a new reset code', done => {
 		user.reset.generate(uid, (err, _code) => {
 			assert.ifError(err);
 			assert(_code);
@@ -39,7 +39,7 @@ describe('Password reset (library methods)', () => {
 		code = _code;
 	});
 
-	it('.validate() should ensure that this new code is valid', (done) => {
+	it('.validate() should ensure that this new code is valid', done => {
 		user.reset.validate(code, (err, valid) => {
 			assert.ifError(err);
 			assert.strictEqual(valid, true);
@@ -47,7 +47,7 @@ describe('Password reset (library methods)', () => {
 		});
 	});
 
-	it('.validate() should correctly identify an invalid code', (done) => {
+	it('.validate() should correctly identify an invalid code', done => {
 		user.reset.validate(`${code}abcdef`, (err, valid) => {
 			assert.ifError(err);
 			assert.strictEqual(valid, false);
@@ -59,8 +59,8 @@ describe('Password reset (library methods)', () => {
 		code = await user.reset.send('reset@me.com');
 	});
 
-	it(".commit() should update the user's password and confirm their email", (done) => {
-		user.reset.commit(code, 'newpassword', (err) => {
+	it(".commit() should update the user's password and confirm their email", done => {
+		user.reset.commit(code, 'newpassword', err => {
 			assert.ifError(err);
 
 			async.parallel(
@@ -74,18 +74,13 @@ describe('Password reset (library methods)', () => {
 				},
 				(err, results) => {
 					assert.ifError(err);
-					password.compare(
-						'newpassword',
-						results.password,
-						true,
-						(err, match) => {
-							assert.ifError(err);
-							assert(match);
-							assert.strictEqual(results.userData['email:confirmed'], 1);
-							done();
-						}
-					);
-				}
+					password.compare('newpassword', results.password, true, (err, match) => {
+						assert.ifError(err);
+						assert(match);
+						assert.strictEqual(results.userData['email:confirmed'], 1);
+						done();
+					});
+				},
 			);
 		});
 	});
@@ -138,10 +133,7 @@ describe('locks', () => {
 	let uid;
 	let email;
 	beforeEach(async () => {
-		const [username, password] = [
-			utils.generateUUID().slice(0, 10),
-			utils.generateUUID(),
-		];
+		const [username, password] = [utils.generateUUID().slice(0, 10), utils.generateUUID()];
 		uid = await user.create({ username, password });
 		email = `${username}@nodebb.org`;
 		await user.setUserField(uid, 'email', email);
@@ -156,12 +148,9 @@ describe('locks', () => {
 	});
 
 	it('should not allow multiple calls to the reset method at the same time', async () => {
-		await assert.rejects(
-			Promise.all([user.reset.send(email), user.reset.send(email)]),
-			{
-				message: '[[error:reset-rate-limited]]',
-			}
-		);
+		await assert.rejects(Promise.all([user.reset.send(email), user.reset.send(email)]), {
+			message: '[[error:reset-rate-limited]]',
+		});
 	});
 
 	it('should not allow multiple socket calls to the reset method either', async () => {
@@ -172,7 +161,7 @@ describe('locks', () => {
 			]),
 			{
 				message: '[[error:reset-rate-limited]]',
-			}
+			},
 		);
 	});
 

@@ -39,11 +39,7 @@ describe.skip('FEPs', () => {
 				uid = await user.create({ username: utils.generateUUID() });
 
 				const { id: followerId, actor } = helpers.mocks.person();
-				user.setCategoryWatchState(
-					followerId,
-					[cid],
-					categories.watchStates.tracking
-				);
+				user.setCategoryWatchState(followerId, [cid], categories.watchStates.tracking);
 
 				activitypub._sent.clear();
 			});
@@ -62,7 +58,7 @@ describe.skip('FEPs', () => {
 							cid,
 							title: utils.generateUUID(),
 							content: utils.generateUUID(),
-						}
+						},
 					);
 				});
 
@@ -73,7 +69,7 @@ describe.skip('FEPs', () => {
 				it('should have federated out both Announce(Create(Article)) and Announce(Article)', () => {
 					const activities = Array.from(activitypub._sent);
 
-					const test1 = activities.some((activity) => {
+					const test1 = activities.some(activity => {
 						[, activity] = activity;
 						return (
 							activity.type === 'Announce' &&
@@ -84,12 +80,10 @@ describe.skip('FEPs', () => {
 						);
 					});
 
-					const test2 = activities.some((activity) => {
+					const test2 = activities.some(activity => {
 						[, activity] = activity;
 						return (
-							activity.type === 'Announce' &&
-							activity.object &&
-							activity.object.type === 'Article'
+							activity.type === 'Announce' && activity.object && activity.object.type === 'Article'
 						);
 					});
 
@@ -102,13 +96,13 @@ describe.skip('FEPs', () => {
 						{
 							tid: topicData.tid,
 							content: utils.generateUUID(),
-						}
+						},
 					);
 
 					const activities = Array.from(activitypub._sent);
 
 					assert(
-						activities.some((activity) => {
+						activities.some(activity => {
 							[, activity] = activity;
 							return (
 								activity.type === 'Announce' &&
@@ -117,7 +111,7 @@ describe.skip('FEPs', () => {
 								activity.object.object &&
 								activity.object.object.type === 'Note'
 							);
-						})
+						}),
 					);
 				});
 
@@ -127,13 +121,13 @@ describe.skip('FEPs', () => {
 						{
 							tid: topicData.tid,
 							content: utils.generateUUID(),
-						}
+						},
 					);
 
 					const activities = Array.from(activitypub._sent);
 
 					assert(
-						activities.every((activity) => {
+						activities.every(activity => {
 							[, activity] = activity;
 							if (
 								activity.type === 'Announce' &&
@@ -144,7 +138,7 @@ describe.skip('FEPs', () => {
 							}
 
 							return true;
-						})
+						}),
 					);
 				});
 
@@ -152,19 +146,17 @@ describe.skip('FEPs', () => {
 					activitypub._sent.clear();
 					await api.posts.upvote(
 						{ uid: adminUid },
-						{ pid: topicData.mainPid, room_id: `topic_${topicData.tid}` }
+						{ pid: topicData.mainPid, room_id: `topic_${topicData.tid}` },
 					);
 					const activities = Array.from(activitypub._sent);
 
 					assert(
-						activities.some((activity) => {
+						activities.some(activity => {
 							[, activity] = activity;
 							return (
-								activity.type === 'Announce' &&
-								activity.object &&
-								activity.object.type === 'Like'
+								activity.type === 'Announce' && activity.object && activity.object.type === 'Like'
 							);
-						})
+						}),
 					);
 				});
 			});
@@ -181,7 +173,7 @@ describe.skip('FEPs', () => {
 							cid,
 							title: utils.generateUUID(),
 							content: utils.generateUUID(),
-						}
+						},
 					);
 				});
 
@@ -211,7 +203,7 @@ describe.skip('FEPs', () => {
 
 					const activities = Array.from(activitypub._sent);
 
-					const test1 = activities.some((activity) => {
+					const test1 = activities.some(activity => {
 						[, activity] = activity;
 						return (
 							activity.type === 'Announce' &&
@@ -222,12 +214,10 @@ describe.skip('FEPs', () => {
 						);
 					});
 
-					const test2 = activities.some((activity) => {
+					const test2 = activities.some(activity => {
 						[, activity] = activity;
 						return (
-							activity.type === 'Announce' &&
-							activity.object &&
-							activity.object.type === 'Note'
+							activity.type === 'Announce' && activity.object && activity.object.type === 'Note'
 						);
 					});
 
@@ -246,7 +236,7 @@ describe.skip('FEPs', () => {
 					const activities = Array.from(activitypub._sent);
 
 					assert(
-						activities.some((activity) => {
+						activities.some(activity => {
 							[, activity] = activity;
 							return (
 								activity.type === 'Announce' &&
@@ -255,7 +245,7 @@ describe.skip('FEPs', () => {
 								activity.object.object &&
 								activity.object.object.type === 'Note'
 							);
-						})
+						}),
 					);
 				});
 
@@ -269,14 +259,12 @@ describe.skip('FEPs', () => {
 
 					const activities = Array.from(activitypub._sent);
 					assert(
-						activities.some((activity) => {
+						activities.some(activity => {
 							[, activity] = activity;
 							return (
-								activity.type === 'Announce' &&
-								activity.object &&
-								activity.object.type === 'Like'
+								activity.type === 'Announce' && activity.object && activity.object.type === 'Like'
 							);
-						})
+						}),
 					);
 				});
 			});
@@ -297,7 +285,7 @@ describe.skip('FEPs', () => {
 						{
 							tid: topicData.tid,
 							cid,
-						}
+						},
 					);
 
 					assert.strictEqual(activitypub._sent.size, 2);
@@ -305,13 +293,8 @@ describe.skip('FEPs', () => {
 					const key = Array.from(activitypub._sent.keys())[0];
 					const activity = activitypub._sent.get(key);
 
-					assert(
-						activity && activity.object && typeof activity.object === 'object'
-					);
-					assert.strictEqual(
-						activity.object.id,
-						`${nconf.get('url')}/post/${postData.pid}`
-					);
+					assert(activity && activity.object && typeof activity.object === 'object');
+					assert.strictEqual(activity.object.id, `${nconf.get('url')}/post/${postData.pid}`);
 				});
 
 				it('should be called for a newly forked topic', async () => {
@@ -337,43 +320,33 @@ describe.skip('FEPs', () => {
 						utils.generateUUID(),
 						[reply1Pid, reply2Pid],
 						tid,
-						cid
+						cid,
 					);
 
-					assert.strictEqual(
-						activitypub._sent.size,
-						2,
-						activitypub._sent.keys()
-					);
+					assert.strictEqual(activitypub._sent.size, 2, activitypub._sent.keys());
 
 					const key = Array.from(activitypub._sent.keys())[0];
 					const activity = activitypub._sent.get(key);
 
-					assert(
-						activity && activity.object && typeof activity.object === 'object'
-					);
-					assert.strictEqual(
-						activity.object.id,
-						`${nconf.get('url')}/post/${reply1Pid}`
-					);
+					assert(activity && activity.object && typeof activity.object === 'object');
+					assert.strictEqual(activity.object.id, `${nconf.get('url')}/post/${reply1Pid}`);
 				});
 
 				it('should be called when a post is moved to another topic', async () => {
-					const [{ topicData: topic1 }, { topicData: topic2 }] =
-						await Promise.all([
-							topics.post({
-								uid,
-								cid,
-								title: utils.generateUUID(),
-								content: utils.generateUUID(),
-							}),
-							topics.post({
-								uid,
-								cid,
-								title: utils.generateUUID(),
-								content: utils.generateUUID(),
-							}),
-						]);
+					const [{ topicData: topic1 }, { topicData: topic2 }] = await Promise.all([
+						topics.post({
+							uid,
+							cid,
+							title: utils.generateUUID(),
+							content: utils.generateUUID(),
+						}),
+						topics.post({
+							uid,
+							cid,
+							title: utils.generateUUID(),
+							content: utils.generateUUID(),
+						}),
+					]);
 
 					assert(topic1 && topic2);
 
@@ -386,8 +359,8 @@ describe.skip('FEPs', () => {
 					await api.posts.move({ uid: adminUid }, { pid, tid: topic2.tid });
 
 					assert.strictEqual(activitypub._sent.size, 1);
-					const activities = Array.from(activitypub._sent.keys()).map((key) =>
-						activitypub._sent.get(key)
+					const activities = Array.from(activitypub._sent.keys()).map(key =>
+						activitypub._sent.get(key),
 					);
 
 					const activity = activities.pop();

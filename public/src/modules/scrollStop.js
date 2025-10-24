@@ -1,6 +1,5 @@
 'use strict';
 
-
 /*
 	The point of this library is to enhance(tm) a textarea so that if scrolled,
 	you can only scroll to the top of it and the event doesn't bubble up to
@@ -20,7 +19,7 @@ define('scrollStop', function () {
 
 			if (
 				(e.originalEvent.deltaY < 0 && scrollTop === 0) || // scroll up
-				(e.originalEvent.deltaY > 0 && (elementHeight + scrollTop) >= scrollHeight) // scroll down
+				(e.originalEvent.deltaY > 0 && elementHeight + scrollTop >= scrollHeight) // scroll down
 			) {
 				return false;
 			}

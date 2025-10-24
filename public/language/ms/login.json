@@ -1,12 +1,12 @@
 {
-    "username-email": "Nama pengguna / Emel",
-    "username": "Nama pengguna",
-    "remember-me": "Ingatkan Saya",
-    "forgot-password": "Lupa Kata Laluan?",
-    "alternative-logins": "Log Masuk Alternatif",
-    "failed-login-attempt": "Login Unsuccessful",
-    "login-successful": "Anda berjaya log masuk!",
-    "dont-have-account": "Tiada akaun?",
-    "logged-out-due-to-inactivity": "You have been logged out of the Admin Control Panel due to inactivity",
-    "caps-lock-enabled": "Caps Lock is enabled"
+  "username-email": "Nama pengguna / Emel",
+  "username": "Nama pengguna",
+  "remember-me": "Ingatkan Saya",
+  "forgot-password": "Lupa Kata Laluan?",
+  "alternative-logins": "Log Masuk Alternatif",
+  "failed-login-attempt": "Login Unsuccessful",
+  "login-successful": "Anda berjaya log masuk!",
+  "dont-have-account": "Tiada akaun?",
+  "logged-out-due-to-inactivity": "You have been logged out of the Admin Control Panel due to inactivity",
+  "caps-lock-enabled": "Caps Lock is enabled"
 }

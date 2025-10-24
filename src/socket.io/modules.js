@@ -39,7 +39,7 @@ SocketModules.chats.getRaw = async function (socket, data) {
 SocketModules.chats.isDnD = async function (socket, uid) {
 	sockets.warnDeprecated(
 		socket,
-		'GET /api/v3/users/:uid/status OR HEAD /api/v3/users/:uid/status/:status'
+		'GET /api/v3/users/:uid/status OR HEAD /api/v3/users/:uid/status/:status',
 	);
 
 	const { status } = await api.users.getStatus(socket, { uid });
@@ -142,7 +142,7 @@ async function joinLeave(socket, roomIds, method, prefix = 'chat_room') {
 				) {
 					socket[method](`${prefix}_${roomId}`);
 				}
-			})
+			}),
 		);
 	}
 }
@@ -158,10 +158,7 @@ SocketModules.chats.sortPublicRooms = async function (socket, data) {
 };
 
 SocketModules.chats.searchMembers = async function (socket, data) {
-	sockets.warnDeprecated(
-		socket,
-		'GET /api/v3/search/chats/:roomId/users?query='
-	);
+	sockets.warnDeprecated(socket, 'GET /api/v3/search/chats/:roomId/users?query=');
 
 	if (!data || !data.roomId) {
 		throw new Error('[[error:invalid-data]]');
@@ -174,10 +171,7 @@ SocketModules.chats.searchMembers = async function (socket, data) {
 };
 
 SocketModules.chats.toggleOwner = async (socket, data) => {
-	sockets.warnDeprecated(
-		socket,
-		'PUT/DELETE /api/v3/chats/:roomId/owners/:uid'
-	);
+	sockets.warnDeprecated(socket, 'PUT/DELETE /api/v3/chats/:roomId/owners/:uid');
 
 	if (!data || !data.uid || !data.roomId) {
 		throw new Error('[[error:invalid-data]]');

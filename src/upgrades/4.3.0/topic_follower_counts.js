@@ -13,8 +13,8 @@ module.exports = {
 
 		await batch.processSortedSet(
 			'topics:tid',
-			async (tids) => {
-				const keys = tids.map((tid) => `tid:${tid}:followers`);
+			async tids => {
+				const keys = tids.map(tid => `tid:${tid}:followers`);
 				const followerCounts = await db.setsCount(keys);
 
 				const bulkSet = [];
@@ -32,7 +32,7 @@ module.exports = {
 			},
 			{
 				batch: 500,
-			}
+			},
 		);
 	},
 };

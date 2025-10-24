@@ -65,17 +65,13 @@ exports.doTopicAction = async function (action, event, caller, { tids }) {
 	const uids = await user.getUidsFromSet('users:online', 0, -1);
 
 	await Promise.all(
-		tids.map(async (tid) => {
+		tids.map(async tid => {
 			const title = await topics.getTopicField(tid, 'title');
 			const data = await topics.tools[action](tid, caller.uid);
-			const notifyUids = await privileges.categories.filterUids(
-				'topics:read',
-				data.cid,
-				uids
-			);
+			const notifyUids = await privileges.categories.filterUids('topics:read', data.cid, uids);
 			socketHelpers.emitToUids(event, data, notifyUids);
 			await logTopicAction(action, caller, tid, title);
-		})
+		}),
 	);
 };
 
@@ -94,13 +90,7 @@ async function logTopicAction(action, req, tid, title) {
 	});
 }
 
-exports.postCommand = async function (
-	caller,
-	command,
-	eventName,
-	notification,
-	data
-) {
+exports.postCommand = async function (caller, command, eventName, notification, data) {
 	if (!caller.uid) {
 		throw new Error('[[error:not-logged-in]]');
 	}
@@ -137,13 +127,7 @@ exports.postCommand = async function (
 		data: data,
 		uid: caller.uid,
 	});
-	return await executeCommand(
-		caller,
-		command,
-		eventName,
-		notification,
-		filteredData.data
-	);
+	return await executeCommand(caller, command, eventName, notification, filteredData.data);
 };
 
 async function executeCommand(caller, command, eventName, notification, data) {
@@ -157,12 +141,7 @@ async function executeCommand(caller, command, eventName, notification, data) {
 		socketHelpers.upvote(result, notification);
 		await api.activitypub.like.note(caller, { pid: data.pid });
 	} else if (result && notification) {
-		socketHelpers.sendNotificationToPostOwner(
-			data.pid,
-			caller.uid,
-			command,
-			notification
-		);
+		socketHelpers.sendNotificationToPostOwner(data.pid, caller.uid, command, notification);
 	} else if (result && command === 'unvote') {
 		socketHelpers.rescindUpvoteNotification(data.pid, caller.uid);
 		await api.activitypub.undo.like(caller, { pid: data.pid });

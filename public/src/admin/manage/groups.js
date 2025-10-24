@@ -1,18 +1,17 @@
 'use strict';
 
-define('admin/manage/groups', [
-	'slugify',
-	'api',
-	'bootbox',
-	'alerts',
-], function (slugify, api, bootbox, alerts) {
+define('admin/manage/groups', ['slugify', 'api', 'bootbox', 'alerts'], function (
+	slugify,
+	api,
+	bootbox,
+	alerts,
+) {
 	const Groups = {};
 
 	Groups.init = function () {
 		handleCreate();
 
 		handleSearch();
-
 
 		$('.groups-list').on('click', '[data-action]', function () {
 			const el = $(this);
@@ -23,7 +22,10 @@ define('admin/manage/groups', [
 				case 'delete':
 					bootbox.confirm('[[admin/manage/groups:alerts.confirm-delete]]', function (confirm) {
 						if (confirm) {
-							api.del(`/groups/${slugify(groupName)}`, {}).then(ajaxify.refresh).catch(alerts.error);
+							api
+								.del(`/groups/${slugify(groupName)}`, {})
+								.then(ajaxify.refresh)
+								.catch(alerts.error);
 						}
 					});
 					break;
@@ -33,7 +35,7 @@ define('admin/manage/groups', [
 
 	function handleCreate() {
 		$('#create').on('click', function () {
-			app.parseAndTranslate('admin/partials/create_group_modal', {}).then((html) => {
+			app.parseAndTranslate('admin/partials/create_group_modal', {}).then(html => {
 				html.modal('show');
 
 				html.on('shown.bs.modal', function () {
@@ -60,19 +62,22 @@ define('admin/manage/groups', [
 							hidden: $('#create-group-hidden').is(':checked') ? 1 : 0,
 						};
 
-						api.post('/groups', submitObj).then((response) => {
-							createModalError.addClass('hide');
-							createGroupName.val('');
-							createModal.on('hidden.bs.modal', function () {
-								ajaxify.go('admin/manage/groups/' + response.name);
+						api
+							.post('/groups', submitObj)
+							.then(response => {
+								createModalError.addClass('hide');
+								createGroupName.val('');
+								createModal.on('hidden.bs.modal', function () {
+									ajaxify.go('admin/manage/groups/' + response.name);
+								});
+								createModal.modal('hide');
+							})
+							.catch(err => {
+								if (!utils.hasLanguageKey(err.status.message)) {
+									err.status.message = '[[admin/manage/groups:alerts.create-failure]]';
+								}
+								createModalError.translateHtml(err.status.message).removeClass('hide');
 							});
-							createModal.modal('hide');
-						}).catch((err) => {
-							if (!utils.hasLanguageKey(err.status.message)) {
-								err.status.message = '[[admin/manage/groups:alerts.create-failure]]';
-							}
-							createModalError.translateHtml(err.status.message).removeClass('hide');
-						});
 					});
 				});
 			});
@@ -87,12 +92,14 @@ define('admin/manage/groups', [
 				return ajaxify.refresh();
 			}
 			$('.pagination').addClass('hide');
-			api.get('/api/groups', {
-				query: queryEl.val(),
-				sort: 'date',
-				hideEphemeralGroups: true,
-				excludeGroups: ['registered-users', 'verified-users', 'unverified-users'],
-			}).then(renderSearchResults)
+			api
+				.get('/api/groups', {
+					query: queryEl.val(),
+					sort: 'date',
+					hideEphemeralGroups: true,
+					excludeGroups: ['registered-users', 'verified-users', 'unverified-users'],
+				})
+				.then(renderSearchResults)
 				.catch(alerts.error);
 		}
 
@@ -101,13 +108,18 @@ define('admin/manage/groups', [
 
 	function renderSearchResults(data) {
 		const groupsEl = $('.groups-list');
-		app.parseAndTranslate('admin/manage/groups', 'groups', {
-			groups: data.groups,
-			categories: ajaxify.data.categories,
-		}, function (html) {
-			groupsEl.find('[data-groupname]').remove();
-			groupsEl.find('tbody').append(html);
-		});
+		app.parseAndTranslate(
+			'admin/manage/groups',
+			'groups',
+			{
+				groups: data.groups,
+				categories: ajaxify.data.categories,
+			},
+			function (html) {
+				groupsEl.find('[data-groupname]').remove();
+				groupsEl.find('tbody').append(html);
+			},
+		);
 	}
 
 	return Groups;

@@ -57,28 +57,16 @@ module.exports = function (User) {
 			]);
 		}
 
-		const [
-			followingCount,
-			followingRemoteCount,
-			followerCount,
-			followerRemoteCount,
-		] = await db.sortedSetsCard([
-			`following:${uid}`,
-			`followingRemote:${uid}`,
-			`followers:${theiruid}`,
-			`followersRemote:${theiruid}`,
-		]);
+		const [followingCount, followingRemoteCount, followerCount, followerRemoteCount] =
+			await db.sortedSetsCard([
+				`following:${uid}`,
+				`followingRemote:${uid}`,
+				`followers:${theiruid}`,
+				`followersRemote:${theiruid}`,
+			]);
 		await Promise.all([
-			User.setUserField(
-				uid,
-				'followingCount',
-				followingCount + followingRemoteCount
-			),
-			User.setUserField(
-				theiruid,
-				'followerCount',
-				followerCount + followerRemoteCount
-			),
+			User.setUserField(uid, 'followingCount', followingCount + followingRemoteCount),
+			User.setUserField(theiruid, 'followerCount', followerCount + followerRemoteCount),
 		]);
 	}
 
@@ -97,13 +85,11 @@ module.exports = function (User) {
 		let uids = await db.getSortedSetRevRange(
 			[`${type}:${uid}`, `${type}Remote:${uid}`],
 			start,
-			stop
+			stop,
 		);
 
 		// Filter out remote categories
-		const isCategory = await db.exists(
-			uids.map((uid) => `categoryRemote:${uid}`)
-		);
+		const isCategory = await db.exists(uids.map(uid => `categoryRemote:${uid}`));
 		uids = uids.filter((uid, idx) => !isCategory[idx]);
 
 		const data = await plugins.hooks.fire(`filter:user.${type}`, {

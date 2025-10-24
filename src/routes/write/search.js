@@ -13,13 +13,7 @@ module.exports = function () {
 	// maybe redirect to /search/posts?
 	// setupApiRoute(router, 'post', '/', [...middlewares], controllers.write.search.TBD);
 
-	setupApiRoute(
-		router,
-		'get',
-		'/categories',
-		[],
-		controllers.write.search.categories
-	);
+	setupApiRoute(router, 'get', '/categories', [], controllers.write.search.categories);
 
 	setupApiRoute(
 		router,
@@ -31,7 +25,7 @@ module.exports = function () {
 			middleware.canChat,
 			middleware.assert.room,
 		],
-		controllers.write.search.roomUsers
+		controllers.write.search.roomUsers,
 	);
 	setupApiRoute(
 		router,
@@ -43,7 +37,7 @@ module.exports = function () {
 			middleware.canChat,
 			middleware.assert.room,
 		],
-		controllers.write.search.roomMessages
+		controllers.write.search.roomMessages,
 	);
 
 	return router;

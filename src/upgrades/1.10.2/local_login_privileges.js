@@ -9,11 +9,7 @@ module.exports = {
 		const allowLocalLogin = parseInt(meta.config.allowLocalLogin, 10) !== 0;
 
 		if (allowLocalLogin) {
-			privileges.global.give(
-				['groups:local:login'],
-				'registered-users',
-				callback
-			);
+			privileges.global.give(['groups:local:login'], 'registered-users', callback);
 		} else {
 			callback();
 		}

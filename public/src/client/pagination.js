@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/pagination', ['bootbox'], function (bootbox) {
 	const pagination = {};
 

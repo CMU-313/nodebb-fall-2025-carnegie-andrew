@@ -8,5 +8,5 @@ module.exports = merge(
 	/** @type { import('webpack').Configuration } */ {
 		mode: 'development',
 		// devtool: 'eval-source-map',
-	}
+	},
 );

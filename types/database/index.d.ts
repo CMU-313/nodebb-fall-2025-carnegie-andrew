@@ -4,19 +4,12 @@ export { Hash } from './hash';
 export { List } from './list';
 export { Set } from './set';
 export { Item } from './string';
-export {
-  SortedSet,
-  SortedSetTheoryOperation,
-  SortedSetScanBaseParameters,
-} from './zset';
+export { SortedSet, SortedSetTheoryOperation, SortedSetScanBaseParameters } from './zset';
 
 export interface Database {
   checkCompatibility(callback: () => void): Promise<void>;
 
-  checkCompatibilityVersion(
-    version: string,
-    callback: () => void
-  ): Promise<void>;
+  checkCompatibilityVersion(version: string, callback: () => void): Promise<void>;
 
   close(): Promise<void>;
 
@@ -33,11 +26,7 @@ export interface Database {
   init(): Promise<void>;
 }
 
-export type RedisStyleMatchString =
-  | string
-  | `*${string}`
-  | `${string}*`
-  | `*${string}*`;
+export type RedisStyleMatchString = string | `*${string}` | `${string}*` | `*${string}*`;
 export type RedisStyleRangeString = `${'(' | '['}${string}` | `${string}`;
 
 export enum ObjectType {

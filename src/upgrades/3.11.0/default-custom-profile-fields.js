@@ -6,8 +6,7 @@ module.exports = {
 	name: 'Add website and location as custom profile fields',
 	timestamp: Date.UTC(2024, 10, 25),
 	method: async function () {
-		const minRepWebsite =
-			parseInt(await db.getObjectField('config', 'min:rep:website'), 10) || 0;
+		const minRepWebsite = parseInt(await db.getObjectField('config', 'min:rep:website'), 10) || 0;
 
 		const website = {
 			icon: 'fa-solid fa-globe',
@@ -27,11 +26,7 @@ module.exports = {
 			type: 'input-text',
 		};
 
-		await db.sortedSetAdd(
-			`user-custom-fields`,
-			[0, 1],
-			['website', 'location']
-		);
+		await db.sortedSetAdd(`user-custom-fields`, [0, 1], ['website', 'location']);
 
 		await db.setObjectBulk([
 			[`user-custom-field:website`, website],

@@ -98,7 +98,7 @@ describe.skip('Notes', () => {
 					const uid = await user.create({ username: utils.generateUUID() });
 					await api.categories.setWatchState(
 						{ uid },
-						{ cid, state: categories.watchStates.tracking }
+						{ cid, state: categories.watchStates.tracking },
 					);
 
 					const { id } = helpers.mocks.note({
@@ -144,7 +144,7 @@ describe.skip('Notes', () => {
 							cid: remoteCid,
 							state: categories.watchStates.tracking,
 							uid,
-						}
+						},
 					);
 
 					const { id } = helpers.mocks.note({
@@ -168,7 +168,7 @@ describe.skip('Notes', () => {
 							cid: remoteCid,
 							state: categories.watchStates.watching,
 							uid,
-						}
+						},
 					);
 
 					const { id, note } = helpers.mocks.note({
@@ -184,7 +184,7 @@ describe.skip('Notes', () => {
 
 					// Notification inbox delivery is async so can't test directly
 					const exists = await db.exists(
-						`notifications:new_topic:tid:${assertion.tid}:uid:${note.attributedTo}`
+						`notifications:new_topic:tid:${assertion.tid}:uid:${note.attributedTo}`,
 					);
 					assert(exists);
 
@@ -198,7 +198,7 @@ describe.skip('Notes', () => {
 							cid: remoteCid,
 							state: categories.watchStates.ignoring,
 							uid,
-						}
+						},
 					);
 
 					const { id, note } = helpers.mocks.note({
@@ -280,7 +280,7 @@ describe.skip('Notes', () => {
 							cid,
 							title: utils.generateUUID(),
 							content: utils.generateUUID(),
-						}
+						},
 					);
 
 					assert(tid);
@@ -323,7 +323,7 @@ describe.skip('Notes', () => {
 							cid,
 							title: utils.generateUUID(),
 							content: utils.generateUUID(),
-						}
+						},
 					);
 					activitypub._sent.clear();
 
@@ -332,7 +332,7 @@ describe.skip('Notes', () => {
 						{
 							tid,
 							content: utils.generateUUID(),
-						}
+						},
 					);
 
 					const key = Array.from(activitypub._sent.keys())[0];
@@ -366,7 +366,7 @@ describe.skip('Notes', () => {
 							cid,
 							title: utils.generateUUID(),
 							content: utils.generateUUID(),
-						}
+						},
 					);
 
 					assert(tid);
@@ -398,7 +398,7 @@ describe.skip('Notes', () => {
 							cid,
 							title: utils.generateUUID(),
 							content: utils.generateUUID(),
-						}
+						},
 					);
 
 					activitypub._sent.clear();
@@ -408,7 +408,7 @@ describe.skip('Notes', () => {
 						{
 							tid,
 							content: utils.generateUUID(),
-						}
+						},
 					);
 
 					assert(postData);
@@ -490,11 +490,7 @@ describe.skip('Notes', () => {
 					const { note, id } = helpers.mocks.note();
 					const { activity } = helpers.mocks.create(note);
 
-					await db.sortedSetAdd(
-						`followersRemote:${note.attributedTo}`,
-						Date.now(),
-						uid
-					);
+					await db.sortedSetAdd(`followersRemote:${note.attributedTo}`, Date.now(), uid);
 					await activitypub.inbox.create({ body: activity });
 
 					assert(await posts.exists(id));
@@ -599,10 +595,7 @@ describe.skip('Notes', () => {
 					await activitypub.inbox.announce({ body: activity });
 					announces += 1;
 
-					const count = await posts.getPostField(
-						topicData.mainPid,
-						'announces'
-					);
+					const count = await posts.getPostField(topicData.mainPid, 'announces');
 					assert.strictEqual(count, announces);
 				});
 
@@ -617,10 +610,7 @@ describe.skip('Notes', () => {
 					await activitypub.inbox.announce({ body: activity });
 					announces += 1;
 
-					const exists = await db.isSortedSetMember(
-						`pid:${topicData.mainPid}:announces`,
-						id
-					);
+					const exists = await db.isSortedSetMember(`pid:${topicData.mainPid}:announces`, id);
 					assert(exists);
 				});
 
@@ -634,10 +624,7 @@ describe.skip('Notes', () => {
 
 					await activitypub.inbox.announce({ body: activity });
 
-					const count = await posts.getPostField(
-						topicData.mainPid,
-						'announces'
-					);
+					const count = await posts.getPostField(topicData.mainPid, 'announces');
 					assert.strictEqual(count, announces);
 				});
 
@@ -651,10 +638,7 @@ describe.skip('Notes', () => {
 
 					await activitypub.inbox.announce({ body: activity });
 
-					const exists = await db.isSortedSetMember(
-						`pid:${topicData.mainPid}:announces`,
-						id
-					);
+					const exists = await db.isSortedSetMember(`pid:${topicData.mainPid}:announces`, id);
 					assert(!exists);
 				});
 			});
@@ -669,11 +653,7 @@ describe.skip('Notes', () => {
 					const uid = await user.create({
 						username: utils.generateUUID().slice(0, 10),
 					});
-					await db.sortedSetAdd(
-						`followersRemote:${activity.actor}`,
-						Date.now(),
-						uid
-					);
+					await db.sortedSetAdd(`followersRemote:${activity.actor}`, Date.now(), uid);
 
 					const beforeCount = await db.sortedSetCard(`cid:-1:tids`);
 					await activitypub.inbox.announce({ body: activity });
@@ -693,11 +673,7 @@ describe.skip('Notes', () => {
 					const uid = await user.create({
 						username: utils.generateUUID().slice(0, 10),
 					});
-					await db.sortedSetAdd(
-						`followersRemote:${activity.actor}`,
-						Date.now(),
-						uid
-					);
+					await db.sortedSetAdd(`followersRemote:${activity.actor}`, Date.now(), uid);
 
 					const beforeCount = await db.sortedSetCard(`cid:${cid}:tids`);
 					await activitypub.inbox.announce({ body: activity });
@@ -796,10 +772,7 @@ describe.skip('Notes', () => {
 		it("should add a topic to a user's inbox if user is a recipient in OP", async () => {
 			await db.setAdd(`post:${topicData.mainPid}:recipients`, [uid]);
 			await activitypub.notes.syncUserInboxes(topicData.tid);
-			const inboxed = await db.isSortedSetMember(
-				`uid:${uid}:inbox`,
-				topicData.tid
-			);
+			const inboxed = await db.isSortedSetMember(`uid:${uid}:inbox`, topicData.tid);
 
 			assert.strictEqual(inboxed, true);
 		});
@@ -815,10 +788,7 @@ describe.skip('Notes', () => {
 			});
 			await db.setAdd(`post:${pid}:recipients`, [uid]);
 			await activitypub.notes.syncUserInboxes(topicData.tid);
-			const inboxed = await db.isSortedSetMember(
-				`uid:${uid}:inbox`,
-				topicData.tid
-			);
+			const inboxed = await db.isSortedSetMember(`uid:${uid}:inbox`, topicData.tid);
 
 			assert.strictEqual(inboxed, true);
 		});
@@ -837,10 +807,7 @@ describe.skip('Notes', () => {
 
 		it("should add topic to a user's inbox if it is explicitly passed in as an argument", async () => {
 			await activitypub.notes.syncUserInboxes(topicData.tid, uid);
-			const inboxed = await db.isSortedSetMember(
-				`uid:${uid}:inbox`,
-				topicData.tid
-			);
+			const inboxed = await db.isSortedSetMember(`uid:${uid}:inbox`, topicData.tid);
 
 			assert.strictEqual(inboxed, true);
 		});
@@ -848,10 +815,7 @@ describe.skip('Notes', () => {
 		it("should remove a topic from a user's inbox if that user is no longer a recipient in any contained posts", async () => {
 			await activitypub.notes.syncUserInboxes(topicData.tid, uid);
 			await activitypub.notes.syncUserInboxes(topicData.tid);
-			const inboxed = await db.isSortedSetMember(
-				`uid:${uid}:inbox`,
-				topicData.tid
-			);
+			const inboxed = await db.isSortedSetMember(`uid:${uid}:inbox`, topicData.tid);
 
 			assert.strictEqual(inboxed, false);
 		});

@@ -1,17 +1,17 @@
 {
-	"rewards": "Recompensas",
-	"add-reward": "Add reward",
-	"condition-if-users": "Se",
-	"condition-is": "É:",
-	"condition-then": "Então:",
-	"max-claims": "Número de vezes que a recompensa pode ser atribuída",
-	"zero-infinite": "Digite 0 para infinito",
-	"select-reward": "Select reward",
-	"delete": "Apagar",
-	"enable": "Ativar",
-	"disable": "Desativar",
+  "rewards": "Recompensas",
+  "add-reward": "Add reward",
+  "condition-if-users": "Se",
+  "condition-is": "É:",
+  "condition-then": "Então:",
+  "max-claims": "Número de vezes que a recompensa pode ser atribuída",
+  "zero-infinite": "Digite 0 para infinito",
+  "select-reward": "Select reward",
+  "delete": "Apagar",
+  "enable": "Ativar",
+  "disable": "Desativar",
 
-	"alert.delete-success": "Recompensa apagada com sucesso",
-	"alert.no-inputs-found": "Recompensa ilegal - não foram encontradas entradas!",
-	"alert.save-success": "Recompensas guardadas com sucesso"
+  "alert.delete-success": "Recompensa apagada com sucesso",
+  "alert.no-inputs-found": "Recompensa ilegal - não foram encontradas entradas!",
+  "alert.save-success": "Recompensas guardadas com sucesso"
 }

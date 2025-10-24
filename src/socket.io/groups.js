@@ -27,11 +27,7 @@ SocketGroups.search = async (socket, data) => {
 
 	if (!data.query) {
 		const groupsPerPage = 15;
-		const groupData = await groups.getGroupsBySort(
-			data.options.sort,
-			0,
-			groupsPerPage - 1
-		);
+		const groupData = await groups.getGroupsBySort(data.options.sort, 0, groupsPerPage - 1);
 		return groupData;
 	}
 	data.options.filterHidden =
@@ -43,11 +39,7 @@ SocketGroups.loadMore = async (socket, data) => {
 	sockets.warnDeprecated(socket, 'GET /api/v3/groups');
 
 	// These restrictions were left behind for websocket specific calls, the API is more flexible and requires no params
-	if (
-		!data.sort ||
-		!utils.isNumber(data.after) ||
-		parseInt(data.after, 10) < 0
-	) {
+	if (!data.sort || !utils.isNumber(data.after) || parseInt(data.after, 10) < 0) {
 		throw new Error('[[error:invalid-data]]');
 	}
 
@@ -69,11 +61,7 @@ SocketGroups.searchMembers = async (socket, data) => {
 SocketGroups.loadMoreMembers = async (socket, data) => {
 	sockets.warnDeprecated(socket, 'GET /api/v3/groups/:groupName/members');
 
-	if (
-		!data.groupName ||
-		!utils.isNumber(data.after) ||
-		parseInt(data.after, 10) < 0
-	) {
+	if (!data.groupName || !utils.isNumber(data.after) || parseInt(data.after, 10) < 0) {
 		throw new Error('[[error:invalid-data]]');
 	}
 	data.slug = slugify(data.groupName);
@@ -82,7 +70,7 @@ SocketGroups.loadMoreMembers = async (socket, data) => {
 	return api.groups.listMembers(socket, data);
 };
 
-SocketGroups.getChatGroups = async (socket) => {
+SocketGroups.getChatGroups = async socket => {
 	sockets.warnDeprecated(socket, 'GET /api/v3/admin/groups');
 
 	const isAdmin = await user.isAdministrator(socket.uid);
@@ -94,7 +82,7 @@ SocketGroups.getChatGroups = async (socket) => {
 
 	// Float system groups to top and return only name/displayName
 	groups.sort((a, b) => b.system - a.system);
-	return groups.map((g) => ({ name: g.name, displayName: g.displayName }));
+	return groups.map(g => ({ name: g.name, displayName: g.displayName }));
 };
 
 SocketGroups.cover = {};
@@ -136,13 +124,7 @@ async function canModifyGroup(uid, groupName) {
 		isGlobalMod: user.isGlobalModerator(uid),
 	});
 
-	if (
-		!(
-			results.isOwner ||
-			results.hasAdminPrivilege ||
-			(results.isGlobalMod && !results.system)
-		)
-	) {
+	if (!(results.isOwner || results.hasAdminPrivilege || (results.isGlobalMod && !results.system))) {
 		throw new Error('[[error:no-privileges]]');
 	}
 }

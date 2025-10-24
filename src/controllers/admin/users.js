@@ -92,20 +92,14 @@ async function getUsers(req, res) {
 		let uids = [];
 		if (Array.isArray(set)) {
 			const weights = set.map((s, index) => (index ? 0 : 1));
-			uids = await db[
-				reverse ? 'getSortedSetRevIntersect' : 'getSortedSetIntersect'
-			]({
+			uids = await db[reverse ? 'getSortedSetRevIntersect' : 'getSortedSetIntersect']({
 				sets: set,
 				start: start,
 				stop: stop,
 				weights: weights,
 			});
 		} else {
-			uids = await db[reverse ? 'getSortedSetRevRange' : 'getSortedSetRange'](
-				set,
-				start,
-				stop
-			);
+			uids = await db[reverse ? 'getSortedSetRevRange' : 'getSortedSetRange'](set, start, stop);
 		}
 		return uids;
 	}
@@ -119,7 +113,7 @@ async function getUsers(req, res) {
 	]);
 
 	await render(req, res, {
-		users: users.filter((user) => user && parseInt(user.uid, 10)),
+		users: users.filter(user => user && parseInt(user.uid, 10)),
 		page: page,
 		pageCount: Math.max(1, Math.ceil(count / resultsPerPage)),
 		resultsPerPage: resultsPerPage,
@@ -131,9 +125,7 @@ async function getUsers(req, res) {
 
 async function getCustomUserFields() {
 	const keys = await db.getSortedSetRange('user-custom-fields', 0, -1);
-	return (
-		await db.getObjects(keys.map((k) => `user-custom-field:${k}`))
-	).filter(Boolean);
+	return (await db.getObjects(keys.map(k => `user-custom-field:${k}`))).filter(Boolean);
 }
 
 usersController.search = async function (req, res) {
@@ -168,15 +160,15 @@ usersController.search = async function (req, res) {
 				match: query,
 				limit: hardCap || resultsPerPage * 10,
 			});
-			return data.map((data) => data.split(':').pop());
+			return data.map(data => data.split(':').pop());
 		},
 	});
 
-	const uids = searchData.users.map((user) => user && user.uid);
+	const uids = searchData.users.map(user => user && user.uid);
 	searchData.users = await loadUserInfo(req.uid, uids);
 	if (req.query.searchBy === 'ip') {
-		searchData.users.forEach((user) => {
-			user.ip = user.ips.find((ip) => ip.includes(String(req.query.query)));
+		searchData.users.forEach(user => {
+			user.ip = user.ips.find(ip => ip.includes(String(req.query.query)));
 		});
 	}
 	searchData.query = validator.escape(String(req.query.query || ''));
@@ -189,16 +181,12 @@ usersController.search = async function (req, res) {
 
 async function loadUserInfo(callerUid, uids) {
 	async function getIPs() {
-		return await Promise.all(
-			uids.map((uid) => db.getSortedSetRevRange(`uid:${uid}:ip`, 0, 4))
-		);
+		return await Promise.all(uids.map(uid => db.getSortedSetRevRange(`uid:${uid}:ip`, 0, 4)));
 	}
 	async function getConfirmObjs() {
-		const keys = uids.map((uid) => `confirm:byUid:${uid}`);
+		const keys = uids.map(uid => `confirm:byUid:${uid}`);
 		const codes = await db.mget(keys);
-		const confirmObjs = await db.getObjects(
-			codes.map((code) => `confirm:${code}`)
-		);
+		const confirmObjs = await db.getObjects(codes.map(code => `confirm:${code}`));
 		return uids.map((uid, index) => confirmObjs[index]);
 	}
 
@@ -221,10 +209,8 @@ async function loadUserInfo(callerUid, uids) {
 			user.emailToConfirm = user.email;
 			if (confirmObjs[index] && confirmObjs[index].email) {
 				const confirmObj = confirmObjs[index];
-				user['email:expired'] =
-					!confirmObj.expires || Date.now() >= confirmObj.expires;
-				user['email:pending'] =
-					confirmObj.expires && Date.now() < confirmObj.expires;
+				user['email:expired'] = !confirmObj.expires || Date.now() >= confirmObj.expires;
+				user['email:pending'] = confirmObj.expires && Date.now() < confirmObj.expires;
 				user.emailToConfirm = validator.escape(String(confirmObj.email));
 			}
 		}
@@ -241,16 +227,12 @@ usersController.registrationQueue = async function (req, res) {
 	const data = await utils.promiseParallel({
 		registrationQueueCount: db.sortedSetCard('registration:queue'),
 		users: user.getRegistrationQueue(start, stop),
-		customHeaders: plugins.hooks.fire(
-			'filter:admin.registrationQueue.customHeaders',
-			{ headers: [] }
-		),
+		customHeaders: plugins.hooks.fire('filter:admin.registrationQueue.customHeaders', {
+			headers: [],
+		}),
 		invites: getInvites(),
 	});
-	const pageCount = Math.max(
-		1,
-		Math.ceil(data.registrationQueueCount / itemsPerPage)
-	);
+	const pageCount = Math.max(1, Math.ceil(data.registrationQueueCount / itemsPerPage));
 	data.pagination = pagination.create(page, pageCount);
 	data.customHeaders = data.customHeaders.headers;
 	data.title = '[[pages:registration-queue]]';
@@ -259,9 +241,9 @@ usersController.registrationQueue = async function (req, res) {
 
 async function getInvites() {
 	const invitations = await user.getAllInvites();
-	const uids = invitations.map((invite) => invite.uid);
+	const uids = invitations.map(invite => invite.uid);
 	let usernames = await user.getUsersFields(uids, ['username']);
-	usernames = usernames.map((user) => user.username);
+	usernames = usernames.map(user => user.username);
 
 	invitations.forEach((invites, index) => {
 		invites.username = usernames[index];
@@ -270,21 +252,20 @@ async function getInvites() {
 	async function getUsernamesByEmails(emails) {
 		const uids = await db.sortedSetScores(
 			'email:uid',
-			emails.map((email) => String(email).toLowerCase())
+			emails.map(email => String(email).toLowerCase()),
 		);
 		const usernames = await user.getUsersFields(uids, ['username']);
-		return usernames.map((user) => user.username);
+		return usernames.map(user => user.username);
 	}
 
 	usernames = await Promise.all(
-		invitations.map((invites) => getUsernamesByEmails(invites.invitations))
+		invitations.map(invites => getUsernamesByEmails(invites.invitations)),
 	);
 
 	invitations.forEach((invites, index) => {
 		invites.invitations = invites.invitations.map((email, i) => ({
 			email: email,
-			username:
-				usernames[index][i] === '[[global:guest]]' ? '' : usernames[index][i],
+			username: usernames[index][i] === '[[global:guest]]' ? '' : usernames[index][i],
 		}));
 	});
 	return invitations;
@@ -295,9 +276,7 @@ async function render(req, res, data) {
 
 	const { registrationType } = meta.config;
 
-	data.inviteOnly =
-		registrationType === 'invite-only' ||
-		registrationType === 'admin-invite-only';
+	data.inviteOnly = registrationType === 'invite-only' || registrationType === 'admin-invite-only';
 	data.adminInviteOnly = registrationType === 'admin-invite-only';
 	data[`sort_${data.sortBy}`] = true;
 	if (req.query.searchBy) {
@@ -306,7 +285,7 @@ async function render(req, res, data) {
 	const filterBy = Array.isArray(req.query.filters || [])
 		? req.query.filters || []
 		: [req.query.filters];
-	filterBy.forEach((filter) => {
+	filterBy.forEach(filter => {
 		data[`filterBy_${validator.escape(String(filter))}`] = true;
 	});
 	data.userCount = parseInt(await db.getObjectField('global', 'userCount'), 10);
@@ -336,7 +315,7 @@ usersController.getCSV = async function (req, res, next) {
 				'Content-Disposition': 'attachment; filename=users.csv',
 			},
 		},
-		(err) => {
+		err => {
 			if (err) {
 				if (err.code === 'ENOENT') {
 					res.locals.isAPI = false;
@@ -344,21 +323,16 @@ usersController.getCSV = async function (req, res, next) {
 				}
 				return next(err);
 			}
-		}
+		},
 	);
 };
 
 usersController.customFields = async function (req, res) {
 	const keys = await db.getSortedSetRange('user-custom-fields', 0, -1);
-	const fields = (
-		await db.getObjects(keys.map((k) => `user-custom-field:${k}`))
-	).filter(Boolean);
-	fields.forEach((field) => {
+	const fields = (await db.getObjects(keys.map(k => `user-custom-field:${k}`))).filter(Boolean);
+	fields.forEach(field => {
 		if (field['select-options']) {
-			field.selectOptionsFormatted = field['select-options']
-				.trim()
-				.split('\n')
-				.join(', ');
+			field.selectOptionsFormatted = field['select-options'].trim().split('\n').join(', ');
 		}
 		field['min:rep'] = field['min:rep'] || 0;
 		field.visibility = field.visibility || 'all';

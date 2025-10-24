@@ -14,9 +14,7 @@ module.exports = function (SocketTopics) {
 			throw new Error('[[error:invalid-data]]');
 		}
 
-		await Promise.all(
-			tids.map(async (tid) => api.topics.markRead(socket, { tid }))
-		);
+		await Promise.all(tids.map(async tid => api.topics.markRead(socket, { tid })));
 	};
 
 	SocketTopics.markTopicNotificationsRead = async function (socket, tids) {
@@ -68,8 +66,6 @@ module.exports = function (SocketTopics) {
 			throw new Error('[[error:no-privileges]]');
 		}
 
-		await Promise.all(
-			tids.map(async (tid) => api.topics.bump(socket, { tid }))
-		);
+		await Promise.all(tids.map(async tid => api.topics.bump(socket, { tid })));
 	};
 };

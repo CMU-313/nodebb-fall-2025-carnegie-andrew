@@ -18,7 +18,7 @@ module.exports = function (Plugins) {
 				await Plugins.submitUsageData();
 			},
 			null,
-			true
+			true,
 		);
 	};
 
@@ -45,9 +45,7 @@ module.exports = function (Plugins) {
 			});
 
 			if (!response.ok) {
-				winston.error(
-					`[plugins.submitUsageData] received ${response.status} ${body}`
-				);
+				winston.error(`[plugins.submitUsageData] received ${response.status} ${body}`);
 			}
 		} catch (err) {
 			winston.error(err.stack);

@@ -26,7 +26,7 @@ module.exports = {
 							return cb(err);
 						}
 
-						keys.forEach((key) => {
+						keys.forEach(key => {
 							if (settings[key] && !settings[key].includes(' | ')) {
 								settings[key] = map[settings[key]] || '';
 							}
@@ -36,11 +36,7 @@ module.exports = {
 					});
 				},
 				function (cb) {
-					const keys = [
-						'notificationSound',
-						'incomingChatSound',
-						'outgoingChatSound',
-					];
+					const keys = ['notificationSound', 'incomingChatSound', 'outgoingChatSound'];
 
 					batch.processSortedSet(
 						'users:joindate',
@@ -53,7 +49,7 @@ module.exports = {
 											return next(err);
 										}
 										const newSettings = {};
-										keys.forEach((key) => {
+										keys.forEach(key => {
 											if (settings[key] && !settings[key].includes(' | ')) {
 												newSettings[key] = map[settings[key]] || '';
 											}
@@ -66,14 +62,14 @@ module.exports = {
 										}
 									});
 								},
-								next
+								next,
 							);
 						},
-						cb
+						cb,
 					);
 				},
 			],
-			callback
+			callback,
 		);
 	},
 };

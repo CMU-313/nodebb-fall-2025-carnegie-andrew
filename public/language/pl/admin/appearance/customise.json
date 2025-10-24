@@ -1,20 +1,20 @@
 {
-	"customise": "Dostosuj",
-	"custom-css": "Niestandardowe CSS/SASS",
-	"custom-css.description": "Wprowadź tutaj własne deklaracje CSS/SASS, które zostaną zastosowane w wszystkich innych stylach.",
-	"custom-css.enable": "Włącz niestandardowe CSS/SASS",
+  "customise": "Dostosuj",
+  "custom-css": "Niestandardowe CSS/SASS",
+  "custom-css.description": "Wprowadź tutaj własne deklaracje CSS/SASS, które zostaną zastosowane w wszystkich innych stylach.",
+  "custom-css.enable": "Włącz niestandardowe CSS/SASS",
 
-	"custom-js": "Własny Javascript",
-	"custom-js.description": "Wprowadź własny kod javascript tutaj. Będzie użyty po pełnym załadowaniu strony.",
-	"custom-js.enable": "Aktywuj własny Javascript.",
+  "custom-js": "Własny Javascript",
+  "custom-js.description": "Wprowadź własny kod javascript tutaj. Będzie użyty po pełnym załadowaniu strony.",
+  "custom-js.enable": "Aktywuj własny Javascript.",
 
-	"custom-header": "Własny nagłówek",
-	"custom-header.description": "Wpisz tutaj niestandardowy kod HTML (np. Metatagi, itp.), który zostanie dołączony do sekcji <code>&lt;head&gt;</code> Twojego forum. Dozwolone są tagi skryptów, ale są one odradzane, ponieważ dostępna jest <a href=\"#custom-js\" data-toggle=\"tab\">niestandardowa karta JavaScript</a>.",
-	"custom-header.enable": "Włącz własny nagłówek",
+  "custom-header": "Własny nagłówek",
+  "custom-header.description": "Wpisz tutaj niestandardowy kod HTML (np. Metatagi, itp.), który zostanie dołączony do sekcji <code>&lt;head&gt;</code> Twojego forum. Dozwolone są tagi skryptów, ale są one odradzane, ponieważ dostępna jest <a href=\"#custom-js\" data-toggle=\"tab\">niestandardowa karta JavaScript</a>.",
+  "custom-header.enable": "Włącz własny nagłówek",
 
-	"custom-css.livereload": "Włącz dynamiczne przeładowanie",
-	"custom-css.livereload.description": "Włącz, jeśli chcesz wymusić odświeżenie wszystkich sesji na każdym urządzeniu na Twoim koncie zawsze, gdy klikniesz „zapisz”.",
-	"bsvariables": "_variables.scss",
-	"bsvariables.description": "Tutaj przeciąż zmienne bootstrap. Możesz też użyć narzędzia jak <a href=\"https://bootstrap.build/app\">bootstrap.build</a> i wkleić jego wynik tutaj.<br/>Zmiany wymagają przebudowy i restartu.",
-	"bsvariables.enable": "Włącz _variables.scss"
+  "custom-css.livereload": "Włącz dynamiczne przeładowanie",
+  "custom-css.livereload.description": "Włącz, jeśli chcesz wymusić odświeżenie wszystkich sesji na każdym urządzeniu na Twoim koncie zawsze, gdy klikniesz „zapisz”.",
+  "bsvariables": "_variables.scss",
+  "bsvariables.description": "Tutaj przeciąż zmienne bootstrap. Możesz też użyć narzędzia jak <a href=\"https://bootstrap.build/app\">bootstrap.build</a> i wkleić jego wynik tutaj.<br/>Zmiany wymagają przebudowy i restartu.",
+  "bsvariables.enable": "Włącz _variables.scss"
 }

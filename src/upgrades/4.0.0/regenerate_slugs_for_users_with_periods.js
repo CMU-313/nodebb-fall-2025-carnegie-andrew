@@ -13,7 +13,7 @@ module.exports = {
 
 		await batch.processSortedSet(
 			'users:joindate',
-			async (uids) => {
+			async uids => {
 				const data = await user.getUsersFields(uids, ['username', 'userslug']);
 				await Promise.all(
 					data.map(async ({ uid, username, userslug }) => {
@@ -25,7 +25,7 @@ module.exports = {
 								db.sortedSetAdd('userslug:uid', uid, value),
 							]);
 						}
-					})
+					}),
 				);
 
 				progress.incr(uids.length);
@@ -33,7 +33,7 @@ module.exports = {
 			{
 				batch: 500,
 				progress: progress,
-			}
+			},
 		);
 	},
 };

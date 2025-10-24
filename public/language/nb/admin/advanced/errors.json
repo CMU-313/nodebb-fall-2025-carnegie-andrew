@@ -1,15 +1,15 @@
 {
-	"errors": "Feil",
-	"figure-x": "Figur %1",
-	"error-events-per-day": "<code>%1</code> hendelser per dag",
-	"error.404": "404 Ikke funnet",
-	"error.503": "503 Tjeneste utilgjengelig",
-	"manage-error-log": "Administrer feillogg",
-	"export-error-log": "Eksporter feillogg (CSV)",
-	"clear-error-log": "Tøm feillogg",
-	"route": "Rute",
-	"count": "Antall",
-	"no-routes-not-found": "Hurra! Ingen 404-feil!",
-	"clear404-confirm": "Er du sikker på at du vil tømme loggen for 404-feil?",
-	"clear404-success": "\"404 Ikke funnet\"-feil ble tømt"
+  "errors": "Feil",
+  "figure-x": "Figur %1",
+  "error-events-per-day": "<code>%1</code> hendelser per dag",
+  "error.404": "404 Ikke funnet",
+  "error.503": "503 Tjeneste utilgjengelig",
+  "manage-error-log": "Administrer feillogg",
+  "export-error-log": "Eksporter feillogg (CSV)",
+  "clear-error-log": "Tøm feillogg",
+  "route": "Rute",
+  "count": "Antall",
+  "no-routes-not-found": "Hurra! Ingen 404-feil!",
+  "clear404-confirm": "Er du sikker på at du vil tømme loggen for 404-feil?",
+  "clear404-success": "\"404 Ikke funnet\"-feil ble tømt"
 }

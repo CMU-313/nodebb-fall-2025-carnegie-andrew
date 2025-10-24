@@ -10,25 +10,25 @@ module.exports = {
 		const batch = require('../../batch');
 		await batch.processSortedSet(
 			'topics:tid',
-			async (tids) => {
+			async tids => {
 				let topicData = await db.getObjectsFields(
-					tids.map((tid) => `topic:${tid}`),
-					['tid', 'cid', 'timestamp']
+					tids.map(tid => `topic:${tid}`),
+					['tid', 'cid', 'timestamp'],
 				);
 				topicData = topicData.filter(Boolean);
-				topicData.forEach((t) => {
+				topicData.forEach(t => {
 					t.timestamp = t.timestamp || Date.now();
 				});
 
 				await db.sortedSetAddBulk(
-					topicData.map((t) => [`cid:${t.cid}:tids:create`, t.timestamp, t.tid])
+					topicData.map(t => [`cid:${t.cid}:tids:create`, t.timestamp, t.tid]),
 				);
 
 				progress.incr(tids.length);
 			},
 			{
 				progress: this.progress,
-			}
+			},
 		);
 	},
 };

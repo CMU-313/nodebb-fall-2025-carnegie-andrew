@@ -59,7 +59,7 @@ UserReset.send = async function (email) {
 				template: 'reset',
 				uid: uid,
 			})
-			.catch((err) => winston.error(`[emailer.send] ${err.stack}`));
+			.catch(err => winston.error(`[emailer.send] ${err.stack}`));
 
 		return code;
 	} finally {
@@ -108,7 +108,7 @@ UserReset.commit = async function (code, password) {
 	const ok = await Password.compare(
 		password,
 		userData.password,
-		!!parseInt(userData['password:shaWrapped'], 10)
+		!!parseInt(userData['password:shaWrapped'], 10),
 	);
 	if (ok) {
 		throw new Error('[[error:reset-same-password]]');
@@ -119,8 +119,7 @@ UserReset.commit = async function (code, password) {
 		'password:shaWrapped': 1,
 	};
 
-	const isPasswordExpired =
-		userData.passwordExpiry && userData.passwordExpiry < Date.now();
+	const isPasswordExpired = userData.passwordExpiry && userData.passwordExpiry < Date.now();
 	if (!isPasswordExpired) {
 		data['email:confirmed'] = 1;
 		await groups.join('verified-users', uid);
@@ -158,15 +157,13 @@ UserReset.clean = async function () {
 		0,
 		-1,
 		'-inf',
-		Date.now() - twoHours
+		Date.now() - twoHours,
 	);
 	if (!tokens.length) {
 		return;
 	}
 
-	winston.verbose(
-		`[UserReset.clean] Removing ${tokens.length} reset tokens from database`
-	);
+	winston.verbose(`[UserReset.clean] Removing ${tokens.length} reset tokens from database`);
 	await cleanTokens(tokens);
 };
 
@@ -179,7 +176,7 @@ UserReset.cleanByUid = async function (uid) {
 
 	await batch.processSortedSet(
 		'reset:issueDate',
-		async (tokens) => {
+		async tokens => {
 			const results = await db.getObjectFields('reset:uid', tokens);
 			for (const [code, result] of Object.entries(results)) {
 				if (parseInt(result, 10) === uid) {
@@ -187,7 +184,7 @@ UserReset.cleanByUid = async function (uid) {
 				}
 			}
 		},
-		{ batch: 500 }
+		{ batch: 500 },
 	);
 
 	if (!tokensToClean.length) {
@@ -195,13 +192,8 @@ UserReset.cleanByUid = async function (uid) {
 		return;
 	}
 
-	winston.verbose(
-		`[UserReset.cleanByUid] Found ${tokensToClean.length} token(s), removing...`
-	);
-	await Promise.all([
-		cleanTokens(tokensToClean),
-		db.deleteObjectField('locks', `reset${uid}`),
-	]);
+	winston.verbose(`[UserReset.cleanByUid] Found ${tokensToClean.length} token(s), removing...`);
+	await Promise.all([cleanTokens(tokensToClean), db.deleteObjectField('locks', `reset${uid}`)]);
 };
 
 async function cleanTokens(tokens) {

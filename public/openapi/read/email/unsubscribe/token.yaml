@@ -10,8 +10,8 @@ get:
         type: string
       example: testToken
   responses:
-    "200":
-      description: ""
+    '200':
+      description: ''
       content:
         application/json:
           schema:
@@ -40,8 +40,8 @@ get:
                       - uid
                       - template
               - $ref: ../../../components/schemas/CommonProps.yaml#/CommonProps
-    "500":
-      description: "Server-side error (likely token verification failure)"
+    '500':
+      description: 'Server-side error (likely token verification failure)'
 post:
   tags:
     - emails
@@ -54,7 +54,7 @@ post:
         type: string
       example: testToken
   responses:
-    "200":
-      description: "Successfully unsubscribed"
-    "500":
-      description: "Server-side error (likely token verification failure)"
+    '200':
+      description: 'Successfully unsubscribed'
+    '500':
+      description: 'Server-side error (likely token verification failure)'

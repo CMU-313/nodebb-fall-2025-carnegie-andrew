@@ -1,11 +1,10 @@
 'use strict';
 
-
-define('admin/manage/tags', [
-	'bootbox',
-	'alerts',
-	'admin/modules/selectable',
-], function (bootbox, alerts, selectable) {
+define('admin/manage/tags', ['bootbox', 'alerts', 'admin/modules/selectable'], function (
+	bootbox,
+	alerts,
+	selectable,
+) {
 	const Tags = {};
 
 	Tags.init = function () {
@@ -36,46 +35,62 @@ define('admin/manage/tags', [
 		});
 
 		createModalGo.on('click', function () {
-			socket.emit('admin.tags.create', {
-				tag: createTagName.val(),
-			}, function (err) {
-				if (err) {
-					return alerts.error(err);
-				}
+			socket.emit(
+				'admin.tags.create',
+				{
+					tag: createTagName.val(),
+				},
+				function (err) {
+					if (err) {
+						return alerts.error(err);
+					}
 
-				createTagName.val('');
-				createModal.on('hidden.bs.modal', function () {
-					ajaxify.refresh();
-				});
-				createModal.modal('hide');
-			});
+					createTagName.val('');
+					createModal.on('hidden.bs.modal', function () {
+						ajaxify.refresh();
+					});
+					createModal.modal('hide');
+				},
+			);
 		});
 	}
 
 	function handleSearch() {
-		$('#tag-search').on('input propertychange', utils.debounce(function () {
-			function renderTags(tags) {
-				app.parseAndTranslate('admin/manage/tags', 'tags', {
-					tags: tags,
-				}, function (html) {
-					$('.tag-list').html(html);
-					selectable.enable('.tag-management', '.tag-row');
-				});
-			}
-			const query = $('#tag-search').val();
-			if (!query) {
-				return renderTags(ajaxify.data.tags);
-			}
-			socket.emit('topics.searchAndLoadTags', {
-				query: query,
-			}, function (err, result) {
-				if (err) {
-					return alerts.error(err);
+		$('#tag-search').on(
+			'input propertychange',
+			utils.debounce(function () {
+				function renderTags(tags) {
+					app.parseAndTranslate(
+						'admin/manage/tags',
+						'tags',
+						{
+							tags: tags,
+						},
+						function (html) {
+							$('.tag-list').html(html);
+							selectable.enable('.tag-management', '.tag-row');
+						},
+					);
 				}
+				const query = $('#tag-search').val();
+				if (!query) {
+					return renderTags(ajaxify.data.tags);
+				}
+				socket.emit(
+					'topics.searchAndLoadTags',
+					{
+						query: query,
+					},
+					function (err, result) {
+						if (err) {
+							return alerts.error(err);
+						}
 
-				renderTags(result.tags);
-			});
-		}, 250));
+						renderTags(result.tags);
+					},
+				);
+			}, 250),
+		);
 	}
 
 	function handleRename() {
@@ -131,14 +146,18 @@ define('admin/manage/tags', [
 				tagsToDelete.each(function (index, el) {
 					tags.push($(el).attr('data-tag'));
 				});
-				socket.emit('admin.tags.deleteTags', {
-					tags: tags,
-				}, function (err) {
-					if (err) {
-						return alerts.error(err);
-					}
-					tagsToDelete.remove();
-				});
+				socket.emit(
+					'admin.tags.deleteTags',
+					{
+						tags: tags,
+					},
+					function (err) {
+						if (err) {
+							return alerts.error(err);
+						}
+						tagsToDelete.remove();
+					},
+				);
 			});
 		});
 	}

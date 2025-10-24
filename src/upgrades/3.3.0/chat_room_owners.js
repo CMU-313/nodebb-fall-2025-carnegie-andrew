@@ -15,16 +15,12 @@ module.exports = {
 
 		await batch.processSortedSet(
 			'chat:rooms',
-			async (roomIds) => {
+			async roomIds => {
 				progress.incr(roomIds.length);
-				const roomData = await db.getObjects(
-					roomIds.map((id) => `chat:room:${id}`)
-				);
+				const roomData = await db.getObjects(roomIds.map(id => `chat:room:${id}`));
 
 				const arrayOfUids = await Promise.all(
-					roomIds.map((roomId) =>
-						db.getSortedSetRangeWithScores(`chat:room:${roomId}:uids`, 0, 0)
-					)
+					roomIds.map(roomId => db.getSortedSetRangeWithScores(`chat:room:${roomId}:uids`, 0, 0)),
 				);
 
 				const bulkAdd = [];
@@ -33,14 +29,8 @@ module.exports = {
 						// if room doesn't have timestamp for some reason use the first user timestamp
 						room.timestamp =
 							room.timestamp ||
-							(arrayOfUids[idx].length
-								? arrayOfUids[idx][0].score || timestamp
-								: timestamp);
-						bulkAdd.push([
-							`chat:room:${room.roomId}:owners`,
-							room.timestamp,
-							room.owner,
-						]);
+							(arrayOfUids[idx].length ? arrayOfUids[idx][0].score || timestamp : timestamp);
+						bulkAdd.push([`chat:room:${room.roomId}:owners`, room.timestamp, room.owner]);
 					}
 				});
 
@@ -48,7 +38,7 @@ module.exports = {
 			},
 			{
 				batch: 500,
-			}
+			},
 		);
 	},
 };

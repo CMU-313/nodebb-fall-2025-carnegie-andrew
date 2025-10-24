@@ -5,9 +5,7 @@ define('hooks', [], () => {
 		loaded: {},
 		temporary: new Set(),
 		runOnce: new Set(),
-		deprecated: {
-
-		},
+		deprecated: {},
 		logs: {
 			_collection: new Set(),
 		},
@@ -31,7 +29,7 @@ define('hooks', [], () => {
 
 	Hooks.logs.flush = () => {
 		if (Hooks.logs._collection && Hooks.logs._collection.size) {
-			Hooks.logs._collection.forEach((args) => {
+			Hooks.logs._collection.forEach(args => {
 				console.debug.apply(console, args);
 			});
 			console.groupEnd();
@@ -48,9 +46,13 @@ define('hooks', [], () => {
 			const deprecated = Hooks.deprecated[hookName];
 
 			if (deprecated) {
-				console.groupCollapsed(`[hooks] Hook "${hookName}" is deprecated, please use "${deprecated}" instead.`);
+				console.groupCollapsed(
+					`[hooks] Hook "${hookName}" is deprecated, please use "${deprecated}" instead.`,
+				);
 			} else {
-				console.groupCollapsed(`[hooks] Hook "${hookName}" is deprecated, there is no alternative.`);
+				console.groupCollapsed(
+					`[hooks] Hook "${hookName}" is deprecated, there is no alternative.`,
+				);
 			}
 
 			console.info(method);
@@ -73,7 +75,7 @@ define('hooks', [], () => {
 	};
 	Hooks.onPage = Hooks.registerPage;
 	Hooks.register('action:ajaxify.start', () => {
-		Hooks.temporary.forEach((pair) => {
+		Hooks.temporary.forEach(pair => {
 			Hooks.unregister(pair.hookName, pair.method);
 			Hooks.temporary.delete(pair);
 		});
@@ -84,7 +86,9 @@ define('hooks', [], () => {
 			Hooks.loaded[hookName].delete(method);
 			Hooks.logs.log(`[hooks] Unregistered ${hookName}`, method);
 		} else {
-			Hooks.logs.log(`[hooks] Unregistration of ${hookName} failed, passed-in method is not a registered listener or the hook itself has no listeners, currently.`);
+			Hooks.logs.log(
+				`[hooks] Unregistration of ${hookName} failed, passed-in method is not a registered listener or the hook itself has no listeners, currently.`,
+			);
 		}
 
 		return Hooks;
@@ -94,7 +98,9 @@ define('hooks', [], () => {
 	Hooks.hasListeners = hookName => Hooks.loaded[hookName] && Hooks.loaded[hookName].size > 0;
 
 	const _onHookError = (e, listener, data) => {
-		console.warn(`[hooks] Exception encountered in ${listener.name ? listener.name : 'anonymous function'}, stack trace follows.`);
+		console.warn(
+			`[hooks] Exception encountered in ${listener.name ? listener.name : 'anonymous function'}, stack trace follows.`,
+		);
 		console.error(e);
 		return Promise.resolve(data);
 	};
@@ -105,12 +111,14 @@ define('hooks', [], () => {
 		}
 
 		const listeners = Array.from(Hooks.loaded[hookName]);
-		return listeners.reduce((promise, listener) => promise.then((data) => {
-			const result = listener(data);
-			return utils.isPromise(result) ?
-				result.then(data => Promise.resolve(data)) :
-				result;
-		}), Promise.resolve(data));
+		return listeners.reduce(
+			(promise, listener) =>
+				promise.then(data => {
+					const result = listener(data);
+					return utils.isPromise(result) ? result.then(data => Promise.resolve(data)) : result;
+				}),
+			Promise.resolve(data),
+		);
 	};
 
 	const _fireActionHook = (hookName, data) => {
@@ -128,13 +136,15 @@ define('hooks', [], () => {
 		}
 
 		const listeners = Array.from(Hooks.loaded[hookName]);
-		await Promise.allSettled(listeners.map((listener) => {
-			try {
-				return listener(data);
-			} catch (e) {
-				return _onHookError(e, listener);
-			}
-		}));
+		await Promise.allSettled(
+			listeners.map(listener => {
+				try {
+					return listener(data);
+				} catch (e) {
+					return _onHookError(e, listener);
+				}
+			}),
+		);
 
 		return await Promise.resolve(data);
 	};
@@ -155,7 +165,7 @@ define('hooks', [], () => {
 				result = _fireStaticHook(hookName, data);
 				break;
 		}
-		Hooks.runOnce.forEach((pair) => {
+		Hooks.runOnce.forEach(pair => {
 			if (pair.hookName === hookName) {
 				Hooks.unregister(hookName, pair.method);
 				Hooks.runOnce.delete(pair);

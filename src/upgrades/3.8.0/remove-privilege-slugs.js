@@ -21,13 +21,13 @@ module.exports = {
 		progress.total = privilegeGroups.length;
 		await batch.processArray(
 			privilegeGroups,
-			async (slugs) => {
+			async slugs => {
 				progress.incr(slugs.length);
 				await db.deleteObjectFields(`groupslug:groupname`, slugs);
 			},
 			{
 				batch: 500,
-			}
+			},
 		);
 	},
 };

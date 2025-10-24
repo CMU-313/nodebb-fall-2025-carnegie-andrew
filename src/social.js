@@ -42,9 +42,8 @@ social.getPostSharing = async function () {
 		},
 	];
 	networks = await plugins.hooks.fire('filter:social.posts', networks);
-	networks.forEach((network) => {
-		network.activated =
-			parseInt(meta.config[`post-sharing-${network.id}`], 10) === 1;
+	networks.forEach(network => {
+		network.activated = parseInt(meta.config[`post-sharing-${network.id}`], 10) === 1;
 	});
 
 	social.postSharing = networks;
@@ -53,7 +52,7 @@ social.getPostSharing = async function () {
 
 social.getActivePostSharing = async function () {
 	const networks = await social.getPostSharing();
-	return networks.filter((network) => network && network.activated);
+	return networks.filter(network => network && network.activated);
 };
 
 social.setActivePostSharingNetworks = async function (networkIDs) {
@@ -63,7 +62,7 @@ social.setActivePostSharingNetworks = async function (networkIDs) {
 		return;
 	}
 	const data = {};
-	networkIDs.forEach((id) => {
+	networkIDs.forEach(id => {
 		data[`post-sharing-${id}`] = 1;
 	});
 	await db.setObject('config', data);

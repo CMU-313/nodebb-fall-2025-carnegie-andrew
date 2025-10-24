@@ -39,7 +39,7 @@ module.exports = function (Topics) {
 			fields.push('timestamp');
 		}
 
-		const keys = tids.map((tid) => `topic:${tid}`);
+		const keys = tids.map(tid => `topic:${tid}`);
 		const topics = await db.getObjects(keys, fields);
 		const result = await plugins.hooks.fire('filter:topic.getFields', {
 			tids: tids,
@@ -47,7 +47,7 @@ module.exports = function (Topics) {
 			fields: fields,
 			keys: keys,
 		});
-		result.topics.forEach((topic) => modifyTopic(topic, fields));
+		result.topics.forEach(topic => modifyTopic(topic, fields));
 		return result.topics;
 	};
 
@@ -145,7 +145,7 @@ function modifyTopic(topic, fields) {
 		topic.tags = tags
 			.split(',')
 			.filter(Boolean)
-			.map((tag) => {
+			.map(tag => {
 				const escaped = validator.escape(String(tag));
 				return {
 					value: tag,

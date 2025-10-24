@@ -8,9 +8,7 @@ const express = require('express');
 const chalk = require('chalk');
 
 const app = express();
-app.renderAsync = util.promisify((tpl, data, callback) =>
-	app.render(tpl, data, callback)
-);
+app.renderAsync = util.promisify((tpl, data, callback) => app.render(tpl, data, callback));
 let server;
 const winston = require('winston');
 const flash = require('connect-flash');
@@ -45,7 +43,7 @@ if (nconf.get('ssl')) {
 			key: fs.readFileSync(nconf.get('ssl').key),
 			cert: fs.readFileSync(nconf.get('ssl').cert),
 		},
-		app
+		app,
 	);
 } else {
 	server = require('http').createServer(app);
@@ -54,7 +52,7 @@ if (nconf.get('ssl')) {
 module.exports.server = server;
 module.exports.app = app;
 
-server.on('error', (err) => {
+server.on('error', err => {
 	if (err.code === 'EADDRINUSE') {
 		winston.error(`NodeBB address in use, exiting...\n${err.stack}`);
 	} else {
@@ -66,7 +64,7 @@ server.on('error', (err) => {
 
 // see https://github.com/isaacs/server-destroy/blob/master/index.js
 const connections = {};
-server.on('connection', (conn) => {
+server.on('connection', conn => {
 	const key = `${conn.remoteAddress}:${conn.remotePort}`;
 	connections[key] = conn;
 	conn.on('close', () => {
@@ -76,7 +74,7 @@ server.on('connection', (conn) => {
 
 exports.destroy = function () {
 	return new Promise((resolve, reject) => {
-		server.close((err) => {
+		server.close(err => {
 			if (err) reject(err);
 			else resolve();
 		});
@@ -183,7 +181,7 @@ function setupExpressApp(app) {
 			cookie: setupCookie(),
 			resave: nconf.get('sessionResave') || false,
 			saveUninitialized: nconf.get('sessionSaveUninitialized') || false,
-		})
+		}),
 	);
 
 	setupHelmet(app);
@@ -199,7 +197,7 @@ function setupExpressApp(app) {
 				uid: req.uid,
 				req: apiHelpers.buildReqObject(req),
 			},
-			next
+			next,
 		);
 	});
 
@@ -241,7 +239,7 @@ function setupFavicon(app) {
 	faviconPath = path.join(
 		nconf.get('base_dir'),
 		'public',
-		faviconPath.replace(/assets\/uploads/, 'uploads')
+		faviconPath.replace(/assets\/uploads/, 'uploads'),
 	);
 	if (file.existsSync(faviconPath)) {
 		app.use(nconf.get('relative_path'), favicon(faviconPath));
@@ -256,11 +254,7 @@ function configureBodyParser(app) {
 	app.use(bodyParser.urlencoded(urlencodedOpts));
 
 	const jsonOpts = nconf.get('bodyParser:json') || {
-		type: [
-			'application/json',
-			'application/ld+json',
-			'application/activity+json',
-		],
+		type: ['application/json', 'application/ld+json', 'application/activity+json'],
 	};
 	app.use(bodyParser.json(jsonOpts));
 }
@@ -284,9 +278,7 @@ async function listen() {
 			process.exit();
 		}
 
-		winston.warn(
-			'[startup] If you want to start nodebb on multiple ports please use loader.js'
-		);
+		winston.warn('[startup] If you want to start nodebb on multiple ports please use loader.js');
 		winston.warn(`[startup] Defaulting to first port in array, ${port[0]}`);
 		port = port[0];
 		if (!port) {
@@ -301,9 +293,7 @@ async function listen() {
 	}
 
 	if ((port === 80 || port === 443) && process.env.NODE_ENV !== 'development') {
-		winston.info(
-			'Using ports 80 and 443 is not recommend; use a proxy instead. See README.md'
-		);
+		winston.info('Using ports 80 and 443 is not recommend; use a proxy instead. See README.md');
 	}
 
 	const bind_address =
@@ -319,7 +309,7 @@ async function listen() {
 			await exports.testSocket(socketPath);
 		} catch (err) {
 			winston.error(
-				`[startup] NodeBB was unable to secure domain socket access (${socketPath})\n${err.stack}`
+				`[startup] NodeBB was unable to secure domain socket access (${socketPath})\n${err.stack}`,
 			);
 			throw err;
 		}
@@ -331,22 +321,18 @@ async function listen() {
 				function (err) {
 					const onText = `${isSocket ? socketPath : `${bind_address}:${port}`}`;
 					if (err) {
-						winston.error(
-							`[startup] NodeBB was unable to listen on: ${chalk.yellow(onText)}`
-						);
+						winston.error(`[startup] NodeBB was unable to listen on: ${chalk.yellow(onText)}`);
 						reject(err);
 					}
 
-					winston.info(
-						`📡 NodeBB is now listening on: ${chalk.yellow(onText)}`
-					);
+					winston.info(`📡 NodeBB is now listening on: ${chalk.yellow(onText)}`);
 					winston.info(`🔗 Canonical URL: ${chalk.yellow(nconf.get('url'))}`);
 					if (oldUmask) {
 						process.umask(oldUmask);
 					}
 					resolve();
 				},
-			])
+			]),
 		);
 	});
 }
@@ -363,12 +349,12 @@ exports.testSocket = async function (socketPath) {
 	}
 	return new Promise((resolve, reject) => {
 		const testSocket = new net.Socket();
-		testSocket.on('error', (err) => {
+		testSocket.on('error', err => {
 			if (err.code !== 'ECONNREFUSED') {
 				return reject(err);
 			}
 			// The socket was stale, kick it out of the way
-			fs.unlink(socketPath, (err) => {
+			fs.unlink(socketPath, err => {
 				if (err) reject(err);
 				else resolve();
 			});

@@ -16,7 +16,15 @@ import * as api from '../../modules/api';
 import * as alerts from '../../modules/alerts';
 import * as components from '../../modules/components';
 
-Chart.register(LineController, CategoryScale, LinearScale, LineElement, PointElement, Tooltip, Filler);
+Chart.register(
+	LineController,
+	CategoryScale,
+	LinearScale,
+	LineElement,
+	PointElement,
+	Tooltip,
+	Filler,
+);
 
 const selected = new Map([
 	['cids', []],
@@ -31,8 +39,12 @@ export function init() {
 	handleBulkActions();
 
 	if (ajaxify.data.filters.hasOwnProperty('cid')) {
-		selected.set('cids', Array.isArray(ajaxify.data.filters.cid) ?
-			ajaxify.data.filters.cid : [ajaxify.data.filters.cid]);
+		selected.set(
+			'cids',
+			Array.isArray(ajaxify.data.filters.cid)
+				? ajaxify.data.filters.cid
+				: [ajaxify.data.filters.cid],
+		);
 	}
 
 	categoryFilter.init($('[component="category/dropdown"]'), {
@@ -44,7 +56,7 @@ export function init() {
 		},
 	});
 
-	['assignee', 'targetUid', 'reporterId'].forEach((filter) => {
+	['assignee', 'targetUid', 'reporterId'].forEach(filter => {
 		if (ajaxify.data.filters.hasOwnProperty('filter')) {
 			selected.set(filter, ajaxify.data.selected[filter]);
 		}
@@ -62,22 +74,23 @@ export function init() {
 		});
 	});
 
-	components.get('flags/list')
-		.on('click', '[data-flag-id]', function (e) {
-			if (['BUTTON', 'A'].includes(e.target.nodeName)) {
-				return;
-			}
+	components.get('flags/list').on('click', '[data-flag-id]', function (e) {
+		if (['BUTTON', 'A'].includes(e.target.nodeName)) {
+			return;
+		}
 
-			const flagId = this.getAttribute('data-flag-id');
-			ajaxify.go('flags/' + flagId);
-		});
+		const flagId = this.getAttribute('data-flag-id');
+		ajaxify.go('flags/' + flagId);
+	});
 
 	$('#flags-daily-wrapper').one('shown.bs.collapse', function () {
 		handleGraphs();
 	});
 
 	autocomplete.user($('#filter-assignee, #filter-targetUid, #filter-reporterId'), (ev, ui) => {
-		setTimeout(() => { ev.target.value = ui.item.user.uid; });
+		setTimeout(() => {
+			ev.target.value = ui.item.user.uid;
+		});
 	});
 }
 
@@ -88,7 +101,7 @@ export function enableFilterForm() {
 		const filtersEl = $filtersEl.get(0);
 		const formEl = filtersEl.querySelector('form');
 
-		filtersEl.addEventListener('click', (e) => {
+		filtersEl.addEventListener('click', e => {
 			const subselector = e.target.closest('[data-value]');
 			if (!subselector) {
 				return;
@@ -112,7 +125,7 @@ export function enableFilterForm() {
 			applyFilters();
 		});
 
-		$filtersEl.find('button[data-target="#more-filters"]').click((ev) => {
+		$filtersEl.find('button[data-target="#more-filters"]').click(ev => {
 			const textVariant = ev.target.getAttribute('data-text-variant');
 			if (!textVariant) {
 				return;
@@ -140,7 +153,7 @@ function applyFilters() {
 	});
 
 	// these three fields are special; comes from userFilter module
-	['assignee', 'targetUid', 'reporterId'].forEach((filter) => {
+	['assignee', 'targetUid', 'reporterId'].forEach(filter => {
 		selected.get(filter).forEach(({ uid }) => {
 			payload.append(filter, uid);
 		});
@@ -179,9 +192,11 @@ export function enableCheckboxes() {
 				let started = false;
 
 				checkboxes.forEach(function (el) {
-					if ([subselector, lastClicked].some(function (ref) {
-						return ref === el;
-					})) {
+					if (
+						[subselector, lastClicked].some(function (ref) {
+							return ref === el;
+						})
+					) {
 						started = !started;
 					}
 
@@ -207,64 +222,68 @@ export function enableCheckboxes() {
 }
 
 export function handleBulkActions() {
-	document.querySelector('[component="flags/bulk-actions"]').addEventListener('click', function (e) {
-		const subselector = e.target.closest('[data-action]');
-		if (subselector) {
-			const action = subselector.getAttribute('data-action');
-			let confirmed;
-			if (action === 'bulk-purge') {
-				confirmed = new Promise((resolve, reject) => {
-					bootbox.confirm('[[flags:confirm-purge]]', (confirmed) => {
-						if (confirmed) {
-							resolve();
-						} else {
-							reject(new Error('[[flags:purge-cancelled]]'));
+	document
+		.querySelector('[component="flags/bulk-actions"]')
+		.addEventListener('click', function (e) {
+			const subselector = e.target.closest('[data-action]');
+			if (subselector) {
+				const action = subselector.getAttribute('data-action');
+				let confirmed;
+				if (action === 'bulk-purge') {
+					confirmed = new Promise((resolve, reject) => {
+						bootbox.confirm('[[flags:confirm-purge]]', confirmed => {
+							if (confirmed) {
+								resolve();
+							} else {
+								reject(new Error('[[flags:purge-cancelled]]'));
+							}
+						});
+					});
+				}
+				const flagIds = getSelected();
+				const promises = flagIds.map(async flagId => {
+					const data = {};
+					switch (action) {
+						case 'bulk-assign': {
+							data.assignee = app.user.uid;
+							break;
 						}
+						case 'bulk-mark-resolved': {
+							data.state = 'resolved';
+							break;
+						}
+						case 'bulk-purge': {
+							await confirmed;
+							return api.del(`/flags/${flagId}`);
+						}
+					}
+					return api.put(`/flags/${flagId}`, data);
+				});
+
+				Promise.allSettled(promises).then(function (results) {
+					const fulfilled = results.filter(function (res) {
+						return res.status === 'fulfilled';
+					}).length;
+					const errors = results.filter(function (res) {
+						return res.status === 'rejected';
+					});
+					if (fulfilled) {
+						alerts.success('[[flags:bulk-success, ' + fulfilled + ']]');
+						ajaxify.refresh();
+					}
+
+					errors.forEach(function (res) {
+						alerts.error(res.reason);
 					});
 				});
 			}
-			const flagIds = getSelected();
-			const promises = flagIds.map(async (flagId) => {
-				const data = {};
-				switch (action) {
-					case 'bulk-assign': {
-						data.assignee = app.user.uid;
-						break;
-					}
-					case 'bulk-mark-resolved': {
-						data.state = 'resolved';
-						break;
-					}
-					case 'bulk-purge': {
-						await confirmed;
-						return api.del(`/flags/${flagId}`);
-					}
-				}
-				return api.put(`/flags/${flagId}`, data);
-			});
-
-			Promise.allSettled(promises).then(function (results) {
-				const fulfilled = results.filter(function (res) {
-					return res.status === 'fulfilled';
-				}).length;
-				const errors = results.filter(function (res) {
-					return res.status === 'rejected';
-				});
-				if (fulfilled) {
-					alerts.success('[[flags:bulk-success, ' + fulfilled + ']]');
-					ajaxify.refresh();
-				}
-
-				errors.forEach(function (res) {
-					alerts.error(res.reason);
-				});
-			});
-		}
-	});
+		});
 }
 
 export function getSelected() {
-	const checkboxes = document.querySelectorAll('[component="flags/list"] [data-flag-id] input[type="checkbox"]');
+	const checkboxes = document.querySelectorAll(
+		'[component="flags/list"] [data-flag-id] input[type="checkbox"]',
+	);
 	const payload = [];
 	checkboxes.forEach(function (el) {
 		if (el.checked) {
@@ -317,4 +336,3 @@ export function handleGraphs() {
 		},
 	});
 }
-

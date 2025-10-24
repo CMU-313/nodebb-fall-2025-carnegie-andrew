@@ -22,7 +22,7 @@ module.exports = function (module) {
 				.updateOne(
 					{ _key: key, value: value },
 					{ $set: { score: parseFloat(score) } },
-					{ upsert: true }
+					{ upsert: true },
 				);
 		} catch (err) {
 			if (err && err.message.includes('E11000 duplicate key error')) {
@@ -47,9 +47,7 @@ module.exports = function (module) {
 		}
 		values = values.map(helpers.valueToString);
 
-		const bulk = module.client
-			.collection('objects')
-			.initializeUnorderedBulkOp();
+		const bulk = module.client.collection('objects').initializeUnorderedBulkOp();
 		for (let i = 0; i < scores.length; i += 1) {
 			bulk
 				.find({ _key: key, value: values[i] })
@@ -66,7 +64,7 @@ module.exports = function (module) {
 		const isArrayOfScores = Array.isArray(scores);
 		if (
 			(!isArrayOfScores && !utils.isNumber(scores)) ||
-			(isArrayOfScores && scores.map((s) => utils.isNumber(s)).includes(false))
+			(isArrayOfScores && scores.map(s => utils.isNumber(s)).includes(false))
 		) {
 			throw new Error(`[[error:invalid-score, ${scores}]]`);
 		}
@@ -77,9 +75,7 @@ module.exports = function (module) {
 
 		value = helpers.valueToString(value);
 
-		const bulk = module.client
-			.collection('objects')
-			.initializeUnorderedBulkOp();
+		const bulk = module.client.collection('objects').initializeUnorderedBulkOp();
 		for (let i = 0; i < keys.length; i += 1) {
 			bulk
 				.find({ _key: keys[i], value: value })
@@ -95,10 +91,8 @@ module.exports = function (module) {
 		if (!Array.isArray(data) || !data.length) {
 			return;
 		}
-		const bulk = module.client
-			.collection('objects')
-			.initializeUnorderedBulkOp();
-		data.forEach((item) => {
+		const bulk = module.client.collection('objects').initializeUnorderedBulkOp();
+		data.forEach(item => {
 			if (!utils.isNumber(item[1])) {
 				throw new Error(`[[error:invalid-score, ${item[1]}]]`);
 			}

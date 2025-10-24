@@ -29,9 +29,7 @@ describe('Post Pin/Unpin Functionality', () => {
 			},
 			groups: { isMember: sinon.stub().resolves(false) },
 			posts: {
-				getPostFields: sinon
-					.stub()
-					.resolves({ pid: '123', tid: '456', pinned: '0' }),
+				getPostFields: sinon.stub().resolves({ pid: '123', tid: '456', pinned: '0' }),
 				setPostField: sinon.stub().resolves(),
 				getPostData: sinon.stub().resolves({ pid: '123', pinned: 1 }),
 				getPostsFields: sinon.stub().resolves([{ pid: '123', pinned: '1' }]),
@@ -100,12 +98,7 @@ describe('Post Pin/Unpin Functionality', () => {
 
 		const result = await pins.getPinnedPosts('456', 1);
 		assert(Array.isArray(result));
-		assert(
-			stubs.posts.getPostsFields.calledWith(
-				['123', '124', '125'],
-				['pid', 'pinned']
-			)
-		);
+		assert(stubs.posts.getPostsFields.calledWith(['123', '124', '125'], ['pid', 'pinned']));
 
 		// Empty topic
 		stubs.db.getSortedSetRange.resolves([]);

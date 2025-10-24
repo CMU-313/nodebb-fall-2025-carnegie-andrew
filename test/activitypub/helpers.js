@@ -18,10 +18,7 @@ Helpers.mocks.person = (override = {}) => {
 	}
 
 	const actor = {
-		'@context': [
-			'https://www.w3.org/ns/activitystreams',
-			'https://w3id.org/security/v1',
-		],
+		'@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
 		id,
 		url: `${id}`,
 		inbox: `${id}/inbox`,
@@ -40,14 +37,11 @@ Helpers.mocks.person = (override = {}) => {
 	};
 
 	activitypub._cache.set(`0;${id}`, actor);
-	activitypub.helpers._webfingerCache.set(
-		`${actor.preferredUsername}@example.org`,
-		{
-			actorUri: id,
-			username: id,
-			hostname: 'example.org',
-		}
-	);
+	activitypub.helpers._webfingerCache.set(`${actor.preferredUsername}@example.org`, {
+		actorUri: id,
+		username: id,
+		hostname: 'example.org',
+	});
 
 	return { id, actor };
 };
@@ -59,14 +53,11 @@ Helpers.mocks.group = (override = {}) => {
 	});
 
 	activitypub._cache.set(`0;${id}`, actor);
-	activitypub.helpers._webfingerCache.set(
-		`${actor.preferredUsername}@example.org`,
-		{
-			actorUri: id,
-			username: id,
-			hostname: 'example.org',
-		}
-	);
+	activitypub.helpers._webfingerCache.set(`${actor.preferredUsername}@example.org`, {
+		actorUri: id,
+		username: id,
+		hostname: 'example.org',
+	});
 
 	return { id, actor };
 };
@@ -100,7 +91,7 @@ Helpers.mocks.note = (override = {}) => {
 	return { id, note };
 };
 
-Helpers.mocks.create = (object) => {
+Helpers.mocks.create = object => {
 	// object is optional, will generate a public note if undefined
 	const uuid = utils.generateUUID();
 	const id = `${Helpers.mocks._baseUrl}/activity/${uuid}`;

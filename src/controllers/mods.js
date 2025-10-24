@@ -31,14 +31,7 @@ modsController.flags.list = async function (req, res) {
 		'page',
 		'perPage',
 	];
-	const validSorts = [
-		'newest',
-		'oldest',
-		'reports',
-		'upvotes',
-		'downvotes',
-		'replies',
-	];
+	const validSorts = ['newest', 'oldest', 'reports', 'upvotes', 'downvotes', 'replies'];
 
 	const results = await Promise.all([
 		user.isAdminOrGlobalMod(req.uid),
@@ -56,7 +49,7 @@ modsController.flags.list = async function (req, res) {
 	}
 
 	if (!isAdminOrGlobalMod && moderatedCids.length) {
-		res.locals.cids = moderatedCids.map((cid) => String(cid));
+		res.locals.cids = moderatedCids.map(cid => String(cid));
 	}
 
 	// Parse query string params for filters, eliminate non-valid filters
@@ -65,9 +58,7 @@ modsController.flags.list = async function (req, res) {
 			if (typeof req.query[cur] === 'string' && req.query[cur].trim() !== '') {
 				memo[cur] = validator.escape(String(req.query[cur].trim()));
 			} else if (Array.isArray(req.query[cur]) && req.query[cur].length) {
-				memo[cur] = req.query[cur].map((item) =>
-					validator.escape(String(item).trim())
-				);
+				memo[cur] = req.query[cur].map(item => validator.escape(String(item).trim()));
 			}
 		}
 
@@ -82,9 +73,7 @@ modsController.flags.list = async function (req, res) {
 			filters.cid = res.locals.cids;
 		} else if (Array.isArray(filters.cid)) {
 			// Remove cids they do not moderate
-			filters.cid = filters.cid.filter((cid) =>
-				res.locals.cids.includes(String(cid))
-			);
+			filters.cid = filters.cid.filter(cid => res.locals.cids.includes(String(cid)));
 		} else if (!res.locals.cids.includes(String(filters.cid))) {
 			filters.cid = res.locals.cids;
 			hasFilter = false;
@@ -125,7 +114,7 @@ modsController.flags.list = async function (req, res) {
 	// Send back information for userFilter module
 	const selected = {};
 	await Promise.all(
-		['assignee', 'reporterId', 'targetUid'].map(async (filter) => {
+		['assignee', 'reporterId', 'targetUid'].map(async filter => {
 			let uids = filters[filter];
 			if (!uids) {
 				selected[filter] = [];
@@ -135,12 +124,8 @@ modsController.flags.list = async function (req, res) {
 				uids = [uids];
 			}
 
-			selected[filter] = await user.getUsersFields(uids, [
-				'username',
-				'userslug',
-				'picture',
-			]);
-		})
+			selected[filter] = await user.getUsersFields(uids, ['username', 'userslug', 'picture']);
+		}),
 	);
 
 	res.render('flags/list', {
@@ -154,11 +139,7 @@ modsController.flags.list = async function (req, res) {
 		expanded: !!(filters.assignee || filters.reporterId || filters.targetUid),
 		sort: sort || 'newest',
 		title: '[[pages:flags]]',
-		pagination: pagination.create(
-			flagsData.page,
-			flagsData.pageCount,
-			req.query
-		),
+		pagination: pagination.create(flagsData.page, flagsData.pageCount, req.query),
 		breadcrumbs: helpers.buildBreadcrumbs([{ text: '[[pages:flags]]' }]),
 	});
 };
@@ -168,15 +149,10 @@ modsController.flags.detail = async function (req, res, next) {
 		isAdminOrGlobalMod: user.isAdminOrGlobalMod(req.uid),
 		moderatedCids: user.getModeratedCids(req.uid),
 		flagData: flags.get(req.params.flagId),
-		privileges: Promise.all(
-			['global', 'admin'].map(async (type) => privileges[type].get(req.uid))
-		),
+		privileges: Promise.all(['global', 'admin'].map(async type => privileges[type].get(req.uid))),
 	});
 	results.privileges = { ...results.privileges[0], ...results.privileges[1] };
-	if (
-		!results.flagData ||
-		!(results.isAdminOrGlobalMod || !!results.moderatedCids.length)
-	) {
+	if (!results.flagData || !(results.isAdminOrGlobalMod || !!results.moderatedCids.length)) {
 		return next(); // 404
 	}
 
@@ -187,8 +163,8 @@ modsController.flags.detail = async function (req, res, next) {
 		}
 		if (results.flagData.type === 'post') {
 			const isFlagInModeratedCids = await db.isMemberOfSortedSets(
-				results.moderatedCids.map((cid) => `flags:byCid:${cid}`),
-				results.flagData.flagId
+				results.moderatedCids.map(cid => `flags:byCid:${cid}`),
+				results.flagData.flagId,
 			);
 			if (!isFlagInModeratedCids.includes(true)) {
 				return next();
@@ -209,14 +185,12 @@ modsController.flags.detail = async function (req, res, next) {
 			const cid = await posts.getCidByPid(flagData.targetId);
 			uids = _.uniq(admins.concat(globalMods));
 			if (cid) {
-				const modUids = (
-					await privileges.categories.getUidsWithPrivilege([cid], 'moderate')
-				)[0];
+				const modUids = (await privileges.categories.getUidsWithPrivilege([cid], 'moderate'))[0];
 				uids = _.uniq(uids.concat(modUids));
 			}
 		}
 		const userData = await user.getUsersData(uids);
-		return userData.filter((u) => u && u.userslug);
+		return userData.filter(u => u && u.userslug);
 	}
 
 	const assignees = await getAssignees(results.flagData);
@@ -236,8 +210,7 @@ modsController.flags.detail = async function (req, res, next) {
 				if (cur !== 'empty') {
 					memo[cur] =
 						results.flagData.type === cur &&
-						(!results.flagData.target ||
-							!!Object.keys(results.flagData.target).length);
+						(!results.flagData.target || !!Object.keys(results.flagData.target).length);
 				} else {
 					memo[cur] = !Object.keys(results.flagData.target).length;
 				}
@@ -251,7 +224,7 @@ modsController.flags.detail = async function (req, res, next) {
 				{ text: '[[pages:flags]]', url: '/flags' },
 				{ text: `[[pages:flag-details, ${req.params.flagId}]]` },
 			]),
-		})
+		}),
 	);
 };
 
@@ -265,33 +238,29 @@ modsController.postQueue = async function (req, res, next) {
 	const postsPerPage = 20;
 
 	let postData = await posts.getQueuedPosts({ id: id });
-	let [isAdmin, isGlobalMod, moderatedCids, categoriesData, _privileges] =
-		await Promise.all([
-			user.isAdministrator(req.uid),
-			user.isGlobalModerator(req.uid),
-			user.getModeratedCids(req.uid),
-			helpers.getSelectedCategory(cid),
-			Promise.all(
-				['global', 'admin'].map(async (type) => privileges[type].get(req.uid))
-			),
-		]);
+	let [isAdmin, isGlobalMod, moderatedCids, categoriesData, _privileges] = await Promise.all([
+		user.isAdministrator(req.uid),
+		user.isGlobalModerator(req.uid),
+		user.getModeratedCids(req.uid),
+		helpers.getSelectedCategory(cid),
+		Promise.all(['global', 'admin'].map(async type => privileges[type].get(req.uid))),
+	]);
 	_privileges = { ..._privileges[0], ..._privileges[1] };
 
 	postData = postData
 		.filter(
-			(p) =>
+			p =>
 				p &&
 				(!categoriesData.selectedCids.length ||
 					categoriesData.selectedCids.includes(p.category.cid)) &&
 				(isAdmin ||
 					isGlobalMod ||
 					moderatedCids.includes(Number(p.category.cid)) ||
-					req.uid === p.user.uid)
+					req.uid === p.user.uid),
 		)
-		.map((post) => {
+		.map(post => {
 			const isSelf = post.user.uid === req.uid;
-			post.canAccept =
-				!isSelf && (isAdmin || isGlobalMod || !!moderatedCids.length);
+			post.canAccept = !isSelf && (isAdmin || isGlobalMod || !!moderatedCids.length);
 			post.canEdit = isSelf || isAdmin || isGlobalMod;
 			return post;
 		});
@@ -305,13 +274,9 @@ modsController.postQueue = async function (req, res, next) {
 	const start = (page - 1) * postsPerPage;
 	const stop = start + postsPerPage - 1;
 	postData = postData.slice(start, stop + 1);
-	const crumbs = [
-		{ text: '[[pages:post-queue]]', url: id ? '/post-queue' : undefined },
-	];
+	const crumbs = [{ text: '[[pages:post-queue]]', url: id ? '/post-queue' : undefined }];
 	if (id && postData.length) {
-		const text = postData[0].data.tid
-			? '[[post-queue:reply]]'
-			: '[[post-queue:topic]]';
+		const text = postData[0].data.tid ? '[[post-queue:reply]]' : '[[post-queue:topic]]';
 		crumbs.push({ text: text });
 	}
 	res.render('post-queue', {

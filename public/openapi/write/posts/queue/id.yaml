@@ -88,5 +88,3 @@ put:
       description: Post edited successfully
     '400':
       description: Bad request, invalid post id
-
-

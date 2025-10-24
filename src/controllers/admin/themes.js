@@ -8,10 +8,7 @@ const { paths } = require('../../constants');
 
 const themesController = module.exports;
 
-const defaultScreenshotPath = path.join(
-	__dirname,
-	'../../../public/images/themes/default.png'
-);
+const defaultScreenshotPath = path.join(__dirname, '../../../public/images/themes/default.png');
 
 themesController.get = async function (req, res, next) {
 	const themeDir = path.join(paths.nodeModules, req.params.theme);
@@ -28,9 +25,7 @@ themesController.get = async function (req, res, next) {
 		return next(err);
 	}
 
-	const screenshotPath = themeConfig.screenshot
-		? path.join(themeDir, themeConfig.screenshot)
-		: '';
+	const screenshotPath = themeConfig.screenshot ? path.join(themeDir, themeConfig.screenshot) : '';
 
 	if (screenshotPath && !screenshotPath.startsWith(themeDir)) {
 		throw new Error('[[error:invalid-path]]');

@@ -44,9 +44,7 @@ eventsController.get = async function (req, res) {
 			to,
 		}),
 		db.sortedSetsCard(
-			['']
-				.concat(events.types)
-				.map((type) => `events:time${type ? `:${type}` : ''}`)
+			[''].concat(events.types).map(type => `events:time${type ? `:${type}` : ''}`),
 		),
 	]);
 

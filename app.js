@@ -36,14 +36,10 @@ process.env.NODE_ENV = process.env.NODE_ENV || 'production';
 global.env = process.env.NODE_ENV || 'production';
 
 // Alternate configuration file support
-const configFile = path.resolve(
-	__dirname,
-	nconf.any(['config', 'CONFIG']) || 'config.json'
-);
+const configFile = path.resolve(__dirname, nconf.any(['config', 'CONFIG']) || 'config.json');
 
 const configExists =
-	file.existsSync(configFile) ||
-	(nconf.get('url') && nconf.get('secret') && nconf.get('database'));
+	file.existsSync(configFile) || (nconf.get('url') && nconf.get('secret') && nconf.get('database'));
 
 const prestart = require('./src/prestart');
 
@@ -55,11 +51,11 @@ winston.verbose('* using configuration stored in: %s', configFile);
 if (!process.send) {
 	// If run using `node app`, log GNU copyright info along with server info
 	winston.info(
-		`NodeBB v${nconf.get('version')} Copyright (C) 2013-${new Date().getFullYear()} NodeBB Inc.`
+		`NodeBB v${nconf.get('version')} Copyright (C) 2013-${new Date().getFullYear()} NodeBB Inc.`,
 	);
 	winston.info('This program comes with ABSOLUTELY NO WARRANTY.');
 	winston.info(
-		'This is free software, and you are welcome to redistribute it under certain conditions.'
+		'This is free software, and you are welcome to redistribute it under certain conditions.',
 	);
 	winston.info('');
 }

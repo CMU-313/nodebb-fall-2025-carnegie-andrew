@@ -28,10 +28,8 @@ const _filenames = [
 ];
 const _recreateFiles = () => {
 	// Create stub files for testing
-	_filenames.forEach((filename) =>
-		fs.closeSync(
-			fs.openSync(path.join(nconf.get('upload_path'), 'files', filename), 'w')
-		)
+	_filenames.forEach(filename =>
+		fs.closeSync(fs.openSync(path.join(nconf.get('upload_path'), 'files', filename), 'w')),
 	);
 };
 
@@ -75,8 +73,8 @@ describe('upload methods', () => {
 	});
 
 	describe('.sync()', () => {
-		it("should properly add new images to the post's zset", (done) => {
-			posts.uploads.sync(pid, (err) => {
+		it("should properly add new images to the post's zset", done => {
+			posts.uploads.sync(pid, err => {
 				assert.ifError(err);
 
 				db.sortedSetCard(`post:${pid}:uploads`, (err, length) => {
@@ -101,7 +99,7 @@ describe('upload methods', () => {
 	});
 
 	describe('.list()', () => {
-		it('should display the uploaded files for a specific post', (done) => {
+		it('should display the uploaded files for a specific post', done => {
 			posts.uploads.list(pid, (err, uploads) => {
 				assert.ifError(err);
 				assert.equal(true, Array.isArray(uploads));
@@ -113,7 +111,7 @@ describe('upload methods', () => {
 	});
 
 	describe('.isOrphan()', () => {
-		it('should return false if upload is not an orphan', (done) => {
+		it('should return false if upload is not an orphan', done => {
 			posts.uploads.isOrphan('/files/abracadabra.png', (err, isOrphan) => {
 				assert.ifError(err);
 				assert.strictEqual(isOrphan, false);
@@ -121,7 +119,7 @@ describe('upload methods', () => {
 			});
 		});
 
-		it('should return true if upload is an orphan', (done) => {
+		it('should return true if upload is an orphan', done => {
 			posts.uploads.isOrphan('/files/shazam.jpg', (err, isOrphan) => {
 				assert.ifError(err);
 				assert.strictEqual(isOrphan, true);
@@ -139,10 +137,7 @@ describe('upload methods', () => {
 		});
 
 		it('should allow arrays to be passed in', async () => {
-			await posts.uploads.associate(pid, [
-				'/files/amazeballs.jpg',
-				'/files/wut.txt',
-			]);
+			await posts.uploads.associate(pid, ['/files/amazeballs.jpg', '/files/wut.txt']);
 			const uploads = await posts.uploads.list(pid);
 			assert.strictEqual(4, uploads.length);
 			assert.strictEqual(true, uploads.includes('/files/amazeballs.jpg'));
@@ -150,14 +145,9 @@ describe('upload methods', () => {
 		});
 
 		it('should save a reverse association of md5sum to pid', async () => {
-			const md5 = (filename) =>
-				crypto.createHash('md5').update(filename).digest('hex');
+			const md5 = filename => crypto.createHash('md5').update(filename).digest('hex');
 			await posts.uploads.associate(pid, ['/files/test.bmp']);
-			const pids = await db.getSortedSetRange(
-				`upload:${md5('/files/test.bmp')}:pids`,
-				0,
-				-1
-			);
+			const pids = await db.getSortedSetRange(`upload:${md5('/files/test.bmp')}:pids`, 0, -1);
 			assert.strictEqual(true, Array.isArray(pids));
 			assert.strictEqual(true, pids.length > 0);
 			assert.equal(pid, pids[0]);
@@ -180,10 +170,7 @@ describe('upload methods', () => {
 		});
 
 		it('should allow arrays to be passed in', async () => {
-			await posts.uploads.dissociate(pid, [
-				'/files/amazeballs.jpg',
-				'/files/wut.txt',
-			]);
+			await posts.uploads.dissociate(pid, ['/files/amazeballs.jpg', '/files/wut.txt']);
 			const uploads = await posts.uploads.list(pid);
 			assert.strictEqual(2, uploads.length);
 			assert.strictEqual(false, uploads.includes('/files/amazeballs.jpg'));
@@ -248,16 +235,12 @@ describe('upload methods', () => {
 		it('should purge the images from disk if the post is purged', async () => {
 			await posts.purge(postData.pid, uid);
 			assert.strictEqual(
-				await file.exists(
-					path.resolve(nconf.get('upload_path'), 'files', 'abracadabra.png')
-				),
-				false
+				await file.exists(path.resolve(nconf.get('upload_path'), 'files', 'abracadabra.png')),
+				false,
 			);
 			assert.strictEqual(
-				await file.exists(
-					path.resolve(nconf.get('upload_path'), 'files', 'test.bmp')
-				),
-				false
+				await file.exists(path.resolve(nconf.get('upload_path'), 'files', 'test.bmp')),
+				false,
 			);
 		});
 
@@ -266,16 +249,12 @@ describe('upload methods', () => {
 
 			await posts.purge(postData.pid, uid);
 			assert.strictEqual(
-				await file.exists(
-					path.resolve(nconf.get('upload_path'), 'files', 'abracadabra.png')
-				),
-				true
+				await file.exists(path.resolve(nconf.get('upload_path'), 'files', 'abracadabra.png')),
+				true,
 			);
 			assert.strictEqual(
-				await file.exists(
-					path.resolve(nconf.get('upload_path'), 'files', 'test.bmp')
-				),
-				true
+				await file.exists(path.resolve(nconf.get('upload_path'), 'files', 'test.bmp')),
+				true,
 			);
 
 			delete meta.config.preserveOrphanedUploads;
@@ -286,16 +265,13 @@ describe('upload methods', () => {
 				uid,
 				cid,
 				title: 'Second topic',
-				content:
-					'just abracadabra: ![alt text](/assets/uploads/files/abracadabra.png)',
+				content: 'just abracadabra: ![alt text](/assets/uploads/files/abracadabra.png)',
 			});
 
 			await posts.purge(secondPost.pid, uid);
 			assert.strictEqual(
-				await file.exists(
-					path.resolve(nconf.get('upload_path'), 'files', 'abracadabra.png')
-				),
-				true
+				await file.exists(path.resolve(nconf.get('upload_path'), 'files', 'abracadabra.png')),
+				true,
 			);
 		});
 	});
@@ -308,10 +284,8 @@ describe('upload methods', () => {
 		it('should work if you pass in a string path', async () => {
 			await posts.uploads.deleteFromDisk('/files/abracadabra.png');
 			assert.strictEqual(
-				await file.exists(
-					path.resolve(nconf.get('upload_path'), 'files/abracadabra.png')
-				),
-				false
+				await file.exists(path.resolve(nconf.get('upload_path'), 'files/abracadabra.png')),
+				false,
 			);
 		});
 
@@ -322,53 +296,31 @@ describe('upload methods', () => {
 				});
 			} catch (err) {
 				assert(!!err);
-				assert.strictEqual(
-					err.message,
-					'[[error:wrong-parameter-type, filePaths, object, array]]'
-				);
+				assert.strictEqual(err.message, '[[error:wrong-parameter-type, filePaths, object, array]]');
 			}
 		});
 
 		it('should delete the files passed in, from disk', async () => {
-			await posts.uploads.deleteFromDisk([
-				'/files/abracadabra.png',
-				'/files/shazam.jpg',
-			]);
+			await posts.uploads.deleteFromDisk(['/files/abracadabra.png', '/files/shazam.jpg']);
 
 			const existsOnDisk = await Promise.all(
-				_filenames.map(async (filename) => {
-					const fullPath = path.resolve(
-						nconf.get('upload_path'),
-						'files',
-						filename
-					);
+				_filenames.map(async filename => {
+					const fullPath = path.resolve(nconf.get('upload_path'), 'files', filename);
 					return file.exists(fullPath);
-				})
+				}),
 			);
 
-			assert.deepStrictEqual(existsOnDisk, [
-				false,
-				false,
-				true,
-				true,
-				true,
-				true,
-			]);
+			assert.deepStrictEqual(existsOnDisk, [false, false, true, true, true, true]);
 		});
 
 		it('should not delete files if they are not in `uploads/files/` (path traversal)', async () => {
-			const tmpFilePath = path.resolve(
-				os.tmpdir(),
-				`derp${utils.generateUUID()}`
-			);
+			const tmpFilePath = path.resolve(os.tmpdir(), `derp${utils.generateUUID()}`);
 			await fs.promises.appendFile(tmpFilePath, '');
 			await posts.uploads.deleteFromDisk(['../files/503.html', tmpFilePath]);
 
 			assert.strictEqual(
-				await file.exists(
-					path.resolve(nconf.get('upload_path'), '../files/503.html')
-				),
-				true
+				await file.exists(path.resolve(nconf.get('upload_path'), '../files/503.html')),
+				true,
 			);
 			assert.strictEqual(await file.exists(tmpFilePath), true);
 
@@ -380,18 +332,15 @@ describe('upload methods', () => {
 				uid,
 				cid,
 				title: 'To be orphaned',
-				content:
-					'this image is not an orphan: ![wut](/assets/uploads/files/wut.txt)',
+				content: 'this image is not an orphan: ![wut](/assets/uploads/files/wut.txt)',
 			});
 
 			assert.strictEqual(await posts.uploads.isOrphan('/files/wut.txt'), false);
 			await posts.uploads.deleteFromDisk(['/files/wut.txt']);
 
 			assert.strictEqual(
-				await file.exists(
-					path.resolve(nconf.get('upload_path'), '/files/wut.txt')
-				),
-				false
+				await file.exists(path.resolve(nconf.get('upload_path'), '/files/wut.txt')),
+				false,
 			);
 		});
 	});
@@ -435,7 +384,7 @@ describe('post uploads management', () => {
 		reply = replyData;
 	});
 
-	it('should automatically sync uploads on topic create and reply', (done) => {
+	it('should automatically sync uploads on topic create and reply', done => {
 		db.sortedSetsCard(
 			[`post:${topic.topicData.mainPid}:uploads`, `post:${reply.pid}:uploads`],
 			(err, lengths) => {
@@ -443,7 +392,7 @@ describe('post uploads management', () => {
 				assert.strictEqual(lengths[0], 1);
 				assert.strictEqual(lengths[1], 1);
 				done();
-			}
+			},
 		);
 	});
 

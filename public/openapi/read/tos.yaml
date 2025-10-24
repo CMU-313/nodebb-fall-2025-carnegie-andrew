@@ -4,7 +4,7 @@ get:
   summary: Get forum terms of service
   description: This route allows you to view the forum terms of service.
   responses:
-    "200":
+    '200':
       description: Terms of service retrieved.
       content:
         application/json:

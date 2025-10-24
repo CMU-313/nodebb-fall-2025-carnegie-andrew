@@ -25,11 +25,7 @@ async function doTopicAction(action, caller, data) {
 }
 
 async function postCommand(caller, command, eventName, notificationText, data) {
-	const canRead = await privileges.posts.can(
-		'topics:read',
-		data.pid,
-		caller.uid
-	);
+	const canRead = await privileges.posts.can('topics:read', data.pid, caller.uid);
 	if (!canRead) {
 		throw new Error('[[error:no-privileges]]');
 	}

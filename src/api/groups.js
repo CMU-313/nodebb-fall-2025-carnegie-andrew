@@ -27,10 +27,7 @@ groupsAPI.create = async function (caller, data) {
 		throw new Error('[[error:no-privileges]]');
 	} else if (!data) {
 		throw new Error('[[error:invalid-data]]');
-	} else if (
-		typeof data.name !== 'string' ||
-		groups.isPrivilegeGroup(data.name)
-	) {
+	} else if (typeof data.name !== 'string' || groups.isPrivilegeGroup(data.name)) {
 		throw new Error('[[error:invalid-group-name]]');
 	}
 
@@ -64,10 +61,7 @@ groupsAPI.update = async function (caller, data) {
 groupsAPI.delete = async function (caller, data) {
 	const groupName = await groups.getGroupNameByGroupSlug(data.slug);
 	await isOwner(caller, groupName);
-	if (
-		groups.systemGroups.includes(groupName) ||
-		groups.ephemeralGroups.includes(groupName)
-	) {
+	if (groups.systemGroups.includes(groupName) || groups.ephemeralGroups.includes(groupName)) {
 		throw new Error('[[error:not-allowed]]');
 	}
 
@@ -98,12 +92,7 @@ groupsAPI.listMembers = async (caller, data) => {
 		response.nextStart = null;
 	} else {
 		response = {
-			users: await groups.getOwnersAndMembers(
-				groupName,
-				caller.uid,
-				after,
-				after + 19
-			),
+			users: await groups.getOwnersAndMembers(groupName, caller.uid, after, after + 19),
 			nextStart: after + 20,
 			matchCount: null,
 			timing: null,
@@ -114,19 +103,15 @@ groupsAPI.listMembers = async (caller, data) => {
 };
 
 async function canSearchMembers(uid, groupName) {
-	const [isHidden, isMember, hasAdminPrivilege, isGlobalMod, viewGroups] =
-		await Promise.all([
-			groups.isHidden(groupName),
-			groups.isMember(uid, groupName),
-			privileges.admin.can('admin:groups', uid),
-			user.isGlobalModerator(uid),
-			privileges.global.can('view:groups', uid),
-		]);
+	const [isHidden, isMember, hasAdminPrivilege, isGlobalMod, viewGroups] = await Promise.all([
+		groups.isHidden(groupName),
+		groups.isMember(uid, groupName),
+		privileges.admin.can('admin:groups', uid),
+		user.isGlobalModerator(uid),
+		privileges.global.can('view:groups', uid),
+	]);
 
-	if (
-		!viewGroups ||
-		(isHidden && !isMember && !hasAdminPrivilege && !isGlobalMod)
-	) {
+	if (!viewGroups || (isHidden && !isMember && !hasAdminPrivilege && !isGlobalMod)) {
 		throw new Error('[[error:no-privileges]]');
 	}
 }
@@ -147,8 +132,7 @@ groupsAPI.join = async function (caller, data) {
 	const isCallerAdmin = await privileges.admin.can('admin:groups', caller.uid);
 	if (
 		!isCallerAdmin &&
-		(groups.systemGroups.includes(groupName) ||
-			groups.isPrivilegeGroup(groupName))
+		(groups.systemGroups.includes(groupName) || groups.isPrivilegeGroup(groupName))
 	) {
 		throw new Error('[[error:not-allowed]]');
 	}
@@ -173,12 +157,7 @@ groupsAPI.join = async function (caller, data) {
 		return;
 	}
 
-	if (
-		!isCallerAdmin &&
-		isSelf &&
-		groupData.private &&
-		groupData.disableJoinRequests
-	) {
+	if (!isCallerAdmin && isSelf && groupData.private && groupData.disableJoinRequests) {
 		throw new Error('[[error:group-join-disabled]]');
 	}
 
@@ -382,16 +361,14 @@ async function isOwner(caller, groupName, throwOnFalse = true) {
 	if (typeof groupName !== 'string') {
 		throw new Error('[[error:invalid-group-name]]');
 	}
-	const [hasAdminPrivilege, isGlobalModerator, isOwner, group] =
-		await Promise.all([
-			privileges.admin.can('admin:groups', caller.uid),
-			user.isGlobalModerator(caller.uid),
-			groups.ownership.isOwner(caller.uid, groupName),
-			groups.getGroupData(groupName),
-		]);
+	const [hasAdminPrivilege, isGlobalModerator, isOwner, group] = await Promise.all([
+		privileges.admin.can('admin:groups', caller.uid),
+		user.isGlobalModerator(caller.uid),
+		groups.ownership.isOwner(caller.uid, groupName),
+		groups.getGroupData(groupName),
+	]);
 
-	const check =
-		isOwner || hasAdminPrivilege || (isGlobalModerator && !group.system);
+	const check = isOwner || hasAdminPrivilege || (isGlobalModerator && !group.system);
 	if (!check && throwOnFalse) {
 		throw new Error('[[error:no-privileges]]');
 	}

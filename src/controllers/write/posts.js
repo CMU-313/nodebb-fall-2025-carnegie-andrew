@@ -34,8 +34,7 @@ Posts.redirectByIndex = async (req, res, next) => {
 	const urlObj = new URL(nconf.get('url') + req.url);
 	res.redirect(
 		308,
-		nconf.get('relative_path') +
-			encodeURI(`/api/v3/posts/${pid}/${path}${urlObj.search}`)
+		nconf.get('relative_path') + encodeURI(`/api/v3/posts/${pid}/${path}${urlObj.search}`),
 	);
 };
 
@@ -174,37 +173,21 @@ Posts.unbookmark = async (req, res) => {
 };
 
 Posts.getDiffs = async (req, res) => {
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.posts.getDiffs(req, { ...req.params })
-	);
+	helpers.formatApiResponse(200, res, await api.posts.getDiffs(req, { ...req.params }));
 };
 
 Posts.loadDiff = async (req, res) => {
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.posts.loadDiff(req, { ...req.params })
-	);
+	helpers.formatApiResponse(200, res, await api.posts.loadDiff(req, { ...req.params }));
 };
 
 Posts.restoreDiff = async (req, res) => {
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.posts.restoreDiff(req, { ...req.params })
-	);
+	helpers.formatApiResponse(200, res, await api.posts.restoreDiff(req, { ...req.params }));
 };
 
 Posts.deleteDiff = async (req, res) => {
 	await api.posts.deleteDiff(req, { ...req.params });
 
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.posts.getDiffs(req, { ...req.params })
-	);
+	helpers.formatApiResponse(200, res, await api.posts.getDiffs(req, { ...req.params }));
 };
 
 Posts.getReplies = async (req, res) => {

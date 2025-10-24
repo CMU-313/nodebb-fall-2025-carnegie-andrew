@@ -20,10 +20,7 @@ Actors.application = async function (req, res) {
 	const name = meta.config.title || 'NodeBB';
 
 	res.status(200).json({
-		'@context': [
-			'https://www.w3.org/ns/activitystreams',
-			'https://w3id.org/security/v1',
-		],
+		'@context': ['https://www.w3.org/ns/activitystreams', 'https://w3id.org/security/v1'],
 		id: `${nconf.get('url')}/actor`,
 		url: `${nconf.get('url')}/actor`,
 		inbox: `${nconf.get('url')}/inbox`,
@@ -61,7 +58,7 @@ Actors.note = async function (req, res, next) {
 	const allowed = await privileges.posts.can(
 		'topics:read',
 		req.params.pid,
-		activitypub._constants.uid
+		activitypub._constants.uid,
 	);
 	if (!allowed) {
 		return next();
@@ -96,11 +93,7 @@ Actors.note = async function (req, res, next) {
 Actors.replies = async function (req, res, next) {
 	const allowed =
 		utils.isNumber(req.params.pid) &&
-		(await privileges.posts.can(
-			'topics:read',
-			req.params.pid,
-			activitypub._constants.uid
-		));
+		(await privileges.posts.can('topics:read', req.params.pid, activitypub._constants.uid));
 	const exists = await posts.exists(req.params.pid);
 	if (!allowed || !exists) {
 		return res.sendStatus(404);
@@ -121,8 +114,8 @@ Actors.replies = async function (req, res, next) {
 
 	// Convert pids to urls
 	if (replies.orderedItems) {
-		replies.orderedItems = replies.orderedItems.map((pid) =>
-			utils.isNumber(pid) ? `${nconf.get('url')}/post/${pid}` : pid
+		replies.orderedItems = replies.orderedItems.map(pid =>
+			utils.isNumber(pid) ? `${nconf.get('url')}/post/${pid}` : pid,
 		);
 	}
 
@@ -140,7 +133,7 @@ Actors.topic = async function (req, res, next) {
 	const allowed = await privileges.topics.can(
 		'topics:read',
 		req.params.tid,
-		activitypub._constants.uid
+		activitypub._constants.uid,
 	);
 	if (!allowed) {
 		return res.sendStatus(404);
@@ -154,13 +147,7 @@ Actors.topic = async function (req, res, next) {
 		mainPid,
 		slug,
 		timestamp,
-	} = await topics.getTopicFields(req.params.tid, [
-		'cid',
-		'title',
-		'mainPid',
-		'slug',
-		'timestamp',
-	]);
+	} = await topics.getTopicFields(req.params.tid, ['cid', 'title', 'mainPid', 'slug', 'timestamp']);
 	try {
 		if (timestamp > Date.now()) {
 			// Scheduled topic, no response
@@ -184,23 +171,19 @@ Actors.topic = async function (req, res, next) {
 			return next(); // invalid page; 404
 		}
 		pids.push(mainPid);
-		pids = pids.map((pid) =>
-			utils.isNumber(pid) ? `${nconf.get('url')}/post/${pid}` : pid
-		);
+		pids = pids.map(pid => (utils.isNumber(pid) ? `${nconf.get('url')}/post/${pid}` : pid));
 		collection.totalItems += 1; // account for mainPid
 
 		// Generate digest for ETag
 		const digest = activitypub.helpers.generateDigest(new Set(pids));
-		const ifNoneMatch = (req.get('If-None-Match') || '')
-			.split(',')
-			.map((tag) => {
-				tag = tag.trim();
-				if (tag.startsWith('"') && tag.endsWith('"')) {
-					return tag.slice(1, tag.length - 1);
-				}
+		const ifNoneMatch = (req.get('If-None-Match') || '').split(',').map(tag => {
+			tag = tag.trim();
+			if (tag.startsWith('"') && tag.endsWith('"')) {
+				return tag.slice(1, tag.length - 1);
+			}
 
-				return tag;
-			});
+			return tag;
+		});
 		if (ifNoneMatch.includes(digest)) {
 			return res.sendStatus(304);
 		}
@@ -213,8 +196,8 @@ Actors.topic = async function (req, res, next) {
 				// add OP to collection
 				collection.orderedItems.unshift(mainPid);
 			}
-			collection.orderedItems = collection.orderedItems.map((pid) =>
-				utils.isNumber(pid) ? `${nconf.get('url')}/post/${pid}` : pid
+			collection.orderedItems = collection.orderedItems.map(pid =>
+				utils.isNumber(pid) ? `${nconf.get('url')}/post/${pid}` : pid,
 			);
 		}
 
@@ -230,9 +213,7 @@ Actors.topic = async function (req, res, next) {
 
 		res.status(200).json(object);
 	} catch (e) {
-		winston.error(
-			`[activitypub/actors.topic] Unable to generate topic actor: ${e.message}`
-		);
+		winston.error(`[activitypub/actors.topic] Unable to generate topic actor: ${e.message}`);
 		return next();
 	}
 };
@@ -240,11 +221,7 @@ Actors.topic = async function (req, res, next) {
 Actors.category = async function (req, res, next) {
 	const [exists, allowed] = await Promise.all([
 		categories.exists(req.params.cid),
-		privileges.categories.can(
-			'find',
-			req.params.cid,
-			activitypub._constants.uid
-		),
+		privileges.categories.can('find', req.params.cid, activitypub._constants.uid),
 	]);
 	if (!exists || !allowed) {
 		return next('route');
@@ -266,7 +243,7 @@ Actors.message = async function (req, res) {
 		messageObj.fromuid,
 		0,
 		messageObj.roomId,
-		false
+		false,
 	);
 	const payload = await activitypub.mocks.notes.private({ messageObj });
 	res.status(200).json(payload);

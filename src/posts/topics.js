@@ -16,12 +16,10 @@ module.exports = function (Posts) {
 		pids = isArray ? pids : [pids];
 		const postData = await Posts.getPostsFields(pids, ['tid']);
 		const topicData = await topics.getTopicsFields(
-			postData.map((t) => t.tid),
-			['mainPid']
+			postData.map(t => t.tid),
+			['mainPid'],
 		);
-		const result = pids.map(
-			(pid, i) => String(pid) === String(topicData[i].mainPid)
-		);
+		const result = pids.map((pid, i) => String(pid) === String(topicData[i].mainPid));
 		return isArray ? result : result[0];
 	};
 
@@ -37,7 +35,7 @@ module.exports = function (Posts) {
 
 	Posts.generatePostPaths = async function (pids, uid) {
 		const postData = await Posts.getPostsFields(pids, ['pid', 'tid']);
-		const tids = postData.map((post) => post && post.tid);
+		const tids = postData.map(post => post && post.tid);
 		const [indices, topicData] = await Promise.all([
 			Posts.getPostIndices(postData, uid),
 			topics.getTopicsFields(tids, ['slug']),
@@ -45,9 +43,7 @@ module.exports = function (Posts) {
 
 		const paths = pids.map((pid, index) => {
 			const slug = topicData[index] ? topicData[index].slug : null;
-			const postIndex = utils.isNumber(indices[index])
-				? parseInt(indices[index], 10) + 1
-				: null;
+			const postIndex = utils.isNumber(indices[index]) ? parseInt(indices[index], 10) + 1 : null;
 
 			if (slug && postIndex) {
 				const index = postIndex === 1 ? '' : `/${postIndex}`;

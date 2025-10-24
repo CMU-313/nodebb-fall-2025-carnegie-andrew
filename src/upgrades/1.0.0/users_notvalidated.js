@@ -16,31 +16,27 @@ module.exports = {
 				async.eachSeries(
 					ids,
 					(id, next) => {
-						db.getObjectFields(
-							`user:${id}`,
-							['uid', 'email:confirmed'],
-							(err, userData) => {
-								if (err) {
-									return next(err);
-								}
-								if (
-									!userData ||
-									!parseInt(userData.uid, 10) ||
-									parseInt(userData['email:confirmed'], 10) === 1
-								) {
-									return next();
-								}
-								winston.verbose(
-									`processing uid: ${userData.uid} email:confirmed: ${userData['email:confirmed']}`
-								);
-								db.sortedSetAdd('users:notvalidated', now, userData.uid, next);
+						db.getObjectFields(`user:${id}`, ['uid', 'email:confirmed'], (err, userData) => {
+							if (err) {
+								return next(err);
 							}
-						);
+							if (
+								!userData ||
+								!parseInt(userData.uid, 10) ||
+								parseInt(userData['email:confirmed'], 10) === 1
+							) {
+								return next();
+							}
+							winston.verbose(
+								`processing uid: ${userData.uid} email:confirmed: ${userData['email:confirmed']}`,
+							);
+							db.sortedSetAdd('users:notvalidated', now, userData.uid, next);
+						});
 					},
-					next
+					next,
 				);
 			},
-			callback
+			callback,
 		);
 	},
 };

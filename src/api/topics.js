@@ -67,9 +67,7 @@ topicsAPI.create = async function (caller, data) {
 	apiHelpers.setDefaultPostData(caller, payload);
 	const isScheduling = parseInt(data.timestamp, 10) > payload.timestamp;
 	if (isScheduling) {
-		if (
-			await privileges.categories.can('topics:schedule', data.cid, caller.uid)
-		) {
+		if (await privileges.categories.can('topics:schedule', data.cid, caller.uid)) {
 			payload.timestamp = parseInt(data.timestamp, 10);
 		} else {
 			throw new Error('[[error:no-privileges]]');
@@ -92,9 +90,7 @@ topicsAPI.create = async function (caller, data) {
 
 	await topics.thumbs.migrate(data.uuid, result.topicData.tid);
 
-	socketHelpers.emitToUids('event:new_post', { posts: [result.postData] }, [
-		caller.uid,
-	]);
+	socketHelpers.emitToUids('event:new_post', { posts: [result.postData] }, [caller.uid]);
 	socketHelpers.emitToUids('event:new_topic', result.topicData, [caller.uid]);
 	socketHelpers.notifyNew(caller.uid, 'newTopic', {
 		posts: [result.postData],
@@ -109,11 +105,7 @@ topicsAPI.create = async function (caller, data) {
 };
 
 topicsAPI.reply = async function (caller, data) {
-	if (
-		!data ||
-		!data.tid ||
-		(meta.config.minimumPostLength !== 0 && !data.content)
-	) {
+	if (!data || !data.tid || (meta.config.minimumPostLength !== 0 && !data.content)) {
 		throw new Error('[[error:invalid-data]]');
 	}
 	const payload = { ...data };
@@ -175,11 +167,7 @@ topicsAPI.pin = async function (caller, { tids, expiry }) {
 	await doTopicAction('pin', 'event:topic_pinned', caller, { tids });
 
 	if (expiry) {
-		await Promise.all(
-			tids.map(async (tid) =>
-				topics.tools.setPinExpiry(tid, expiry, caller.uid)
-			)
-		);
+		await Promise.all(tids.map(async tid => topics.tools.setPinExpiry(tid, expiry, caller.uid)));
 	}
 };
 
@@ -352,9 +340,9 @@ topicsAPI.move = async (caller, { tid, cid }) => {
 
 	await batch.processArray(
 		tids,
-		async (tids) => {
+		async tids => {
 			await Promise.all(
-				tids.map(async (tid) => {
+				tids.map(async tid => {
 					const canMove = await privileges.topics.isAdminOrMod(tid, caller.uid);
 					if (!canMove) {
 						throw new Error('[[error:no-privileges]]');
@@ -377,7 +365,7 @@ topicsAPI.move = async (caller, { tid, cid }) => {
 					const notifyUids = await privileges.categories.filterUids(
 						'topics:read',
 						topicData.cid,
-						uids
+						uids,
 					);
 					socketHelpers.emitToUids('event:topic_moved', topicData, notifyUids);
 					if (!topicData.deleted) {
@@ -385,12 +373,12 @@ topicsAPI.move = async (caller, { tid, cid }) => {
 							tid,
 							caller.uid,
 							'move',
-							'notifications:moved-your-topic'
+							'notifications:moved-your-topic',
 						);
 						activitypubApi.announce.note(caller, { tid });
 						const { activity } = await activitypub.mocks.activities.create(
 							topicData.mainPid,
-							caller.uid
+							caller.uid,
 						);
 						await activitypub.feps.announce(topicData.mainPid, activity);
 					}
@@ -403,10 +391,10 @@ topicsAPI.move = async (caller, { tid, cid }) => {
 						fromCid: topicData.cid,
 						toCid: cid,
 					});
-				})
+				}),
 			);
 		},
-		{ batch: 10 }
+		{ batch: 10 },
 	);
 
 	await categories.onTopicsMoved(cids);

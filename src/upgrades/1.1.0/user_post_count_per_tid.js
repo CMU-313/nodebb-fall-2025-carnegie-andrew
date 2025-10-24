@@ -19,7 +19,7 @@ module.exports = {
 				async.each(
 					tids,
 					(tid, next) => {
-						db.delete(`tid:${tid}:posters`, (err) => {
+						db.delete(`tid:${tid}:posters`, err => {
 							if (err) {
 								return next(err);
 							}
@@ -45,16 +45,16 @@ module.exports = {
 											db.sortedSetIncrBy(`tid:${tid}:posters`, 1, uid, next);
 										});
 									},
-									next
+									next,
 								);
 							});
 						});
 					},
-					next
+					next,
 				);
 			},
 			{},
-			callback
+			callback,
 		);
 	},
 };

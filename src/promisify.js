@@ -22,7 +22,7 @@ module.exports = function (theModule, ignoreKeys) {
 		}
 
 		const keys = Object.keys(module);
-		keys.forEach((key) => {
+		keys.forEach(key => {
 			if (ignoreKeys.includes(key)) {
 				return;
 			}

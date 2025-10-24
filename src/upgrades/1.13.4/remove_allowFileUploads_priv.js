@@ -7,10 +7,7 @@ module.exports = {
 	name: 'Removing file upload privilege if file uploads were disabled (`allowFileUploads`)',
 	timestamp: Date.UTC(2020, 4, 21),
 	method: async () => {
-		const allowFileUploads = parseInt(
-			await db.getObjectField('config', 'allowFileUploads'),
-			10
-		);
+		const allowFileUploads = parseInt(await db.getObjectField('config', 'allowFileUploads'), 10);
 		if (allowFileUploads === 1) {
 			await db.deleteObjectField('config', 'allowFileUploads');
 			return;

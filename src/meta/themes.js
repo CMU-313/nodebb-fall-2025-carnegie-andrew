@@ -24,7 +24,7 @@ Themes.get = async () => {
 	let themes = await getThemes(themePath);
 	themes = _.flatten(themes).filter(Boolean);
 	themes = await Promise.all(
-		themes.map(async (theme) => {
+		themes.map(async theme => {
 			const config = path.join(themePath, theme, 'theme.json');
 			const pack = path.join(themePath, theme, 'package.json');
 			try {
@@ -54,7 +54,7 @@ Themes.get = async () => {
 				winston.error(`[themes] Unable to parse theme.json ${theme}`);
 				return false;
 			}
-		})
+		}),
 	);
 
 	return themes.filter(Boolean);
@@ -62,11 +62,9 @@ Themes.get = async () => {
 
 async function getThemes(themePath) {
 	let dirs = await fs.promises.readdir(themePath);
-	dirs = dirs.filter(
-		(dir) => themeNamePattern.test(dir) || dir.startsWith('@')
-	);
+	dirs = dirs.filter(dir => themeNamePattern.test(dir) || dir.startsWith('@'));
 	return await Promise.all(
-		dirs.map(async (dir) => {
+		dirs.map(async dir => {
 			try {
 				const dirpath = path.join(themePath, dir);
 				const stat = await fs.promises.stat(dirpath);
@@ -79,7 +77,7 @@ async function getThemes(themePath) {
 				}
 
 				const themes = await getThemes(path.join(themePath, dir));
-				return themes.map((theme) => path.join(dir, theme));
+				return themes.map(theme => path.join(dir, theme));
 			} catch (err) {
 				if (err.code === 'ENOENT') {
 					return false;
@@ -87,11 +85,11 @@ async function getThemes(themePath) {
 
 				throw err;
 			}
-		})
+		}),
 	);
 }
 
-Themes.set = async (data) => {
+Themes.set = async data => {
 	switch (data.type) {
 		case 'local': {
 			const current = await Meta.configs.get('theme:id');
@@ -100,11 +98,7 @@ Themes.set = async (data) => {
 			await db.sortedSetAdd('plugins:active', score || 0, data.id);
 
 			if (current !== data.id) {
-				const pathToThemeJson = path.join(
-					nconf.get('themes_path'),
-					data.id,
-					'theme.json'
-				);
+				const pathToThemeJson = path.join(nconf.get('themes_path'), data.id, 'theme.json');
 				if (!pathToThemeJson.startsWith(nconf.get('themes_path'))) {
 					throw new Error('[[error:invalid-theme-id]]');
 				}
@@ -119,7 +113,7 @@ Themes.set = async (data) => {
 				} else if (!activePluginsConfig.includes(data.id)) {
 					// This prevents changing theme when configuration doesn't include it, but allows it otherwise
 					winston.error(
-						`When defining active plugins in configuration, changing themes requires adding the theme '${data.id}' to the list of active plugins before updating it in the ACP`
+						`When defining active plugins in configuration, changing themes requires adding the theme '${data.id}' to the list of active plugins before updating it in the ACP`,
 					);
 					throw new Error('[[error:theme-not-set-in-configuration]]');
 				}
@@ -168,7 +162,7 @@ Themes.setupPaths = async () => {
 		winston.info(`[themes] Using theme ${themeId}`);
 	}
 
-	const themeObj = data.themesData.find((themeObj) => themeObj.id === themeId);
+	const themeObj = data.themesData.find(themeObj => themeObj.id === themeId);
 
 	if (!themeObj) {
 		throw new Error('theme-not-found');
@@ -180,30 +174,19 @@ Themes.setupPaths = async () => {
 Themes.setPath = function (themeObj) {
 	// Theme's templates path
 	let themePath;
-	const fallback = path.join(
-		nconf.get('themes_path'),
-		themeObj.id,
-		'templates'
-	);
+	const fallback = path.join(nconf.get('themes_path'), themeObj.id, 'templates');
 
 	if (themeObj.templates) {
-		themePath = path.join(
-			nconf.get('themes_path'),
-			themeObj.id,
-			themeObj.templates
-		);
+		themePath = path.join(nconf.get('themes_path'), themeObj.id, themeObj.templates);
 	} else if (file.existsSync(fallback)) {
 		themePath = fallback;
 	} else {
 		winston.error(
-			'[themes] Unable to resolve this theme\'s templates. Expected to be at "templates/" or defined in the "templates" property of "theme.json"'
+			'[themes] Unable to resolve this theme\'s templates. Expected to be at "templates/" or defined in the "templates" property of "theme.json"',
 		);
 		throw new Error('theme-missing-templates');
 	}
 
 	nconf.set('theme_templates_path', themePath);
-	nconf.set(
-		'theme_config',
-		path.join(nconf.get('themes_path'), themeObj.id, 'theme.json')
-	);
+	nconf.set('theme_config', path.join(nconf.get('themes_path'), themeObj.id, 'theme.json'));
 };

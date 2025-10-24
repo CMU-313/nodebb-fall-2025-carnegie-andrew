@@ -35,19 +35,13 @@ describe('Topic thumbs', () => {
 		'https://example.org',
 	];
 
-	const relativeThumbPaths = thumbPaths.map((path) =>
-		path.replace(nconf.get('upload_path'), '')
-	);
+	const relativeThumbPaths = thumbPaths.map(path => path.replace(nconf.get('upload_path'), ''));
 
 	const uuid = utils.generateUUID();
 
 	function createFiles() {
-		fs.closeSync(
-			fs.openSync(path.resolve(__dirname, '../uploads', thumbPaths[0]), 'w')
-		);
-		fs.closeSync(
-			fs.openSync(path.resolve(__dirname, '../uploads', thumbPaths[1]), 'w')
-		);
+		fs.closeSync(fs.openSync(path.resolve(__dirname, '../uploads', thumbPaths[0]), 'w'));
+		fs.closeSync(fs.openSync(path.resolve(__dirname, '../uploads', thumbPaths[1]), 'w'));
 	}
 
 	before(async () => {
@@ -76,18 +70,11 @@ describe('Topic thumbs', () => {
 
 		// Touch a couple files and associate it to a topic
 		createFiles();
-		await db.sortedSetAdd(
-			`topic:${topicObj.topicData.tid}:thumbs`,
-			0,
-			`${relativeThumbPaths[0]}`
-		);
+		await db.sortedSetAdd(`topic:${topicObj.topicData.tid}:thumbs`, 0, `${relativeThumbPaths[0]}`);
 	});
 
 	it('should return bool for whether a thumb exists', async () => {
-		const exists = await topics.thumbs.exists(
-			topicObj.topicData.tid,
-			`${relativeThumbPaths[0]}`
-		);
+		const exists = await topics.thumbs.exists(topicObj.topicData.tid, `${relativeThumbPaths[0]}`);
 		assert.strictEqual(exists, true);
 	});
 
@@ -106,10 +93,7 @@ describe('Topic thumbs', () => {
 		});
 
 		it('should return an array of an array of thumbs if multiple tids are passed in', async () => {
-			const thumbs = await topics.thumbs.get([
-				topicObj.topicData.tid,
-				topicObj.topicData.tid + 1,
-			]);
+			const thumbs = await topics.thumbs.get([topicObj.topicData.tid, topicObj.topicData.tid + 1]);
 			assert.deepStrictEqual(thumbs, [
 				[
 					{
@@ -145,10 +129,7 @@ describe('Topic thumbs', () => {
 				path: relativeThumbPaths[0],
 			});
 
-			const exists = await db.isSortedSetMember(
-				`topic:${tid}:thumbs`,
-				relativeThumbPaths[0]
-			);
+			const exists = await db.isSortedSetMember(`topic:${tid}:thumbs`, relativeThumbPaths[0]);
 			assert(exists);
 		});
 
@@ -159,10 +140,7 @@ describe('Topic thumbs', () => {
 				score: 5,
 			});
 
-			const exists = await db.isSortedSetMember(
-				`draft:${uuid}:thumbs`,
-				relativeThumbPaths[1]
-			);
+			const exists = await db.isSortedSetMember(`draft:${uuid}:thumbs`, relativeThumbPaths[1]);
 			assert(exists);
 		});
 
@@ -172,10 +150,7 @@ describe('Topic thumbs', () => {
 				path: relativeThumbPaths[2],
 			});
 
-			const exists = await db.isSortedSetMember(
-				`topic:${tid}:thumbs`,
-				relativeThumbPaths[2]
-			);
+			const exists = await db.isSortedSetMember(`topic:${tid}:thumbs`, relativeThumbPaths[2]);
 			assert(exists);
 		});
 
@@ -198,10 +173,7 @@ describe('Topic thumbs', () => {
 				path: relativeThumbPaths[0],
 			});
 
-			const score = await db.sortedSetScore(
-				`topic:${tid}:thumbs`,
-				relativeThumbPaths[0]
-			);
+			const score = await db.sortedSetScore(`topic:${tid}:thumbs`, relativeThumbPaths[0]);
 
 			assert(isFinite(score)); // exists in set
 			assert.strictEqual(score, 2);
@@ -214,10 +186,7 @@ describe('Topic thumbs', () => {
 				score: 0,
 			});
 
-			const score = await db.sortedSetScore(
-				`topic:${tid}:thumbs`,
-				relativeThumbPaths[0]
-			);
+			const score = await db.sortedSetScore(`topic:${tid}:thumbs`, relativeThumbPaths[0]);
 
 			assert(isFinite(score)); // exists in set
 			assert.strictEqual(score, 0);
@@ -270,10 +239,7 @@ describe('Topic thumbs', () => {
 			});
 			await topics.thumbs.delete(1, `/files/test.png`);
 
-			assert.strictEqual(
-				await db.isSortedSetMember('topic:1:thumbs', '/files/test.png'),
-				false
-			);
+			assert.strictEqual(await db.isSortedSetMember('topic:1:thumbs', '/files/test.png'), false);
 		});
 
 		it("should no longer be associated with that topic's main pid's uploads", async () => {
@@ -291,13 +257,11 @@ describe('Topic thumbs', () => {
 
 			assert.strictEqual(
 				await db.isSortedSetMember(`draft:${uuid}:thumbs`, '/files/test.png'),
-				false
+				false,
 			);
 			assert.strictEqual(
-				await file.exists(
-					path.join(`${nconf.get('upload_path')}`, '/files/test.png')
-				),
-				false
+				await file.exists(path.join(`${nconf.get('upload_path')}`, '/files/test.png')),
+				false,
 			);
 		});
 
@@ -309,11 +273,8 @@ describe('Topic thumbs', () => {
 			await topics.thumbs.delete(uuid, relativeThumbPaths[2]);
 
 			assert.strictEqual(
-				await db.isSortedSetMember(
-					`draft:${uuid}:thumbs`,
-					relativeThumbPaths[2]
-				),
-				false
+				await db.isSortedSetMember(`draft:${uuid}:thumbs`, relativeThumbPaths[2]),
+				false,
 			);
 		});
 
@@ -332,10 +293,7 @@ describe('Topic thumbs', () => {
 		});
 
 		it('should decrement numThumbs if dissociated one by one', async () => {
-			console.log(
-				'before',
-				await db.getSortedSetRange(`topic:1:thumbs`, 0, -1)
-			);
+			console.log('before', await db.getSortedSetRange(`topic:1:thumbs`, 0, -1));
 			await topics.thumbs.associate({
 				id: 1,
 				path: `${nconf.get('relative_path')}${nconf.get('upload_url')}/files/test.png`,
@@ -346,10 +304,7 @@ describe('Topic thumbs', () => {
 			});
 
 			await topics.thumbs.delete(1, [relativeThumbPaths[0]]);
-			let numThumbs = parseInt(
-				await db.getObjectField('topic:1', 'numThumbs'),
-				10
-			);
+			let numThumbs = parseInt(await db.getObjectField('topic:1', 'numThumbs'), 10);
 			assert.strictEqual(numThumbs, 1);
 
 			await topics.thumbs.delete(1, [relativeThumbPaths[1]]);
@@ -403,7 +358,7 @@ describe('Topic thumbs', () => {
 				path.join(__dirname, '../files/test.png'),
 				{},
 				adminJar,
-				adminCSRF
+				adminCSRF,
 			);
 			assert.strictEqual(response.statusCode, 200);
 		});
@@ -414,7 +369,7 @@ describe('Topic thumbs', () => {
 				path.join(__dirname, '../files/test.png'),
 				{},
 				adminJar,
-				adminCSRF
+				adminCSRF,
 			);
 			assert.strictEqual(response.statusCode, 200);
 		});
@@ -434,7 +389,7 @@ describe('Topic thumbs', () => {
 				path.join(__dirname, '../files/test.png'),
 				{},
 				adminJar,
-				adminCSRF
+				adminCSRF,
 			);
 			assert.strictEqual(response.statusCode, 200);
 
@@ -447,7 +402,7 @@ describe('Topic thumbs', () => {
 				path.join(__dirname, '../files/test.png'),
 				{},
 				adminJar,
-				adminCSRF
+				adminCSRF,
 			);
 			assert.strictEqual(response.statusCode, 404);
 		});
@@ -458,7 +413,7 @@ describe('Topic thumbs', () => {
 				path.join(__dirname, '../files/test.png'),
 				{},
 				adminJar,
-				adminCSRF
+				adminCSRF,
 			);
 			assert.strictEqual(response.statusCode, 404);
 		});
@@ -469,7 +424,7 @@ describe('Topic thumbs', () => {
 				path.join(__dirname, '../files/test.png'),
 				{},
 				fooJar,
-				fooCSRF
+				fooCSRF,
 			);
 			assert.strictEqual(response.statusCode, 403);
 		});
@@ -482,7 +437,7 @@ describe('Topic thumbs', () => {
 				path.join(__dirname, '../files/test.png'),
 				{},
 				adminJar,
-				adminCSRF
+				adminCSRF,
 			);
 			assert.strictEqual(response.statusCode, 503);
 			assert(body && body.status);
@@ -497,7 +452,7 @@ describe('Topic thumbs', () => {
 				path.join(__dirname, '../files/503.html'),
 				{},
 				adminJar,
-				adminCSRF
+				adminCSRF,
 			);
 			assert.strictEqual(response.statusCode, 500);
 			assert(body && body.status);
@@ -526,16 +481,11 @@ describe('Topic thumbs', () => {
 		});
 
 		it('should no longer have a :thumbs zset', async () => {
-			assert.strictEqual(
-				await db.exists(`topic:${topicObj.tid}:thumbs`),
-				false
-			);
+			assert.strictEqual(await db.exists(`topic:${topicObj.tid}:thumbs`), false);
 		});
 
 		it('should not leave post upload associations behind', async () => {
-			const uploads = await db.getSortedSetMembers(
-				`post:${topicObj.postData.pid}:uploads`
-			);
+			const uploads = await db.getSortedSetMembers(`post:${topicObj.postData.pid}:uploads`);
 			assert.strictEqual(uploads.length, 0);
 		});
 	});

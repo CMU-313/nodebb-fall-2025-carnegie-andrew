@@ -20,26 +20,21 @@ module.exports = {
 		await db.delete('user:null');
 		await db.sortedSetsRemove(
 			['users:joindate', 'users:reputation', 'users:postcount', 'users:flags'],
-			'null'
+			'null',
 		);
 
 		await batch.processArray(
 			allUids,
-			async (uids) => {
+			async uids => {
 				progress.incr(uids.length);
-				const userData = await db.getObjects(uids.map((id) => `user:${id}`));
+				const userData = await db.getObjects(uids.map(id => `user:${id}`));
 
 				await Promise.all(
 					userData.map(async (userData, index) => {
 						if (!userData || !userData.uid) {
 							await db.sortedSetsRemove(
-								[
-									'users:joindate',
-									'users:reputation',
-									'users:postcount',
-									'users:flags',
-								],
-								uids[index]
+								['users:joindate', 'users:reputation', 'users:postcount', 'users:flags'],
+								uids[index],
 							);
 							if (userData && !userData.uid) {
 								await db.delete(`user:${uids[index]}`);
@@ -52,19 +47,16 @@ module.exports = {
 							['users:reputation', userData.reputation || 0, uids[index]],
 							['users:postcount', userData.postcount || 0, uids[index]],
 						]);
-						if (
-							userData.hasOwnProperty('flags') &&
-							parseInt(userData.flags, 10) > 0
-						) {
+						if (userData.hasOwnProperty('flags') && parseInt(userData.flags, 10) > 0) {
 							await db.sortedSetAdd('users:flags', userData.flags, uids[index]);
 						}
-					})
+					}),
 				);
 			},
 			{
 				progress: progress,
 				batch: 500,
-			}
+			},
 		);
 
 		await db.setObjectField('global', 'userCount', totalUserCount);

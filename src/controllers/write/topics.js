@@ -135,7 +135,7 @@ Topics.getThumbs = async (req, res) => {
 	helpers.formatApiResponse(
 		200,
 		res,
-		await api.topics.getThumbs(req, { ...req.params, thumbsOnly })
+		await api.topics.getThumbs(req, { ...req.params, thumbsOnly }),
 	);
 };
 
@@ -151,12 +151,12 @@ Topics.addThumb = async (req, res) => {
 	// Add uploaded files to topic zset
 	if (files && files.length) {
 		await Promise.all(
-			files.map(async (fileObj) => {
+			files.map(async fileObj => {
 				await topics.thumbs.associate({
 					id: req.params.tid,
 					path: fileObj.url,
 				});
-			})
+			}),
 		);
 	}
 };
@@ -167,11 +167,7 @@ Topics.migrateThumbs = async (req, res) => {
 		to: req.body.tid,
 	});
 
-	helpers.formatApiResponse(
-		200,
-		res,
-		await api.topics.getThumbs(req, { tid: req.body.tid })
-	);
+	helpers.formatApiResponse(200, res, await api.topics.getThumbs(req, { tid: req.body.tid }));
 };
 
 Topics.deleteThumb = async (req, res) => {

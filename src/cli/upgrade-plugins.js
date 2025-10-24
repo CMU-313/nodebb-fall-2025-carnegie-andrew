@@ -12,8 +12,7 @@ const pkgInstall = require('./package-install');
 
 const packageManager = pkgInstall.getPackageManager();
 let packageManagerExecutable = packageManager;
-const packageManagerInstallArgs =
-	packageManager === 'yarn' ? ['add'] : ['install', '--save'];
+const packageManagerInstallArgs = packageManager === 'yarn' ? ['add'] : ['install', '--save'];
 
 if (process.platform === 'win32') {
 	packageManagerExecutable += '.cmd';
@@ -24,21 +23,21 @@ async function getModuleVersions(modules) {
 	const batch = require('../batch');
 	await batch.processArray(
 		modules,
-		async (moduleNames) => {
+		async moduleNames => {
 			await Promise.all(
-				moduleNames.map(async (module) => {
+				moduleNames.map(async module => {
 					let pkg = await fs.promises.readFile(
 						path.join(paths.nodeModules, module, 'package.json'),
-						{ encoding: 'utf-8' }
+						{ encoding: 'utf-8' },
 					);
 					pkg = JSON.parse(pkg);
 					versionHash[module] = pkg.version;
-				})
+				}),
 			);
 		},
 		{
 			batch: 50,
-		}
+		},
 	);
 
 	return versionHash;
@@ -50,15 +49,15 @@ async function getInstalledPlugins() {
 		fs.promises.readFile(paths.installPackage, { encoding: 'utf-8' }),
 	]);
 
-	deps = Object.keys(JSON.parse(deps).dependencies).filter((pkgName) =>
-		pluginNamePattern.test(pkgName)
+	deps = Object.keys(JSON.parse(deps).dependencies).filter(pkgName =>
+		pluginNamePattern.test(pkgName),
 	);
-	bundled = Object.keys(JSON.parse(bundled).dependencies).filter((pkgName) =>
-		pluginNamePattern.test(pkgName)
+	bundled = Object.keys(JSON.parse(bundled).dependencies).filter(pkgName =>
+		pluginNamePattern.test(pkgName),
 	);
 
 	// Whittle down deps to send back only extraneously installed plugins/themes/etc
-	const checklist = deps.filter((pkgName) => {
+	const checklist = deps.filter(pkgName => {
 		if (bundled.includes(pkgName)) {
 			return false;
 		}
@@ -86,12 +85,10 @@ async function getCurrentVersion() {
 async function getSuggestedModules(nbbVersion, toCheck) {
 	const request = require('../request');
 	let { response, body } = await request.get(
-		`https://packages.nodebb.org/api/v1/suggest?version=${nbbVersion}&package[]=${toCheck.join('&package[]=')}`
+		`https://packages.nodebb.org/api/v1/suggest?version=${nbbVersion}&package[]=${toCheck.join('&package[]=')}`,
 	);
 	if (!response.ok) {
-		console.warn(
-			`Unable to get suggested module for NodeBB(${nbbVersion}) ${toCheck.join(',')}`
-		);
+		console.warn(`Unable to get suggested module for NodeBB(${nbbVersion}) ${toCheck.join(',')}`);
 		return [];
 	}
 	if (!Array.isArray(body) && toCheck.length === 1) {
@@ -102,10 +99,7 @@ async function getSuggestedModules(nbbVersion, toCheck) {
 
 async function checkPlugins() {
 	process.stdout.write('Checking installed plugins and themes for updates... ');
-	const [plugins, nbbVersion] = await Promise.all([
-		getInstalledPlugins(),
-		getCurrentVersion(),
-	]);
+	const [plugins, nbbVersion] = await Promise.all([getInstalledPlugins(), getCurrentVersion()]);
 
 	const toCheck = Object.keys(plugins);
 	if (!toCheck.length) {
@@ -118,7 +112,7 @@ async function checkPlugins() {
 	let current;
 	let suggested;
 	const upgradable = suggestedModules
-		.map((suggestObj) => {
+		.map(suggestObj => {
 			current = plugins[suggestObj.package];
 			suggested = suggestObj.version;
 
@@ -146,11 +140,11 @@ async function upgradePlugins(unattended = false) {
 		const found = await checkPlugins();
 		if (found && found.length) {
 			process.stdout.write(
-				`\n\nA total of ${chalk.bold(String(found.length))} package(s) can be upgraded:\n\n`
+				`\n\nA total of ${chalk.bold(String(found.length))} package(s) can be upgraded:\n\n`,
 			);
-			found.forEach((suggestObj) => {
+			found.forEach(suggestObj => {
 				process.stdout.write(
-					`${chalk.yellow('  * ') + suggestObj.name} (${chalk.yellow(suggestObj.current)} -> ${chalk.green(suggestObj.suggested)})\n`
+					`${chalk.yellow('  * ') + suggestObj.name} (${chalk.yellow(suggestObj.current)} -> ${chalk.green(suggestObj.suggested)})\n`,
 				);
 			});
 		} else {
@@ -173,18 +167,18 @@ async function upgradePlugins(unattended = false) {
 		if (['y', 'Y', 'yes', 'YES'].includes(result.upgrade)) {
 			console.log('\nUpgrading packages...');
 			const args = packageManagerInstallArgs.concat(
-				found.map((suggestObj) => `${suggestObj.name}@${suggestObj.suggested}`)
+				found.map(suggestObj => `${suggestObj.name}@${suggestObj.suggested}`),
 			);
 
 			cproc.execFileSync(packageManagerExecutable, args, { stdio: 'ignore' });
 		} else {
 			console.log(
-				`${chalk.yellow('Package upgrades skipped')}. Check for upgrades at any time by running "${chalk.green('./nodebb upgrade -p')}".`
+				`${chalk.yellow('Package upgrades skipped')}. Check for upgrades at any time by running "${chalk.green('./nodebb upgrade -p')}".`,
 			);
 		}
 	} catch (err) {
 		console.log(
-			`${chalk.yellow('Warning')}: An unexpected error occured when attempting to verify plugin upgradability`
+			`${chalk.yellow('Warning')}: An unexpected error occured when attempting to verify plugin upgradability`,
 		);
 		throw err;
 	}

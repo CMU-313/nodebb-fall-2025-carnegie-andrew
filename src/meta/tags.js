@@ -90,9 +90,7 @@ Tags.parse = async (req, data, meta, link) => {
 		defaultLinks.push({
 			rel: 'search',
 			type: 'application/opensearchdescription+xml',
-			title: utils.escapeHTML(
-				String(Meta.config.title || Meta.config.browserTitle || 'NodeBB')
-			),
+			title: utils.escapeHTML(String(Meta.config.title || Meta.config.browserTitle || 'NodeBB')),
 			href: `${relative_path}/osd.xml`,
 		});
 	}
@@ -114,7 +112,7 @@ Tags.parse = async (req, data, meta, link) => {
 		}),
 	});
 
-	meta = results.tags.tags.concat(meta || []).map((tag) => {
+	meta = results.tags.tags.concat(meta || []).map(tag => {
 		if (!tag || typeof tag.content !== 'string') {
 			winston.warn('Invalid meta tag. ', tag);
 			return tag;
@@ -122,7 +120,7 @@ Tags.parse = async (req, data, meta, link) => {
 
 		if (!tag.noEscape) {
 			const attributes = Object.keys(tag);
-			attributes.forEach((attr) => {
+			attributes.forEach(attr => {
 				tag[attr] = utils.escapeHTML(String(tag[attr]));
 			});
 		}
@@ -133,8 +131,7 @@ Tags.parse = async (req, data, meta, link) => {
 	await addSiteOGImage(meta);
 
 	addIfNotExists(meta, 'property', 'og:title', Meta.config.title || 'NodeBB');
-	const ogUrl =
-		url + (req.originalUrl !== '/' ? stripRelativePath(req.originalUrl) : '');
+	const ogUrl = url + (req.originalUrl !== '/' ? stripRelativePath(req.originalUrl) : '');
 	addIfNotExists(meta, 'property', 'og:url', ogUrl);
 	addIfNotExists(meta, 'name', 'description', Meta.config.description);
 	addIfNotExists(meta, 'property', 'og:description', Meta.config.description);
@@ -142,12 +139,12 @@ Tags.parse = async (req, data, meta, link) => {
 	link = results.links.links.concat(link || []);
 	if (isAPI) {
 		const whitelist = ['canonical', 'alternate', 'up'];
-		link = link.filter((link) => whitelist.some((val) => val === link.rel));
+		link = link.filter(link => whitelist.some(val => val === link.rel));
 	}
-	link = link.map((tag) => {
+	link = link.map(tag => {
 		if (!tag.noEscape) {
 			const attributes = Object.keys(tag);
-			attributes.forEach((attr) => {
+			attributes.forEach(attr => {
 				tag[attr] = utils.escapeHTML(String(tag[attr]));
 			});
 		}
@@ -194,7 +191,7 @@ function addTouchIcons(defaultLinks) {
 				rel: 'icon',
 				sizes: '192x192',
 				href: `${relative_path + upload_url}/system/touchicon-192.png`,
-			}
+			},
 		);
 	} else {
 		defaultLinks.push(
@@ -236,13 +233,13 @@ function addTouchIcons(defaultLinks) {
 				rel: 'icon',
 				sizes: '512x512',
 				href: `${relative_path}/assets/images/touch/512.png`,
-			}
+			},
 		);
 	}
 }
 
 function addIfNotExists(meta, keyName, tagName, value) {
-	const exists = meta.some((tag) => tag[keyName] === tagName);
+	const exists = meta.some(tag => tag[keyName] === tagName);
 
 	if (!exists && value) {
 		meta.push({
@@ -278,7 +275,7 @@ async function addSiteOGImage(meta) {
 	});
 
 	const properties = ['url', 'secure_url', 'type', 'width', 'height', 'alt'];
-	images.forEach((image) => {
+	images.forEach(image => {
 		for (const property of properties) {
 			if (image.hasOwnProperty(property)) {
 				switch (property) {
@@ -293,7 +290,7 @@ async function addSiteOGImage(meta) {
 								property: 'og:image:url',
 								content: image.url,
 								noEscape: true,
-							}
+							},
 						);
 						break;
 					}

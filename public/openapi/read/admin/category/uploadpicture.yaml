@@ -22,8 +22,8 @@ post:
             - cid
             - files
   responses:
-    "200":
-      description: "Image uploaded"
+    '200':
+      description: 'Image uploaded'
       content:
         application/json:
           schema:

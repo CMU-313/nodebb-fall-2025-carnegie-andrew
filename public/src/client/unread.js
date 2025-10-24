@@ -1,8 +1,13 @@
 'use strict';
 
-
 define('forum/unread', [
-	'forum/header/unread', 'topicSelect', 'components', 'topicList', 'categorySelector', 'alerts', 'api',
+	'forum/header/unread',
+	'topicSelect',
+	'components',
+	'topicList',
+	'categorySelector',
+	'alerts',
+	'api',
 ], function (headerUnread, topicSelect, components, topicList, categorySelector, alerts, api) {
 	const Unread = {};
 
@@ -13,7 +18,10 @@ define('forum/unread', [
 
 		topicList.init('unread');
 
-		headerUnread.updateUnreadTopicCount('/' + ajaxify.data.selectedFilter.url, ajaxify.data.topicCount);
+		headerUnread.updateUnreadTopicCount(
+			'/' + ajaxify.data.selectedFilter.url,
+			ajaxify.data.topicCount,
+		);
 	};
 
 	function handleMarkRead() {

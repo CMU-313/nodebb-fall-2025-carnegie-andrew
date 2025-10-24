@@ -13,7 +13,7 @@ helpers.setupPageRoute = function (...args) {
 
 	if (args.length === 5) {
 		winston.warn(
-			`[helpers.setupPageRoute(${name})] passing \`middleware\` as the third param is deprecated, it can now be safely removed`
+			`[helpers.setupPageRoute(${name})] passing \`middleware\` as the third param is deprecated, it can now be safely removed`,
 		);
 	}
 
@@ -34,7 +34,7 @@ helpers.setupPageRoute = function (...args) {
 		middleware.busyCheck,
 		middlewares,
 		middleware.buildHeader,
-		helpers.tryRoute(controller)
+		helpers.tryRoute(controller),
 	);
 	router.get(`/api${name}`, middlewares, helpers.tryRoute(controller));
 };
@@ -46,7 +46,7 @@ helpers.setupAdminPageRoute = function (...args) {
 	const controller = args[args.length - 1];
 	if (args.length === 5) {
 		winston.warn(
-			`[helpers.setupAdminPageRoute(${name})] passing \`middleware\` as the third param is deprecated, it can now be safely removed`
+			`[helpers.setupAdminPageRoute(${name})] passing \`middleware\` as the third param is deprecated, it can now be safely removed`,
 		);
 	}
 	router.get(
@@ -54,7 +54,7 @@ helpers.setupAdminPageRoute = function (...args) {
 		middleware.autoLocale,
 		middleware.admin.buildHeader,
 		middlewares,
-		helpers.tryRoute(controller)
+		helpers.tryRoute(controller),
 	);
 	router.get(`/api${name}`, middlewares, helpers.tryRoute(controller));
 };
@@ -82,17 +82,13 @@ helpers.setupApiRoute = function (...args) {
 		middlewares,
 		helpers.tryRoute(controller, (err, res) => {
 			controllerHelpers.formatApiResponse(400, res, err);
-		})
+		}),
 	);
 };
 
 helpers.tryRoute = function (controller, handler) {
 	// `handler` is optional
-	if (
-		controller &&
-		controller.constructor &&
-		controller.constructor.name === 'AsyncFunction'
-	) {
+	if (controller && controller.constructor && controller.constructor.name === 'AsyncFunction') {
 		return async function (req, res, next) {
 			try {
 				await controller(req, res, next);

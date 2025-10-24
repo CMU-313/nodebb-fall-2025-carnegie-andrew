@@ -79,10 +79,7 @@ middleware.stripLeadingSlashes = function stripLeadingSlashes(req, res, next) {
 
 middleware.pageView = helpers.try(async (req, res, next) => {
 	if (req.loggedIn) {
-		await Promise.all([
-			user.updateOnlineUsers(req.uid),
-			user.updateLastOnlineTime(req.uid),
-		]);
+		await Promise.all([user.updateOnlineUsers(req.uid), user.updateLastOnlineTime(req.uid)]);
 	}
 	next();
 	await analytics.pageView({ ip: req.ip, uid: req.uid });
@@ -132,17 +129,14 @@ middleware.logApiUsage = async function logApiUsage(req, res, next) {
 };
 
 middleware.routeTouchIcon = function routeTouchIcon(req, res) {
-	if (
-		meta.config['brand:touchIcon'] &&
-		validator.isURL(meta.config['brand:touchIcon'])
-	) {
+	if (meta.config['brand:touchIcon'] && validator.isURL(meta.config['brand:touchIcon'])) {
 		return res.redirect(meta.config['brand:touchIcon']);
 	}
 	let iconPath = '';
 	if (meta.config['brand:touchIcon']) {
 		iconPath = path.join(
 			nconf.get('upload_path'),
-			meta.config['brand:touchIcon'].replace(/assets\/uploads/, '')
+			meta.config['brand:touchIcon'].replace(/assets\/uploads/, ''),
 		);
 	} else {
 		iconPath = path.join(nconf.get('base_dir'), 'public/images/touch/512.png');
@@ -162,14 +156,7 @@ middleware.privateTagListing = helpers.try(async (req, res, next) => {
 });
 
 middleware.exposeGroupName = helpers.try(async (req, res, next) => {
-	await expose(
-		'groupName',
-		groups.getGroupNameByGroupSlug,
-		'slug',
-		req,
-		res,
-		next
-	);
+	await expose('groupName', groups.getGroupNameByGroupSlug, 'slug', req, res, next);
 });
 
 middleware.exposeUid = helpers.try(async (req, res, next) => {
@@ -203,12 +190,8 @@ middleware.privateUploads = function privateUploads(req, res, next) {
 		return next();
 	}
 
-	if (
-		req.path.startsWith(`${nconf.get('relative_path')}/assets/uploads/files`)
-	) {
-		const extensions = (meta.config.privateUploadsExtensions || '')
-			.split(',')
-			.filter(Boolean);
+	if (req.path.startsWith(`${nconf.get('relative_path')}/assets/uploads/files`)) {
+		const extensions = (meta.config.privateUploadsExtensions || '').split(',').filter(Boolean);
 		let ext = path.extname(req.path);
 		ext = ext ? ext.replace(/^\./, '') : ext;
 		if (!extensions.length || extensions.includes(ext)) {
@@ -219,16 +202,9 @@ middleware.privateUploads = function privateUploads(req, res, next) {
 };
 
 middleware.busyCheck = function busyCheck(req, res, next) {
-	if (
-		global.env === 'production' &&
-		meta.config.eventLoopCheckEnabled &&
-		toobusy()
-	) {
+	if (global.env === 'production' && meta.config.eventLoopCheckEnabled && toobusy()) {
 		analytics.increment('errors:503');
-		res
-			.status(503)
-			.type('text/html')
-			.sendFile(path.join(__dirname, '../../public/503.html'));
+		res.status(503).type('text/html').sendFile(path.join(__dirname, '../../public/503.html'));
 	} else {
 		setImmediate(next);
 	}
@@ -258,18 +234,13 @@ middleware.delayLoading = function delayLoading(req, res, next) {
 
 middleware.buildSkinAsset = helpers.try(async (req, res, next) => {
 	// If this middleware is reached, a skin was requested, so it is built on-demand
-	const targetSkin = path
-		.basename(req.originalUrl)
-		.split('.css')[0]
-		.replace(/-rtl$/, '');
+	const targetSkin = path.basename(req.originalUrl).split('.css')[0].replace(/-rtl$/, '');
 	if (!targetSkin) {
 		return next();
 	}
 
-	const skins = (await meta.css.getCustomSkins()).map((skin) => skin.value);
-	const found = skins
-		.concat(meta.css.supportedSkins)
-		.find((skin) => `client-${skin}` === targetSkin);
+	const skins = (await meta.css.getCustomSkins()).map(skin => skin.value);
+	const found = skins.concat(meta.css.supportedSkins).find(skin => `client-${skin}` === targetSkin);
 	if (!found) {
 		return next();
 	}
@@ -294,7 +265,7 @@ middleware.addUploadHeaders = function addUploadHeaders(req, res, next) {
 		basename = basename.slice(14);
 		res.header(
 			'Content-Disposition',
-			`${extname.startsWith('.htm') ? 'attachment' : 'inline'}; filename="${basename}"`
+			`${extname.startsWith('.htm') ? 'attachment' : 'inline'}; filename="${basename}"`,
 		);
 	}
 
@@ -309,9 +280,7 @@ middleware.validateAuth = helpers.try(async (req, res, next) => {
 		});
 		next();
 	} catch (err) {
-		const regenerateSession = util.promisify((cb) =>
-			req.session.regenerate(cb)
-		);
+		const regenerateSession = util.promisify(cb => req.session.regenerate(cb));
 		await regenerateSession();
 		req.uid = 0;
 		req.loggedIn = false;
@@ -322,10 +291,7 @@ middleware.validateAuth = helpers.try(async (req, res, next) => {
 middleware.checkRequired = function (fields, req, res, next) {
 	// Used in API calls to ensure that necessary parameters/data values are present
 	const missing = fields.filter(
-		(field) =>
-			req.body &&
-			!req.body.hasOwnProperty(field) &&
-			!req.query.hasOwnProperty(field)
+		field => req.body && !req.body.hasOwnProperty(field) && !req.query.hasOwnProperty(field),
 	);
 
 	if (!missing.length) {
@@ -335,7 +301,7 @@ middleware.checkRequired = function (fields, req, res, next) {
 	controllers.helpers.formatApiResponse(
 		400,
 		res,
-		new Error(`[[error:required-parameters-missing, ${missing.join(' ')}]]`)
+		new Error(`[[error:required-parameters-missing, ${missing.join(' ')}]]`),
 	);
 };
 

@@ -17,20 +17,15 @@ module.exports = {
 					cids,
 					(cid, next) => {
 						progress.incr();
-						privileges.categories.give(
-							['groups:topics:tag'],
-							cid,
-							'registered-users',
-							next
-						);
+						privileges.categories.give(['groups:topics:tag'], cid, 'registered-users', next);
 					},
-					next
+					next,
 				);
 			},
 			{
 				progress: progress,
 			},
-			callback
+			callback,
 		);
 	},
 };

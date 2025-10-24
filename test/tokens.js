@@ -60,7 +60,7 @@ describe('API tokens', () => {
 			const tokens = await api.utils.tokens.get([token, second]);
 
 			assert(Array.isArray(tokens));
-			tokens.forEach((t) => {
+			tokens.forEach(t => {
 				assert(t);
 				assert.strictEqual(parseInt(t.uid, 10), 0);
 			});
@@ -149,14 +149,8 @@ describe('API tokens', () => {
 
 			assert.strictEqual(await db.exists(`token:${token}`), false);
 			assert.strictEqual(await db.sortedSetScore(`tokens:uid`, token), null);
-			assert.strictEqual(
-				await db.sortedSetScore(`tokens:createtime`, token),
-				null
-			);
-			assert.strictEqual(
-				await db.sortedSetScore(`tokens:lastSeen`, token),
-				null
-			);
+			assert.strictEqual(await db.sortedSetScore(`tokens:createtime`, token), null);
+			assert.strictEqual(await db.sortedSetScore(`tokens:lastSeen`, token), null);
 		});
 	});
 

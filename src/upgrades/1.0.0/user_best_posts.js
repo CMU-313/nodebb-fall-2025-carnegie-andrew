@@ -17,40 +17,32 @@ module.exports = {
 				async.eachSeries(
 					ids,
 					(id, next) => {
-						db.getObjectFields(
-							`post:${id}`,
-							['pid', 'uid', 'votes'],
-							(err, postData) => {
-								if (err) {
-									return next(err);
-								}
-								if (
-									!postData ||
-									!parseInt(postData.votes, 10) ||
-									!parseInt(postData.uid, 10)
-								) {
-									return next();
-								}
-								winston.verbose(
-									`processing pid: ${postData.pid} uid: ${postData.uid} votes: ${postData.votes}`
-								);
-								db.sortedSetAdd(
-									`uid:${postData.uid}:posts:votes`,
-									postData.votes,
-									postData.pid,
-									next
-								);
-								progress.incr();
+						db.getObjectFields(`post:${id}`, ['pid', 'uid', 'votes'], (err, postData) => {
+							if (err) {
+								return next(err);
 							}
-						);
+							if (!postData || !parseInt(postData.votes, 10) || !parseInt(postData.uid, 10)) {
+								return next();
+							}
+							winston.verbose(
+								`processing pid: ${postData.pid} uid: ${postData.uid} votes: ${postData.votes}`,
+							);
+							db.sortedSetAdd(
+								`uid:${postData.uid}:posts:votes`,
+								postData.votes,
+								postData.pid,
+								next,
+							);
+							progress.incr();
+						});
 					},
-					next
+					next,
 				);
 			},
 			{
 				progress: progress,
 			},
-			callback
+			callback,
 		);
 	},
 };

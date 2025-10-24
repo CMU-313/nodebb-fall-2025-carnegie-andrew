@@ -1,12 +1,12 @@
 {
-    "username-email": "Username / Email",
-    "username": "Username",
-    "remember-me": "Ingin Diingat?",
-    "forgot-password": "Lupa Password?",
-    "alternative-logins": "Login Alternatif",
-    "failed-login-attempt": "Login Tidak Berhasil",
-    "login-successful": "Kamu telah berhasil login!",
-    "dont-have-account": "Belum memiliki akun?",
-    "logged-out-due-to-inactivity": "Anda sekarang sudah keluar dari Panel Kontrol Admin karena tidak aktif",
-    "caps-lock-enabled": "Caps Lock is enabled"
+  "username-email": "Username / Email",
+  "username": "Username",
+  "remember-me": "Ingin Diingat?",
+  "forgot-password": "Lupa Password?",
+  "alternative-logins": "Login Alternatif",
+  "failed-login-attempt": "Login Tidak Berhasil",
+  "login-successful": "Kamu telah berhasil login!",
+  "dont-have-account": "Belum memiliki akun?",
+  "logged-out-due-to-inactivity": "Anda sekarang sudah keluar dari Panel Kontrol Admin karena tidak aktif",
+  "caps-lock-enabled": "Caps Lock is enabled"
 }

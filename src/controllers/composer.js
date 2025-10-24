@@ -82,7 +82,7 @@ exports.post = async function (req, res) {
 		}
 		if (result.queued) {
 			return res.redirect(
-				`${nconf.get('relative_path') || '/'}?noScriptMessage=[[success:post-queued]]`
+				`${nconf.get('relative_path') || '/'}?noScriptMessage=[[success:post-queued]]`,
 			);
 		}
 		user.updateOnlineUsers(req.uid);

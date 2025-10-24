@@ -14,29 +14,27 @@ function filterDirectories(directories) {
 		.map(
 			// get the relative path
 			// convert dir to use forward slashes
-			(dir) =>
+			dir =>
 				dir
 					.replace(/^.*(admin.*?).tpl$/, '$1')
 					.split(path.sep)
-					.join('/')
+					.join('/'),
 		)
 		.filter(
 			// exclude .js files
 			// exclude partials
 			// only include subpaths
 			// exclude category.tpl, group.tpl, category-analytics.tpl
-			(dir) =>
+			dir =>
 				!dir.endsWith('.js') &&
 				!dir.includes('/partials/') &&
 				/\/.*\//.test(dir) &&
-				!/manage\/(category|group|category-analytics)$/.test(dir)
+				!/manage\/(category|group|category-analytics)$/.test(dir),
 		);
 }
 
 async function getAdminNamespaces() {
-	const directories = await file.walk(
-		path.resolve(nconf.get('views_dir'), 'admin')
-	);
+	const directories = await file.walk(path.resolve(nconf.get('views_dir'), 'admin'));
 	return filterDirectories(directories);
 }
 
@@ -64,7 +62,7 @@ function nsToTitle(namespace) {
 	return namespace
 		.replace('admin/', '')
 		.split('/')
-		.map((str) => str[0].toUpperCase() + str.slice(1))
+		.map(str => str[0].toUpperCase() + str.slice(1))
 		.join(' > ')
 		.replace(/[^a-zA-Z> ]/g, ' ');
 }
@@ -74,7 +72,7 @@ const fallbackCache = {};
 async function initFallback(namespace) {
 	const template = await fs.promises.readFile(
 		path.resolve(nconf.get('views_dir'), `${namespace}.tpl`),
-		'utf8'
+		'utf8',
 	);
 
 	const title = nsToTitle(namespace);
@@ -102,9 +100,7 @@ async function fallback(namespace) {
 
 async function initDict(language) {
 	const namespaces = await getAdminNamespaces();
-	return await Promise.all(
-		namespaces.map((ns) => buildNamespace(language, ns))
-	);
+	return await Promise.all(namespaces.map(ns => buildNamespace(language, ns)));
 }
 
 async function buildNamespace(language, namespace) {
@@ -116,7 +112,7 @@ async function buildNamespace(language, namespace) {
 		}
 		// join all translations into one string separated by newlines
 		let str = Object.keys(translations)
-			.map((key) => translations[key])
+			.map(key => translations[key])
 			.join('\n');
 		str = sanitize(str);
 
