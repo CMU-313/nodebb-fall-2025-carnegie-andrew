@@ -1,13 +1,13 @@
-'use strict';
+'use strict'
 
-const meta = require('../../meta');
+const meta = require('../../meta')
 
-const Logs = module.exports;
+const Logs = module.exports
 
 Logs.get = async function () {
-	return await meta.logs.get();
-};
+  return await meta.logs.get()
+}
 
 Logs.clear = async function () {
-	await meta.logs.clear();
-};
+  await meta.logs.clear()
+}

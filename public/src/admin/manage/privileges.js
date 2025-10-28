@@ -1,515 +1,516 @@
-'use strict';
+'use strict'
 
 define('admin/manage/privileges', [
-	'api',
-	'autocomplete',
-	'bootbox',
-	'alerts',
-	'translator',
-	'categorySelector',
-	'mousetrap',
-	'admin/modules/checkboxRowSelector',
-	'admin/settings',
+  'api',
+  'autocomplete',
+  'bootbox',
+  'alerts',
+  'translator',
+  'categorySelector',
+  'mousetrap',
+  'admin/modules/checkboxRowSelector',
+  'admin/settings'
 ], function (
-	api, autocomplete, bootbox, alerts, translator,
-	categorySelector, mousetrap, checkboxRowSelector, settings
+  api, autocomplete, bootbox, alerts, translator,
+  categorySelector, mousetrap, checkboxRowSelector, settings
 ) {
-	const Privileges = {};
+  const Privileges = {}
 
-	let cid;
+  let cid
 
-	Privileges.init = function () {
-		cid = isNaN(parseInt(ajaxify.data.selectedCategory.cid, 10)) ? 'admin' : ajaxify.data.selectedCategory.cid;
+  Privileges.init = function () {
+    cid = isNaN(parseInt(ajaxify.data.selectedCategory.cid, 10)) ? 'admin' : ajaxify.data.selectedCategory.cid
 
-		checkboxRowSelector.init('.privilege-table-container');
+    checkboxRowSelector.init('.privilege-table-container')
 
-		categorySelector.init($('[component="category-selector"]'), {
-			onSelect: function (category) {
-				cid = parseInt(category.cid, 10);
-				cid = isNaN(cid) ? 'admin' : cid;
-				Privileges.refreshPrivilegeTable();
-				ajaxify.updateHistory('admin/manage/privileges/' + (cid || ''));
-			},
-			localCategories: ajaxify.data.categories,
-			privilege: 'find',
-			showLinks: true,
-		});
+    categorySelector.init($('[component="category-selector"]'), {
+      onSelect: function (category) {
+        cid = parseInt(category.cid, 10)
+        cid = isNaN(cid) ? 'admin' : cid
+        Privileges.refreshPrivilegeTable()
+        ajaxify.updateHistory('admin/manage/privileges/' + (cid || ''))
+      },
+      localCategories: ajaxify.data.categories,
+      privilege: 'find',
+      showLinks: true
+    })
 
-		Privileges.setupPrivilegeTable();
+    Privileges.setupPrivilegeTable()
 
-		highlightRow();
-		$('.privilege-filters button:first-child').click();
-	};
+    highlightRow()
+    $('.privilege-filters button:first-child').click()
+  }
 
-	Privileges.setupPrivilegeTable = function () {
-		$('.privilege-table-container').on('change', 'input[type="checkbox"]:not(.checkbox-helper)', function () {
-			const checkboxEl = this;
-			const $checkboxEl = $(this);
-			const $wrapperEl = $checkboxEl.parents('[data-privilege]');
-			const columnNo = $wrapperEl.index() + 1;
-			const privilege = $wrapperEl.attr('data-privilege');
-			const state = $checkboxEl.prop('checked');
-			const $rowEl = $checkboxEl.parents('tr');
-			const member = $rowEl.attr('data-group-name') || $rowEl.attr('data-uid');
-			const isPrivate = parseInt($rowEl.attr('data-private') || 0, 10);
-			const isGroup = $rowEl.attr('data-group-name') !== undefined;
-			const isBanned = (isGroup && $rowEl.attr('data-group-name') === 'banned-users') || $rowEl.attr('data-banned') !== undefined;
-			const sourceGroupName = isBanned ? 'banned-users' : 'registered-users';
-			const delta = $checkboxEl.prop('checked') === ($wrapperEl.attr('data-value') === 'true') ? null : state;
+  Privileges.setupPrivilegeTable = function () {
+    $('.privilege-table-container').on('change', 'input[type="checkbox"]:not(.checkbox-helper)', function () {
+      const checkboxEl = this
+      const $checkboxEl = $(this)
+      const $wrapperEl = $checkboxEl.parents('[data-privilege]')
+      const columnNo = $wrapperEl.index() + 1
+      const privilege = $wrapperEl.attr('data-privilege')
+      const state = $checkboxEl.prop('checked')
+      const $rowEl = $checkboxEl.parents('tr')
+      const member = $rowEl.attr('data-group-name') || $rowEl.attr('data-uid')
+      const isPrivate = parseInt($rowEl.attr('data-private') || 0, 10)
+      const isGroup = $rowEl.attr('data-group-name') !== undefined
+      const isBanned = (isGroup && $rowEl.attr('data-group-name') === 'banned-users') || $rowEl.attr('data-banned') !== undefined
+      const sourceGroupName = isBanned ? 'banned-users' : 'registered-users'
+      const delta = $checkboxEl.prop('checked') === ($wrapperEl.attr('data-value') === 'true') ? null : state
 
-			if (member) {
-				if (isGroup && privilege === 'groups:moderate' && !isPrivate && state) {
-					bootbox.confirm('[[admin/manage/privileges:alert.confirm-moderate]]', function (confirm) {
-						if (confirm) {
-							$wrapperEl.attr('data-delta', delta);
-							Privileges.applyDeltaState(checkboxEl, delta);
-							Privileges.exposeSingleAssumedPriv(columnNo, sourceGroupName);
-						} else {
-							$checkboxEl.prop('checked', !$checkboxEl.prop('checked'));
-						}
-					});
-				} else if (privilege.endsWith('admin:admins-mods') && state) {
-					bootbox.confirm('[[admin/manage/privileges:alert.confirm-admins-mods]]', function (confirm) {
-						if (confirm) {
-							$wrapperEl.attr('data-delta', delta);
-							Privileges.applyDeltaState(checkboxEl, delta);
-							Privileges.exposeSingleAssumedPriv(columnNo, sourceGroupName);
-						} else {
-							$checkboxEl.prop('checked', !$checkboxEl.prop('checked'));
-						}
-					});
-				} else {
-					$wrapperEl.attr('data-delta', delta);
-					Privileges.applyDeltaState(checkboxEl, delta);
-					Privileges.exposeSingleAssumedPriv(columnNo, sourceGroupName);
-				}
-				checkboxRowSelector.updateState($checkboxEl);
-			} else {
-				alerts.error('[[error:invalid-data]]');
-			}
-		});
+      if (member) {
+        if (isGroup && privilege === 'groups:moderate' && !isPrivate && state) {
+          bootbox.confirm('[[admin/manage/privileges:alert.confirm-moderate]]', function (confirm) {
+            if (confirm) {
+              $wrapperEl.attr('data-delta', delta)
+              Privileges.applyDeltaState(checkboxEl, delta)
+              Privileges.exposeSingleAssumedPriv(columnNo, sourceGroupName)
+            } else {
+              $checkboxEl.prop('checked', !$checkboxEl.prop('checked'))
+            }
+          })
+        } else if (privilege.endsWith('admin:admins-mods') && state) {
+          bootbox.confirm('[[admin/manage/privileges:alert.confirm-admins-mods]]', function (confirm) {
+            if (confirm) {
+              $wrapperEl.attr('data-delta', delta)
+              Privileges.applyDeltaState(checkboxEl, delta)
+              Privileges.exposeSingleAssumedPriv(columnNo, sourceGroupName)
+            } else {
+              $checkboxEl.prop('checked', !$checkboxEl.prop('checked'))
+            }
+          })
+        } else {
+          $wrapperEl.attr('data-delta', delta)
+          Privileges.applyDeltaState(checkboxEl, delta)
+          Privileges.exposeSingleAssumedPriv(columnNo, sourceGroupName)
+        }
+        checkboxRowSelector.updateState($checkboxEl)
+      } else {
+        alerts.error('[[error:invalid-data]]')
+      }
+    })
 
-		Privileges.exposeAssumedPrivileges();
-		checkboxRowSelector.updateAll();
-		Privileges.addEvents(); // events with confirmation modals
-	};
+    Privileges.exposeAssumedPrivileges()
+    checkboxRowSelector.updateAll()
+    Privileges.addEvents() // events with confirmation modals
+  }
 
-	Privileges.applyDeltaState = (checkboxEl, delta) => {
-		['bg-success', 'bg-opacity-75', 'border-success'].forEach((className) => {
-			checkboxEl.classList.toggle(className, delta === true);
-		});
-		['bg-danger', 'bg-opacity-50', 'border-danger'].forEach((className) => {
-			checkboxEl.classList.toggle(className, delta === false);
-		});
-	};
+  Privileges.applyDeltaState = (checkboxEl, delta) => {
+    ['bg-success', 'bg-opacity-75', 'border-success'].forEach((className) => {
+      checkboxEl.classList.toggle(className, delta === true)
+    });
+    ['bg-danger', 'bg-opacity-50', 'border-danger'].forEach((className) => {
+      checkboxEl.classList.toggle(className, delta === false)
+    })
+  }
 
-	Privileges.addEvents = function () {
-		document.getElementById('save').addEventListener('click', function () {
-			throwConfirmModal('save', Privileges.commit);
-		});
+  Privileges.addEvents = function () {
+    document.getElementById('save').addEventListener('click', function () {
+      throwConfirmModal('save', Privileges.commit)
+    })
 
-		document.getElementById('discard').addEventListener('click', function () {
-			throwConfirmModal('discard', Privileges.discard);
-		});
+    document.getElementById('discard').addEventListener('click', function () {
+      throwConfirmModal('discard', Privileges.discard)
+    })
 
-		// Expose discard button as necessary
-		const containerEl = document.querySelector('.privilege-table-container');
-		containerEl.addEventListener('change', (e) => {
-			const subselector = e.target.closest('td[data-privilege] input');
-			if (subselector) {
-				document.getElementById('discard').style.display = containerEl.querySelectorAll('td[data-delta]').length ? 'unset' : 'none';
-			}
-		});
+    // Expose discard button as necessary
+    const containerEl = document.querySelector('.privilege-table-container')
+    containerEl.addEventListener('change', (e) => {
+      const subselector = e.target.closest('td[data-privilege] input')
+      if (subselector) {
+        document.getElementById('discard').style.display = containerEl.querySelectorAll('td[data-delta]').length ? 'unset' : 'none'
+      }
+    })
 
-		const $privTableCon = $('.privilege-table-container');
-		$privTableCon.on('click', '[data-action="search.user"]', Privileges.addUserToPrivilegeTable);
-		$privTableCon.on('click', '[data-action="search.group"]', Privileges.addGroupToPrivilegeTable);
-		$privTableCon.on('click', '[data-action="copyToChildren"]', function () {
-			throwConfirmModal('copyToChildren', Privileges.copyPrivilegesToChildren.bind(null, cid, ''));
-		});
-		$privTableCon.on('click', '[data-action="copyToChildrenGroup"]', function () {
-			const groupName = $(this).parents('[data-group-name]').attr('data-group-name');
-			throwConfirmModal('copyToChildrenGroup', Privileges.copyPrivilegesToChildren.bind(null, cid, groupName));
-		});
+    const $privTableCon = $('.privilege-table-container')
+    $privTableCon.on('click', '[data-action="search.user"]', Privileges.addUserToPrivilegeTable)
+    $privTableCon.on('click', '[data-action="search.group"]', Privileges.addGroupToPrivilegeTable)
+    $privTableCon.on('click', '[data-action="copyToChildren"]', function () {
+      throwConfirmModal('copyToChildren', Privileges.copyPrivilegesToChildren.bind(null, cid, ''))
+    })
+    $privTableCon.on('click', '[data-action="copyToChildrenGroup"]', function () {
+      const groupName = $(this).parents('[data-group-name]').attr('data-group-name')
+      throwConfirmModal('copyToChildrenGroup', Privileges.copyPrivilegesToChildren.bind(null, cid, groupName))
+    })
 
-		$privTableCon.on('click', '[data-action="copyPrivilegesFrom"]', function () {
-			Privileges.copyPrivilegesFromCategory(cid, '');
-		});
-		$privTableCon.on('click', '[data-action="copyPrivilegesFromGroup"]', function () {
-			const groupName = $(this).parents('[data-group-name]').attr('data-group-name');
-			Privileges.copyPrivilegesFromCategory(cid, groupName);
-		});
+    $privTableCon.on('click', '[data-action="copyPrivilegesFrom"]', function () {
+      Privileges.copyPrivilegesFromCategory(cid, '')
+    })
+    $privTableCon.on('click', '[data-action="copyPrivilegesFromGroup"]', function () {
+      const groupName = $(this).parents('[data-group-name]').attr('data-group-name')
+      Privileges.copyPrivilegesFromCategory(cid, groupName)
+    })
 
-		$privTableCon.on('click', '[data-action="copyToAll"]', function () {
-			throwConfirmModal('copyToAll', Privileges.copyPrivilegesToAllCategories.bind(null, cid, ''));
-		});
-		$privTableCon.on('click', '[data-action="copyToAllGroup"]', function () {
-			const groupName = $(this).parents('[data-group-name]').attr('data-group-name');
-			throwConfirmModal('copyToAllGroup', Privileges.copyPrivilegesToAllCategories.bind(null, cid, groupName));
-		});
+    $privTableCon.on('click', '[data-action="copyToAll"]', function () {
+      throwConfirmModal('copyToAll', Privileges.copyPrivilegesToAllCategories.bind(null, cid, ''))
+    })
+    $privTableCon.on('click', '[data-action="copyToAllGroup"]', function () {
+      const groupName = $(this).parents('[data-group-name]').attr('data-group-name')
+      throwConfirmModal('copyToAllGroup', Privileges.copyPrivilegesToAllCategories.bind(null, cid, groupName))
+    })
 
-		$privTableCon.on('click', '.privilege-filters button', filterPrivileges);
+    $privTableCon.on('click', '.privilege-filters button', filterPrivileges)
 
-		mousetrap.bind('ctrl+s', function (ev) {
-			throwConfirmModal('save', Privileges.commit);
-			ev.preventDefault();
-		});
+    mousetrap.bind('ctrl+s', function (ev) {
+      throwConfirmModal('save', Privileges.commit)
+      ev.preventDefault()
+    })
 
-		function throwConfirmModal(method, onConfirm) {
-			const privilegeSubset = getPrivilegeSubset();
-			bootbox.confirm(`[[admin/manage/privileges:alert.confirm-${method}, ${privilegeSubset}]]<br /><br />[[admin/manage/privileges:alert.no-undo]]`, function (ok) {
-				if (ok) {
-					onConfirm.call();
-				}
-			});
-		}
-	};
+    function throwConfirmModal (method, onConfirm) {
+      const privilegeSubset = getPrivilegeSubset()
+      bootbox.confirm(`[[admin/manage/privileges:alert.confirm-${method}, ${privilegeSubset}]]<br /><br />[[admin/manage/privileges:alert.no-undo]]`, function (ok) {
+        if (ok) {
+          onConfirm.call()
+        }
+      })
+    }
+  }
 
-	Privileges.commit = function () {
-		const tableEl = document.querySelector('.privilege-table-container');
-		const requests = $.map(tableEl.querySelectorAll('td[data-delta]'), function (el) {
-			const privilege = el.getAttribute('data-privilege');
-			const rowEl = el.parentNode;
-			const member = rowEl.getAttribute('data-group-name') || rowEl.getAttribute('data-uid');
-			const state = el.getAttribute('data-delta') === 'true' ? 1 : 0;
+  Privileges.commit = function () {
+    const tableEl = document.querySelector('.privilege-table-container')
+    const requests = $.map(tableEl.querySelectorAll('td[data-delta]'), function (el) {
+      const privilege = el.getAttribute('data-privilege')
+      const rowEl = el.parentNode
+      const member = rowEl.getAttribute('data-group-name') || rowEl.getAttribute('data-uid')
+      const state = el.getAttribute('data-delta') === 'true' ? 1 : 0
 
-			return Privileges.setPrivilege(member, privilege, state);
-		});
+      return Privileges.setPrivilege(member, privilege, state)
+    })
 
-		Promise.allSettled(requests).then((results) => {
-			Privileges.refreshPrivilegeTable();
+    Promise.allSettled(requests).then((results) => {
+      Privileges.refreshPrivilegeTable()
 
-			const rejects = results.filter(r => r.status === 'rejected');
-			if (rejects.length) {
-				rejects.forEach((result) => {
-					alerts.error(result.reason);
-				});
-			} else {
-				settings.toggleSaveSuccess($('#save'));
-			}
-		});
-	};
+      const rejects = results.filter(r => r.status === 'rejected')
+      if (rejects.length) {
+        rejects.forEach((result) => {
+          alerts.error(result.reason)
+        })
+      } else {
+        settings.toggleSaveSuccess($('#save'))
+      }
+    })
+  }
 
-	Privileges.discard = function () {
-		Privileges.refreshPrivilegeTable();
-		alerts.success('[[admin/manage/privileges:alert.discarded]]');
-	};
+  Privileges.discard = function () {
+    Privileges.refreshPrivilegeTable()
+    alerts.success('[[admin/manage/privileges:alert.discarded]]')
+  }
 
-	Privileges.refreshPrivilegeTable = function (groupToHighlight) {
-		api.get(`/categories/${cid}/privileges`, {}).then((privileges) => {
-			ajaxify.data.privileges = { ...ajaxify.data.privileges, ...privileges };
-			const tpl = parseInt(cid, 10) ? 'admin/partials/privileges/category' : 'admin/partials/privileges/global';
-			const isAdminPriv = ajaxify.currentPage.endsWith('admin/manage/privileges/admin');
-			app.parseAndTranslate(tpl, { cid, privileges, isAdminPriv }).then((html) => {
-				// Get currently selected filters
-				const btnIndices = $('.privilege-filters button.btn-warning').map((idx, el) => $(el).index()).get();
-				$('.privilege-table-container').html(html);
-				Privileges.exposeAssumedPrivileges();
-				document.querySelectorAll('.privilege-filters').forEach((con, i) => {
-					const idx = btnIndices[i] === undefined ? 0 : btnIndices[i];
-					con.querySelectorAll('button')[idx].click();
-				});
+  Privileges.refreshPrivilegeTable = function (groupToHighlight) {
+    api.get(`/categories/${cid}/privileges`, {}).then((privileges) => {
+      ajaxify.data.privileges = { ...ajaxify.data.privileges, ...privileges }
+      const tpl = parseInt(cid, 10) ? 'admin/partials/privileges/category' : 'admin/partials/privileges/global'
+      const isAdminPriv = ajaxify.currentPage.endsWith('admin/manage/privileges/admin')
+      app.parseAndTranslate(tpl, { cid, privileges, isAdminPriv }).then((html) => {
+        // Get currently selected filters
+        const btnIndices = $('.privilege-filters button.btn-warning').map((idx, el) => $(el).index()).get()
+        $('.privilege-table-container').html(html)
+        Privileges.exposeAssumedPrivileges()
+        document.querySelectorAll('.privilege-filters').forEach((con, i) => {
+          const idx = btnIndices[i] === undefined ? 0 : btnIndices[i]
+          con.querySelectorAll('button')[idx].click()
+        })
 
-				hightlightRowByDataAttr('data-group-name', groupToHighlight);
-			});
-		}).catch(alert.error);
-	};
+        hightlightRowByDataAttr('data-group-name', groupToHighlight)
+      })
+    }).catch(alert.error)
+  }
 
-	Privileges.exposeAssumedPrivileges = function () {
-		/*
+  Privileges.exposeAssumedPrivileges = function () {
+    /*
 			If registered-users has a privilege enabled, then all users and groups of that privilege
 			should be assumed to have that privilege as well, even if not set in the db, so reflect
 			this arrangement in the table
 		*/
 
-		// As such, individual banned users inherits privileges from banned-users group
-		const getBannedUsersInputSelector = (privs, i) => `.privilege-table tr[data-banned] td[data-privilege="${privs[i]}"] input`;
-		const bannedUsersPrivs = getPrivilegesFromRow('banned-users');
-		applyPrivileges(bannedUsersPrivs, getBannedUsersInputSelector);
+    // As such, individual banned users inherits privileges from banned-users group
+    const getBannedUsersInputSelector = (privs, i) => `.privilege-table tr[data-banned] td[data-privilege="${privs[i]}"] input`
+    const bannedUsersPrivs = getPrivilegesFromRow('banned-users')
+    applyPrivileges(bannedUsersPrivs, getBannedUsersInputSelector)
 
-		// For rest that inherits from registered-users
-		const getRegisteredUsersInputSelector = (privs, i) => `.privilege-table tr[data-group-name]:not([data-group-name="registered-users"],[data-group-name="banned-users"],[data-group-name="guests"],[data-group-name="spiders"],[data-group-name="fediverse"]) td[data-privilege="${privs[i]}"] input, .privilege-table tr[data-uid]:not([data-banned]) td[data-privilege="${privs[i]}"] input`;
-		const registeredUsersPrivs = getPrivilegesFromRow('registered-users');
-		applyPrivileges(registeredUsersPrivs, getRegisteredUsersInputSelector);
-	};
+    // For rest that inherits from registered-users
+    const getRegisteredUsersInputSelector = (privs, i) => `.privilege-table tr[data-group-name]:not([data-group-name="registered-users"],[data-group-name="banned-users"],[data-group-name="guests"],[data-group-name="spiders"],[data-group-name="fediverse"]) td[data-privilege="${privs[i]}"] input, .privilege-table tr[data-uid]:not([data-banned]) td[data-privilege="${privs[i]}"] input`
+    const registeredUsersPrivs = getPrivilegesFromRow('registered-users')
+    applyPrivileges(registeredUsersPrivs, getRegisteredUsersInputSelector)
+  }
 
-	Privileges.exposeSingleAssumedPriv = function (columnNo, sourceGroupName) {
-		let inputSelectorFn;
-		switch (sourceGroupName) {
-			case 'banned-users':
-				inputSelectorFn = () => `.privilege-table tr[data-banned] td[data-privilege]:nth-child(${columnNo}) input`;
-				break;
-			default:
-				inputSelectorFn = () => `.privilege-table tr[data-group-name]:not([data-group-name="registered-users"],[data-group-name="banned-users"],[data-group-name="guests"],[data-group-name="spiders"],[data-group-name="fediverse"]) td[data-privilege]:nth-child(${columnNo}) input, .privilege-table tr[data-uid]:not([data-banned]) td[data-privilege]:nth-child(${columnNo}) input`;
-		}
+  Privileges.exposeSingleAssumedPriv = function (columnNo, sourceGroupName) {
+    let inputSelectorFn
+    switch (sourceGroupName) {
+      case 'banned-users':
+        inputSelectorFn = () => `.privilege-table tr[data-banned] td[data-privilege]:nth-child(${columnNo}) input`
+        break
+      default:
+        inputSelectorFn = () => `.privilege-table tr[data-group-name]:not([data-group-name="registered-users"],[data-group-name="banned-users"],[data-group-name="guests"],[data-group-name="spiders"],[data-group-name="fediverse"]) td[data-privilege]:nth-child(${columnNo}) input, .privilege-table tr[data-uid]:not([data-banned]) td[data-privilege]:nth-child(${columnNo}) input`
+    }
 
-		const sourceChecked = getPrivilegeFromColumn(sourceGroupName, columnNo);
-		applyPrivilegesToColumn(inputSelectorFn, sourceChecked);
-	};
+    const sourceChecked = getPrivilegeFromColumn(sourceGroupName, columnNo)
+    applyPrivilegesToColumn(inputSelectorFn, sourceChecked)
+  }
 
-	Privileges.setPrivilege = (member, privilege, state) => api[state ? 'put' : 'del'](`/categories/${isNaN(cid) ? 0 : cid}/privileges/${encodeURIComponent(privilege)}`, { member });
+  Privileges.setPrivilege = (member, privilege, state) => api[state ? 'put' : 'del'](`/categories/${isNaN(cid) ? 0 : cid}/privileges/${encodeURIComponent(privilege)}`, { member })
 
-	Privileges.addUserToPrivilegeTable = function () {
-		const modal = bootbox.dialog({
-			title: '[[admin/manage/categories:alert.find-user]]',
-			message: '<input class="form-control input-lg" placeholder="[[admin/manage/categories:alert.user-search]]" />',
-			show: true,
-		});
+  Privileges.addUserToPrivilegeTable = function () {
+    const modal = bootbox.dialog({
+      title: '[[admin/manage/categories:alert.find-user]]',
+      message: '<input class="form-control input-lg" placeholder="[[admin/manage/categories:alert.user-search]]" />',
+      show: true
+    })
 
-		modal.on('shown.bs.modal', function () {
-			const inputEl = modal.find('input');
-			inputEl.focus();
+    modal.on('shown.bs.modal', function () {
+      const inputEl = modal.find('input')
+      inputEl.focus()
 
-			autocomplete.user(inputEl, function (ev, ui) {
-				addUserToCategory(ui.item.user, function () {
-					modal.modal('hide');
-				});
-			});
-		});
-	};
+      autocomplete.user(inputEl, function (ev, ui) {
+        addUserToCategory(ui.item.user, function () {
+          modal.modal('hide')
+        })
+      })
+    })
+  }
 
-	Privileges.addGroupToPrivilegeTable = function () {
-		const modal = bootbox.dialog({
-			title: '[[admin/manage/categories:alert.find-group]]',
-			message: '<input class="form-control input-lg" placeholder="[[admin/manage/categories:alert.group-search]]" />',
-			show: true,
-		});
+  Privileges.addGroupToPrivilegeTable = function () {
+    const modal = bootbox.dialog({
+      title: '[[admin/manage/categories:alert.find-group]]',
+      message: '<input class="form-control input-lg" placeholder="[[admin/manage/categories:alert.group-search]]" />',
+      show: true
+    })
 
-		modal.on('shown.bs.modal', function () {
-			const inputEl = modal.find('input');
-			inputEl.focus();
+    modal.on('shown.bs.modal', function () {
+      const inputEl = modal.find('input')
+      inputEl.focus()
 
-			autocomplete.group(inputEl, function (ev, ui) {
-				if (ui.item.group.name === 'administrators') {
-					return alerts.alert({
-						type: 'warning',
-						message: '[[admin/manage/privileges:alert.admin-warning]]',
-					});
-				}
-				addGroupToCategory(ui.item.group.name, function () {
-					modal.modal('hide');
-				});
-			});
-		});
-	};
+      autocomplete.group(inputEl, function (ev, ui) {
+        if (ui.item.group.name === 'administrators') {
+          return alerts.alert({
+            type: 'warning',
+            message: '[[admin/manage/privileges:alert.admin-warning]]'
+          })
+        }
+        addGroupToCategory(ui.item.group.name, function () {
+          modal.modal('hide')
+        })
+      })
+    })
+  }
 
-	Privileges.copyPrivilegesToChildren = function (cid, group) {
-		const filter = getGroupPrivilegeFilter();
-		socket.emit('admin.categories.copyPrivilegesToChildren', { cid, group, filter }, function (err) {
-			if (err) {
-				return alerts.error(err.message);
-			}
-			alerts.success('[[admin/manage/categories:privileges.copy-success]]');
-		});
-	};
+  Privileges.copyPrivilegesToChildren = function (cid, group) {
+    const filter = getGroupPrivilegeFilter()
+    socket.emit('admin.categories.copyPrivilegesToChildren', { cid, group, filter }, function (err) {
+      if (err) {
+        return alerts.error(err.message)
+      }
+      alerts.success('[[admin/manage/categories:privileges.copy-success]]')
+    })
+  }
 
-	Privileges.copyPrivilegesFromCategory = function (cid, group) {
-		const privilegeSubset = getPrivilegeSubset();
-		const message = '<br>' +
-			(group ? `[[admin/manage/privileges:alert.copyPrivilegesFromGroup-warning, ${privilegeSubset}]]` :
-				`[[admin/manage/privileges:alert.copyPrivilegesFrom-warning, ${privilegeSubset}]]`) +
-			'<br><br>[[admin/manage/privileges:alert.no-undo]]';
-		categorySelector.modal({
-			title: '[[admin/manage/privileges:alert.copyPrivilegesFrom-title]]',
-			message,
-			localCategories: [],
-			showLinks: true,
-			onSubmit: function (selectedCategory) {
-				socket.emit('admin.categories.copyPrivilegesFrom', {
-					toCid: cid,
-					filter: getGroupPrivilegeFilter(),
-					fromCid: selectedCategory.cid,
-					group: group,
-				}, function (err) {
-					if (err) {
-						return alerts.error(err);
-					}
-					ajaxify.refresh();
-				});
-			},
-		});
-	};
+  Privileges.copyPrivilegesFromCategory = function (cid, group) {
+    const privilegeSubset = getPrivilegeSubset()
+    const message = '<br>' +
+			(group
+			  ? `[[admin/manage/privileges:alert.copyPrivilegesFromGroup-warning, ${privilegeSubset}]]`
+			  : `[[admin/manage/privileges:alert.copyPrivilegesFrom-warning, ${privilegeSubset}]]`) +
+			'<br><br>[[admin/manage/privileges:alert.no-undo]]'
+    categorySelector.modal({
+      title: '[[admin/manage/privileges:alert.copyPrivilegesFrom-title]]',
+      message,
+      localCategories: [],
+      showLinks: true,
+      onSubmit: function (selectedCategory) {
+        socket.emit('admin.categories.copyPrivilegesFrom', {
+          toCid: cid,
+          filter: getGroupPrivilegeFilter(),
+          fromCid: selectedCategory.cid,
+          group
+        }, function (err) {
+          if (err) {
+            return alerts.error(err)
+          }
+          ajaxify.refresh()
+        })
+      }
+    })
+  }
 
-	Privileges.copyPrivilegesToAllCategories = function (cid, group) {
-		const filter = getGroupPrivilegeFilter();
-		socket.emit('admin.categories.copyPrivilegesToAllCategories', { cid, group, filter }, function (err) {
-			if (err) {
-				return alerts.error(err);
-			}
-			alerts.success('[[admin/manage/categories:privileges.copy-success]]');
-		});
-	};
+  Privileges.copyPrivilegesToAllCategories = function (cid, group) {
+    const filter = getGroupPrivilegeFilter()
+    socket.emit('admin.categories.copyPrivilegesToAllCategories', { cid, group, filter }, function (err) {
+      if (err) {
+        return alerts.error(err)
+      }
+      alerts.success('[[admin/manage/categories:privileges.copy-success]]')
+    })
+  }
 
-	function getPrivilegesFromRow(sourceGroupName) {
-		const privs = [];
-		$(`.privilege-table tr[data-group-name="${sourceGroupName}"] td input[type="checkbox"]:not(.checkbox-helper)`)
-			.parents('[data-privilege]')
-			.each(function (idx, el) {
-				if ($(el).find('input').prop('checked')) {
-					privs.push(el.getAttribute('data-privilege'));
-				}
-			});
+  function getPrivilegesFromRow (sourceGroupName) {
+    const privs = []
+    $(`.privilege-table tr[data-group-name="${sourceGroupName}"] td input[type="checkbox"]:not(.checkbox-helper)`)
+      .parents('[data-privilege]')
+      .each(function (idx, el) {
+        if ($(el).find('input').prop('checked')) {
+          privs.push(el.getAttribute('data-privilege'))
+        }
+      })
 
-		// Also apply to non-group privileges
-		return privs.concat(privs.map(function (priv) {
-			if (priv.startsWith('groups:')) {
-				return priv.slice(7);
-			}
+    // Also apply to non-group privileges
+    return privs.concat(privs.map(function (priv) {
+      if (priv.startsWith('groups:')) {
+        return priv.slice(7)
+      }
 
-			return false;
-		})).filter(Boolean);
-	}
+      return false
+    })).filter(Boolean)
+  }
 
-	function getPrivilegeFromColumn(sourceGroupName, columnNo) {
-		return $(`.privilege-table tr[data-group-name="${sourceGroupName}"] td:nth-child(${columnNo}) input[type="checkbox"]`)[0].checked;
-	}
+  function getPrivilegeFromColumn (sourceGroupName, columnNo) {
+    return $(`.privilege-table tr[data-group-name="${sourceGroupName}"] td:nth-child(${columnNo}) input[type="checkbox"]`)[0].checked
+  }
 
-	function applyPrivileges(privs, inputSelectorFn) {
-		for (let x = 0, numPrivs = privs.length; x < numPrivs; x += 1) {
-			const inputs = $(inputSelectorFn(privs, x));
-			inputs.each(function (idx, el) {
-				if (!el.checked) {
-					el.indeterminate = true;
-				}
-			});
-		}
-	}
+  function applyPrivileges (privs, inputSelectorFn) {
+    for (let x = 0, numPrivs = privs.length; x < numPrivs; x += 1) {
+      const inputs = $(inputSelectorFn(privs, x))
+      inputs.each(function (idx, el) {
+        if (!el.checked) {
+          el.indeterminate = true
+        }
+      })
+    }
+  }
 
-	function applyPrivilegesToColumn(inputSelectorFn, sourceChecked) {
-		const $inputs = $(inputSelectorFn());
-		$inputs.each((idx, el) => {
-			el.indeterminate = el.checked ? false : sourceChecked;
-		});
-	}
+  function applyPrivilegesToColumn (inputSelectorFn, sourceChecked) {
+    const $inputs = $(inputSelectorFn())
+    $inputs.each((idx, el) => {
+      el.indeterminate = el.checked ? false : sourceChecked
+    })
+  }
 
-	function hightlightRowByDataAttr(attrName, attrValue) {
-		if (attrValue) {
-			const $el = $('[' + attrName + ']').filter(function () {
-				return $(this).attr(attrName) === String(attrValue);
-			});
+  function hightlightRowByDataAttr (attrName, attrValue) {
+    if (attrValue) {
+      const $el = $('[' + attrName + ']').filter(function () {
+        return $(this).attr(attrName) === String(attrValue)
+      })
 
-			if ($el.length) {
-				$el.addClass('selected');
-				return true;
-			}
-		}
-		return false;
-	}
+      if ($el.length) {
+        $el.addClass('selected')
+        return true
+      }
+    }
+    return false
+  }
 
-	function highlightRow() {
-		if (ajaxify.data.group) {
-			if (hightlightRowByDataAttr('data-group-name', ajaxify.data.group)) {
-				return;
-			}
-			addGroupToCategory(ajaxify.data.group);
-		}
-	}
+  function highlightRow () {
+    if (ajaxify.data.group) {
+      if (hightlightRowByDataAttr('data-group-name', ajaxify.data.group)) {
+        return
+      }
+      addGroupToCategory(ajaxify.data.group)
+    }
+  }
 
-	function addGroupToCategory(group, cb) {
-		cb = cb || function () {};
-		const groupRow = document.querySelector('.privilege-table [data-group-name="' + group + '"]');
-		if (groupRow) {
-			hightlightRowByDataAttr('data-group-name', group);
-			return cb();
-		}
-		// Generate data for new row
-		const typesMap = {};
-		const privilegeSet = ajaxify.data.privileges.keys.groups.reduce(function (memo, cur, index) {
-			memo[cur] = false;
-			typesMap[cur] = ajaxify.data.privileges.labelData[index].type;
-			return memo;
-		}, {});
+  function addGroupToCategory (group, cb) {
+    cb = cb || function () {}
+    const groupRow = document.querySelector('.privilege-table [data-group-name="' + group + '"]')
+    if (groupRow) {
+      hightlightRowByDataAttr('data-group-name', group)
+      return cb()
+    }
+    // Generate data for new row
+    const typesMap = {}
+    const privilegeSet = ajaxify.data.privileges.keys.groups.reduce(function (memo, cur, index) {
+      memo[cur] = false
+      typesMap[cur] = ajaxify.data.privileges.labelData[index].type
+      return memo
+    }, {})
 
-		app.parseAndTranslate('admin/partials/privileges/' + ((isNaN(cid) || cid === 0) ? 'global' : 'category'), 'privileges.groups', {
-			privileges: {
-				groups: [
-					{
-						name: group,
-						nameEscaped: translator.escape(group),
-						privileges: privilegeSet,
-						types: typesMap,
-					},
-				],
-			},
-		}, function (html) {
-			const tbodyEl = document.querySelector('.privilege-table tbody');
-			const btnIdx = $('.privilege-filters').first().find('button.btn-warning').index();
-			tbodyEl.append(html.get(0));
-			Privileges.exposeAssumedPrivileges();
-			hightlightRowByDataAttr('data-group-name', group);
-			if (btnIdx >= 0) {
-				document.querySelector('.privilege-filters').querySelectorAll('button')[btnIdx].click();
-			}
-			cb();
-		});
-	}
+    app.parseAndTranslate('admin/partials/privileges/' + ((isNaN(cid) || cid === 0) ? 'global' : 'category'), 'privileges.groups', {
+      privileges: {
+        groups: [
+          {
+            name: group,
+            nameEscaped: translator.escape(group),
+            privileges: privilegeSet,
+            types: typesMap
+          }
+        ]
+      }
+    }, function (html) {
+      const tbodyEl = document.querySelector('.privilege-table tbody')
+      const btnIdx = $('.privilege-filters').first().find('button.btn-warning').index()
+      tbodyEl.append(html.get(0))
+      Privileges.exposeAssumedPrivileges()
+      hightlightRowByDataAttr('data-group-name', group)
+      if (btnIdx >= 0) {
+        document.querySelector('.privilege-filters').querySelectorAll('button')[btnIdx].click()
+      }
+      cb()
+    })
+  }
 
-	async function addUserToCategory(user, cb) {
-		cb = cb || function () {};
-		const userRow = document.querySelector('.privilege-table [data-uid="' + user.uid + '"]');
-		if (userRow) {
-			hightlightRowByDataAttr('data-uid', user.uid);
-			return cb();
-		}
-		// Generate data for new row
-		const typesMap = {};
-		const privilegeSet = ajaxify.data.privileges.keys.users.reduce(function (memo, cur, index) {
-			memo[cur] = false;
-			typesMap[cur] = ajaxify.data.privileges.labelData[index].type;
-			return memo;
-		}, {});
+  async function addUserToCategory (user, cb) {
+    cb = cb || function () {}
+    const userRow = document.querySelector('.privilege-table [data-uid="' + user.uid + '"]')
+    if (userRow) {
+      hightlightRowByDataAttr('data-uid', user.uid)
+      return cb()
+    }
+    // Generate data for new row
+    const typesMap = {}
+    const privilegeSet = ajaxify.data.privileges.keys.users.reduce(function (memo, cur, index) {
+      memo[cur] = false
+      typesMap[cur] = ajaxify.data.privileges.labelData[index].type
+      return memo
+    }, {})
 
-		const html = await app.parseAndTranslate('admin/partials/privileges/' + (isNaN(cid) ? 'global' : 'category'), 'privileges.users', {
-			privileges: {
-				users: [
-					{
-						picture: user.picture,
-						username: user.username,
-						banned: user.banned,
-						uid: user.uid,
-						'icon:text': user['icon:text'],
-						'icon:bgColor': user['icon:bgColor'],
-						privileges: privilegeSet,
-						types: typesMap,
-					},
-				],
-			},
-		});
+    const html = await app.parseAndTranslate('admin/partials/privileges/' + (isNaN(cid) ? 'global' : 'category'), 'privileges.users', {
+      privileges: {
+        users: [
+          {
+            picture: user.picture,
+            username: user.username,
+            banned: user.banned,
+            uid: user.uid,
+            'icon:text': user['icon:text'],
+            'icon:bgColor': user['icon:bgColor'],
+            privileges: privilegeSet,
+            types: typesMap
+          }
+        ]
+      }
+    })
 
-		const tbodyEl = document.querySelectorAll('.privilege-table tbody');
-		const btnIdx = $('.privilege-filters').last().find('button.btn-warning').index();
-		tbodyEl[1].append(html.get(0));
-		Privileges.exposeAssumedPrivileges();
-		hightlightRowByDataAttr('data-uid', user.uid);
-		if (btnIdx >= 0) {
-			document.querySelectorAll('.privilege-filters')[1].querySelectorAll('button')[btnIdx].click();
-		}
-		cb();
-	}
+    const tbodyEl = document.querySelectorAll('.privilege-table tbody')
+    const btnIdx = $('.privilege-filters').last().find('button.btn-warning').index()
+    tbodyEl[1].append(html.get(0))
+    Privileges.exposeAssumedPrivileges()
+    hightlightRowByDataAttr('data-uid', user.uid)
+    if (btnIdx >= 0) {
+      document.querySelectorAll('.privilege-filters')[1].querySelectorAll('button')[btnIdx].click()
+    }
+    cb()
+  }
 
-	function filterPrivileges(ev) {
-		const btn = $(ev.target);
-		const filter = btn.attr('data-filter');
-		const rows = btn.closest('table').find('thead tr:last-child, tbody tr');
-		rows.each((i, tr) => {
-			$(tr).find('[data-type]').addClass('hidden');
-			$(tr).find(`[data-type="${filter}"]`).removeClass('hidden');
-		});
+  function filterPrivileges (ev) {
+    const btn = $(ev.target)
+    const filter = btn.attr('data-filter')
+    const rows = btn.closest('table').find('thead tr:last-child, tbody tr')
+    rows.each((i, tr) => {
+      $(tr).find('[data-type]').addClass('hidden')
+      $(tr).find(`[data-type="${filter}"]`).removeClass('hidden')
+    })
 
-		checkboxRowSelector.updateAll();
-		btn.siblings('button').removeClass('btn-warning');
-		btn.addClass('btn-warning');
-	}
+    checkboxRowSelector.updateAll()
+    btn.siblings('button').removeClass('btn-warning')
+    btn.addClass('btn-warning')
+  }
 
-	function getGroupPrivilegeFilter() {
-		return $('[component="privileges/groups/filters"] .btn-warning').attr('data-filter');
-	}
+  function getGroupPrivilegeFilter () {
+    return $('[component="privileges/groups/filters"] .btn-warning').attr('data-filter')
+  }
 
-	function getPrivilegeSubset() {
-		const currentPrivFilter = document.querySelector('.privilege-filters .btn-warning');
-		const filterText = currentPrivFilter ? currentPrivFilter.textContent.toLocaleLowerCase() : '';
-		return filterText.indexOf('privileges') > -1 ? filterText : `${filterText} privileges`.trim();
-	}
+  function getPrivilegeSubset () {
+    const currentPrivFilter = document.querySelector('.privilege-filters .btn-warning')
+    const filterText = currentPrivFilter ? currentPrivFilter.textContent.toLocaleLowerCase() : ''
+    return filterText.indexOf('privileges') > -1 ? filterText : `${filterText} privileges`.trim()
+  }
 
-	return Privileges;
-});
+  return Privileges
+})

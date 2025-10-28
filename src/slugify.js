@@ -1,3 +1,3 @@
-'use strict';
+'use strict'
 
-module.exports = require('../public/src/modules/slugify');
+module.exports = require('../public/src/modules/slugify')

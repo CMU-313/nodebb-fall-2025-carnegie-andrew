@@ -1,17 +1,17 @@
-'use strict';
+'use strict'
 
-const nconf = require('nconf');
-const db = require('../../database');
+const nconf = require('nconf')
+const db = require('../../database')
 
 module.exports = {
-	name: 'Optimize PostgreSQL sessions',
-	timestamp: Date.UTC(2018, 9, 1),
-	method: function (callback) {
-		if (nconf.get('database') !== 'postgres' || nconf.get('redis')) {
-			return callback();
-		}
+  name: 'Optimize PostgreSQL sessions',
+  timestamp: Date.UTC(2018, 9, 1),
+  method: function (callback) {
+    if (nconf.get('database') !== 'postgres' || nconf.get('redis')) {
+      return callback()
+    }
 
-		db.pool.query(`
+    db.pool.query(`
 BEGIN TRANSACTION;
 
 CREATE TABLE IF NOT EXISTS "session" (
@@ -35,7 +35,7 @@ CLUSTER "session";
 ANALYZE "session";
 
 COMMIT;`, (err) => {
-			callback(err);
-		});
-	},
-};
+      callback(err)
+    })
+  }
+}

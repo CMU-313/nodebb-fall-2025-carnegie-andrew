@@ -1,18 +1,18 @@
-'use strict';
+'use strict'
 
 define('admin/settings/notifications', [
-	'autocomplete',
+  'autocomplete'
 ], function (autocomplete) {
-	const Notifications = {};
+  const Notifications = {}
 
-	Notifications.init = function () {
-		const searchInput = $('[data-field="welcomeUid"]');
-		autocomplete.user(searchInput, function (event, selected) {
-			setTimeout(function () {
-				searchInput.val(selected.item.user.uid);
-			});
-		});
-	};
+  Notifications.init = function () {
+    const searchInput = $('[data-field="welcomeUid"]')
+    autocomplete.user(searchInput, function (event, selected) {
+      setTimeout(function () {
+        searchInput.val(selected.item.user.uid)
+      })
+    })
+  }
 
-	return Notifications;
-});
+  return Notifications
+})

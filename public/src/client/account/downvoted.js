@@ -1,16 +1,15 @@
-'use strict';
-
+'use strict'
 
 define('forum/account/downvoted', ['forum/account/header', 'forum/account/posts'], function (header, posts) {
-	const Downvoted = {};
+  const Downvoted = {}
 
-	Downvoted.init = function () {
-		header.init();
+  Downvoted.init = function () {
+    header.init()
 
-		$('[component="post/content"] img:not(.not-responsive)').addClass('img-fluid');
+    $('[component="post/content"] img:not(.not-responsive)').addClass('img-fluid')
 
-		posts.handleInfiniteScroll('account/downvoted');
-	};
+    posts.handleInfiniteScroll('account/downvoted')
+  }
 
-	return Downvoted;
-});
+  return Downvoted
+})

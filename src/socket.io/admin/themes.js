@@ -1,24 +1,24 @@
-'use strict';
+'use strict'
 
-const meta = require('../../meta');
-const widgets = require('../../widgets');
+const meta = require('../../meta')
+const widgets = require('../../widgets')
 
-const Themes = module.exports;
+const Themes = module.exports
 
 Themes.getInstalled = async function () {
-	return await meta.themes.get();
-};
+  return await meta.themes.get()
+}
 
 Themes.set = async function (socket, data) {
-	if (!data) {
-		throw new Error('[[error:invalid-data]]');
-	}
-	if (data.type === 'local') {
-		await widgets.saveLocationsOnThemeReset();
-	}
+  if (!data) {
+    throw new Error('[[error:invalid-data]]')
+  }
+  if (data.type === 'local') {
+    await widgets.saveLocationsOnThemeReset()
+  }
 
-	data.ip = socket.ip;
-	data.uid = socket.uid;
+  data.ip = socket.ip
+  data.uid = socket.uid
 
-	await meta.themes.set(data);
-};
+  await meta.themes.set(data)
+}

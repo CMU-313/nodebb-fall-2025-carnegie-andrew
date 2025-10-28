@@ -1,267 +1,267 @@
-'use strict';
+'use strict'
 
-const nconf = require('nconf');
-const winston = require('winston');
-const _ = require('lodash');
-const jwt = require('jsonwebtoken');
-const util = require('util');
+const nconf = require('nconf')
+const winston = require('winston')
+const _ = require('lodash')
+const jwt = require('jsonwebtoken')
+const util = require('util')
 
-const user = require('../../user');
-const languages = require('../../languages');
-const meta = require('../../meta');
-const plugins = require('../../plugins');
-const notifications = require('../../notifications');
-const db = require('../../database');
-const helpers = require('../helpers');
-const slugify = require('../../slugify');
+const user = require('../../user')
+const languages = require('../../languages')
+const meta = require('../../meta')
+const plugins = require('../../plugins')
+const notifications = require('../../notifications')
+const db = require('../../database')
+const helpers = require('../helpers')
+const slugify = require('../../slugify')
 
-const settingsController = module.exports;
+const settingsController = module.exports
 
 settingsController.get = async function (req, res, next) {
-	const { userData } = res.locals;
-	if (!userData) {
-		return next();
-	}
-	const [settings, languagesData] = await Promise.all([
-		user.getSettings(userData.uid),
-		languages.list(),
-	]);
+  const { userData } = res.locals
+  if (!userData) {
+    return next()
+  }
+  const [settings, languagesData] = await Promise.all([
+    user.getSettings(userData.uid),
+    languages.list()
+  ])
 
-	userData.settings = settings;
-	userData.languages = languagesData;
-	if (userData.isAdmin && userData.isSelf) {
-		userData.acpLanguages = _.cloneDeep(languagesData);
-	}
+  userData.settings = settings
+  userData.languages = languagesData
+  if (userData.isAdmin && userData.isSelf) {
+    userData.acpLanguages = _.cloneDeep(languagesData)
+  }
 
-	const data = await plugins.hooks.fire('filter:user.customSettings', {
-		settings: settings,
-		customSettings: [],
-		uid: req.uid,
-	});
+  const data = await plugins.hooks.fire('filter:user.customSettings', {
+    settings,
+    customSettings: [],
+    uid: req.uid
+  })
 
-	const [notificationSettings, routes, bsSkinOptions] = await Promise.all([
-		getNotificationSettings(userData),
-		getHomePageRoutes(userData),
-		getSkinOptions(userData),
-		getChatAllowDenyList(userData),
-	]);
+  const [notificationSettings, routes, bsSkinOptions] = await Promise.all([
+    getNotificationSettings(userData),
+    getHomePageRoutes(userData),
+    getSkinOptions(userData),
+    getChatAllowDenyList(userData)
+  ])
 
-	userData.customSettings = data.customSettings;
-	userData.homePageRoutes = routes;
-	userData.bootswatchSkinOptions = bsSkinOptions;
-	userData.notificationSettings = notificationSettings;
-	userData.disableEmailSubscriptions = meta.config.disableEmailSubscriptions;
+  userData.customSettings = data.customSettings
+  userData.homePageRoutes = routes
+  userData.bootswatchSkinOptions = bsSkinOptions
+  userData.notificationSettings = notificationSettings
+  userData.disableEmailSubscriptions = meta.config.disableEmailSubscriptions
 
-	userData.dailyDigestFreqOptions = [
-		{ value: 'off', name: '[[user:digest-off]]', selected: userData.settings.dailyDigestFreq === 'off' },
-		{ value: 'day', name: '[[user:digest-daily]]', selected: userData.settings.dailyDigestFreq === 'day' },
-		{ value: 'week', name: '[[user:digest-weekly]]', selected: userData.settings.dailyDigestFreq === 'week' },
-		{ value: 'biweek', name: '[[user:digest-biweekly]]', selected: userData.settings.dailyDigestFreq === 'biweek' },
-		{ value: 'month', name: '[[user:digest-monthly]]', selected: userData.settings.dailyDigestFreq === 'month' },
-	];
+  userData.dailyDigestFreqOptions = [
+    { value: 'off', name: '[[user:digest-off]]', selected: userData.settings.dailyDigestFreq === 'off' },
+    { value: 'day', name: '[[user:digest-daily]]', selected: userData.settings.dailyDigestFreq === 'day' },
+    { value: 'week', name: '[[user:digest-weekly]]', selected: userData.settings.dailyDigestFreq === 'week' },
+    { value: 'biweek', name: '[[user:digest-biweekly]]', selected: userData.settings.dailyDigestFreq === 'biweek' },
+    { value: 'month', name: '[[user:digest-monthly]]', selected: userData.settings.dailyDigestFreq === 'month' }
+  ]
 
-	userData.languages.forEach((language) => {
-		language.selected = language.code === userData.settings.userLang;
-	});
+  userData.languages.forEach((language) => {
+    language.selected = language.code === userData.settings.userLang
+  })
 
-	if (userData.isAdmin && userData.isSelf) {
-		userData.acpLanguages.forEach((language) => {
-			language.selected = language.code === userData.settings.acpLang;
-		});
-	}
+  if (userData.isAdmin && userData.isSelf) {
+    userData.acpLanguages.forEach((language) => {
+      language.selected = language.code === userData.settings.acpLang
+    })
+  }
 
-	const notifFreqOptions = [
-		'all',
-		'first',
-		'everyTen',
-		'threshold',
-		'logarithmic',
-		'disabled',
-	];
+  const notifFreqOptions = [
+    'all',
+    'first',
+    'everyTen',
+    'threshold',
+    'logarithmic',
+    'disabled'
+  ]
 
-	userData.upvoteNotifFreq = notifFreqOptions.map(
-		name => ({ name: name, selected: name === userData.settings.upvoteNotifFreq })
-	);
+  userData.upvoteNotifFreq = notifFreqOptions.map(
+    name => ({ name, selected: name === userData.settings.upvoteNotifFreq })
+  )
 
-	userData.categoryWatchState = { [userData.settings.categoryWatchState]: true };
+  userData.categoryWatchState = { [userData.settings.categoryWatchState]: true }
 
-	userData.disableCustomUserSkins = meta.config.disableCustomUserSkins || 0;
+  userData.disableCustomUserSkins = meta.config.disableCustomUserSkins || 0
 
-	userData.allowUserHomePage = meta.config.allowUserHomePage === 1 ? 1 : 0;
+  userData.allowUserHomePage = meta.config.allowUserHomePage === 1 ? 1 : 0
 
-	userData.hideFullname = meta.config.hideFullname || 0;
-	userData.hideEmail = meta.config.hideEmail || 0;
+  userData.hideFullname = meta.config.hideFullname || 0
+  userData.hideEmail = meta.config.hideEmail || 0
 
-	userData.inTopicSearchAvailable = plugins.hooks.hasListeners('filter:topic.search');
+  userData.inTopicSearchAvailable = plugins.hooks.hasListeners('filter:topic.search')
 
-	userData.maxTopicsPerPage = meta.config.maxTopicsPerPage;
-	userData.maxPostsPerPage = meta.config.maxPostsPerPage;
+  userData.maxTopicsPerPage = meta.config.maxTopicsPerPage
+  userData.maxPostsPerPage = meta.config.maxPostsPerPage
 
-	userData.title = '[[pages:account/settings]]';
-	userData.breadcrumbs = helpers.buildBreadcrumbs([{ text: userData.username, url: `/user/${userData.userslug}` }, { text: '[[user:settings]]' }]);
+  userData.title = '[[pages:account/settings]]'
+  userData.breadcrumbs = helpers.buildBreadcrumbs([{ text: userData.username, url: `/user/${userData.userslug}` }, { text: '[[user:settings]]' }])
 
-	res.render('account/settings', userData);
-};
+  res.render('account/settings', userData)
+}
 
-const unsubscribable = ['digest', 'notification'];
+const unsubscribable = ['digest', 'notification']
 const jwtVerifyAsync = util.promisify((token, callback) => {
-	jwt.verify(token, nconf.get('secret'), (err, payload) => callback(err, payload));
-});
+  jwt.verify(token, nconf.get('secret'), (err, payload) => callback(err, payload))
+})
 const doUnsubscribe = async (payload) => {
-	if (payload.template === 'digest') {
-		await Promise.all([
-			user.setSetting(payload.uid, 'dailyDigestFreq', 'off'),
-			user.updateDigestSetting(payload.uid, 'off'),
-		]);
-	} else if (payload.template === 'notification') {
-		const currentToNewSetting = {
-			notificationemail: 'notification',
-			email: 'none',
-		};
-		const current = await db.getObjectField(`user:${payload.uid}:settings`, `notificationType_${payload.type}`);
-		if (currentToNewSetting.hasOwnProperty(current)) {
-			await user.setSetting(payload.uid, `notificationType_${payload.type}`, currentToNewSetting[current]);
-		}
-	}
-	return true;
-};
+  if (payload.template === 'digest') {
+    await Promise.all([
+      user.setSetting(payload.uid, 'dailyDigestFreq', 'off'),
+      user.updateDigestSetting(payload.uid, 'off')
+    ])
+  } else if (payload.template === 'notification') {
+    const currentToNewSetting = {
+      notificationemail: 'notification',
+      email: 'none'
+    }
+    const current = await db.getObjectField(`user:${payload.uid}:settings`, `notificationType_${payload.type}`)
+    if (currentToNewSetting.hasOwnProperty(current)) {
+      await user.setSetting(payload.uid, `notificationType_${payload.type}`, currentToNewSetting[current])
+    }
+  }
+  return true
+}
 
 settingsController.unsubscribe = async (req, res, next) => {
-	if (req.method === 'HEAD') {
-		return res.sendStatus(204);
-	}
-	try {
-		const payload = await jwtVerifyAsync(req.params.token);
-		if (!payload || !unsubscribable.includes(payload.template)) {
-			return next();
-		}
-		await doUnsubscribe(payload);
-		res.render('unsubscribe', {
-			payload,
-		});
-	} catch (err) {
-		res.render('unsubscribe', {
-			error: err.message,
-		});
-	}
-};
+  if (req.method === 'HEAD') {
+    return res.sendStatus(204)
+  }
+  try {
+    const payload = await jwtVerifyAsync(req.params.token)
+    if (!payload || !unsubscribable.includes(payload.template)) {
+      return next()
+    }
+    await doUnsubscribe(payload)
+    res.render('unsubscribe', {
+      payload
+    })
+  } catch (err) {
+    res.render('unsubscribe', {
+      error: err.message
+    })
+  }
+}
 
 settingsController.unsubscribePost = async function (req, res) {
-	let payload;
-	try {
-		payload = await jwtVerifyAsync(req.params.token);
-		if (!payload || !unsubscribable.includes(payload.template)) {
-			return res.sendStatus(404);
-		}
-	} catch (err) {
-		return res.sendStatus(403);
-	}
-	try {
-		await doUnsubscribe(payload);
-		res.sendStatus(200);
-	} catch (err) {
-		winston.error(`[settings/unsubscribe] One-click unsubscribe failed with error: ${err.message}`);
-		res.sendStatus(500);
-	}
-};
-
-async function getNotificationSettings(userData) {
-	const privilegedTypes = [];
-
-	const privileges = await user.getPrivileges(userData.uid);
-	if (privileges.isAdmin) {
-		privilegedTypes.push('notificationType_new-register');
-	}
-	if (privileges.isAdmin || privileges.isGlobalMod || privileges.isModeratorOfAnyCategory) {
-		privilegedTypes.push('notificationType_post-queue', 'notificationType_new-post-flag');
-	}
-	if (privileges.isAdmin || privileges.isGlobalMod) {
-		privilegedTypes.push('notificationType_new-user-flag');
-	}
-	const results = await plugins.hooks.fire('filter:user.notificationTypes', {
-		types: notifications.baseTypes.slice(),
-		privilegedTypes: privilegedTypes,
-	});
-
-	function modifyType(type) {
-		const setting = userData.settings[type];
-		return {
-			name: type,
-			label: `[[notifications:${type.replace(/_/g, '-')}]]`,
-			none: setting === 'none',
-			notification: setting === 'notification',
-			email: setting === 'email',
-			notificationemail: setting === 'notificationemail',
-		};
-	}
-
-	if (meta.config.disableChat) {
-		results.types = results.types.filter(type => type !== 'notificationType_new-chat');
-	}
-
-	return results.types.map(modifyType).concat(results.privilegedTypes.map(modifyType));
+  let payload
+  try {
+    payload = await jwtVerifyAsync(req.params.token)
+    if (!payload || !unsubscribable.includes(payload.template)) {
+      return res.sendStatus(404)
+    }
+  } catch (err) {
+    return res.sendStatus(403)
+  }
+  try {
+    await doUnsubscribe(payload)
+    res.sendStatus(200)
+  } catch (err) {
+    winston.error(`[settings/unsubscribe] One-click unsubscribe failed with error: ${err.message}`)
+    res.sendStatus(500)
+  }
 }
 
-async function getHomePageRoutes(userData) {
-	let routes = await helpers.getHomePageRoutes(userData.uid);
+async function getNotificationSettings (userData) {
+  const privilegedTypes = []
 
-	// Set selected for each route
-	let customIdx;
-	let hasSelected = false;
-	routes = routes.map((route, idx) => {
-		if (route.route === userData.settings.homePageRoute) {
-			route.selected = true;
-			hasSelected = true;
-		} else {
-			route.selected = false;
-		}
+  const privileges = await user.getPrivileges(userData.uid)
+  if (privileges.isAdmin) {
+    privilegedTypes.push('notificationType_new-register')
+  }
+  if (privileges.isAdmin || privileges.isGlobalMod || privileges.isModeratorOfAnyCategory) {
+    privilegedTypes.push('notificationType_post-queue', 'notificationType_new-post-flag')
+  }
+  if (privileges.isAdmin || privileges.isGlobalMod) {
+    privilegedTypes.push('notificationType_new-user-flag')
+  }
+  const results = await plugins.hooks.fire('filter:user.notificationTypes', {
+    types: notifications.baseTypes.slice(),
+    privilegedTypes
+  })
 
-		if (route.route === 'custom') {
-			customIdx = idx;
-		}
+  function modifyType (type) {
+    const setting = userData.settings[type]
+    return {
+      name: type,
+      label: `[[notifications:${type.replace(/_/g, '-')}]]`,
+      none: setting === 'none',
+      notification: setting === 'notification',
+      email: setting === 'email',
+      notificationemail: setting === 'notificationemail'
+    }
+  }
 
-		return route;
-	});
+  if (meta.config.disableChat) {
+    results.types = results.types.filter(type => type !== 'notificationType_new-chat')
+  }
 
-	if (!hasSelected && customIdx && userData.settings.homePageRoute !== 'none') {
-		routes[customIdx].selected = true;
-	}
-
-	return routes;
+  return results.types.map(modifyType).concat(results.privilegedTypes.map(modifyType))
 }
 
-async function getSkinOptions(userData) {
-	const defaultSkin = _.capitalize(meta.config.bootswatchSkin) || '[[user:no-skin]]';
-	const bootswatchSkinOptions = [
-		{ name: '[[user:no-skin]]', value: 'noskin' },
-		{ name: `[[user:default, ${defaultSkin}]]`, value: '' },
-	];
-	const customSkins = await meta.settings.get('custom-skins');
-	if (customSkins && Array.isArray(customSkins['custom-skin-list'])) {
-		customSkins['custom-skin-list'].forEach((customSkin) => {
-			bootswatchSkinOptions.push({
-				name: customSkin['custom-skin-name'],
-				value: slugify(customSkin['custom-skin-name']),
-			});
-		});
-	}
+async function getHomePageRoutes (userData) {
+  let routes = await helpers.getHomePageRoutes(userData.uid)
 
-	bootswatchSkinOptions.push(
-		...meta.css.supportedSkins.map(skin => ({ name: _.capitalize(skin), value: skin }))
-	);
+  // Set selected for each route
+  let customIdx
+  let hasSelected = false
+  routes = routes.map((route, idx) => {
+    if (route.route === userData.settings.homePageRoute) {
+      route.selected = true
+      hasSelected = true
+    } else {
+      route.selected = false
+    }
 
-	bootswatchSkinOptions.forEach((skin) => {
-		skin.selected = skin.value === userData.settings.bootswatchSkin;
-	});
-	return bootswatchSkinOptions;
+    if (route.route === 'custom') {
+      customIdx = idx
+    }
+
+    return route
+  })
+
+  if (!hasSelected && customIdx && userData.settings.homePageRoute !== 'none') {
+    routes[customIdx].selected = true
+  }
+
+  return routes
 }
 
-async function getChatAllowDenyList(userData) {
-	const [chatAllowListUsers, chatDenyListUsers] = await Promise.all([
-		user.getUsersFields(userData.settings.chatAllowList, ['uid', 'username', 'picture']),
-		user.getUsersFields(userData.settings.chatDenyList, ['uid', 'username', 'picture']),
-	]);
+async function getSkinOptions (userData) {
+  const defaultSkin = _.capitalize(meta.config.bootswatchSkin) || '[[user:no-skin]]'
+  const bootswatchSkinOptions = [
+    { name: '[[user:no-skin]]', value: 'noskin' },
+    { name: `[[user:default, ${defaultSkin}]]`, value: '' }
+  ]
+  const customSkins = await meta.settings.get('custom-skins')
+  if (customSkins && Array.isArray(customSkins['custom-skin-list'])) {
+    customSkins['custom-skin-list'].forEach((customSkin) => {
+      bootswatchSkinOptions.push({
+        name: customSkin['custom-skin-name'],
+        value: slugify(customSkin['custom-skin-name'])
+      })
+    })
+  }
 
-	userData.settings.chatAllowListUsers = chatAllowListUsers;
-	userData.settings.chatDenyListUsers = chatDenyListUsers;
+  bootswatchSkinOptions.push(
+    ...meta.css.supportedSkins.map(skin => ({ name: _.capitalize(skin), value: skin }))
+  )
+
+  bootswatchSkinOptions.forEach((skin) => {
+    skin.selected = skin.value === userData.settings.bootswatchSkin
+  })
+  return bootswatchSkinOptions
+}
+
+async function getChatAllowDenyList (userData) {
+  const [chatAllowListUsers, chatDenyListUsers] = await Promise.all([
+    user.getUsersFields(userData.settings.chatAllowList, ['uid', 'username', 'picture']),
+    user.getUsersFields(userData.settings.chatDenyList, ['uid', 'username', 'picture'])
+  ])
+
+  userData.settings.chatAllowListUsers = chatAllowListUsers
+  userData.settings.chatDenyListUsers = chatDenyListUsers
 };

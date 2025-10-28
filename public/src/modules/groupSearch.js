@@ -1,58 +1,58 @@
-'use strict';
+'use strict'
 
 define('groupSearch', function () {
-	const groupSearch = {};
+  const groupSearch = {}
 
-	groupSearch.init = function (el) {
-		if (utils.isTouchDevice()) {
-			return;
-		}
-		const searchEl = el.find('[component="group-selector-search"]');
-		if (!searchEl.length) {
-			return;
-		}
-		const toggleVisibility = searchEl.parents('[component="group-selector"]').length > 0;
+  groupSearch.init = function (el) {
+    if (utils.isTouchDevice()) {
+      return
+    }
+    const searchEl = el.find('[component="group-selector-search"]')
+    if (!searchEl.length) {
+      return
+    }
+    const toggleVisibility = searchEl.parents('[component="group-selector"]').length > 0
 
-		const groupEls = el.find('[component="group-list"] [data-name]');
-		el.on('show.bs.dropdown', function () {
-			function updateList() {
-				const val = searchEl.find('input').val().toLowerCase();
-				let noMatch = true;
-				groupEls.each(function () {
-					const liEl = $(this);
-					const isMatch = liEl.attr('data-name').toLowerCase().indexOf(val) !== -1;
-					if (noMatch && isMatch) {
-						noMatch = false;
-					}
+    const groupEls = el.find('[component="group-list"] [data-name]')
+    el.on('show.bs.dropdown', function () {
+      function updateList () {
+        const val = searchEl.find('input').val().toLowerCase()
+        let noMatch = true
+        groupEls.each(function () {
+          const liEl = $(this)
+          const isMatch = liEl.attr('data-name').toLowerCase().indexOf(val) !== -1
+          if (noMatch && isMatch) {
+            noMatch = false
+          }
 
-					liEl.toggleClass('hidden', !isMatch);
-				});
+          liEl.toggleClass('hidden', !isMatch)
+        })
 
-				el.find('[component="group-list"] [component="group-no-matches"]').toggleClass('hidden', !noMatch);
-			}
-			if (toggleVisibility) {
-				searchEl.removeClass('hidden');
-			}
+        el.find('[component="group-list"] [component="group-no-matches"]').toggleClass('hidden', !noMatch)
+      }
+      if (toggleVisibility) {
+        searchEl.removeClass('hidden')
+      }
 
-			searchEl.on('click', function (ev) {
-				ev.preventDefault();
-				ev.stopPropagation();
-			});
-			searchEl.find('input').val('').on('keyup', updateList);
-			updateList();
-		});
+      searchEl.on('click', function (ev) {
+        ev.preventDefault()
+        ev.stopPropagation()
+      })
+      searchEl.find('input').val('').on('keyup', updateList)
+      updateList()
+    })
 
-		el.on('shown.bs.dropdown', function () {
-			searchEl.find('input').focus();
-		});
+    el.on('shown.bs.dropdown', function () {
+      searchEl.find('input').focus()
+    })
 
-		el.on('hide.bs.dropdown', function () {
-			if (toggleVisibility) {
-				searchEl.addClass('hidden');
-			}
-			searchEl.off('click').find('input').off('keyup');
-		});
-	};
+    el.on('hide.bs.dropdown', function () {
+      if (toggleVisibility) {
+        searchEl.addClass('hidden')
+      }
+      searchEl.off('click').find('input').off('keyup')
+    })
+  }
 
-	return groupSearch;
-});
+  return groupSearch
+})

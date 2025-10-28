@@ -1,55 +1,54 @@
-'use strict';
-
+'use strict'
 
 define('forum/account/topics', [
-	'forum/account/header',
-	'forum/infinitescroll',
-	'hooks',
+  'forum/account/header',
+  'forum/infinitescroll',
+  'hooks'
 ], function (header, infinitescroll, hooks) {
-	const AccountTopics = {};
+  const AccountTopics = {}
 
-	let template;
-	let page = 1;
+  let template
+  let page = 1
 
-	AccountTopics.init = function () {
-		header.init();
+  AccountTopics.init = function () {
+    header.init()
 
-		AccountTopics.handleInfiniteScroll('account/topics');
-	};
+    AccountTopics.handleInfiniteScroll('account/topics')
+  }
 
-	AccountTopics.handleInfiniteScroll = function (_template) {
-		template = _template;
-		page = ajaxify.data.pagination.currentPage;
-		if (!config.usePagination) {
-			infinitescroll.init(loadMore);
-		}
-	};
+  AccountTopics.handleInfiniteScroll = function (_template) {
+    template = _template
+    page = ajaxify.data.pagination.currentPage
+    if (!config.usePagination) {
+      infinitescroll.init(loadMore)
+    }
+  }
 
-	function loadMore(direction) {
-		if (direction < 0) {
-			return;
-		}
-		const params = utils.params();
-		page += 1;
-		params.page = page;
+  function loadMore (direction) {
+    if (direction < 0) {
+      return
+    }
+    const params = utils.params()
+    page += 1
+    params.page = page
 
-		infinitescroll.loadMoreXhr(params, function (data, done) {
-			if (data.topics && data.topics.length) {
-				onTopicsLoaded(data.topics, done);
-			} else {
-				done();
-			}
-		});
-	}
+    infinitescroll.loadMoreXhr(params, function (data, done) {
+      if (data.topics && data.topics.length) {
+        onTopicsLoaded(data.topics, done)
+      } else {
+        done()
+      }
+    })
+  }
 
-	function onTopicsLoaded(topics, callback) {
-		app.parseAndTranslate(template, 'topics', { topics: topics }, function (html) {
-			$('[component="category"]').append(html);
-			html.find('.timeago').timeago();
-			hooks.fire('action:topics.loaded', { topics: topics });
-			callback();
-		});
-	}
+  function onTopicsLoaded (topics, callback) {
+    app.parseAndTranslate(template, 'topics', { topics }, function (html) {
+      $('[component="category"]').append(html)
+      html.find('.timeago').timeago()
+      hooks.fire('action:topics.loaded', { topics })
+      callback()
+    })
+  }
 
-	return AccountTopics;
-});
+  return AccountTopics
+})

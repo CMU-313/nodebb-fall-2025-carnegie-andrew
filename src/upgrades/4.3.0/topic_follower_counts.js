@@ -1,35 +1,34 @@
-'use strict';
+'use strict'
 
-const db = require('../../database');
-const batch = require('../../batch');
-
+const db = require('../../database')
+const batch = require('../../batch')
 
 module.exports = {
-	name: 'Set "followercount" on each topic object',
-	timestamp: Date.UTC(2025, 3, 15),
-	method: async function () {
-		const { progress } = this;
+  name: 'Set "followercount" on each topic object',
+  timestamp: Date.UTC(2025, 3, 15),
+  method: async function () {
+    const { progress } = this
 
-		progress.total = await db.sortedSetCard('topics:tid');
+    progress.total = await db.sortedSetCard('topics:tid')
 
-		await batch.processSortedSet('topics:tid', async (tids) => {
-			const keys = tids.map(tid => `tid:${tid}:followers`);
-			const followerCounts = await db.setsCount(keys);
+    await batch.processSortedSet('topics:tid', async (tids) => {
+      const keys = tids.map(tid => `tid:${tid}:followers`)
+      const followerCounts = await db.setsCount(keys)
 
-			const bulkSet = [];
+      const bulkSet = []
 
-			followerCounts.forEach((count, idx) => {
-				const tid = tids[idx];
-				if (count > 0) {
-					bulkSet.push([`topic:${tid}`, {followercount: count}]);
-				}
-			});
+      followerCounts.forEach((count, idx) => {
+        const tid = tids[idx]
+        if (count > 0) {
+          bulkSet.push([`topic:${tid}`, { followercount: count }])
+        }
+      })
 
-			await db.setObjectBulk(bulkSet);
+      await db.setObjectBulk(bulkSet)
 
-			progress.incr(tids.length);
-		}, {
-			batch: 500,
-		});
-	},
-};
+      progress.incr(tids.length)
+    }, {
+      batch: 500
+    })
+  }
+}

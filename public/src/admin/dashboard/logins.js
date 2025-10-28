@@ -1,14 +1,14 @@
-'use strict';
+'use strict'
 
 define('admin/dashboard/logins', ['admin/modules/dashboard-line-graph'], (graph) => {
-	const ACP = {};
+  const ACP = {}
 
-	ACP.init = () => {
-		graph.init({
-			set: 'logins',
-			dataset: ajaxify.data.dataset,
-		});
-	};
+  ACP.init = () => {
+    graph.init({
+      set: 'logins',
+      dataset: ajaxify.data.dataset
+    })
+  }
 
-	return ACP;
-});
+  return ACP
+})
