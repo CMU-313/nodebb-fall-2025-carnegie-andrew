@@ -1,50 +1,50 @@
-'use strict'
+'use strict';
 
-const db = require('../database')
-const plugins = require('../plugins')
-const utils = require('../utils')
+const db = require('../database');
+const plugins = require('../plugins');
+const utils = require('../utils');
 
 module.exports = function (Groups) {
-  Groups.ownership = {}
+	Groups.ownership = {};
 
-  Groups.ownership.isOwner = async function (uid, groupName) {
-    if (!(parseInt(uid, 10) > 0)) {
-      return false
-    }
-    return await db.isSetMember(`group:${groupName}:owners`, uid)
-  }
+	Groups.ownership.isOwner = async function (uid, groupName) {
+		if (!(parseInt(uid, 10) > 0)) {
+			return false;
+		}
+		return await db.isSetMember(`group:${groupName}:owners`, uid);
+	};
 
-  Groups.ownership.isOwners = async function (uids, groupName) {
-    if (!Array.isArray(uids)) {
-      return []
-    }
+	Groups.ownership.isOwners = async function (uids, groupName) {
+		if (!Array.isArray(uids)) {
+			return [];
+		}
 
-    return await db.isSetMembers(`group:${groupName}:owners`, uids)
-  }
+		return await db.isSetMembers(`group:${groupName}:owners`, uids);
+	};
 
-  Groups.ownership.grant = async function (toUid, groupName) {
-    if (!utils.isNumber(toUid)) {
-      throw new Error('[[error:invalid-uid]]')
-    }
+	Groups.ownership.grant = async function (toUid, groupName) {
+		if (!utils.isNumber(toUid)) {
+			throw new Error('[[error:invalid-uid]]');
+		}
 
-    await db.setAdd(`group:${groupName}:owners`, toUid)
-    plugins.hooks.fire('action:group.grantOwnership', { uid: toUid, groupName })
-  }
+		await db.setAdd(`group:${groupName}:owners`, toUid);
+		plugins.hooks.fire('action:group.grantOwnership', { uid: toUid, groupName });
+	};
 
-  Groups.ownership.rescind = async function (toUid, groupName) {
-    if (!utils.isNumber(toUid)) {
-      throw new Error('[[error:invalid-uid]]')
-    }
+	Groups.ownership.rescind = async function (toUid, groupName) {
+		if (!utils.isNumber(toUid)) {
+			throw new Error('[[error:invalid-uid]]');
+		}
 
-    // If the owners set only contains one member (and toUid is that member), error out!
-    const [numOwners, isOwner] = await Promise.all([
-      db.setCount(`group:${groupName}:owners`),
-      db.isSetMember(`group:${groupName}:owners`, toUid)
-    ])
-    if (numOwners <= 1 && isOwner) {
-      throw new Error('[[error:group-needs-owner]]')
-    }
-    await db.setRemove(`group:${groupName}:owners`, toUid)
-    plugins.hooks.fire('action:group.rescindOwnership', { uid: toUid, groupName })
-  }
-}
+		// If the owners set only contains one member (and toUid is that member), error out!
+		const [numOwners, isOwner] = await Promise.all([
+			db.setCount(`group:${groupName}:owners`),
+			db.isSetMember(`group:${groupName}:owners`, toUid),
+		]);
+		if (numOwners <= 1 && isOwner) {
+			throw new Error('[[error:group-needs-owner]]');
+		}
+		await db.setRemove(`group:${groupName}:owners`, toUid);
+		plugins.hooks.fire('action:group.rescindOwnership', { uid: toUid, groupName });
+	};
+};

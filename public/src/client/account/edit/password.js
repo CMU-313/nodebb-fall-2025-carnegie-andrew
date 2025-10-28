@@ -1,117 +1,117 @@
-'use strict'
+'use strict';
 
 define('forum/account/edit/password', [
-  'forum/account/header', 'translator', 'zxcvbn', 'api', 'alerts'
+	'forum/account/header', 'translator', 'zxcvbn', 'api', 'alerts',
 ], function (header, translator, zxcvbn, api, alerts) {
-  const AccountEditPassword = {}
+	const AccountEditPassword = {};
 
-  AccountEditPassword.init = function () {
-    header.init()
+	AccountEditPassword.init = function () {
+		header.init();
 
-    handlePasswordChange()
-  }
+		handlePasswordChange();
+	};
 
-  function handlePasswordChange () {
-    const currentPassword = $('#inputCurrentPassword')
-    const password_notify = $('#password-notify')
-    const password_confirm_notify = $('#password-confirm-notify')
-    const password = $('#inputNewPassword')
-    const password_confirm = $('#inputNewPasswordAgain')
-    let passwordvalid = false
-    let passwordsmatch = false
+	function handlePasswordChange () {
+		const currentPassword = $('#inputCurrentPassword');
+		const password_notify = $('#password-notify');
+		const password_confirm_notify = $('#password-confirm-notify');
+		const password = $('#inputNewPassword');
+		const password_confirm = $('#inputNewPasswordAgain');
+		let passwordvalid = false;
+		let passwordsmatch = false;
 
-    function onPasswordChanged () {
-      passwordvalid = false
+		function onPasswordChanged () {
+			passwordvalid = false;
 
-      try {
-        utils.assertPasswordValidity(password.val(), zxcvbn)
+			try {
+				utils.assertPasswordValidity(password.val(), zxcvbn);
 
-        if (password.val() === ajaxify.data.username) {
-          throw new Error('[[user:password-same-as-username]]')
-        } else if (password.val() === ajaxify.data.email) {
-          throw new Error('[[user:password-same-as-email]]')
-        }
+				if (password.val() === ajaxify.data.username) {
+					throw new Error('[[user:password-same-as-username]]');
+				} else if (password.val() === ajaxify.data.email) {
+					throw new Error('[[user:password-same-as-email]]');
+				}
 
-        showSuccess(password_notify)
-        passwordvalid = true
-      } catch (err) {
-        showError(password_notify, err.message)
-      }
-    }
+				showSuccess(password_notify);
+				passwordvalid = true;
+			} catch (err) {
+				showError(password_notify, err.message);
+			}
+		}
 
-    function onPasswordConfirmChanged () {
-      if (password.val() !== password_confirm.val()) {
-        showError(password_confirm_notify, '[[user:change-password-error-match]]')
-        passwordsmatch = false
-      } else {
-        if (password.val()) {
-          showSuccess(password_confirm_notify)
-        } else {
-          password_confirm_notify.parent().removeClass('alert-success alert-danger')
-          password_confirm_notify.children().show()
-          password_confirm_notify.find('.msg').html('')
-        }
+		function onPasswordConfirmChanged () {
+			if (password.val() !== password_confirm.val()) {
+				showError(password_confirm_notify, '[[user:change-password-error-match]]');
+				passwordsmatch = false;
+			} else {
+				if (password.val()) {
+					showSuccess(password_confirm_notify);
+				} else {
+					password_confirm_notify.parent().removeClass('alert-success alert-danger');
+					password_confirm_notify.children().show();
+					password_confirm_notify.find('.msg').html('');
+				}
 
-        passwordsmatch = true
-      }
-    }
+				passwordsmatch = true;
+			}
+		}
 
-    password.on('input', onPasswordChanged)
-    password_confirm.on('input', onPasswordConfirmChanged)
+		password.on('input', onPasswordChanged);
+		password_confirm.on('input', onPasswordConfirmChanged);
 
-    $('#changePasswordBtn').on('click', function () {
-      onPasswordChanged()
-      onPasswordConfirmChanged()
+		$('#changePasswordBtn').on('click', function () {
+			onPasswordChanged();
+			onPasswordConfirmChanged();
 
-      const btn = $(this)
-      if (passwordvalid && passwordsmatch) {
-        btn.addClass('disabled').find('i').removeClass('hide')
-        api.put('/users/' + ajaxify.data.theirid + '/password', {
-          currentPassword: currentPassword.val(),
-          newPassword: password.val()
-        })
-          .then(() => {
-            if (parseInt(app.user.uid, 10) === parseInt(ajaxify.data.uid, 10)) {
-              window.location.href = config.relative_path + '/login'
-            } else {
-              ajaxify.go('user/' + ajaxify.data.userslug + '/edit')
-            }
-          })
-          .catch(alerts.error)
-          .finally(() => {
-            btn.removeClass('disabled').find('i').addClass('hide')
-            currentPassword.val('')
-            password.val('')
-            password_confirm.val('')
-            password_notify.parent().removeClass('show-success show-danger')
-            password_confirm_notify.parent().removeClass('show-success show-danger')
-            passwordsmatch = false
-            passwordvalid = false
-          })
-      } else {
-        if (!passwordsmatch) {
-          alerts.error('[[user:change-password-error-match]]')
-        }
+			const btn = $(this);
+			if (passwordvalid && passwordsmatch) {
+				btn.addClass('disabled').find('i').removeClass('hide');
+				api.put('/users/' + ajaxify.data.theirid + '/password', {
+					currentPassword: currentPassword.val(),
+					newPassword: password.val(),
+				})
+					.then(() => {
+						if (parseInt(app.user.uid, 10) === parseInt(ajaxify.data.uid, 10)) {
+							window.location.href = config.relative_path + '/login';
+						} else {
+							ajaxify.go('user/' + ajaxify.data.userslug + '/edit');
+						}
+					})
+					.catch(alerts.error)
+					.finally(() => {
+						btn.removeClass('disabled').find('i').addClass('hide');
+						currentPassword.val('');
+						password.val('');
+						password_confirm.val('');
+						password_notify.parent().removeClass('show-success show-danger');
+						password_confirm_notify.parent().removeClass('show-success show-danger');
+						passwordsmatch = false;
+						passwordvalid = false;
+					});
+			} else {
+				if (!passwordsmatch) {
+					alerts.error('[[user:change-password-error-match]]');
+				}
 
-        if (!passwordvalid) {
-          alerts.error('[[user:change-password-error]]')
-        }
-      }
-      return false
-    })
-  }
+				if (!passwordvalid) {
+					alerts.error('[[user:change-password-error]]');
+				}
+			}
+			return false;
+		});
+	}
 
-  function showError (element, msg) {
-    translator.translate(msg, function (msg) {
-      element.html(msg).removeClass('text-success')
-        .addClass('text-danger')
-    })
-  }
+	function showError (element, msg) {
+		translator.translate(msg, function (msg) {
+			element.html(msg).removeClass('text-success')
+				.addClass('text-danger');
+		});
+	}
 
-  function showSuccess (element) {
-    element.html('').removeClass('text-danger')
-      .addClass('text-success')
-  }
+	function showSuccess (element) {
+		element.html('').removeClass('text-danger')
+			.addClass('text-success');
+	}
 
-  return AccountEditPassword
-})
+	return AccountEditPassword;
+});

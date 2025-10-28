@@ -1,305 +1,305 @@
-'use strict'
+'use strict';
 
-const path = require('path')
-const nconf = require('nconf')
-const fs = require('fs')
-const winston = require('winston')
+const path = require('path');
+const nconf = require('nconf');
+const fs = require('fs');
+const winston = require('winston');
 
-const meta = require('../../meta')
-const posts = require('../../posts')
-const file = require('../../file')
-const image = require('../../image')
-const plugins = require('../../plugins')
-const pagination = require('../../pagination')
+const meta = require('../../meta');
+const posts = require('../../posts');
+const file = require('../../file');
+const image = require('../../image');
+const plugins = require('../../plugins');
+const pagination = require('../../pagination');
 
-const allowedImageTypes = ['image/png', 'image/jpeg', 'image/pjpeg', 'image/jpg', 'image/gif', 'image/svg+xml']
+const allowedImageTypes = ['image/png', 'image/jpeg', 'image/pjpeg', 'image/jpg', 'image/gif', 'image/svg+xml'];
 
-const uploadsController = module.exports
+const uploadsController = module.exports;
 
 uploadsController.get = async function (req, res, next) {
-  const currentFolder = path.join(nconf.get('upload_path'), req.query.dir || '')
-  if (!currentFolder.startsWith(nconf.get('upload_path'))) {
-    return next(new Error('[[error:invalid-path]]'))
-  }
-  const itemsPerPage = 20
-  const page = parseInt(req.query.page, 10) || 1
-  let files = []
-  try {
-    await checkSymLinks(req.query.dir)
-    files = await getFilesInFolder(currentFolder)
-  } catch (err) {
-    winston.error(err.stack)
-    return next(new Error('[[error:invalid-path]]'))
-  }
-  try {
-    const itemCount = files.length
-    const start = Math.max(0, (page - 1) * itemsPerPage)
-    const stop = start + itemsPerPage
-    files = files.slice(start, stop)
+	const currentFolder = path.join(nconf.get('upload_path'), req.query.dir || '');
+	if (!currentFolder.startsWith(nconf.get('upload_path'))) {
+		return next(new Error('[[error:invalid-path]]'));
+	}
+	const itemsPerPage = 20;
+	const page = parseInt(req.query.page, 10) || 1;
+	let files = [];
+	try {
+		await checkSymLinks(req.query.dir);
+		files = await getFilesInFolder(currentFolder);
+	} catch (err) {
+		winston.error(err.stack);
+		return next(new Error('[[error:invalid-path]]'));
+	}
+	try {
+		const itemCount = files.length;
+		const start = Math.max(0, (page - 1) * itemsPerPage);
+		const stop = start + itemsPerPage;
+		files = files.slice(start, stop);
 
-    files = await filesToData(currentFolder, files)
+		files = await filesToData(currentFolder, files);
 
-    // Float directories to the top
-    files.sort((a, b) => {
-      if (a.isDirectory && !b.isDirectory) {
-        return -1
-      } else if (!a.isDirectory && b.isDirectory) {
-        return 1
-      } else if (!a.isDirectory && !b.isDirectory) {
-        return a.mtime < b.mtime ? -1 : 1
-      }
+		// Float directories to the top
+		files.sort((a, b) => {
+			if (a.isDirectory && !b.isDirectory) {
+				return -1;
+			} else if (!a.isDirectory && b.isDirectory) {
+				return 1;
+			} else if (!a.isDirectory && !b.isDirectory) {
+				return a.mtime < b.mtime ? -1 : 1;
+			}
 
-      return 0
-    })
+			return 0;
+		});
 
-    // Add post usage info if in /files
-    if (['files', '/files', '/files/'].includes(req.query.dir)) {
-      const usage = await posts.uploads.getUsage(files)
-      files.forEach((file, idx) => {
-        file.inPids = usage[idx].map(pid => parseInt(pid, 10))
-      })
-    }
-    res.render('admin/manage/uploads', {
-      currentFolder: currentFolder.replace(nconf.get('upload_path'), ''),
-      showPids: files.length && files[0].hasOwnProperty('inPids'),
-      files,
-      breadcrumbs: buildBreadcrumbs(currentFolder),
-      pagination: pagination.create(page, Math.ceil(itemCount / itemsPerPage), req.query)
-    })
-  } catch (err) {
-    next(err)
-  }
-}
+		// Add post usage info if in /files
+		if (['files', '/files', '/files/'].includes(req.query.dir)) {
+			const usage = await posts.uploads.getUsage(files);
+			files.forEach((file, idx) => {
+				file.inPids = usage[idx].map(pid => parseInt(pid, 10));
+			});
+		}
+		res.render('admin/manage/uploads', {
+			currentFolder: currentFolder.replace(nconf.get('upload_path'), ''),
+			showPids: files.length && files[0].hasOwnProperty('inPids'),
+			files,
+			breadcrumbs: buildBreadcrumbs(currentFolder),
+			pagination: pagination.create(page, Math.ceil(itemCount / itemsPerPage), req.query),
+		});
+	} catch (err) {
+		next(err);
+	}
+};
 
 async function checkSymLinks (folder) {
-  let dir = path.normalize(folder || '')
-  while (dir.length && dir !== '.') {
-    const nextPath = path.join(nconf.get('upload_path'), dir)
-    // eslint-disable-next-line no-await-in-loop
-    const stat = await fs.promises.lstat(nextPath)
-    if (stat.isSymbolicLink()) {
-      throw new Error('[[invalid-path]]')
-    }
-    const newDir = path.dirname(dir)
-    if (newDir === dir) {
-      break
-    }
-    dir = newDir
-  }
+	let dir = path.normalize(folder || '');
+	while (dir.length && dir !== '.') {
+		const nextPath = path.join(nconf.get('upload_path'), dir);
+		// eslint-disable-next-line no-await-in-loop
+		const stat = await fs.promises.lstat(nextPath);
+		if (stat.isSymbolicLink()) {
+			throw new Error('[[invalid-path]]');
+		}
+		const newDir = path.dirname(dir);
+		if (newDir === dir) {
+			break;
+		}
+		dir = newDir;
+	}
 }
 
 async function getFilesInFolder (folder) {
-  const dirents = await fs.promises.readdir(folder, { withFileTypes: true })
-  const files = []
-  for await (const dirent of dirents) {
-    if (!dirent.isSymbolicLink() && dirent.name !== '.gitignore') {
-      files.push(dirent.name)
-    }
-  }
-  return files
+	const dirents = await fs.promises.readdir(folder, { withFileTypes: true });
+	const files = [];
+	for await (const dirent of dirents) {
+		if (!dirent.isSymbolicLink() && dirent.name !== '.gitignore') {
+			files.push(dirent.name);
+		}
+	}
+	return files;
 }
 
 function buildBreadcrumbs (currentFolder) {
-  const crumbs = []
-  const parts = currentFolder.replace(nconf.get('upload_path'), '').split(path.sep)
-  let currentPath = ''
-  parts.forEach((part, i) => {
-    const dir = path.join(currentPath, part)
-    const crumb = {
-      text: part || 'Uploads'
-    }
-    if (i < parts.length - 1) {
-      crumb.url = part
-        ? (`${nconf.get('relative_path')}/admin/manage/uploads?dir=${dir}`)
-        : `${nconf.get('relative_path')}/admin/manage/uploads`
-    }
-    crumbs.push(crumb)
-    currentPath = dir
-  })
+	const crumbs = [];
+	const parts = currentFolder.replace(nconf.get('upload_path'), '').split(path.sep);
+	let currentPath = '';
+	parts.forEach((part, i) => {
+		const dir = path.join(currentPath, part);
+		const crumb = {
+			text: part || 'Uploads',
+		};
+		if (i < parts.length - 1) {
+			crumb.url = part ?
+				(`${nconf.get('relative_path')}/admin/manage/uploads?dir=${dir}`) :
+				`${nconf.get('relative_path')}/admin/manage/uploads`;
+		}
+		crumbs.push(crumb);
+		currentPath = dir;
+	});
 
-  return crumbs
+	return crumbs;
 }
 
 async function filesToData (currentDir, files) {
-  return await Promise.all(files.map(file => getFileData(currentDir, file)))
+	return await Promise.all(files.map(file => getFileData(currentDir, file)));
 }
 
 async function getFileData (currentDir, file) {
-  const pathToFile = path.join(currentDir, file)
-  const stat = await fs.promises.stat(pathToFile)
-  let filesInDir = []
-  if (stat.isDirectory()) {
-    filesInDir = await getFilesInFolder(pathToFile)
-  }
-  const url = `${nconf.get('upload_url') + currentDir.replace(nconf.get('upload_path'), '')}/${file}`
-  return {
-    name: file,
-    path: pathToFile.replace(path.join(nconf.get('upload_path'), '/'), ''),
-    url,
-    fileCount: filesInDir.length,
-    size: stat.size,
-    sizeHumanReadable: `${(stat.size / 1024).toFixed(1)}KiB`,
-    isDirectory: stat.isDirectory(),
-    isFile: stat.isFile(),
-    mtime: stat.mtimeMs
-  }
+	const pathToFile = path.join(currentDir, file);
+	const stat = await fs.promises.stat(pathToFile);
+	let filesInDir = [];
+	if (stat.isDirectory()) {
+		filesInDir = await getFilesInFolder(pathToFile);
+	}
+	const url = `${nconf.get('upload_url') + currentDir.replace(nconf.get('upload_path'), '')}/${file}`;
+	return {
+		name: file,
+		path: pathToFile.replace(path.join(nconf.get('upload_path'), '/'), ''),
+		url,
+		fileCount: filesInDir.length,
+		size: stat.size,
+		sizeHumanReadable: `${(stat.size / 1024).toFixed(1)}KiB`,
+		isDirectory: stat.isDirectory(),
+		isFile: stat.isFile(),
+		mtime: stat.mtimeMs,
+	};
 }
 
 uploadsController.uploadCategoryPicture = async function (req, res, next) {
-  const uploadedFile = req.files.files[0]
-  let params = null
+	const uploadedFile = req.files.files[0];
+	let params = null;
 
-  try {
-    params = JSON.parse(req.body.params)
-  } catch (e) {
-    file.delete(uploadedFile.path)
-    return next(new Error('[[error:invalid-json]]'))
-  }
+	try {
+		params = JSON.parse(req.body.params);
+	} catch (e) {
+		file.delete(uploadedFile.path);
+		return next(new Error('[[error:invalid-json]]'));
+	}
 
-  await validateUpload(uploadedFile, allowedImageTypes)
-  const filename = `category-${params.cid}${path.extname(uploadedFile.name)}`
-  await uploadImage(filename, 'category', uploadedFile, req, res, next)
-}
+	await validateUpload(uploadedFile, allowedImageTypes);
+	const filename = `category-${params.cid}${path.extname(uploadedFile.name)}`;
+	await uploadImage(filename, 'category', uploadedFile, req, res, next);
+};
 
 uploadsController.uploadFavicon = async function (req, res, next) {
-  const uploadedFile = req.files.files[0]
-  const allowedTypes = ['image/x-icon', 'image/vnd.microsoft.icon']
+	const uploadedFile = req.files.files[0];
+	const allowedTypes = ['image/x-icon', 'image/vnd.microsoft.icon'];
 
-  await validateUpload(uploadedFile, allowedTypes)
-  try {
-    const imageObj = await file.saveFileToLocal('favicon.ico', 'system', uploadedFile.path)
-    res.json([{ name: uploadedFile.name, url: imageObj.url }])
-  } catch (err) {
-    next(err)
-  } finally {
-    file.delete(uploadedFile.path)
-  }
-}
+	await validateUpload(uploadedFile, allowedTypes);
+	try {
+		const imageObj = await file.saveFileToLocal('favicon.ico', 'system', uploadedFile.path);
+		res.json([{ name: uploadedFile.name, url: imageObj.url }]);
+	} catch (err) {
+		next(err);
+	} finally {
+		file.delete(uploadedFile.path);
+	}
+};
 
 uploadsController.uploadTouchIcon = async function (req, res, next) {
-  const uploadedFile = req.files.files[0]
-  const allowedTypes = ['image/png']
-  const sizes = [36, 48, 72, 96, 144, 192, 512]
+	const uploadedFile = req.files.files[0];
+	const allowedTypes = ['image/png'];
+	const sizes = [36, 48, 72, 96, 144, 192, 512];
 
-  await validateUpload(uploadedFile, allowedTypes)
-  try {
-    const imageObj = await file.saveFileToLocal('touchicon-orig.png', 'system', uploadedFile.path)
-    // Resize the image into squares for use as touch icons at various DPIs
-    for (const size of sizes) {
-      /* eslint-disable no-await-in-loop */
-      await image.resizeImage({
-        path: uploadedFile.path,
-        target: path.join(nconf.get('upload_path'), 'system', `touchicon-${size}.png`),
-        width: size,
-        height: size
-      })
-    }
-    res.json([{ name: uploadedFile.name, url: imageObj.url }])
-  } catch (err) {
-    next(err)
-  } finally {
-    file.delete(uploadedFile.path)
-  }
-}
+	await validateUpload(uploadedFile, allowedTypes);
+	try {
+		const imageObj = await file.saveFileToLocal('touchicon-orig.png', 'system', uploadedFile.path);
+		// Resize the image into squares for use as touch icons at various DPIs
+		for (const size of sizes) {
+			/* eslint-disable no-await-in-loop */
+			await image.resizeImage({
+				path: uploadedFile.path,
+				target: path.join(nconf.get('upload_path'), 'system', `touchicon-${size}.png`),
+				width: size,
+				height: size,
+			});
+		}
+		res.json([{ name: uploadedFile.name, url: imageObj.url }]);
+	} catch (err) {
+		next(err);
+	} finally {
+		file.delete(uploadedFile.path);
+	}
+};
 
 uploadsController.uploadMaskableIcon = async function (req, res, next) {
-  const uploadedFile = req.files.files[0]
-  const allowedTypes = ['image/png']
+	const uploadedFile = req.files.files[0];
+	const allowedTypes = ['image/png'];
 
-  await validateUpload(uploadedFile, allowedTypes)
-  try {
-    const imageObj = await file.saveFileToLocal('maskableicon-orig.png', 'system', uploadedFile.path)
-    res.json([{ name: uploadedFile.name, url: imageObj.url }])
-  } catch (err) {
-    next(err)
-  } finally {
-    file.delete(uploadedFile.path)
-  }
-}
+	await validateUpload(uploadedFile, allowedTypes);
+	try {
+		const imageObj = await file.saveFileToLocal('maskableicon-orig.png', 'system', uploadedFile.path);
+		res.json([{ name: uploadedFile.name, url: imageObj.url }]);
+	} catch (err) {
+		next(err);
+	} finally {
+		file.delete(uploadedFile.path);
+	}
+};
 
 uploadsController.uploadFile = async function (req, res, next) {
-  const uploadedFile = req.files.files[0]
-  let params
-  try {
-    params = JSON.parse(req.body.params)
-  } catch (e) {
-    file.delete(uploadedFile.path)
-    return next(new Error('[[error:invalid-json]]'))
-  }
+	const uploadedFile = req.files.files[0];
+	let params;
+	try {
+		params = JSON.parse(req.body.params);
+	} catch (e) {
+		file.delete(uploadedFile.path);
+		return next(new Error('[[error:invalid-json]]'));
+	}
 
-  if (!await file.exists(path.join(nconf.get('upload_path'), params.folder))) {
-    return next(new Error('[[error:invalid-path]]'))
-  }
-  try {
-    const data = await file.saveFileToLocal(uploadedFile.name, params.folder, uploadedFile.path)
-    res.json([{ url: data.url }])
-  } catch (err) {
-    next(err)
-  } finally {
-    file.delete(uploadedFile.path)
-  }
-}
+	if (!await file.exists(path.join(nconf.get('upload_path'), params.folder))) {
+		return next(new Error('[[error:invalid-path]]'));
+	}
+	try {
+		const data = await file.saveFileToLocal(uploadedFile.name, params.folder, uploadedFile.path);
+		res.json([{ url: data.url }]);
+	} catch (err) {
+		next(err);
+	} finally {
+		file.delete(uploadedFile.path);
+	}
+};
 
 uploadsController.uploadLogo = async function (req, res, next) {
-  await upload('site-logo', req, res, next)
-}
+	await upload('site-logo', req, res, next);
+};
 
 uploadsController.uploadDefaultAvatar = async function (req, res, next) {
-  await upload('avatar-default', req, res, next)
-}
+	await upload('avatar-default', req, res, next);
+};
 
 uploadsController.uploadOgImage = async function (req, res, next) {
-  await upload('og:image', req, res, next)
-}
+	await upload('og:image', req, res, next);
+};
 
 async function upload (name, req, res, next) {
-  const uploadedFile = req.files.files[0]
+	const uploadedFile = req.files.files[0];
 
-  await validateUpload(uploadedFile, allowedImageTypes)
-  const filename = name + path.extname(uploadedFile.name)
-  await uploadImage(filename, 'system', uploadedFile, req, res, next)
+	await validateUpload(uploadedFile, allowedImageTypes);
+	const filename = name + path.extname(uploadedFile.name);
+	await uploadImage(filename, 'system', uploadedFile, req, res, next);
 }
 
 async function validateUpload (uploadedFile, allowedTypes) {
-  if (!allowedTypes.includes(uploadedFile.type)) {
-    file.delete(uploadedFile.path)
-    throw new Error(`[[error:invalid-image-type, ${allowedTypes.join('&#44; ')}]]`)
-  }
+	if (!allowedTypes.includes(uploadedFile.type)) {
+		file.delete(uploadedFile.path);
+		throw new Error(`[[error:invalid-image-type, ${allowedTypes.join('&#44; ')}]]`);
+	}
 }
 
 async function uploadImage (filename, folder, uploadedFile, req, res, next) {
-  let imageData
-  try {
-    if (plugins.hooks.hasListeners('filter:uploadImage')) {
-      imageData = await plugins.hooks.fire('filter:uploadImage', { image: uploadedFile, uid: req.uid, folder })
-    } else {
-      imageData = await file.saveFileToLocal(filename, folder, uploadedFile.path)
-    }
+	let imageData;
+	try {
+		if (plugins.hooks.hasListeners('filter:uploadImage')) {
+			imageData = await plugins.hooks.fire('filter:uploadImage', { image: uploadedFile, uid: req.uid, folder });
+		} else {
+			imageData = await file.saveFileToLocal(filename, folder, uploadedFile.path);
+		}
 
-    if (path.basename(filename, path.extname(filename)) === 'site-logo' && folder === 'system') {
-      const uploadPath = path.join(nconf.get('upload_path'), folder, 'site-logo-x50.png')
-      await image.resizeImage({
-        path: uploadedFile.path,
-        target: uploadPath,
-        height: 50
-      })
-      await meta.configs.set('brand:emailLogo', path.join(nconf.get('upload_url'), 'system/site-logo-x50.png'))
-      const size = await image.size(uploadedFile.path)
-      await meta.configs.setMultiple({
-        'brand:logo:width': size.width,
-        'brand:logo:height': size.height
-      })
-    } else if (path.basename(filename, path.extname(filename)) === 'og:image' && folder === 'system') {
-      const size = await image.size(uploadedFile.path)
-      await meta.configs.setMultiple({
-        'og:image:width': size.width,
-        'og:image:height': size.height
-      })
-    }
-    res.json([{ name: uploadedFile.name, url: imageData.url.startsWith('http') ? imageData.url : nconf.get('relative_path') + imageData.url }])
-  } catch (err) {
-    next(err)
-  } finally {
-    file.delete(uploadedFile.path)
-  }
+		if (path.basename(filename, path.extname(filename)) === 'site-logo' && folder === 'system') {
+			const uploadPath = path.join(nconf.get('upload_path'), folder, 'site-logo-x50.png');
+			await image.resizeImage({
+				path: uploadedFile.path,
+				target: uploadPath,
+				height: 50,
+			});
+			await meta.configs.set('brand:emailLogo', path.join(nconf.get('upload_url'), 'system/site-logo-x50.png'));
+			const size = await image.size(uploadedFile.path);
+			await meta.configs.setMultiple({
+				'brand:logo:width': size.width,
+				'brand:logo:height': size.height,
+			});
+		} else if (path.basename(filename, path.extname(filename)) === 'og:image' && folder === 'system') {
+			const size = await image.size(uploadedFile.path);
+			await meta.configs.setMultiple({
+				'og:image:width': size.width,
+				'og:image:height': size.height,
+			});
+		}
+		res.json([{ name: uploadedFile.name, url: imageData.url.startsWith('http') ? imageData.url : nconf.get('relative_path') + imageData.url }]);
+	} catch (err) {
+		next(err);
+	} finally {
+		file.delete(uploadedFile.path);
+	}
 }

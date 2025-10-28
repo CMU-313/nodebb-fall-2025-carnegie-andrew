@@ -1,82 +1,82 @@
-'use strict'
+'use strict';
 
-const winston = require('winston')
-const os = require('os')
-const nconf = require('nconf')
+const winston = require('winston');
+const os = require('os');
+const nconf = require('nconf');
 
-const pubsub = require('../pubsub')
-const slugify = require('../slugify')
+const pubsub = require('../pubsub');
+const slugify = require('../slugify');
 
-const Meta = module.exports
+const Meta = module.exports;
 
-Meta.reloadRequired = false
+Meta.reloadRequired = false;
 
-Meta.configs = require('./configs')
-Meta.themes = require('./themes')
-Meta.js = require('./js')
-Meta.css = require('./css')
-Meta.settings = require('./settings')
-Meta.logs = require('./logs')
-Meta.errors = require('./errors')
-Meta.tags = require('./tags')
-Meta.dependencies = require('./dependencies')
-Meta.templates = require('./templates')
-Meta.blacklist = require('./blacklist')
-Meta.languages = require('./languages')
+Meta.configs = require('./configs');
+Meta.themes = require('./themes');
+Meta.js = require('./js');
+Meta.css = require('./css');
+Meta.settings = require('./settings');
+Meta.logs = require('./logs');
+Meta.errors = require('./errors');
+Meta.tags = require('./tags');
+Meta.dependencies = require('./dependencies');
+Meta.templates = require('./templates');
+Meta.blacklist = require('./blacklist');
+Meta.languages = require('./languages');
 
-const user = require('../user')
-const groups = require('../groups')
-const categories = require('../categories')
+const user = require('../user');
+const groups = require('../groups');
+const categories = require('../categories');
 
 Meta.slugTaken = async function (slug) {
-  const isArray = Array.isArray(slug)
-  if ((isArray && slug.some(slug => !slug)) || (!isArray && !slug)) {
-    throw new Error('[[error:invalid-data]]')
-  }
+	const isArray = Array.isArray(slug);
+	if ((isArray && slug.some(slug => !slug)) || (!isArray && !slug)) {
+		throw new Error('[[error:invalid-data]]');
+	}
 
-  slug = isArray ? slug.map(s => slugify(s, false)) : slugify(slug)
+	slug = isArray ? slug.map(s => slugify(s, false)) : slugify(slug);
 
-  const [userExists, groupExists, categoryExists] = await Promise.all([
-    user.existsBySlug(slug),
-    groups.existsBySlug(slug),
-    categories.existsByHandle(slug)
-  ])
+	const [userExists, groupExists, categoryExists] = await Promise.all([
+		user.existsBySlug(slug),
+		groups.existsBySlug(slug),
+		categories.existsByHandle(slug),
+	]);
 
-  return isArray
-    ? slug.map((s, i) => userExists[i] || groupExists[i] || categoryExists[i])
-    : (userExists || groupExists || categoryExists)
-}
+	return isArray ?
+		slug.map((s, i) => userExists[i] || groupExists[i] || categoryExists[i]) :
+		(userExists || groupExists || categoryExists);
+};
 
-Meta.userOrGroupExists = Meta.slugTaken // backwards compatiblity
+Meta.userOrGroupExists = Meta.slugTaken; // backwards compatiblity
 
 if (nconf.get('isPrimary')) {
-  pubsub.on('meta:restart', (data) => {
-    if (data.hostname !== os.hostname()) {
-      restart()
-    }
-  })
+	pubsub.on('meta:restart', (data) => {
+		if (data.hostname !== os.hostname()) {
+			restart();
+		}
+	});
 }
 
 Meta.restart = function () {
-  pubsub.publish('meta:restart', { hostname: os.hostname() })
-  restart()
-}
+	pubsub.publish('meta:restart', { hostname: os.hostname() });
+	restart();
+};
 
 function restart () {
-  if (process.send) {
-    process.send({
-      action: 'restart'
-    })
-  } else {
-    winston.error('[meta.restart] Could not restart, are you sure NodeBB was started with `./nodebb start`?')
-  }
+	if (process.send) {
+		process.send({
+			action: 'restart',
+		});
+	} else {
+		winston.error('[meta.restart] Could not restart, are you sure NodeBB was started with `./nodebb start`?');
+	}
 }
 
 Meta.getSessionTTLSeconds = function () {
-  const ttlDays = 60 * 60 * 24 * Meta.config.loginDays
-  const ttlSeconds = Meta.config.loginSeconds
-  const ttl = ttlSeconds || ttlDays || 1209600 // Default to 14 days
-  return ttl
-}
+	const ttlDays = 60 * 60 * 24 * Meta.config.loginDays;
+	const ttlSeconds = Meta.config.loginSeconds;
+	const ttl = ttlSeconds || ttlDays || 1209600; // Default to 14 days
+	return ttl;
+};
 
-require('../promisify')(Meta)
+require('../promisify')(Meta);
