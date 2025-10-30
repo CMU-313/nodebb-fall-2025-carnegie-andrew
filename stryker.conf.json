@@ -1,0 +1,35 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "packageManager": "npm",
+  "reporters": ["html", "clear-text", "progress", "json"],
+  "testRunner": "mocha",
+  "coverageAnalysis": "perTest",
+  "mutate": [
+    "src/controllers/write/topics.js"
+  ],
+  "ignorePatterns": [
+    "build/**",
+    "node_modules/**",
+    "coverage/**",
+    "public/**",
+    "vendor/**",
+    "logs/**",
+    "stryker-tmp/**",
+    "*.log"
+  ],
+  "mochaOptions": {
+    "spec": ["test/pins_spec.js"]
+  },
+  "timeoutMS": 30000,
+  "tempDirName": "stryker-tmp",
+  "concurrency": 2,
+  "ignoreStatic": true,
+  "disableTypeChecks": "{src,lib,test}/**/*.js",
+  "htmlReporter": {
+    "fileName": "reports/mutation/index.html"
+  },
+  "jsonReporter": {
+    "fileName": "reports/mutation/mutation-report.json"
+  }
+}
+
