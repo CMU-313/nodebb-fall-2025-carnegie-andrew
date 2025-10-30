@@ -31,7 +31,7 @@ groupsController.list = async function (req, res) {
 
 	res.render('groups/list', {
 		groups: groupData,
-		allowGroupCreation: allowGroupCreation,
+		allowGroupCreation,
 		sort: validator.escape(String(sort)),
 		pagination: pagination.create(page, pageCount, req.query),
 		title: '[[pages:groups]]',
@@ -39,7 +39,7 @@ groupsController.list = async function (req, res) {
 	});
 };
 
-async function getGroups(req, sort, page) {
+async function getGroups (req, sort, page) {
 	const resultsPerPage = req.query.query ? 100 : 15;
 	const start = Math.max(0, page - 1) * resultsPerPage;
 	const stop = start + resultsPerPage - 1;
@@ -48,7 +48,7 @@ async function getGroups(req, sort, page) {
 		const filterHidden = req.query.filterHidden === 'true' || !await user.isAdministrator(req.uid);
 		const groupData = await groups.search(req.query.query, {
 			sort,
-			filterHidden: filterHidden,
+			filterHidden,
 			showMembers: req.query.showMembers === 'true',
 			hideEphemeralGroups: req.query.hideEphemeralGroups === 'true',
 			excludeGroups: Array.isArray(req.query.excludeGroups) ? req.query.excludeGroups : [],
@@ -120,9 +120,9 @@ groupsController.details = async function (req, res, next) {
 	res.render('groups/details', {
 		title: `[[pages:group, ${groupData.displayName}]]`,
 		group: groupData,
-		posts: posts,
-		isAdmin: isAdmin,
-		isGlobalMod: isGlobalMod,
+		posts,
+		isAdmin,
+		isGlobalMod,
 		allowPrivateGroups: meta.config.allowPrivateGroups,
 		breadcrumbs: helpers.buildBreadcrumbs([{ text: '[[pages:groups]]', url: '/groups' }, { text: groupData.displayName }]),
 	});
@@ -157,8 +157,8 @@ groupsController.members = async function (req, res, next) {
 
 	const pageCount = Math.max(1, Math.ceil(groupData.memberCount / usersPerPage));
 	res.render('groups/members', {
-		users: users,
+		users,
 		pagination: pagination.create(page, pageCount, req.query),
-		breadcrumbs: breadcrumbs,
+		breadcrumbs,
 	});
 };

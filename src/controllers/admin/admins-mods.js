@@ -35,16 +35,16 @@ AdminsMods.get = async function (req, res) {
 	]);
 
 	res.render('admin/manage/admins-mods', {
-		admins: admins,
-		globalMods: globalMods,
+		admins,
+		globalMods,
 		categoryMods: moderators,
-		selectedCategory: selectedCategory,
+		selectedCategory,
 		pagination: pagination.create(page, pageCount, req.query),
 		breadcrumbs: crumbs,
 	});
 };
 
-async function getModeratorsOfCategories(categoryData) {
+async function getModeratorsOfCategories (categoryData) {
 	const [moderatorUids, childrenCounts] = await Promise.all([
 		categories.getModeratorUids(categoryData.map(c => c.cid)),
 		db.sortedSetsCard(categoryData.map(c => `cid:${c.cid}:children`)),

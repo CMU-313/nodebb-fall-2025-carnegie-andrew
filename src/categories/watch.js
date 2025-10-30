@@ -35,7 +35,8 @@ module.exports = function (Categories) {
 		]);
 
 		const fallbacks = cids.map(cid => (utils.isNumber(cid) ?
-			Categories.watchStates[userSettings.categoryWatchState] : Categories.watchStates.notwatching));
+			Categories.watchStates[userSettings.categoryWatchState] :
+			Categories.watchStates.notwatching));
 
 		return states.map((state, idx) => state || fallbacks[idx]);
 	};

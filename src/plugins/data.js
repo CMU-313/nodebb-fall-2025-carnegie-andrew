@@ -16,7 +16,7 @@ const basePath = path.join(__dirname, '../../');
 
 // to get this functionality use `plugins.getActive()` from `src/plugins/install.js` instead
 // this method duplicates that one, because requiring that file here would have side effects
-async function getActiveIds() {
+async function getActiveIds () {
 	if (nconf.get('plugins:active')) {
 		return nconf.get('plugins:active');
 	}
@@ -66,7 +66,7 @@ Data.loadPluginInfo = async function (pluginPath) {
 	return pluginData;
 };
 
-function parseLicense(packageData) {
+function parseLicense (packageData) {
 	try {
 		const licenseData = require(`spdx-license-list/licenses/${packageData.license}`);
 		return {
@@ -84,7 +84,6 @@ Data.getActive = async function () {
 	return await Promise.all(pluginPaths.map(p => Data.loadPluginInfo(p)));
 };
 
-
 Data.getStaticDirectories = async function (pluginData) {
 	const validMappedPath = /^[\w\-_]+$/;
 
@@ -99,7 +98,7 @@ Data.getStaticDirectories = async function (pluginData) {
 
 	const staticDirs = {};
 
-	async function processDir(route) {
+	async function processDir (route) {
 		if (!validMappedPath.test(route)) {
 			winston.warn(`[plugins/${pluginData.id}] Invalid mapped path specified: ${
 				route}. Path must adhere to: ${validMappedPath.toString()}`);
@@ -135,7 +134,6 @@ Data.getStaticDirectories = async function (pluginData) {
 	return staticDirs;
 };
 
-
 Data.getFiles = async function (pluginData, type) {
 	if (!Array.isArray(pluginData[type]) || !pluginData[type].length) {
 		return;
@@ -150,7 +148,7 @@ Data.getFiles = async function (pluginData, type) {
  * With npm@3, dependencies can become flattened, and appear at the root level.
  * This method resolves these differences if it can.
  */
-async function resolveModulePath(basePath, modulePath) {
+async function resolveModulePath (basePath, modulePath) {
 	const isNodeModule = /node_modules/;
 
 	const currentPath = path.join(basePath, modulePath);
@@ -172,8 +170,7 @@ async function resolveModulePath(basePath, modulePath) {
 	return await resolveModulePath(dirPath, modulePath);
 }
 
-
-Data.getScripts = async function getScripts(pluginData, target) {
+Data.getScripts = async function getScripts (pluginData, target) {
 	target = (target === 'client') ? 'scripts' : 'acpScripts';
 
 	const input = pluginData[target];
@@ -196,8 +193,7 @@ Data.getScripts = async function getScripts(pluginData, target) {
 	return scripts;
 };
 
-
-Data.getModules = async function getModules(pluginData) {
+Data.getModules = async function getModules (pluginData) {
 	if (!pluginData.modules || !pluginData.hasOwnProperty('modules')) {
 		return;
 	}
@@ -221,7 +217,7 @@ Data.getModules = async function getModules(pluginData) {
 	}
 
 	const modules = {};
-	async function processModule(key) {
+	async function processModule (key) {
 		const modulePath = await resolveModulePath(pluginData.path, pluginModules[key]);
 		if (modulePath) {
 			modules[key] = path.relative(basePath, modulePath);
@@ -235,7 +231,7 @@ Data.getModules = async function getModules(pluginData) {
 	return modules;
 };
 
-Data.getLanguageData = async function getLanguageData(pluginData) {
+Data.getLanguageData = async function getLanguageData (pluginData) {
 	if (typeof pluginData.languages !== 'string') {
 		return;
 	}

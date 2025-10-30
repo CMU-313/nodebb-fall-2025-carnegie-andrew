@@ -14,7 +14,7 @@ const analytics = require('../analytics');
 const reset = require('./reset');
 const { pluginNamePattern, themeNamePattern, paths } = require('../constants');
 
-async function install(plugin, options) {
+async function install (plugin, options) {
 	if (!options) {
 		options = {};
 	}
@@ -50,7 +50,7 @@ async function install(plugin, options) {
 	}
 }
 
-async function activate(plugin) {
+async function activate (plugin) {
 	if (themeNamePattern.test(plugin)) {
 		await reset.reset({
 			theme: plugin,
@@ -94,7 +94,7 @@ async function activate(plugin) {
 	}
 }
 
-async function listPlugins() {
+async function listPlugins () {
 	await db.init();
 	const installed = await plugins.showInstalled();
 	const installedList = installed.map(plugin => plugin.name);
@@ -128,7 +128,7 @@ async function listPlugins() {
 	process.exit();
 }
 
-async function listEvents(count = 10) {
+async function listEvents (count = 10) {
 	await db.init();
 	const eventData = await events.getEvents({
 		filter: '',
@@ -142,7 +142,7 @@ async function listEvents(count = 10) {
 	process.exit();
 }
 
-async function info() {
+async function info () {
 	console.log('');
 	const { version } = require('../../package.json');
 	console.log(`  version:  ${version}`);
@@ -195,7 +195,7 @@ async function info() {
 	process.exit();
 }
 
-async function maintenance(toggle) {
+async function maintenance (toggle) {
 	const turnOnMaintenance = toggle === 'true';
 	await db.init();
 	await db.setObjectField('config', 'maintenanceMode', turnOnMaintenance ? 1 : 0);
@@ -203,7 +203,7 @@ async function maintenance(toggle) {
 	process.exit();
 }
 
-async function buildWrapper(targets, options) {
+async function buildWrapper (targets, options) {
 	try {
 		await build.build(targets, options);
 		process.exit(0);

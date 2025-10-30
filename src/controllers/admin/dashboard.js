@@ -31,22 +31,22 @@ dashboardController.get = async function (req, res) {
 	const latestValidVersion = semver.valid(latestVersion);
 
 	res.render('admin/dashboard', {
-		version: version,
+		version,
 		lookupFailed: latestValidVersion === null,
 		latestVersion: latestValidVersion,
 		upgradeAvailable: latestValidVersion && semver.gt(latestValidVersion, version),
 		currentPrerelease: versions.isPrerelease.test(version),
-		notices: notices,
-		stats: stats,
+		notices,
+		stats,
 		canRestart: !!process.send,
-		lastrestart: lastrestart,
+		lastrestart,
 		showSystemControls: isAdmin,
-		popularSearches: popularSearches,
+		popularSearches,
 		hideAllTime: true,
 	});
 };
 
-async function getNotices() {
+async function getNotices () {
 	const notices = [
 		{
 			done: !meta.reloadRequired,
@@ -79,7 +79,7 @@ async function getNotices() {
 	return await plugins.hooks.fire('filter:admin.notices', notices);
 }
 
-async function getLatestVersion() {
+async function getLatestVersion () {
 	try {
 		return await versions.getLatestVersion();
 	} catch (err) {
@@ -115,14 +115,14 @@ dashboardController.getAnalytics = async (req, res, next) => {
 		query: {
 			set: req.query.set,
 			units: req.query.units,
-			until: until,
-			count: count,
+			until,
+			count,
 		},
 		result: payload,
 	});
 };
 
-async function getStats() {
+async function getStats () {
 	const cache = require('../../cache');
 	const cachedStats = cache.get('admin:stats');
 	if (cachedStats !== undefined) {
@@ -159,7 +159,7 @@ async function getStats() {
 	return results;
 }
 
-async function getStatsForSet(set, field) {
+async function getStatsForSet (set, field) {
 	const terms = {
 		day: 86400000,
 		week: 604800000,
@@ -180,7 +180,7 @@ async function getStatsForSet(set, field) {
 	return calculateDeltas(results);
 }
 
-async function getStatsFromAnalytics(set, field) {
+async function getStatsFromAnalytics (set, field) {
 	const today = new Date();
 	today.setHours(0, 0, 0, 0);
 
@@ -199,8 +199,8 @@ async function getStatsFromAnalytics(set, field) {
 	return calculateDeltas(results);
 }
 
-function calculateDeltas(results) {
-	function textClass(num) {
+function calculateDeltas (results) {
+	function textClass (num) {
 		if (num > 0) {
 			return 'text-success';
 		} else if (num < 0) {
@@ -209,7 +209,7 @@ function calculateDeltas(results) {
 		return 'text-warning';
 	}
 
-	function increasePercent(last, now) {
+	function increasePercent (last, now) {
 		const percent = last ? (now - last) / last * 100 : 0;
 		return percent.toFixed(1);
 	}
@@ -228,13 +228,13 @@ function calculateDeltas(results) {
 	return results;
 }
 
-async function getGlobalField(field) {
+async function getGlobalField (field) {
 	if (!field) return 0;
 	const count = await db.getObjectField('global', field);
 	return parseInt(count, 10) || 0;
 }
 
-async function getLastRestart() {
+async function getLastRestart () {
 	const lastrestart = await db.getObject('lastrestart');
 	if (!lastrestart) {
 		return null;
@@ -245,7 +245,7 @@ async function getLastRestart() {
 	return lastrestart;
 }
 
-async function getPopularSearches() {
+async function getPopularSearches () {
 	const searches = await db.getSortedSetRevRangeWithScores('searches:all', 0, 9);
 	return searches.map(s => ({ value: validator.escape(String(s.value)), score: s.score }));
 }

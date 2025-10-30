@@ -1,4 +1,3 @@
-
 'use strict';
 
 const user = require('../user');
@@ -19,7 +18,7 @@ SocketBlacklist.addRule = async function (socket, rule) {
 	await blacklist(socket, 'addRule', rule);
 };
 
-async function blacklist(socket, method, rule) {
+async function blacklist (socket, method, rule) {
 	const isAdminOrGlobalMod = await user.isAdminOrGlobalMod(socket.uid);
 	if (!isAdminOrGlobalMod) {
 		throw new Error('[[error:no-privileges]]');
@@ -33,7 +32,7 @@ async function blacklist(socket, method, rule) {
 		type: `ip-blacklist-${method}`,
 		uid: socket.uid,
 		ip: socket.ip,
-		rule: rule,
+		rule,
 	});
 }
 

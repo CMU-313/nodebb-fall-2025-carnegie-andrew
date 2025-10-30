@@ -106,7 +106,7 @@ editController.email = async function (req, res, next) {
 	helpers.redirect(res, '/register/complete');
 };
 
-async function renderRoute(name, req, res) {
+async function renderRoute (name, req, res) {
 	const { userData } = res.locals;
 	const [isAdmin, { username, userslug }, hasPassword] = await Promise.all([
 		privileges.admin.can('admin:users', req.uid),

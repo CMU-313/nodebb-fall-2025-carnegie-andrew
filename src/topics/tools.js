@@ -10,7 +10,6 @@ const plugins = require('../plugins');
 const privileges = require('../privileges');
 const utils = require('../utils');
 
-
 module.exports = function (Topics) {
 	const topicTools = {};
 	Topics.tools = topicTools;
@@ -23,7 +22,7 @@ module.exports = function (Topics) {
 		return await toggleDelete(tid, uid, false);
 	};
 
-	async function toggleDelete(tid, uid, isDelete) {
+	async function toggleDelete (tid, uid, isDelete) {
 		const topicData = await Topics.getTopicData(tid);
 		if (!topicData) {
 			throw new Error('[[error:no-topic]]');
@@ -35,7 +34,7 @@ module.exports = function (Topics) {
 		const canDelete = await privileges.topics.canDelete(tid, uid);
 
 		const hook = isDelete ? 'delete' : 'restore';
-		const data = await plugins.hooks.fire(`filter:topic.${hook}`, { topicData: topicData, uid: uid, isDelete: isDelete, canDelete: canDelete, canRestore: canDelete });
+		const data = await plugins.hooks.fire(`filter:topic.${hook}`, { topicData, uid, isDelete, canDelete, canRestore: canDelete });
 
 		if ((!data.canDelete && data.isDelete) || (!data.canRestore && !data.isDelete)) {
 			throw new Error('[[error:no-privileges]]');
@@ -81,7 +80,7 @@ module.exports = function (Topics) {
 		}
 
 		await Topics.purgePostsAndTopic(tid, uid);
-		return { tid: tid, cid: topicData.cid, uid: uid };
+		return { tid, cid: topicData.cid, uid };
 	};
 
 	topicTools.lock = async function (tid, uid) {
@@ -92,7 +91,7 @@ module.exports = function (Topics) {
 		return await toggleLock(tid, uid, false);
 	};
 
-	async function toggleLock(tid, uid, lock) {
+	async function toggleLock (tid, uid, lock) {
 		const topicData = await Topics.getTopicFields(tid, ['tid', 'uid', 'cid']);
 		if (!topicData || !topicData.cid) {
 			throw new Error('[[error:no-topic]]');
@@ -106,7 +105,7 @@ module.exports = function (Topics) {
 		topicData.isLocked = lock; // deprecate in v2.0
 		topicData.locked = lock;
 
-		plugins.hooks.fire('action:topic.lock', { topic: _.clone(topicData), uid: uid });
+		plugins.hooks.fire('action:topic.lock', { topic: _.clone(topicData), uid });
 		return topicData;
 	}
 
@@ -130,7 +129,7 @@ module.exports = function (Topics) {
 		}
 
 		await Topics.setTopicField(tid, 'pinExpiry', expiry);
-		plugins.hooks.fire('action:topic.setPinExpiry', { topic: _.clone(topicData), uid: uid });
+		plugins.hooks.fire('action:topic.setPinExpiry', { topic: _.clone(topicData), uid });
 	};
 
 	topicTools.checkPinExpiry = async (tids) => {
@@ -149,7 +148,7 @@ module.exports = function (Topics) {
 		return tids.filter(Boolean);
 	};
 
-	async function togglePin(tid, uid, pin) {
+	async function togglePin (tid, uid, pin) {
 		const topicData = await Topics.getTopicData(tid);
 		if (!topicData) {
 			throw new Error('[[error:no-topic]]');
@@ -279,8 +278,8 @@ module.exports = function (Topics) {
 
 		await Promise.all([
 			Topics.setTopicFields(tid, {
-				cid: cid,
-				oldCid: oldCid,
+				cid,
+				oldCid,
 			}),
 			Topics.updateCategoryTagsCount([oldCid, cid], tags),
 			oldCid !== -1 ?
@@ -309,7 +308,7 @@ module.exports = function (Topics) {
 		}
 
 		await Promise.all([
-			Topics.events.log(tid, { type: 'share', uid: uid }),
+			Topics.events.log(tid, { type: 'share', uid }),
 			db.sortedSetAdd(set, timestamp, tid),
 		]);
 	};

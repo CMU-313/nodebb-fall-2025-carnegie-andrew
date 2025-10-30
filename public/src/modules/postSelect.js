@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('postSelect', ['components'], function (components) {
 	const PostSelect = {};
 	let onSelect;
@@ -18,7 +17,7 @@ define('postSelect', ['components'], function (components) {
 		disableClicksOnPosts();
 	};
 
-	function onPostClicked(ev) {
+	function onPostClicked (ev) {
 		ev.stopPropagation();
 		const pidClicked = $(this).attr('data-pid');
 		const postEls = $('[component="topic"] [data-pid="' + pidClicked + '"]');
@@ -57,15 +56,15 @@ define('postSelect', ['components'], function (components) {
 		}
 	};
 
-	function disableClicks() {
+	function disableClicks () {
 		return false;
 	}
 
-	function disableClicksOnPosts() {
+	function disableClicksOnPosts () {
 		$('#content').on('click', '[component="post"] button, [component="post"] a', disableClicks);
 	}
 
-	function enableClicksOnPosts() {
+	function enableClicksOnPosts () {
 		$('#content').off('click', '[component="post"] button, [component="post"] a', disableClicks);
 	}
 

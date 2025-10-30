@@ -1,4 +1,3 @@
-
 'use strict';
 
 const _ = require('lodash');
@@ -24,7 +23,6 @@ module.exports = function (User) {
 		verified: ['email:confirmed'],
 		unverified: ['email:confirmed'],
 	};
-
 
 	User.search = async function (data) {
 		const query = data.query || '';
@@ -77,7 +75,7 @@ module.exports = function (User) {
 			uids.length = data.hardCap;
 		}
 
-		const result = await plugins.hooks.fire('filter:users.search', { uids: uids, uid: uid });
+		const result = await plugins.hooks.fire('filter:users.search', { uids, uid });
 		uids = result.uids;
 
 		const searchResult = {
@@ -107,11 +105,13 @@ module.exports = function (User) {
 
 		searchResult.timing = (process.elapsedTimeSince(startTime) / 1000).toFixed(2);
 		searchResult.users = userData.filter(user => (user &&
-			utils.isNumber(user.uid) ? user.uid > 0 : activitypub.helpers.isUri(user.uid)));
+			utils.isNumber(user.uid) ?
+			user.uid > 0 :
+			activitypub.helpers.isUri(user.uid)));
 		return searchResult;
 	};
 
-	async function findUids(query, searchBy, hardCap) {
+	async function findUids (query, searchBy, hardCap) {
 		if (!query) {
 			return [];
 		}
@@ -134,7 +134,7 @@ module.exports = function (User) {
 		return uids;
 	}
 
-	async function filterAndSortUids(uids, data) {
+	async function filterAndSortUids (uids, data) {
 		uids = uids.filter(uid => parseInt(uid, 10) || activitypub.helpers.isUri(uid));
 		let filters = data.filters || [];
 		filters = Array.isArray(filters) ? filters : [data.filters];
@@ -181,7 +181,7 @@ module.exports = function (User) {
 		return userData.map(user => user.uid);
 	}
 
-	function sortUsers(userData, sortBy, sortDirection) {
+	function sortUsers (userData, sortBy, sortDirection) {
 		if (!userData || !userData.length) {
 			return;
 		}
@@ -203,7 +203,7 @@ module.exports = function (User) {
 		}
 	}
 
-	async function searchByIP(ip) {
+	async function searchByIP (ip) {
 		const ipKeys = await db.scan({ match: `ip:${ip}*` });
 		const uids = await db.getSortedSetRevRange(ipKeys, 0, -1);
 		return _.uniq(uids);

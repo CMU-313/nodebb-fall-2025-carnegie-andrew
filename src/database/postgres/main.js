@@ -4,12 +4,12 @@ module.exports = function (module) {
 	const helpers = require('./helpers');
 
 	module.flushdb = async function () {
-		await module.pool.query(`DROP SCHEMA "public" CASCADE`);
-		await module.pool.query(`CREATE SCHEMA "public"`);
+		await module.pool.query('DROP SCHEMA "public" CASCADE');
+		await module.pool.query('CREATE SCHEMA "public"');
 	};
 
 	module.emptydb = async function () {
-		await module.pool.query(`DELETE FROM "legacy_object"`);
+		await module.pool.query('DELETE FROM "legacy_object"');
 	};
 
 	module.exists = async function (key) {
@@ -21,14 +21,14 @@ module.exports = function (module) {
 			return [];
 		}
 
-		async function checkIfzSetsExist(keys) {
+		async function checkIfzSetsExist (keys) {
 			const members = await Promise.all(
 				keys.map(key => module.getSortedSetRange(key, 0, 0))
 			);
 			return members.map(member => member.length > 0);
 		}
 
-		async function checkIfKeysExist(keys) {
+		async function checkIfKeysExist (keys) {
 			const res = await module.pool.query({
 				name: 'existsArray',
 				text: `
@@ -164,7 +164,6 @@ SELECT s."data", s."_key"
 		return keys.map(k => (map.hasOwnProperty(k) ? map[k] : null));
 	};
 
-
 	module.set = async function (key, value) {
 		if (!key) {
 			return;
@@ -239,7 +238,7 @@ SELECT "type"::TEXT t
 		return res.rows.length ? res.rows[0].t : null;
 	};
 
-	async function doExpire(key, date) {
+	async function doExpire (key, date) {
 		await module.pool.query({
 			name: 'expire',
 			text: `
@@ -266,7 +265,7 @@ UPDATE "legacy_object"
 		await doExpire(key, new Date(timestamp));
 	};
 
-	async function getExpire(key) {
+	async function getExpire (key) {
 		const res = await module.pool.query({
 			name: 'ttl',
 			text: `

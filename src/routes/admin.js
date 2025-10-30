@@ -55,7 +55,6 @@ module.exports = function (app, name, middleware, controllers) {
 	helpers.setupAdminPageRoute(app, `/${name}/appearance/skins`, middlewares, controllers.admin.appearance.skins);
 	helpers.setupAdminPageRoute(app, `/${name}/appearance/customise`, middlewares, controllers.admin.appearance.customise);
 
-
 	helpers.setupAdminPageRoute(app, `/${name}/extend/plugins`, middlewares, controllers.admin.plugins.get);
 	helpers.setupAdminPageRoute(app, `/${name}/extend/widgets`, middlewares, controllers.admin.extend.widgets.get);
 	helpers.setupAdminPageRoute(app, `/${name}/extend/rewards`, middlewares, controllers.admin.extend.rewards.get);
@@ -74,8 +73,7 @@ module.exports = function (app, name, middleware, controllers) {
 	apiRoutes(app, name, middleware, controllers);
 };
 
-
-function apiRoutes(router, name, middleware, controllers) {
+function apiRoutes (router, name, middleware, controllers) {
 	router.get(`/api/${name}/config`, middleware.ensureLoggedIn, helpers.tryRoute(controllers.admin.getConfig));
 	router.get(`/api/${name}/users/csv`, middleware.ensureLoggedIn, helpers.tryRoute(controllers.admin.users.getCSV));
 	router.get(`/api/${name}/groups/:groupname/csv`, middleware.ensureLoggedIn, helpers.tryRoute(controllers.admin.groups.getCSV));

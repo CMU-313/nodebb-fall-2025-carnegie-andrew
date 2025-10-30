@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/infinitescroll', ['hooks', 'alerts', 'api'], function (hooks, alerts, api) {
 	const scroll = {};
 	let callback;
@@ -27,7 +26,7 @@ define('forum/infinitescroll', ['hooks', 'alerts', 'api'], function (hooks, aler
 		}
 	};
 
-	function startScrollTimeout() {
+	function startScrollTimeout () {
 		if (scrollTimeout) {
 			clearTimeout(scrollTimeout);
 		}
@@ -37,7 +36,7 @@ define('forum/infinitescroll', ['hooks', 'alerts', 'api'], function (hooks, aler
 		}, 60);
 	}
 
-	function onScroll() {
+	function onScroll () {
 		const bsEnv = utils.findBootstrapEnvironment();
 		const mobileComposerOpen = (bsEnv === 'xs' || bsEnv === 'sm') && $('html').hasClass('composing');
 		if (loadingMore || mobileComposerOpen || app.flags._glance) {
@@ -70,7 +69,7 @@ define('forum/infinitescroll', ['hooks', 'alerts', 'api'], function (hooks, aler
 		}
 		loadingMore = true;
 
-		const hookData = { method: method, data: data };
+		const hookData = { method, data };
 		hooks.fire('action:infinitescroll.loadmore', hookData);
 
 		const call = hookData.method.startsWith('/') ? api.get : socket.emit;
@@ -92,7 +91,7 @@ define('forum/infinitescroll', ['hooks', 'alerts', 'api'], function (hooks, aler
 		}
 		loadingMore = true;
 		const url = config.relative_path + '/api' + location.pathname.replace(new RegExp('^' + config.relative_path), '');
-		const hookData = { url: url, data: data };
+		const hookData = { url, data };
 		hooks.fire('action:infinitescroll.loadmore.xhr', hookData);
 
 		$.get(url, data, function (data) {

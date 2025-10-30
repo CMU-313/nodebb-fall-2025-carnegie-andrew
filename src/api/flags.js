@@ -15,8 +15,8 @@ flagsApi.create = async (caller, data) => {
 
 	await flags.validate({
 		uid: caller.uid,
-		type: type,
-		id: id,
+		type,
+		id,
 	});
 
 	const flagObj = await flags.create(type, id, caller.uid, reason, undefined, undefined, notifyRemote);
@@ -100,7 +100,7 @@ flagsApi.appendNote = async (caller, data) => {
 		flags.getNotes(data.flagId),
 		flags.getHistory(data.flagId),
 	]);
-	return { notes: notes, history: history };
+	return { notes, history };
 };
 
 flagsApi.deleteNote = async (caller, data) => {
@@ -119,5 +119,5 @@ flagsApi.deleteNote = async (caller, data) => {
 		flags.getNotes(data.flagId),
 		flags.getHistory(data.flagId),
 	]);
-	return { notes: notes, history: history };
+	return { notes, history };
 };

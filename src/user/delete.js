@@ -40,13 +40,13 @@ module.exports = function (User) {
 		delete deletesInProgress[uid];
 	};
 
-	async function deletePosts(callerUid, uid) {
+	async function deletePosts (callerUid, uid) {
 		await batch.processSortedSet(`uid:${uid}:posts`, async (pids) => {
 			await posts.purge(pids, callerUid);
 		}, { alwaysStartAt: 0, batch: 500 });
 	}
 
-	async function deleteTopics(callerUid, uid) {
+	async function deleteTopics (callerUid, uid) {
 		await batch.processSortedSet(`uid:${uid}:topics`, async (ids) => {
 			await async.eachSeries(ids, async (tid) => {
 				await topics.purge(tid, callerUid);
@@ -54,12 +54,12 @@ module.exports = function (User) {
 		}, { alwaysStartAt: 0 });
 	}
 
-	async function deleteUploads(callerUid, uid) {
+	async function deleteUploads (callerUid, uid) {
 		const uploads = await db.getSortedSetMembers(`uid:${uid}:uploads`);
 		await User.deleteUpload(callerUid, uid, uploads);
 	}
 
-	async function deleteQueued(uid) {
+	async function deleteQueued (uid) {
 		let deleteIds = [];
 		await batch.processSortedSet('post:queue', async (ids) => {
 			const data = await db.getObjects(ids.map(id => `post:queue:${id}`));
@@ -69,7 +69,7 @@ module.exports = function (User) {
 		await async.eachSeries(deleteIds, posts.removeFromQueue);
 	}
 
-	async function removeFromSortedSets(uid) {
+	async function removeFromSortedSets (uid) {
 		await db.sortedSetsRemove([
 			'users:joindate',
 			'users:postcount',
@@ -99,7 +99,7 @@ module.exports = function (User) {
 			throw new Error('[[error:no-user]]');
 		}
 
-		await plugins.hooks.fire('static:user.delete', { uid: uid, userData: userData });
+		await plugins.hooks.fire('static:user.delete', { uid, userData });
 		await deleteVotes(uid);
 		await deleteChats(uid);
 		await User.auth.revokeAllSessions(uid);
@@ -168,22 +168,22 @@ module.exports = function (User) {
 		return userData;
 	};
 
-	async function deleteUserFromFollowedTopics(uid) {
+	async function deleteUserFromFollowedTopics (uid) {
 		const tids = await db.getSortedSetRange(`uid:${uid}:followed_tids`, 0, -1);
 		await db.setsRemove(tids.map(tid => `tid:${tid}:followers`), uid);
 	}
 
-	async function deleteUserFromIgnoredTopics(uid) {
+	async function deleteUserFromIgnoredTopics (uid) {
 		const tids = await db.getSortedSetRange(`uid:${uid}:ignored_tids`, 0, -1);
 		await db.setsRemove(tids.map(tid => `tid:${tid}:ignorers`), uid);
 	}
 
-	async function deleteUserFromFollowedTags(uid) {
+	async function deleteUserFromFollowedTags (uid) {
 		const tags = await db.getSortedSetRange(`uid:${uid}:followed_tags`, 0, -1);
 		await db.sortedSetsRemove(tags.map(tag => `tag:${tag}:followers`), uid);
 	}
 
-	async function deleteVotes(uid) {
+	async function deleteVotes (uid) {
 		const [upvotedPids, downvotedPids] = await Promise.all([
 			db.getSortedSetRange(`uid:${uid}:upvote`, 0, -1),
 			db.getSortedSetRange(`uid:${uid}:downvote`, 0, -1),
@@ -194,26 +194,26 @@ module.exports = function (User) {
 		});
 	}
 
-	async function deleteChats(uid) {
+	async function deleteChats (uid) {
 		const roomIds = await db.getSortedSetRange([
-			`uid:${uid}:chat:rooms`, `chat:rooms:public`,
+			`uid:${uid}:chat:rooms`, 'chat:rooms:public',
 		], 0, -1);
 		await messaging.leaveRooms(uid, roomIds);
 	}
 
-	async function deleteUserIps(uid) {
+	async function deleteUserIps (uid) {
 		const ips = await db.getSortedSetRange(`uid:${uid}:ip`, 0, -1);
 		await db.sortedSetsRemove(ips.map(ip => `ip:${ip}:uid`), uid);
 		await db.delete(`uid:${uid}:ip`);
 	}
 
-	async function deleteUserFromFollowers(uid) {
+	async function deleteUserFromFollowers (uid) {
 		const [followers, following] = await Promise.all([
 			db.getSortedSetRange(`followers:${uid}`, 0, -1),
 			db.getSortedSetRange(`following:${uid}`, 0, -1),
 		]);
 
-		async function updateCount(uids, name, fieldName) {
+		async function updateCount (uids, name, fieldName) {
 			await batch.processArray(uids, async (uids) => {
 				const counts = await db.sortedSetsCard(uids.map(uid => name + uid));
 				const bulkSet = counts.map(
@@ -235,7 +235,7 @@ module.exports = function (User) {
 		]);
 	}
 
-	async function deleteImages(uid) {
+	async function deleteImages (uid) {
 		if (utils.isNumber(uid)) {
 			const folder = path.join(nconf.get('upload_path'), 'profile', `uid-${uid}`);
 			await rimraf(folder);

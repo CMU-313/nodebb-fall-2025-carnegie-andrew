@@ -17,7 +17,7 @@ module.exports = {
 			progress.incr(tids.length);
 		}, {
 			batch: 500,
-			progress: progress,
+			progress,
 		});
 	},
 };

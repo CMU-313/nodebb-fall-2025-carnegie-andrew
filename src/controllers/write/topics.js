@@ -42,7 +42,7 @@ Topics.reply = async (req, res) => {
 	}
 };
 
-async function lockPosting(req, error) {
+async function lockPosting (req, error) {
 	const id = req.uid > 0 ? req.uid : req.sessionID;
 	const value = `posting${id}`;
 	const count = await db.incrObjectField('locks', value);

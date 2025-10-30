@@ -1,4 +1,3 @@
-
 'use strict';
 
 const async = require('async');
@@ -33,7 +32,7 @@ module.exports = function (Topics) {
 	};
 
 	Topics.filterTags = async function (tags, cid) {
-		const result = await plugins.hooks.fire('filter:tags.filter', { tags: tags, cid: cid });
+		const result = await plugins.hooks.fire('filter:tags.filter', { tags, cid });
 		tags = _.uniq(result.tags)
 			.map(tag => utils.cleanUpTag(tag, meta.config.maximumTagLength))
 			.filter(tag => tag && tag.length >= (meta.config.minimumTagLength || 3));
@@ -95,7 +94,7 @@ module.exports = function (Topics) {
 		}
 	};
 
-	async function filterCategoryTags(tags, cid) {
+	async function filterCategoryTags (tags, cid) {
 		const tagWhitelist = await categories.getTagWhitelist([cid]);
 		if (!Array.isArray(tagWhitelist[0]) || !tagWhitelist[0].length) {
 			return tags;
@@ -132,7 +131,7 @@ module.exports = function (Topics) {
 		}
 	};
 
-	async function renameTag(tag, newTagName) {
+	async function renameTag (tag, newTagName) {
 		if (!newTagName || tag === newTagName) {
 			return;
 		}
@@ -165,7 +164,7 @@ module.exports = function (Topics) {
 				}
 			});
 			await db.setObjectBulk(
-				topicData.map(t => [`topic:${t.tid}`, { tags: t.tags.join(',') }]),
+				topicData.map(t => [`topic:${t.tid}`, { tags: t.tags.join(',') }])
 			);
 		}, {});
 		const followers = await db.getSortedSetRangeWithScores(`tag:${tag}:followers`, 0, -1);
@@ -177,7 +176,7 @@ module.exports = function (Topics) {
 			await db.sortedSetAdd(
 				`tag:${newTagName}:followers`,
 				followers.map(item => item.score),
-				followers.map(item => item.value),
+				followers.map(item => item.value)
 			);
 		}
 		await Topics.deleteTag(tag);
@@ -185,7 +184,7 @@ module.exports = function (Topics) {
 		await Topics.updateCategoryTagsCount(Object.keys(allCids), [newTagName]);
 	}
 
-	async function updateTagCount(tag) {
+	async function updateTagCount (tag) {
 		const count = await Topics.getTagTopicCount(tag);
 		await db.sortedSetAdd('tags:topic:count', count || 0, tag);
 		cache.del('tags:topic:count');
@@ -245,7 +244,7 @@ module.exports = function (Topics) {
 		await db.deleteAll(deleteKeys);
 	};
 
-	async function removeTagsFromTopics(tags) {
+	async function removeTagsFromTopics (tags) {
 		await async.eachLimit(tags, 50, async (tag) => {
 			const tids = await db.getSortedSetRange(`tag:${tag}:topics`, 0, -1);
 			if (!tids.length) {
@@ -264,7 +263,7 @@ module.exports = function (Topics) {
 		});
 	}
 
-	async function removeTagsFromUsers(tags) {
+	async function removeTagsFromUsers (tags) {
 		await async.eachLimit(tags, 50, async (tag) => {
 			const uids = await db.getSortedSetRange(`tag:${tag}:followers`, 0, -1);
 			await db.sortedSetsRemove(uids.map(uid => `uid:${uid}:followed_tags`), tag);
@@ -298,7 +297,7 @@ module.exports = function (Topics) {
 		);
 	};
 
-	async function getFromSet(set, start, stop) {
+	async function getFromSet (set, start, stop) {
 		let tags;
 		if (Array.isArray(set)) {
 			tags = await db.getSortedSetRevUnion({
@@ -312,7 +311,7 @@ module.exports = function (Topics) {
 		}
 
 		const payload = await plugins.hooks.fire('filter:tags.getAll', {
-			tags: tags,
+			tags,
 		});
 		return Topics.getTagData(payload.tags);
 	}
@@ -439,11 +438,11 @@ module.exports = function (Topics) {
 		}
 		let result;
 		if (plugins.hooks.hasListeners('filter:topics.searchTags')) {
-			result = await plugins.hooks.fire('filter:topics.searchTags', { data: data });
+			result = await plugins.hooks.fire('filter:topics.searchTags', { data });
 		} else {
 			result = await findMatches(data);
 		}
-		result = await plugins.hooks.fire('filter:tags.search', { data: data, matches: result.matches });
+		result = await plugins.hooks.fire('filter:tags.search', { data, matches: result.matches });
 		return result.matches;
 	};
 
@@ -453,14 +452,14 @@ module.exports = function (Topics) {
 		}
 		let result;
 		if (plugins.hooks.hasListeners('filter:topics.autocompleteTags')) {
-			result = await plugins.hooks.fire('filter:topics.autocompleteTags', { data: data });
+			result = await plugins.hooks.fire('filter:topics.autocompleteTags', { data });
 		} else {
 			result = await findMatches(data);
 		}
 		return result.matches;
 	};
 
-	async function getAllTags() {
+	async function getAllTags () {
 		const cached = cache.get('tags:topic:count');
 		if (cached !== undefined) {
 			return cached;
@@ -470,7 +469,7 @@ module.exports = function (Topics) {
 		return tags;
 	}
 
-	async function findMatches(data) {
+	async function findMatches (data) {
 		let { query } = data;
 		let tagWhitelist = [];
 		if (parseInt(data.cid, 10)) {
@@ -511,7 +510,7 @@ module.exports = function (Topics) {
 			}
 			return 0;
 		});
-		return { matches: matches };
+		return { matches };
 	}
 
 	Topics.searchAndLoadTags = async function (data) {
@@ -540,7 +539,7 @@ module.exports = function (Topics) {
 
 	Topics.getRelatedTopics = async function (topicData, uid) {
 		if (plugins.hooks.hasListeners('filter:topic.getRelatedTopics')) {
-			const result = await plugins.hooks.fire('filter:topic.getRelatedTopics', { topic: topicData, uid: uid, topics: [] });
+			const result = await plugins.hooks.fire('filter:topic.getRelatedTopics', { topic: topicData, uid, topics: [] });
 			return result.topics;
 		}
 
@@ -626,7 +625,7 @@ module.exports = function (Topics) {
 		const notification = await notifications.create({
 			type: 'new-topic-with-tag',
 			nid: `new_topic:tags:${tags.join('.')}:tid:${postData.topic.tid}:uid:${exceptUid}`,
-			bodyShort: bodyShort,
+			bodyShort,
 			bodyLong: postData.content,
 			pid: postData.pid,
 			path: `/post/${encodeURIComponent(postData.pid)}`,

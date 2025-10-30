@@ -13,7 +13,7 @@ module.exports = function (Posts) {
 		return await togglePostDelete(uid, pid, false);
 	};
 
-	async function togglePostDelete(uid, pid, isDelete) {
+	async function togglePostDelete (uid, pid, isDelete) {
 		const [postData, canDelete] = await Promise.all([
 			Posts.getPostData(pid),
 			privileges.posts.canDelete(pid, uid),

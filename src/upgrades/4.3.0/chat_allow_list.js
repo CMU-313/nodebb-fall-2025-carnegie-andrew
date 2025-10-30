@@ -3,7 +3,6 @@
 const db = require('../../database');
 const batch = require('../../batch');
 
-
 module.exports = {
 	name: 'Set user chat allow list to the users following if they turned on restrict chat',
 	timestamp: Date.UTC(2025, 3, 25),

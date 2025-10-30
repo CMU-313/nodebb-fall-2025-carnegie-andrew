@@ -1,4 +1,3 @@
-
 'use strict';
 
 const $ = require('jquery');
@@ -12,7 +11,6 @@ utils.getLanguage = function () {
 	}
 	return lang;
 };
-
 
 utils.makeNumbersHumanReadable = function (elements) {
 	elements.each(function () {

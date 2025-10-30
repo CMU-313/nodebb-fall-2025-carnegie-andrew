@@ -3,7 +3,7 @@
 define('accounts/invite', ['api', 'benchpress', 'bootbox', 'alerts'], function (api, Benchpress, bootbox, alerts) {
 	const Invite = {};
 
-	function isACP() {
+	function isACP () {
 		return ajaxify.data.template.name.startsWith('admin/');
 	}
 
@@ -11,7 +11,7 @@ define('accounts/invite', ['api', 'benchpress', 'bootbox', 'alerts'], function (
 		$('[component="user/invite"]').on('click', function (e) {
 			e.preventDefault();
 			api.get(`/api/v3/users/${app.user.uid}/invites/groups`, {}).then((groups) => {
-				Benchpress.parse('modals/invite', { groups: groups }, function (html) {
+				Benchpress.parse('modals/invite', { groups }, function (html) {
 					bootbox.dialog({
 						message: html,
 						title: `[[${isACP() ? 'admin/manage/users:invite' : 'users:invite'}]]`,

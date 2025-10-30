@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('admin/manage/registration', ['bootbox', 'alerts'], function (bootbox, alerts) {
 	const Registration = {};
 
@@ -11,7 +10,7 @@ define('admin/manage/registration', ['bootbox', 'alerts'], function (bootbox, al
 			const username = parent.attr('data-username');
 			const method = action === 'accept' ? 'user.acceptRegistration' : 'user.rejectRegistration';
 
-			socket.emit(method, { username: username }, function (err) {
+			socket.emit(method, { username }, function (err) {
 				if (err) {
 					return alerts.error(err);
 				}
@@ -39,7 +38,7 @@ define('admin/manage/registration', ['bootbox', 'alerts'], function (bootbox, al
 			if (action === 'delete') {
 				bootbox.confirm('[[admin/manage/registration:invitations.confirm-delete]]', function (confirm) {
 					if (confirm) {
-						socket.emit(method, { email: email, invitedBy: invitedBy }, function (err) {
+						socket.emit(method, { email, invitedBy }, function (err) {
 							if (err) {
 								return alerts.error(err);
 							}

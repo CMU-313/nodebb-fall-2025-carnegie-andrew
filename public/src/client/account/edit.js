@@ -41,8 +41,8 @@ define('forum/account/edit', [
 		}
 	};
 
-	function updateProfile() {
-		function getGroupSelection() {
+	function updateProfile () {
+		function getGroupSelection () {
 			const els = $('[component="group/badge/list"] [component="group/badge/item"][data-selected="true"]');
 			return els.map((i, el) => $(el).attr('data-value')).get();
 		}
@@ -77,9 +77,7 @@ define('forum/account/edit', [
 		return false;
 	}
 
-
-
-	function handleAccountDelete() {
+	function handleAccountDelete () {
 		$('#deleteAccountBtn').on('click', function () {
 			translator.translate('[[user:delete-account-confirm]]', function (translated) {
 				const modal = bootbox.confirm(translated + '<p><input type="password" class="form-control" id="confirm-password" /></p>', function (confirm) {
@@ -93,7 +91,7 @@ define('forum/account/edit', [
 					api.del(`/users/${ajaxify.data.uid}/account`, {
 						password: $('#confirm-password').val(),
 					}, function (err) {
-						function restoreButton() {
+						function restoreButton () {
 							translator.translate('[[modules:bootbox.confirm]]', function (confirmText) {
 								confirmBtn.text(confirmText);
 								confirmBtn.prop('disabled', false);
@@ -120,7 +118,7 @@ define('forum/account/edit', [
 		});
 	}
 
-	function handleEmailConfirm() {
+	function handleEmailConfirm () {
 		$('#confirm-email').on('click', function () {
 			const btn = $(this).attr('disabled', true);
 			socket.emit('user.emailConfirm', {}, function (err) {
@@ -133,11 +131,11 @@ define('forum/account/edit', [
 		});
 	}
 
-	function getCharsLeft(el, max) {
+	function getCharsLeft (el, max) {
 		return el.length ? '(' + el.val().length + '/' + max + ')' : '';
 	}
 
-	function updateSignature() {
+	function updateSignature () {
 		const el = $('#signature');
 		$('#signatureCharCountLeft').html(getCharsLeft(el, ajaxify.data.maximumSignatureLength));
 
@@ -146,7 +144,7 @@ define('forum/account/edit', [
 		});
 	}
 
-	function updateAboutMe() {
+	function updateAboutMe () {
 		const el = $('#aboutme');
 		$('#aboutMeCharCountLeft').html(getCharsLeft(el, ajaxify.data.maximumAboutMeLength));
 
@@ -155,7 +153,7 @@ define('forum/account/edit', [
 		});
 	}
 
-	function handleGroupControls() {
+	function handleGroupControls () {
 		const { allowMultipleBadges } = ajaxify.data;
 		$('[component="group/toggle/hide"]').on('click', function () {
 			const groupEl = $(this).parents('[component="group/badge/item"]');

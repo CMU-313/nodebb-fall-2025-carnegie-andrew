@@ -30,4 +30,3 @@ exports.ratelimit = helpers.try(async (req, res, next) => {
 	cache.set(`${req.ip}:uploaded_file_count`, count);
 	next();
 });
-

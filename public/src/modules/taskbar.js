@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('taskbar', ['translator', 'hooks'], function (translator, hooks) {
 	const taskbar = {};
 	let noTaskbar = false;
@@ -84,10 +83,10 @@ define('taskbar', ['translator', 'hooks'], function (translator, hooks) {
 		const element = taskbar.tasklist.find('li[data-uuid="' + uuid + '"]');
 
 		const data = {
-			module: module,
-			uuid: uuid,
-			options: options,
-			element: element,
+			module,
+			uuid,
+			options,
+			element,
 		};
 
 		hooks.fire('filter:taskbar.push', data);
@@ -151,7 +150,7 @@ define('taskbar', ['translator', 'hooks'], function (translator, hooks) {
 		return taskBtn.hasClass('active');
 	};
 
-	function update() {
+	function update () {
 		if (noTaskbar) {
 			return;
 		}
@@ -164,14 +163,14 @@ define('taskbar', ['translator', 'hooks'], function (translator, hooks) {
 		}
 	}
 
-	function minimizeAll() {
+	function minimizeAll () {
 		if (noTaskbar) {
 			return;
 		}
 		taskbar.tasklist.find('.active').removeClass('active');
 	}
 
-	function createTaskbarItem(data, callback) {
+	function createTaskbarItem (data, callback) {
 		if (noTaskbar) {
 			return callback();
 		}
@@ -185,7 +184,7 @@ define('taskbar', ['translator', 'hooks'], function (translator, hooks) {
 					'<span aria-label="' + title + '" component="taskbar/title">' + title + '</span>' +
 					'</a>')
 				.attr({
-					title: title,
+					title,
 					'data-module': data.module,
 					'data-uuid': data.uuid,
 				})

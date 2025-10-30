@@ -4,7 +4,6 @@ const async = require('async');
 const db = require('../../database');
 const batch = require('../../batch');
 
-
 module.exports = {
 	name: 'Update moderation notes to zset',
 	timestamp: Date.UTC(2017, 2, 22),

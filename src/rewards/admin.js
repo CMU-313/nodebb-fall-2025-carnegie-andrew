@@ -42,7 +42,7 @@ rewards.get = async function () {
 	});
 };
 
-async function saveConditions(data) {
+async function saveConditions (data) {
 	const rewardsPerCondition = {};
 	await db.delete('conditions:active');
 	const conditions = [];
@@ -58,7 +58,7 @@ async function saveConditions(data) {
 	await Promise.all(Object.keys(rewardsPerCondition).map(c => db.setAdd(`condition:${c}:rewards`, rewardsPerCondition[c])));
 }
 
-async function getActiveRewards() {
+async function getActiveRewards () {
 	const rewardsList = await db.getSortedSetRange('rewards:list', 0, -1);
 	const rewardData = await Promise.all(rewardsList.map(async (id) => {
 		const [main, rewards] = await Promise.all([

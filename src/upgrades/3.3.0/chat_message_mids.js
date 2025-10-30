@@ -11,7 +11,7 @@ module.exports = {
 	method: async function () {
 		const { progress } = this;
 
-		const allRoomIds = await db.getSortedSetRange(`chat:rooms`, 0, -1);
+		const allRoomIds = await db.getSortedSetRange('chat:rooms', 0, -1);
 
 		progress.total = allRoomIds.length;
 
@@ -41,7 +41,7 @@ module.exports = {
 			progress.incr(1);
 		}
 
-		const count = await db.sortedSetCard(`messages:mid`);
+		const count = await db.sortedSetCard('messages:mid');
 		await db.setObjectField('global', 'messageCount', count);
 	},
 };

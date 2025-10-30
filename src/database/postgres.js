@@ -63,8 +63,7 @@ postgresModule.init = async function (opts) {
 	}
 };
 
-
-async function checkUpgrade(client) {
+async function checkUpgrade (client) {
 	const res = await client.query(`
 SELECT EXISTS(SELECT *
                 FROM "information_schema"."columns"
@@ -89,7 +88,7 @@ SELECT EXISTS(SELECT *
 		return;
 	}
 
-	await client.query(`BEGIN`);
+	await client.query('BEGIN');
 	try {
 		if (!res.rows[0].b) {
 			await client.query(`
@@ -262,8 +261,8 @@ SELECT "data"->>'_key',
           FROM jsonb_object_keys("data" - 'expireAt')) = 2
    AND (("data" ? 'value')
      OR ("data" ? 'data'))`);
-				await client.query(`DROP TABLE "objects" CASCADE`);
-				await client.query(`DROP FUNCTION "fun__objects__expireAt"() CASCADE`);
+				await client.query('DROP TABLE "objects" CASCADE');
+				await client.query('DROP FUNCTION "fun__objects__expireAt"() CASCADE');
 			}
 			await client.query(`
 CREATE VIEW "legacy_object_live" AS
@@ -303,16 +302,16 @@ PARALLEL SAFE`);
 			PARALLEL SAFE`);
 		}
 	} catch (ex) {
-		await client.query(`ROLLBACK`);
+		await client.query('ROLLBACK');
 		throw ex;
 	}
-	await client.query(`COMMIT`);
+	await client.query('COMMIT');
 }
 
 postgresModule.createSessionStore = async function (options) {
 	const meta = require('../meta');
 
-	function done(db) {
+	function done (db) {
 		const sessionStore = require('connect-pg-simple')(session);
 		return new sessionStore({
 			pool: db,
@@ -352,8 +351,8 @@ postgresModule.createIndices = async function () {
 	}
 	winston.info('[database] Checking database indices.');
 	try {
-		await postgresModule.pool.query(`CREATE INDEX IF NOT EXISTS "idx__legacy_zset__key__score" ON "legacy_zset"("_key" ASC, "score" DESC)`);
-		await postgresModule.pool.query(`CREATE INDEX IF NOT EXISTS "idx__legacy_object__expireAt" ON "legacy_object"("expireAt" ASC)`);
+		await postgresModule.pool.query('CREATE INDEX IF NOT EXISTS "idx__legacy_zset__key__score" ON "legacy_zset"("_key" ASC, "score" DESC)');
+		await postgresModule.pool.query('CREATE INDEX IF NOT EXISTS "idx__legacy_object__expireAt" ON "legacy_object"("expireAt" ASC)');
 		winston.info('[database] Checking database indices done!');
 	} catch (err) {
 		winston.error(`Error creating index ${err.message}`);

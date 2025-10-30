@@ -31,8 +31,8 @@ module.exports = function (User) {
 		await db.pexpire(`lockout:${uid}`, duration);
 		await events.log({
 			type: 'account-locked',
-			uid: uid,
-			ip: ip,
+			uid,
+			ip,
 		});
 		throw new Error('[[error:account-locked]]');
 	};
@@ -75,7 +75,7 @@ module.exports = function (User) {
 		return sessions;
 	};
 
-	async function cleanExpiredSessions(uid) {
+	async function cleanExpiredSessions (uid) {
 		const sids = await db.getSortedSetRange(`uid:${uid}:sessions`, 0, -1);
 		if (!sids.length) {
 			return [];
@@ -109,7 +109,7 @@ module.exports = function (User) {
 		await revokeSessionsAboveThreshold(activeSids.push(sessionId), uid);
 	};
 
-	async function revokeSessionsAboveThreshold(activeSids, uid) {
+	async function revokeSessionsAboveThreshold (activeSids, uid) {
 		if (meta.config.maxUserSessions > 0 && activeSids.length > meta.config.maxUserSessions) {
 			const sessionsToRevoke = activeSids.slice(0, activeSids.length - meta.config.maxUserSessions);
 			await User.auth.revokeSession(sessionsToRevoke, uid);

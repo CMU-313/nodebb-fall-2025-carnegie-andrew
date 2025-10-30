@@ -17,30 +17,32 @@ Tags.parse = async (req, data, meta, link) => {
 	const isAPI = req.res && req.res.locals && req.res.locals.isAPI;
 
 	// Meta tags
-	const defaultTags = isAPI ? [] : [{
-		name: 'viewport',
-		content: 'width=device-width, initial-scale=1.0',
-	}, {
-		name: 'content-type',
-		content: 'text/html; charset=UTF-8',
-		noEscape: true,
-	}, {
-		name: 'apple-mobile-web-app-capable',
-		content: 'yes',
-	}, {
-		name: 'mobile-web-app-capable',
-		content: 'yes',
-	}, {
-		property: 'og:site_name',
-		content: Meta.config.title || 'NodeBB',
-	}, {
-		name: 'msapplication-badge',
-		content: `frequency=30; polling-uri=${url}/sitemap.xml`,
-		noEscape: true,
-	}, {
-		name: 'theme-color',
-		content: Meta.config.themeColor || '#ffffff',
-	}];
+	const defaultTags = isAPI ?
+		[] :
+		[{
+			name: 'viewport',
+			content: 'width=device-width, initial-scale=1.0',
+		}, {
+			name: 'content-type',
+			content: 'text/html; charset=UTF-8',
+			noEscape: true,
+		}, {
+			name: 'apple-mobile-web-app-capable',
+			content: 'yes',
+		}, {
+			name: 'mobile-web-app-capable',
+			content: 'yes',
+		}, {
+			property: 'og:site_name',
+			content: Meta.config.title || 'NodeBB',
+		}, {
+			name: 'msapplication-badge',
+			content: `frequency=30; polling-uri=${url}/sitemap.xml`,
+			noEscape: true,
+		}, {
+			name: 'theme-color',
+			content: Meta.config.themeColor || '#ffffff',
+		}];
 
 	if (Meta.config.keywords && !isAPI) {
 		defaultTags.push({
@@ -61,15 +63,17 @@ Tags.parse = async (req, data, meta, link) => {
 	const cacheBuster = `${Meta.config['cache-buster'] ? `?${Meta.config['cache-buster']}` : ''}`;
 
 	// Link Tags
-	const defaultLinks = isAPI ? [] : [{
-		rel: 'icon',
-		type: 'image/x-icon',
-		href: `${faviconPath}${cacheBuster}`,
-	}, {
-		rel: 'manifest',
-		href: `${relative_path}/manifest.webmanifest`,
-		crossorigin: `use-credentials`,
-	}];
+	const defaultLinks = isAPI ?
+		[] :
+		[{
+			rel: 'icon',
+			type: 'image/x-icon',
+			href: `${faviconPath}${cacheBuster}`,
+		}, {
+			rel: 'manifest',
+			href: `${relative_path}/manifest.webmanifest`,
+			crossorigin: 'use-credentials',
+		}];
 
 	if (plugins.hooks.hasListeners('filter:search.query') && !isAPI) {
 		defaultLinks.push({
@@ -85,8 +89,8 @@ Tags.parse = async (req, data, meta, link) => {
 	}
 
 	const results = await utils.promiseParallel({
-		tags: plugins.hooks.fire('filter:meta.getMetaTags', { req: req, data: data, tags: defaultTags }),
-		links: plugins.hooks.fire('filter:meta.getLinkTags', { req: req, data: data, links: defaultLinks }),
+		tags: plugins.hooks.fire('filter:meta.getMetaTags', { req, data, tags: defaultTags }),
+		links: plugins.hooks.fire('filter:meta.getLinkTags', { req, data, links: defaultLinks }),
 	});
 
 	meta = results.tags.tags.concat(meta || []).map((tag) => {
@@ -132,7 +136,7 @@ Tags.parse = async (req, data, meta, link) => {
 	return { meta, link };
 };
 
-function addTouchIcons(defaultLinks) {
+function addTouchIcons (defaultLinks) {
 	if (Meta.config['brand:touchIcon']) {
 		defaultLinks.push({
 			rel: 'apple-touch-icon',
@@ -198,7 +202,7 @@ function addTouchIcons(defaultLinks) {
 	}
 }
 
-function addIfNotExists(meta, keyName, tagName, value) {
+function addIfNotExists (meta, keyName, tagName, value) {
 	const exists = meta.some(tag => tag[keyName] === tagName);
 
 	if (!exists && value) {
@@ -209,7 +213,7 @@ function addIfNotExists(meta, keyName, tagName, value) {
 	}
 }
 
-function stripRelativePath(url) {
+function stripRelativePath (url) {
 	if (url.startsWith(relative_path)) {
 		return url.slice(relative_path.length);
 	}
@@ -217,7 +221,7 @@ function stripRelativePath(url) {
 	return url;
 }
 
-async function addSiteOGImage(meta) {
+async function addSiteOGImage (meta) {
 	const key = Meta.config['og:image'] ? 'og:image' : 'brand:logo';
 	let ogImage = stripRelativePath(Meta.config[key] || '');
 	if (ogImage && !ogImage.startsWith('http')) {

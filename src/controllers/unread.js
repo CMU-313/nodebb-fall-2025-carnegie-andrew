@@ -1,4 +1,3 @@
-
 'use strict';
 
 const nconf = require('nconf');
@@ -30,12 +29,12 @@ unreadController.get = async function (req, res) {
 	const start = Math.max(0, (page - 1) * userSettings.topicsPerPage);
 	const stop = start + userSettings.topicsPerPage - 1;
 	const data = await topics.getUnreadTopics({
-		cid: cid,
-		tag: tag,
+		cid,
+		tag,
 		uid: req.uid,
-		start: start,
-		stop: stop,
-		filter: filter,
+		start,
+		stop,
+		filter,
 		query: req.query,
 	});
 
@@ -55,7 +54,7 @@ unreadController.get = async function (req, res) {
 		url: 'unread',
 		res: req.res,
 		tags: data.pagination.rel,
-		page: page,
+		page,
 	});
 
 	if (userSettings.usePagination && (page < 1 || page > data.pageCount)) {

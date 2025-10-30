@@ -1,6 +1,5 @@
 'use strict';
 
-
 const async = require('async');
 const crypto = require('crypto');
 const nconf = require('nconf');

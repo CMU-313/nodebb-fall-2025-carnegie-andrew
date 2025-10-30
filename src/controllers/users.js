@@ -92,7 +92,7 @@ usersController.getFlaggedUsers = async function (req, res) {
 	await renderIfAdminOrGlobalMod('users:flags', req, res);
 };
 
-async function renderIfAdminOrGlobalMod(set, req, res) {
+async function renderIfAdminOrGlobalMod (set, req, res) {
 	const isAdminOrGlobalMod = await user.isAdminOrGlobalMod(req.uid);
 	if (!isAdminOrGlobalMod) {
 		return helpers.notAllowed(req, res);
@@ -144,15 +144,15 @@ usersController.getUsers = async function (set, uid, query) {
 		title: setToData[set].title || '[[pages:users/latest]]',
 		breadcrumbs: helpers.buildBreadcrumbs(breadcrumbs),
 		isAdminOrGlobalMod: isAdmin || isGlobalMod,
-		isAdmin: isAdmin,
-		isGlobalMod: isGlobalMod,
+		isAdmin,
+		isGlobalMod,
 		displayUserSearch: canSearch,
 		[`section_${query.section || 'joindate'}`]: true,
 	};
 };
 
 usersController.getUsersAndCount = async function (set, uid, start, stop) {
-	async function getCount() {
+	async function getCount () {
 		if (set === 'users:online') {
 			return await db.sortedSetCount('users:online', Date.now() - 86400000, '+inf');
 		} else if (set === 'users:banned' || set === 'users:flags') {
@@ -160,7 +160,7 @@ usersController.getUsersAndCount = async function (set, uid, start, stop) {
 		}
 		return await db.getObjectField('global', 'userCount');
 	}
-	async function getUsers() {
+	async function getUsers () {
 		if (set === 'users:online') {
 			const count = parseInt(stop, 10) === -1 ? stop : stop - start + 1;
 			const data = await db.getSortedSetRevRangeByScoreWithScores(set, start, count, '+inf', Date.now() - 86400000);
@@ -188,11 +188,11 @@ usersController.getUsersAndCount = async function (set, uid, start, stop) {
 	]);
 	return {
 		users: usersData.filter(Boolean),
-		count: count,
+		count,
 	};
 };
 
-async function render(req, res, data) {
+async function render (req, res, data) {
 	const { registrationType } = meta.config;
 
 	data.maximumInvites = meta.config.maximumInvites;

@@ -1,6 +1,5 @@
 'use strict';
 
-
 const async = require('async');
 const winston = require('winston');
 const cron = require('cron').CronJob;
@@ -153,7 +152,7 @@ Notifications.create = async function (data) {
 	const now = Date.now();
 	data.datetime = now;
 	const result = await plugins.hooks.fire('filter:notifications.create', {
-		data: data,
+		data,
 	});
 	if (!result.data) {
 		return null;
@@ -185,8 +184,8 @@ Notifications.push = async function (notification, uids) {
 	}, 500);
 };
 
-async function pushToUids(uids, notification) {
-	async function sendNotification(uids) {
+async function pushToUids (uids, notification) {
+	async function sendNotification (uids) {
 		if (!uids.length) {
 			return;
 		}
@@ -210,7 +209,7 @@ async function pushToUids(uids, notification) {
 		}
 	}
 
-	async function getUidsBySettings(uids) {
+	async function getUidsBySettings (uids) {
 		const uidsToNotify = [];
 		const uidsToEmail = [];
 		const usersSettings = await User.getMultipleUserSettings(uids);
@@ -225,7 +224,7 @@ async function pushToUids(uids, notification) {
 				uidsToEmail.push(userSettings.uid);
 			}
 		});
-		return { uidsToNotify: uidsToNotify, uidsToEmail: uidsToEmail };
+		return { uidsToNotify, uidsToEmail };
 	}
 
 	// Remove uid from recipients list if they have blocked the user triggering the notification
@@ -272,7 +271,7 @@ async function pushToUids(uids, notification) {
 	});
 }
 
-async function sendEmail({ uids, notification }, mergeId, reason) {
+async function sendEmail ({ uids, notification }, mergeId, reason) {
 	if ((reason && reason === 'set') || !uids.length) {
 		return;
 	}
@@ -294,8 +293,8 @@ async function sendEmail({ uids, notification }, mergeId, reason) {
 			notification_url: notification.path.startsWith('http') ? notification.path : nconf.get('url') + notification.path,
 			subject: utils.stripHTMLTags(notification.subject || '[[notifications:new-notification]]'),
 			intro: utils.stripHTMLTags(notification.bodyShort),
-			body: body,
-			notification: notification,
+			body,
+			notification,
 			showUnsubscribe: true,
 		}).catch((err) => {
 			if (!errorLogged) {
@@ -452,7 +451,7 @@ Notifications.merge = async function (notifications) {
 		}, []);
 
 		differentiators.forEach((differentiator) => {
-			function typeFromLength(items) {
+			function typeFromLength (items) {
 				if (items.length === 2) {
 					return 'dual';
 				} else if (items.length === 3) {
@@ -534,7 +533,7 @@ Notifications.merge = async function (notifications) {
 	}, notifications);
 
 	const data = await plugins.hooks.fire('filter:notifications.merge', {
-		notifications: notifications,
+		notifications,
 	});
 	return data && data.notifications;
 };

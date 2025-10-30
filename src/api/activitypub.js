@@ -24,7 +24,7 @@ const utils = require('../utils');
 
 const activitypubApi = module.exports;
 
-function enabledCheck(next) {
+function enabledCheck (next) {
 	return async function (caller, params) {
 		if (meta.config.activitypubEnabled) {
 			try {

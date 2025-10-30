@@ -32,7 +32,7 @@ Settings.get = async function (hash) {
 		});
 	}));
 
-	const result = await plugins.hooks.fire('filter:settings.get', { plugin: hash, values: values });
+	const result = await plugins.hooks.fire('filter:settings.get', { plugin: hash, values });
 	cache.set(`settings:${hash}`, result.values);
 	return _.cloneDeep(result.values);
 };
@@ -119,7 +119,6 @@ Settings.setOnEmpty = async function (hash, values) {
 			empty[key] = values[key];
 		}
 	});
-
 
 	if (Object.keys(empty).length) {
 		await Settings.set(hash, empty);

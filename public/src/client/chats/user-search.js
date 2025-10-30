@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/chats/user-search', [
 	'components', 'api', 'alerts',
 ], function (components, api, alerts) {
@@ -22,14 +21,14 @@ define('forum/chats/user-search', [
 		});
 	};
 
-	function clearInputAndResults(chatsListEl) {
+	function clearInputAndResults (chatsListEl) {
 		components.get('chat/search').val('');
 		removeResults(chatsListEl);
 		chatsListEl.find('[component="chat/search/no-users"]').addClass('hidden');
 		chatsListEl.find('[component="chat/search/start-typing"]').removeClass('hidden');
 	}
 
-	function doSearch() {
+	function doSearch () {
 		const chatsListEl = $('[component="chat/search/list"]');
 		const username = components.get('chat/search').val();
 		if (!username) {
@@ -44,12 +43,12 @@ define('forum/chats/user-search', [
 			.catch(alerts.error);
 	}
 
-	function removeResults(chatsListEl) {
+	function removeResults (chatsListEl) {
 		users.length = 0;
 		chatsListEl.find('[data-uid]').remove();
 	}
 
-	async function displayResults(data) {
+	async function displayResults (data) {
 		const chatsListEl = $('[component="chat/search/list"]');
 		removeResults(chatsListEl);
 		data.users = data.users.filter(function (user) {

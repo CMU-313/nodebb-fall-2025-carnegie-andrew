@@ -1,6 +1,5 @@
 'use strict';
 
-
 const db = require('../../database');
 const batch = require('../../batch');
 
@@ -15,7 +14,7 @@ module.exports = {
 			await db.deleteAll(uids.map(uid => `uid:${uid}:sessionUUID:sessionId`));
 		}, {
 			batch: 500,
-			progress: progress,
+			progress,
 		});
 	},
 };

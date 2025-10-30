@@ -17,7 +17,7 @@ define('quickreply', [
 		const element = components.get('topic/quickreply/text');
 		const qrDraftId = `qr:draft:tid:${ajaxify.data.tid}`;
 		const data = {
-			element: element,
+			element,
 			strategies: [],
 			options: {
 				style: {
@@ -41,7 +41,7 @@ define('quickreply', [
 		}
 
 		// helper to show a small toast
-		function toastMode(state) {
+		function toastMode (state) {
 			const msg = state ?
 				'Anonymous mode ON — replies will post as Anonymous.' :
 				'Anonymous mode OFF — replies will post as yourself.';
@@ -66,7 +66,6 @@ define('quickreply', [
 				toastMode(isAnonymous);
 			});
 		}
-
 
 		destroyAutoComplete();
 		$(window).one('action:ajaxify.start', () => {
@@ -135,7 +134,7 @@ define('quickreply', [
 
 			const replyLen = replyMsg.length;
 
-			//console.log('posting with ' + 'user ' + user.slug + replyData + ']]');
+			// console.log('posting with ' + 'user ' + user.slug + replyData + ']]');
 			if (replyLen < parseInt(config.minimumPostLength, 10)) {
 				return alerts.error('[[error:content-too-short, ' + config.minimumPostLength + ']]');
 			} else if (replyLen > parseInt(config.maximumPostLength, 10)) {
@@ -162,7 +161,6 @@ define('quickreply', [
 
 				return;
 			}
-			
 
 			ready = false;
 			api.post(`/topics/${ajaxify.data.tid}`, replyData, function (err, data) {
@@ -216,7 +214,7 @@ define('quickreply', [
 		});
 	};
 
-	function destroyAutoComplete() {
+	function destroyAutoComplete () {
 		if (QuickReply._autocomplete) {
 			QuickReply._autocomplete.destroy();
 			QuickReply._autocomplete = null;

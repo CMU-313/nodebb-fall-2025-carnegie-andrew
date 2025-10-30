@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/chats/create', [
 	'components', 'api', 'alerts', 'forum/chats/user-search',
 ], function (components, api, alerts, userSearch) {
@@ -9,7 +8,7 @@ define('forum/chats/create', [
 		components.get('chat/create').on('click', handleCreate);
 	};
 
-	async function handleCreate() {
+	async function handleCreate () {
 		let groups = [];
 		if (app.user.isAdmin) {
 			({ groups } = await api.get('/admin/groups'));
@@ -52,11 +51,11 @@ define('forum/chats/create', [
 							return false;
 						}
 
-						api.post(`/chats`, {
-							roomName: roomName,
-							uids: uids,
-							type: type,
-							groups: groups,
+						api.post('/chats', {
+							roomName,
+							uids,
+							type,
+							groups,
 						}).then(({ roomId }) => {
 							ajaxify.go('chats/' + roomId);
 							modal.modal('hide');
@@ -79,7 +78,6 @@ define('forum/chats/create', [
 		chatRoomUsersList.on('click', '[component="chat/room/users/remove"]', function () {
 			$(this).parents('[data-uid]').remove();
 		});
-
 
 		modal.find('[component="chat/room/type"]').on('change', function () {
 			const type = $(this).val();

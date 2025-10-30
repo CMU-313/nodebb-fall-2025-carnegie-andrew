@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/account/info', ['forum/account/header', 'alerts', 'forum/account/sessions'], function (header, alerts, sessions) {
 	const Info = {};
 
@@ -10,13 +9,13 @@ define('forum/account/info', ['forum/account/header', 'alerts', 'forum/account/s
 		sessions.prepareSessionRevocation();
 	};
 
-	function handleModerationNote() {
+	function handleModerationNote () {
 		$('[component="account/save-moderation-note"]').on('click', function () {
 			const noteEl = $('[component="account/moderation-note"]');
 			const note = noteEl.val();
 			socket.emit('user.setModerationNote', {
 				uid: ajaxify.data.uid,
-				note: note,
+				note,
 			}, function (err, notes) {
 				if (err) {
 					return alerts.error(err);
@@ -29,7 +28,6 @@ define('forum/account/info', ['forum/account/header', 'alerts', 'forum/account/s
 				});
 			});
 		});
-
 
 		$('[component="account/moderation-note/edit"]').on('click', function () {
 			const parent = $(this).parents('[data-id]');

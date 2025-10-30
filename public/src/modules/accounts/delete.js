@@ -33,7 +33,7 @@ define('accounts/delete', ['api', 'bootbox', 'alerts'], function (api, bootbox, 
 		);
 	};
 
-	function executeAction(uid, confirmText, path, successText, callback) {
+	function executeAction (uid, confirmText, path, successText, callback) {
 		bootbox.confirm(confirmText, function (confirm) {
 			if (!confirm) {
 				return;

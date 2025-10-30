@@ -28,5 +28,5 @@ hooksController.get = function (req, res) {
 
 	hooks.sort((a, b) => b.count - a.count);
 
-	res.render('admin/advanced/hooks', { hooks: hooks });
+	res.render('admin/advanced/hooks', { hooks });
 };

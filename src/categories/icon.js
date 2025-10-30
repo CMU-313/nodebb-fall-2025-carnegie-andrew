@@ -36,7 +36,7 @@ Icons.flush = async (cid) => {
 	winston.verbose(`[categories/icons] Flushing ${cid}.`);
 	const paths = Icons._constants.extensions.map(extension => path.resolve(nconf.get('upload_path'), 'category', `category-${cid}-icon.${extension}`));
 
-	await Promise.all(paths.map((async path => await fs.rm(path, { force: true }))));
+	await Promise.all(paths.map(async path => await fs.rm(path, { force: true })));
 };
 
 Icons.regenerate = async (cid) => {

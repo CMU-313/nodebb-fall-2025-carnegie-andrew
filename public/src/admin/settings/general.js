@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('admin/settings/general', ['admin/settings'], function () {
 	const Module = {};
 
@@ -26,7 +25,7 @@ define('admin/settings/general', ['admin/settings'], function () {
 		toggleCustomRoute();
 	};
 
-	function toggleCustomRoute() {
+	function toggleCustomRoute () {
 		if ($('[data-field="homePageRoute"]').val() === 'custom') {
 			$('#homePageCustom').show();
 		} else {

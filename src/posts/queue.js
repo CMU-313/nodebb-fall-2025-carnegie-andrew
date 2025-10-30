@@ -70,7 +70,7 @@ module.exports = function (Posts) {
 		return postData;
 	};
 
-	async function addMetaData(postData) {
+	async function addMetaData (postData) {
 		if (!postData) {
 			return;
 		}
@@ -132,13 +132,13 @@ module.exports = function (Posts) {
 
 		const result = await plugins.hooks.fire('filter:post.shouldQueue', {
 			shouldQueue: !!shouldQueue,
-			uid: uid,
-			data: data,
+			uid,
+			data,
 		});
 		return result.shouldQueue;
 	};
 
-	async function isCategoryQueueEnabled(data) {
+	async function isCategoryQueueEnabled (data) {
 		const type = getType(data);
 		const cid = await getCid(type, data);
 		if (!cid) {
@@ -147,7 +147,7 @@ module.exports = function (Posts) {
 		return await categories.getCategoryField(cid, 'postQueue');
 	}
 
-	function getType(data) {
+	function getType (data) {
 		if (data.hasOwnProperty('tid')) {
 			return 'reply';
 		} else if (data.hasOwnProperty('cid')) {
@@ -156,7 +156,7 @@ module.exports = function (Posts) {
 		throw new Error('[[error:invalid-type]]');
 	}
 
-	async function removeQueueNotification(id) {
+	async function removeQueueNotification (id) {
 		await notifications.rescind(`post-queue-${id}`);
 		const data = await getParsedObject(id);
 		if (!data) {
@@ -167,7 +167,7 @@ module.exports = function (Posts) {
 		uids.forEach(uid => user.notifications.pushCount(uid));
 	}
 
-	async function getNotificationUids(cid) {
+	async function getNotificationUids (cid) {
 		const results = await Promise.all([
 			groups.getMembersOfGroups(['administrators', 'Global Moderators']),
 			categories.getModeratorUids([cid]),
@@ -182,10 +182,10 @@ module.exports = function (Posts) {
 		await canPost(type, data);
 
 		let payload = {
-			id: id,
+			id,
 			uid: data.uid,
-			type: type,
-			data: data,
+			type,
+			data,
 		};
 		payload = await plugins.hooks.fire('filter:post-queue.save', payload);
 
@@ -207,19 +207,19 @@ module.exports = function (Posts) {
 			nid: `post-queue-${id}`,
 			mergeId: 'post-queue',
 			bodyShort: '[[notifications:post-awaiting-review]]',
-			bodyLong: bodyLong,
+			bodyLong,
 			path: `/post-queue/${id}`,
 		});
 		await notifications.push(notifObj, uids);
 		return {
-			id: id,
-			type: type,
+			id,
+			type,
 			queued: true,
 			message: '[[success:post-queued]]',
 		};
 	};
 
-	async function parseBodyLong(cid, type, data) {
+	async function parseBodyLong (cid, type, data) {
 		const url = nconf.get('url');
 		const [content, category, userData] = await Promise.all([
 			plugins.hooks.fire('filter:parse.raw', data.content),
@@ -232,21 +232,21 @@ module.exports = function (Posts) {
 			userData.url = `${url}/uid/${userData.uid}`;
 		}
 
-		const topic = { cid: cid, title: data.title, tid: data.tid };
+		const topic = { cid, title: data.title, tid: data.tid };
 		if (type === 'reply') {
 			topic.title = await topics.getTopicField(data.tid, 'title');
 			topic.url = `${url}/topic/${data.tid}`;
 		}
 		const { app } = require('../webserver');
 		return await app.renderAsync('emails/partials/post-queue-body', {
-			content: content,
-			category: category,
+			content,
+			category,
 			user: userData,
-			topic: topic,
+			topic,
 		});
 	}
 
-	async function getCid(type, data) {
+	async function getCid (type, data) {
 		if (type === 'topic') {
 			return data.cid;
 		} else if (type === 'reply') {
@@ -255,7 +255,7 @@ module.exports = function (Posts) {
 		return null;
 	}
 
-	async function canPost(type, data) {
+	async function canPost (type, data) {
 		const cid = await getCid(type, data);
 		const typeToPrivilege = {
 			topic: 'topics:create',
@@ -284,13 +284,13 @@ module.exports = function (Posts) {
 		if (!data) {
 			return null;
 		}
-		const result = await plugins.hooks.fire('filter:post-queue:removeFromQueue', { data: data });
+		const result = await plugins.hooks.fire('filter:post-queue:removeFromQueue', { data });
 		await removeFromQueue(id);
 		plugins.hooks.fire('action:post-queue:removeFromQueue', { data: result.data });
 		return result.data;
 	};
 
-	async function removeFromQueue(id) {
+	async function removeFromQueue (id) {
 		await removeQueueNotification(id);
 		await db.sortedSetRemove('post:queue', id);
 		await db.delete(`post:queue:${id}`);
@@ -302,7 +302,7 @@ module.exports = function (Posts) {
 		if (!data) {
 			return null;
 		}
-		const result = await plugins.hooks.fire('filter:post-queue:submitFromQueue', { data: data });
+		const result = await plugins.hooks.fire('filter:post-queue:submitFromQueue', { data });
 		data = result.data;
 		if (data.type === 'topic') {
 			const result = await createTopic(data.data);
@@ -314,7 +314,7 @@ module.exports = function (Posts) {
 			data.tid = result.tid;
 		}
 		await removeFromQueue(id);
-		plugins.hooks.fire('action:post-queue:submitFromQueue', { data: data });
+		plugins.hooks.fire('action:post-queue:submitFromQueue', { data });
 		return data;
 	};
 
@@ -322,7 +322,7 @@ module.exports = function (Posts) {
 		return await getParsedObject(id);
 	};
 
-	async function getParsedObject(id) {
+	async function getParsedObject (id) {
 		const data = await db.getObject(`post:queue:${id}`);
 		if (!data) {
 			return null;
@@ -332,13 +332,13 @@ module.exports = function (Posts) {
 		return data;
 	}
 
-	async function createTopic(data) {
+	async function createTopic (data) {
 		const result = await topics.post(data);
 		socketHelpers.notifyNew(data.uid, 'newTopic', { posts: [result.postData], topic: result.topicData });
 		return result;
 	}
 
-	async function createReply(data) {
+	async function createReply (data) {
 		const postData = await topics.reply(data);
 		const result = {
 			posts: [postData],
@@ -408,7 +408,7 @@ module.exports = function (Posts) {
 				post.data.tid = newTid;
 			});
 			await db.setObjectBulk(
-				postData.map(p => [`post:queue:${p.id}`, { data: JSON.stringify(p.data) }]),
+				postData.map(p => [`post:queue:${p.id}`, { data: JSON.stringify(p.data) }])
 			);
 			cache.del('post-queue');
 		}

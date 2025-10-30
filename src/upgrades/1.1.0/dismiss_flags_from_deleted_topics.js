@@ -1,6 +1,5 @@
 'use strict';
 
-
 const winston = require('winston');
 const db = require('../../database');
 
@@ -24,7 +23,7 @@ module.exports = {
 
 // copied from core since this function was removed
 // https://github.com/NodeBB/NodeBB/blob/v1.x.x/src/posts/flags.js
-async function dismissFlag(pid) {
+async function dismissFlag (pid) {
 	const postData = await db.getObjectFields(`post:${pid}`, ['pid', 'uid', 'flags']);
 	if (!postData.pid) {
 		return;

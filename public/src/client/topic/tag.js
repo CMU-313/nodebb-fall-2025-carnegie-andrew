@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/topic/tag', [
 	'alerts', 'autocomplete', 'api', 'benchpress',
 ], function (alerts, autocomplete, api, Benchpress) {
@@ -17,8 +16,8 @@ define('forum/topic/tag', [
 		tagWhitelist = _tagWhitelist || [];
 
 		app.parseAndTranslate('modals/tag-topic', {
-			topics: topics,
-			tagWhitelist: tagWhitelist,
+			topics,
+			tagWhitelist,
 		}, function (html) {
 			tagModal = html;
 
@@ -65,7 +64,7 @@ define('forum/topic/tag', [
 		});
 	};
 
-	function initAutocomplete(params) {
+	function initAutocomplete (params) {
 		autocomplete.init({
 			input: params.input,
 			position: { my: 'left bottom', at: 'left top', collision: 'flip' },
@@ -85,7 +84,7 @@ define('forum/topic/tag', [
 		});
 	}
 
-	async function tagTopics() {
+	async function tagTopics () {
 		await Promise.all(tagModal.find('.tags').map(async (index, el) => {
 			const topic = topics[index];
 			const tagEl = $(el);
@@ -109,7 +108,7 @@ define('forum/topic/tag', [
 		});
 	};
 
-	function closeTagModal() {
+	function closeTagModal () {
 		if (tagModal) {
 			tagModal.remove();
 			tagModal = null;

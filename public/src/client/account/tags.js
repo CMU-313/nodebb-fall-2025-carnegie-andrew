@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/account/tags', [
 	'forum/account/header', 'alerts', 'api', 'hooks', 'autocomplete',
 ], function (header, alerts, api, hooks, autocomplete) {

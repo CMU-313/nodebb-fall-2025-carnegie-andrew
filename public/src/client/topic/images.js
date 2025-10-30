@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/topic/images', [], function () {
 	const Images = {};
 

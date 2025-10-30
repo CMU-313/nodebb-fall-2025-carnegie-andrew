@@ -73,7 +73,7 @@ module.exports = function (grunt) {
 					...styleUpdated_Client,
 				],
 				options: {
-					interval: interval,
+					interval,
 				},
 			},
 			clientUpdated: {
@@ -84,7 +84,7 @@ module.exports = function (grunt) {
 					'node_modules/benchpressjs/build/benchpress.js',
 				],
 				options: {
-					interval: interval,
+					interval,
 				},
 			},
 			serverUpdated: {
@@ -99,7 +99,7 @@ module.exports = function (grunt) {
 					'!src/upgrades/**',
 				],
 				options: {
-					interval: interval,
+					interval,
 				},
 			},
 			templatesUpdated: {
@@ -108,7 +108,7 @@ module.exports = function (grunt) {
 					...templatesUpdated,
 				],
 				options: {
-					interval: interval,
+					interval,
 				},
 			},
 			langUpdated: {
@@ -118,7 +118,7 @@ module.exports = function (grunt) {
 					...langUpdated,
 				],
 				options: {
-					interval: interval,
+					interval,
 				},
 			},
 		});
@@ -130,7 +130,7 @@ module.exports = function (grunt) {
 		done();
 	});
 
-	function run() {
+	function run () {
 		if (worker) {
 			worker.kill();
 		}
@@ -174,7 +174,7 @@ module.exports = function (grunt) {
 			}
 			if (worker) {
 				worker.send({
-					compiling: compiling,
+					compiling,
 					livereload: true, // Send livereload event via Socket.IO for instant browser refresh
 				});
 			}
@@ -182,7 +182,7 @@ module.exports = function (grunt) {
 	});
 };
 
-function addBaseThemes(pluginList) {
+function addBaseThemes (pluginList) {
 	let themeId = pluginList.find(p => p.includes('nodebb-theme-'));
 	if (!themeId) {
 		return pluginList;

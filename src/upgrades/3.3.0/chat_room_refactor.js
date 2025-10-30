@@ -58,7 +58,7 @@ module.exports = {
 
 							const bulkSet = messageData.map(
 								msg => [`message:${msg.mid}`, {
-									roomId: roomId,
+									roomId,
 									timestamp: msg.timestamp,
 								}]
 							);
@@ -67,7 +67,7 @@ module.exports = {
 							await db.sortedSetAdd(
 								`chat:room:${roomId}:mids`,
 								messageData.map(m => m.timestamp),
-								messageData.map(m => m.mid),
+								messageData.map(m => m.mid)
 							);
 							uniqMids.forEach((mid) => {
 								midsSeen[mid] = 1;

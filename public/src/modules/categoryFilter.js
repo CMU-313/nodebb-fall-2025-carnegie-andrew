@@ -11,7 +11,7 @@ define('categoryFilter', ['categorySearch', 'api', 'hooks'], function (categoryS
 		options.states = options.states || ['watching', 'tracking', 'notwatching', 'ignoring'];
 		options.template = options.template || 'partials/category/filter-dropdown-left';
 
-		hooks.fire('action:category.filter.options', { el: el, options: options });
+		hooks.fire('action:category.filter.options', { el, options });
 
 		categorySearch.init(el, options);
 
@@ -35,13 +35,13 @@ define('categoryFilter', ['categorySearch', 'api', 'hooks'], function (categoryS
 
 			if (changed) {
 				if (options.updateButton) {
-					options.updateButton({ el, changed: changed, selectedCids: selectedCids.slice() });
+					options.updateButton({ el, changed, selectedCids: selectedCids.slice() });
 				} else if (options.updateButton !== false) {
 					updateFilterButton(el, selectedCids);
 				}
 			}
 			if (options.onHidden) {
-				options.onHidden({ changed: changed, selectedCids: selectedCids.slice() });
+				options.onHidden({ changed, selectedCids: selectedCids.slice() });
 				return;
 			}
 			if (changed) {
@@ -92,13 +92,13 @@ define('categoryFilter', ['categorySearch', 'api', 'hooks'], function (categoryS
 			options.selectedCids = selectedCids;
 
 			if (options.onSelect) {
-				options.onSelect({ cid: cid, selectedCids: selectedCids.slice() });
+				options.onSelect({ cid, selectedCids: selectedCids.slice() });
 			}
 			return false;
 		});
 	};
 
-	function updateFilterButton(el, selectedCids) {
+	function updateFilterButton (el, selectedCids) {
 		if (selectedCids.length > 1) {
 			renderButton({
 				icon: 'fa-plus',
@@ -110,7 +110,7 @@ define('categoryFilter', ['categorySearch', 'api', 'hooks'], function (categoryS
 		} else {
 			renderButton();
 		}
-		function renderButton(category) {
+		function renderButton (category) {
 			app.parseAndTranslate('partials/category/filter-dropdown-content', {
 				selectedCategory: category,
 			}, function (html) {

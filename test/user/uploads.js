@@ -58,7 +58,7 @@ describe('uploads.js', () => {
 
 		it('should guard against path traversal', async () => {
 			try {
-				await user.associateUpload(uid, `../../config.json`);
+				await user.associateUpload(uid, '../../config.json');
 			} catch (e) {
 				assert(e);
 				assert.strictEqual(e.message, '[[error:invalid-path]]');
@@ -140,7 +140,7 @@ describe('uploads.js', () => {
 			assert.strictEqual(await file.exists(path.resolve(nconf.get('upload_path'), '../../config.json')), true);
 
 			try {
-				await user.deleteUpload(uid, uid, `../../config.json`);
+				await user.deleteUpload(uid, uid, '../../config.json');
 			} catch (e) {
 				assert(e);
 				assert.strictEqual(e.message, '[[error:invalid-path]]');

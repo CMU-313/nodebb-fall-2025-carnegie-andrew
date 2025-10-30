@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('admin/manage/tags', [
 	'bootbox',
 	'alerts',
@@ -17,7 +16,7 @@ define('admin/manage/tags', [
 		handleDeleteSelected();
 	};
 
-	function handleCreate() {
+	function handleCreate () {
 		const createModal = $('#create-modal');
 		const createTagName = $('#create-tag-name');
 		const createModalGo = $('#create-modal-go');
@@ -52,11 +51,11 @@ define('admin/manage/tags', [
 		});
 	}
 
-	function handleSearch() {
+	function handleSearch () {
 		$('#tag-search').on('input propertychange', utils.debounce(function () {
-			function renderTags(tags) {
+			function renderTags (tags) {
 				app.parseAndTranslate('admin/manage/tags', 'tags', {
-					tags: tags,
+					tags,
 				}, function (html) {
 					$('.tag-list').html(html);
 					selectable.enable('.tag-management', '.tag-row');
@@ -67,7 +66,7 @@ define('admin/manage/tags', [
 				return renderTags(ajaxify.data.tags);
 			}
 			socket.emit('topics.searchAndLoadTags', {
-				query: query,
+				query,
 			}, function (err, result) {
 				if (err) {
 					return alerts.error(err);
@@ -78,7 +77,7 @@ define('admin/manage/tags', [
 		}, 250));
 	}
 
-	function handleRename() {
+	function handleRename () {
 		$('#rename').on('click', function () {
 			const tagsToModify = $('.tag-row.ui-selected');
 			if (!tagsToModify.length) {
@@ -116,7 +115,7 @@ define('admin/manage/tags', [
 		});
 	}
 
-	function handleDeleteSelected() {
+	function handleDeleteSelected () {
 		$('#deleteSelected').on('click', function () {
 			const tagsToDelete = $('.tag-row.ui-selected');
 			if (!tagsToDelete.length) {
@@ -132,7 +131,7 @@ define('admin/manage/tags', [
 					tags.push($(el).attr('data-tag'));
 				});
 				socket.emit('admin.tags.deleteTags', {
-					tags: tags,
+					tags,
 				}, function (err) {
 					if (err) {
 						return alerts.error(err);

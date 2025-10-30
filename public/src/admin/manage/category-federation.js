@@ -3,7 +3,7 @@ import { error } from '../../modules/alerts';
 
 import * as categorySelector from '../../modules/categorySelector';
 
-export function init() {
+export function init () {
 	categorySelector.init($('[component="category-selector"]'), {
 		onSelect: function (selectedCategory) {
 			ajaxify.go('admin/manage/categories/' + selectedCategory.cid + '/federation');
@@ -43,4 +43,3 @@ export function init() {
 		}
 	});
 }
-

@@ -147,7 +147,7 @@ Plugins.reload = async function () {
 
 Plugins.reloadRoutes = async function (params) {
 	const controllers = require('../controllers');
-	await Plugins.hooks.fire('static:app.load', { app: app, router: params.router, middleware: middleware, controllers: controllers });
+	await Plugins.hooks.fire('static:app.load', { app, router: params.router, middleware, controllers });
 	winston.verbose('[plugins] All plugins reloaded and rerouted');
 };
 
@@ -173,7 +173,7 @@ Plugins.list = async function (matching) {
 		const { response, body } = await request.get(url);
 		if (!response.ok) {
 			console.log(response);
-			throw new Error(`[[error:unable-to-load-plugins-from-nbbpm]]`);
+			throw new Error('[[error:unable-to-load-plugins-from-nbbpm]]');
 		}
 		return await Plugins.normalise(body);
 	} catch (err) {
@@ -187,7 +187,7 @@ Plugins.listTrending = async () => {
 	const { response, body } = await request.get(url);
 	if (!response.ok) {
 		console.log(response);
-		throw new Error(`[[error:unable-to-load-trending-plugins]]`);
+		throw new Error('[[error:unable-to-load-trending-plugins]]');
 	}
 	return body;
 };
@@ -272,7 +272,7 @@ Plugins.showInstalled = async function () {
 	let pluginPaths = await findNodeBBModules(dirs);
 	pluginPaths = pluginPaths.map(dir => path.join(Plugins.nodeModulesPath, dir));
 
-	async function load(file) {
+	async function load (file) {
 		try {
 			const pluginData = await Plugins.loadPluginInfo(file);
 			const isActive = await Plugins.isActive(pluginData.name);
@@ -290,7 +290,7 @@ Plugins.showInstalled = async function () {
 	return plugins.filter(Boolean);
 };
 
-async function findNodeBBModules(dirs) {
+async function findNodeBBModules (dirs) {
 	const pluginPaths = [];
 	await Promise.all(dirs.map(async (dirname) => {
 		const dirPath = path.join(Plugins.nodeModulesPath, dirname);
@@ -321,7 +321,7 @@ async function findNodeBBModules(dirs) {
 	return pluginPaths;
 }
 
-async function isDirectory(dirPath) {
+async function isDirectory (dirPath) {
 	try {
 		const stats = await fs.promises.stat(dirPath);
 		return stats.isDirectory();

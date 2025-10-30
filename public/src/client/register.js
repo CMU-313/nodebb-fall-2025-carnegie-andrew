@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/register', [
 	'translator', 'slugify', 'api', 'bootbox', 'forum/login', 'zxcvbn', 'jquery-form',
 ], function (translator, slugify, api, bootbox, Login, zxcvbn) {
@@ -46,7 +45,7 @@ define('forum/register', [
 			}
 		});
 
-		function validateForm(callback) {
+		function validateForm (callback) {
 			validationError = false;
 			$('[aria-invalid="true"]').removeAttr('aria-invalid');
 
@@ -114,7 +113,7 @@ define('forum/register', [
 		$('#username').trigger('focus');
 	};
 
-	function validateUsername(username, callback) {
+	function validateUsername (username, callback) {
 		callback = callback || function () {};
 
 		const username_notify = $('#username-notify');
@@ -143,7 +142,7 @@ define('forum/register', [
 		}
 	}
 
-	function validatePassword(password, password_confirm) {
+	function validatePassword (password, password_confirm) {
 		const passwordInput = $('#password');
 		const password_notify = $('#password-notify');
 		const password_confirm_notify = $('#password-confirm-notify');
@@ -166,7 +165,7 @@ define('forum/register', [
 		}
 	}
 
-	function validatePasswordConfirm(password, password_confirm) {
+	function validatePasswordConfirm (password, password_confirm) {
 		const passwordConfirmInput = $('#password-confirm');
 		const password_notify = $('#password-notify');
 		const password_confirm_notify = $('#password-confirm-notify');
@@ -182,7 +181,7 @@ define('forum/register', [
 		}
 	}
 
-	function showError(input, element, msg) {
+	function showError (input, element, msg) {
 		translator.translate(msg, function (msg) {
 			input.attr('aria-invalid', 'true');
 			element.html(msg);
@@ -194,7 +193,7 @@ define('forum/register', [
 		validationError = true;
 	}
 
-	function showSuccess(input, element, msg) {
+	function showSuccess (input, element, msg) {
 		translator.translate(msg, function (msg) {
 			input.removeAttr('aria-invalid');
 			element.html(msg);
@@ -205,7 +204,7 @@ define('forum/register', [
 		});
 	}
 
-	function handleLanguageOverride() {
+	function handleLanguageOverride () {
 		if (!app.user.uid && config.defaultLang !== config.userLang) {
 			const formEl = $('[component="register/local"]');
 			const langEl = $('<input type="hidden" name="userLang" value="' + config.userLang + '" />');

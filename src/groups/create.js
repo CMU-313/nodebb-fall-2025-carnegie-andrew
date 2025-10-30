@@ -35,15 +35,15 @@ module.exports = function (Groups) {
 			userTitle: data.userTitle || data.name,
 			userTitleEnabled: parseInt(data.userTitleEnabled, 10) === 1 ? 1 : 0,
 			description: data.description || '',
-			memberCount: memberCount,
+			memberCount,
 			hidden: isHidden ? 1 : 0,
 			system: isSystem ? 1 : 0,
 			private: isPrivate ? 1 : 0,
-			disableJoinRequests: disableJoinRequests,
-			disableLeave: disableLeave,
+			disableJoinRequests,
+			disableLeave,
 		};
 
-		await plugins.hooks.fire('filter:group.create', { group: groupData, data: data });
+		await plugins.hooks.fire('filter:group.create', { group: groupData, data });
 
 		await db.sortedSetAdd('groups:createtime', groupData.createtime, groupData.name);
 		await db.setObject(`group:${groupData.name}`, groupData);
@@ -70,13 +70,13 @@ module.exports = function (Groups) {
 		return groupData;
 	};
 
-	function isSystemGroup(data) {
+	function isSystemGroup (data) {
 		return data.system === true || parseInt(data.system, 10) === 1 ||
 			Groups.systemGroups.includes(data.name) ||
 			Groups.isPrivilegeGroup(data.name);
 	}
 
-	async function privilegeGroupExists(name) {
+	async function privilegeGroupExists (name) {
 		return Groups.isPrivilegeGroup(name) && await db.isSortedSetMember('groups:createtime', name);
 	}
 

@@ -1,9 +1,7 @@
 'use strict';
 
-
 const db = require('../../database');
 const batch = require('../../batch');
-
 
 module.exports = {
 	name: 'Fix user email sorted sets',
@@ -34,7 +32,7 @@ module.exports = {
 		}, {
 			batch: 500,
 			withScores: true,
-			progress: progress,
+			progress,
 		});
 
 		await batch.processArray(bulkRemove, async (bulk) => {

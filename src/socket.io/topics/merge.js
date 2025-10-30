@@ -18,10 +18,10 @@ module.exports = function (SocketTopics) {
 		}
 		const mergeIntoTid = await topics.merge(data.tids, socket.uid, data.options);
 		await events.log({
-			type: `topic-merge`,
+			type: 'topic-merge',
 			uid: socket.uid,
 			ip: socket.ip,
-			mergeIntoTid: mergeIntoTid,
+			mergeIntoTid,
 			tids: String(data.tids),
 		});
 		return mergeIntoTid;

@@ -1,4 +1,3 @@
-
 'use strict';
 
 const db = require('../database');
@@ -56,12 +55,12 @@ module.exports = function (Topics) {
 		const scheduled = mainPost.timestamp > now;
 		const params = {
 			uid: mainPost.uid,
-			title: title,
-			cid: cid,
+			title,
+			cid,
 			timestamp: mainPost.timestamp,
 		};
 		const result = await plugins.hooks.fire('filter:topic.fork', {
-			params: params,
+			params,
 			tid: mainPost.tid,
 		});
 
@@ -138,10 +137,10 @@ module.exports = function (Topics) {
 			Topics.updateLastPostTimeFromLastPid(tid),
 			Topics.updateLastPostTimeFromLastPid(postData.tid),
 		]);
-		plugins.hooks.fire('action:post.move', { uid: callerUid, post: postData, tid: tid });
+		plugins.hooks.fire('action:post.move', { uid: callerUid, post: postData, tid });
 	};
 
-	async function updateCategory(postData, toTid) {
+	async function updateCategory (postData, toTid) {
 		const topicData = await Topics.getTopicsFields([postData.tid, toTid], ['cid', 'pinned']);
 
 		if (!topicData[0].cid || !topicData[1].cid) {

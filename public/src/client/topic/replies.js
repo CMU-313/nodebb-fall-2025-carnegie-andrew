@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/topic/replies', ['forum/topic/posts', 'hooks', 'alerts', 'api'], function (posts, hooks, alerts, api) {
 	const Replies = {};
 
@@ -87,7 +86,7 @@ define('forum/topic/replies', ['forum/topic/posts', 'hooks', 'alerts', 'api'], f
 		incrementCount(post, -1);
 	};
 
-	function incrementCount(post, inc) {
+	function incrementCount (post, inc) {
 		const postEl = document.querySelector(`[component="post"][data-pid="${post.toPid}"]`);
 		if (!postEl) {
 			return;
@@ -112,7 +111,7 @@ define('forum/topic/replies', ['forum/topic/posts', 'hooks', 'alerts', 'api'], f
 
 		if (!avatars.find('[data-uid="' + post.uid + '"]').length && count < 7) {
 			app.parseAndTranslate('topic', 'posts', {
-				posts: [{ replies: { count: count, hasMore: false, users: [post.user] } }],
+				posts: [{ replies: { count, hasMore: false, users: [post.user] } }],
 			}, function (html) {
 				avatars.prepend(html.find('[component="post/reply-count/avatars"]').html());
 			});

@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/users', [
 	'api', 'alerts', 'accounts/invite',
 ], function (api, alerts, AccountInvite) {
@@ -44,7 +43,7 @@ define('forum/users', [
 		}
 	};
 
-	function doSearch() {
+	function doSearch () {
 		if (!ajaxify.data.template.users) {
 			return;
 		}
@@ -85,7 +84,7 @@ define('forum/users', [
 		loadPage(query);
 	}
 
-	function getSortBy() {
+	function getSortBy () {
 		let sortBy;
 		const activeSection = getActiveSection();
 		if (activeSection === 'sort-posts') {
@@ -98,8 +97,7 @@ define('forum/users', [
 		return sortBy;
 	}
 
-
-	function loadPage(query) {
+	function loadPage (query) {
 		api.get('/api/users', query)
 			.then(renderSearchResults)
 			.catch(alerts.error);
@@ -109,7 +107,7 @@ define('forum/users', [
 		ajaxify.updateHistory(`users?${search.toString()}`, true);
 	}
 
-	function renderSearchResults(data) {
+	function renderSearchResults (data) {
 		app.parseAndTranslate('partials/paginator', {
 			pagination: data.pagination,
 		}).then(function (html) {
@@ -128,7 +126,7 @@ define('forum/users', [
 		});
 	}
 
-	function onUserStatusChange(data) {
+	function onUserStatusChange (data) {
 		const section = getActiveSection();
 
 		if ((section.startsWith('online') || section.startsWith('users'))) {
@@ -136,11 +134,11 @@ define('forum/users', [
 		}
 	}
 
-	function updateUser(data) {
+	function updateUser (data) {
 		app.updateUserStatus($('#users-container [data-uid="' + data.uid + '"] [component="user/status"]'), data.status);
 	}
 
-	function getActiveSection() {
+	function getActiveSection () {
 		return utils.param('section') || '';
 	}
 

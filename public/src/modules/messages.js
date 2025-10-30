@@ -47,7 +47,7 @@ define('messages', ['bootbox', 'translator', 'storage', 'alerts', 'hooks'], func
 		}
 	};
 
-	function showCookieWarning() {
+	function showCookieWarning () {
 		if (!config.cookies.enabled || !navigator.cookieEnabled || app.inAdmin || storage.getItem('cookieconsent') === '1') {
 			return;
 		}
@@ -72,7 +72,7 @@ define('messages', ['bootbox', 'translator', 'storage', 'alerts', 'hooks'], func
 		});
 	}
 
-	function showQueryStringMessages() {
+	function showQueryStringMessages () {
 		const params = utils.params({ full: true });
 		showWelcomeMessage = params.has('loggedin');
 		registerMessage = params.get('register');

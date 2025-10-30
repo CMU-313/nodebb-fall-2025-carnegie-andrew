@@ -14,9 +14,9 @@ define('userFilter', ['api', 'hooks', 'slugify', 'benchpress'], function (api, h
 		if (options.selectedUsers) {
 			selectedUsers = options.selectedUsers.map(u => ({ ...u }));
 		}
-		hooks.fire('action:user.filter.options', { el: el, options: options });
+		hooks.fire('action:user.filter.options', { el, options });
 
-		async function renderSelectedUsers() {
+		async function renderSelectedUsers () {
 			const block = options.selectedBlock || 'userFilterSelected';
 			const payload = {};
 
@@ -34,19 +34,19 @@ define('userFilter', ['api', 'hooks', 'slugify', 'benchpress'], function (api, h
 			el.find('[component="user/filter/selected"]').html(html);
 		}
 
-		async function onSelectionChange() {
+		async function onSelectionChange () {
 			await renderSelectedUsers();
 			if (options.onSelect) {
 				options.onSelect(selectedUsers);
 			}
 		}
 
-		async function doSearch() {
+		async function doSearch () {
 			let result = { users: [] };
 			const query = el.find('[component="user/filter/search"]').val();
 			if (query && query.length > 1) {
 				if (app.user.privileges['search:users']) {
-					result = await api.get('/api/users', { query: query });
+					result = await api.get('/api/users', { query });
 				} else {
 					try {
 						const userData = await api.get(`/api/user/${slugify(query)}`);

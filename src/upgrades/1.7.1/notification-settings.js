@@ -24,7 +24,7 @@ module.exports = {
 				await db.deleteObjectFields(`user:${uid}:settings`, ['sendChatNotifications', 'sendPostNotifications']);
 			}));
 		}, {
-			progress: progress,
+			progress,
 			batch: 500,
 		});
 	},

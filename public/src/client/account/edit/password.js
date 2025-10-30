@@ -11,7 +11,7 @@ define('forum/account/edit/password', [
 		handlePasswordChange();
 	};
 
-	function handlePasswordChange() {
+	function handlePasswordChange () {
 		const currentPassword = $('#inputCurrentPassword');
 		const password_notify = $('#password-notify');
 		const password_confirm_notify = $('#password-confirm-notify');
@@ -20,7 +20,7 @@ define('forum/account/edit/password', [
 		let passwordvalid = false;
 		let passwordsmatch = false;
 
-		function onPasswordChanged() {
+		function onPasswordChanged () {
 			passwordvalid = false;
 
 			try {
@@ -39,7 +39,7 @@ define('forum/account/edit/password', [
 			}
 		}
 
-		function onPasswordConfirmChanged() {
+		function onPasswordConfirmChanged () {
 			if (password.val() !== password_confirm.val()) {
 				showError(password_confirm_notify, '[[user:change-password-error-match]]');
 				passwordsmatch = false;
@@ -101,14 +101,14 @@ define('forum/account/edit/password', [
 		});
 	}
 
-	function showError(element, msg) {
+	function showError (element, msg) {
 		translator.translate(msg, function (msg) {
 			element.html(msg).removeClass('text-success')
 				.addClass('text-danger');
 		});
 	}
 
-	function showSuccess(element) {
+	function showSuccess (element) {
 		element.html('').removeClass('text-danger')
 			.addClass('text-success');
 	}

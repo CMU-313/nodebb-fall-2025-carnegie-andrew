@@ -1,4 +1,3 @@
-
 'use strict';
 
 const db = require('../database');
@@ -34,7 +33,7 @@ module.exports = function (Topics) {
 		await setWatching(ignore, unfollow, 'action:topic.ignore', tid, uid);
 	};
 
-	async function setWatching(method1, method2, hook, tid, uid) {
+	async function setWatching (method1, method2, hook, tid, uid) {
 		if (!(parseInt(uid, 10) > 0)) {
 			throw new Error('[[error:not-logged-in]]');
 		}
@@ -44,32 +43,32 @@ module.exports = function (Topics) {
 		}
 		await method1(tid, uid);
 		await method2(tid, uid);
-		plugins.hooks.fire(hook, { uid: uid, tid: tid });
+		plugins.hooks.fire(hook, { uid, tid });
 	}
 
-	async function follow(tid, uid) {
+	async function follow (tid, uid) {
 		await db.setAdd(`tid:${tid}:followers`, uid);
 		await db.sortedSetAdd(`uid:${uid}:followed_tids`, Date.now(), tid);
 		await updateFollowerCount(tid);
 	}
 
-	async function unfollow(tid, uid) {
+	async function unfollow (tid, uid) {
 		await db.setRemove(`tid:${tid}:followers`, uid);
 		await db.sortedSetRemove(`uid:${uid}:followed_tids`, tid);
 		await updateFollowerCount(tid);
 	}
 
-	async function ignore(tid, uid) {
+	async function ignore (tid, uid) {
 		await db.setAdd(`tid:${tid}:ignorers`, uid);
 		await db.sortedSetAdd(`uid:${uid}:ignored_tids`, Date.now(), tid);
 	}
 
-	async function unignore(tid, uid) {
+	async function unignore (tid, uid) {
 		await db.setRemove(`tid:${tid}:ignorers`, uid);
 		await db.sortedSetRemove(`uid:${uid}:ignored_tids`, tid);
 	}
 
-	async function updateFollowerCount(tid) {
+	async function updateFollowerCount (tid) {
 		const count = await db.setCount(`tid:${tid}:followers`);
 		await Topics.setTopicField(tid, 'followercount', count);
 	}
@@ -104,7 +103,7 @@ module.exports = function (Topics) {
 		return followData;
 	};
 
-	async function isIgnoringOrFollowing(set, tids, uid) {
+	async function isIgnoringOrFollowing (set, tids, uid) {
 		if (!Array.isArray(tids)) {
 			return;
 		}

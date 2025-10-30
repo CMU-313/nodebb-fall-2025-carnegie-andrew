@@ -15,11 +15,13 @@ define('forum/account/moderate', [
 			tpl: 'modals/temporary-ban',
 			title: '[[user:ban-account]]',
 			onSubmit: function (formData) {
-				const until = formData.length > 0 ? (
-					Date.now() + (formData.length * 1000 * 60 * 60 * (parseInt(formData.unit, 10) ? 24 : 1))
-				) : 0;
+				const until = formData.length > 0 ?
+					(
+						Date.now() + (formData.length * 1000 * 60 * 60 * (parseInt(formData.unit, 10) ? 24 : 1))
+					) :
+					0;
 				api.put('/users/' + theirid + '/ban', {
-					until: until,
+					until,
 					reason: formData.reason || '',
 				}).then(() => {
 					if (typeof onSuccess === 'function') {
@@ -52,12 +54,14 @@ define('forum/account/moderate', [
 			tpl: 'modals/temporary-mute',
 			title: '[[user:mute-account]]',
 			onSubmit: function (formData) {
-				const until = formData.length > 0 ? (
-					Date.now() + (formData.length * 1000 * 60 * 60 * (parseInt(formData.unit, 10) ? 24 : 1))
-				) : 0;
+				const until = formData.length > 0 ?
+					(
+						Date.now() + (formData.length * 1000 * 60 * 60 * (parseInt(formData.unit, 10) ? 24 : 1))
+					) :
+					0;
 
 				api.put('/users/' + theirid + '/mute', {
-					until: until,
+					until,
 					reason: formData.reason || '',
 				}).then(() => {
 					if (typeof onSuccess === 'function') {
@@ -83,7 +87,7 @@ define('forum/account/moderate', [
 		});
 	};
 
-	function throwModal(options) {
+	function throwModal (options) {
 		Benchpress.render(options.tpl, {}).then(function (html) {
 			const modal = bootbox.dialog({
 				title: options.title,

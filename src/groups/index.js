@@ -83,7 +83,7 @@ Groups.getGroupCountBySort = async function (sort) {
 	return await db.sortedSetCard(sortToSet(sort));
 };
 
-function sortToSet(sort) {
+function sortToSet (sort) {
 	let set = 'groups:visible:name';
 	if (sort === 'count') {
 		set = 'groups:visible:memberCount';
@@ -162,7 +162,6 @@ Groups.get = async function (groupName, options) {
 		]));
 	}
 
-
 	const descriptionParsed = await plugins.hooks.fire('filter:parse.raw', String(groupData.description || ''));
 	groupData.descriptionParsed = descriptionParsed;
 	groupData.members = members;
@@ -195,7 +194,7 @@ Groups.getOwnersAndMembers = async function (groupName, uid, start, stop) {
 	let memberStop = memberStart + countToReturn - 1;
 	memberStart = Math.max(0, memberStart);
 	memberStop = Math.max(0, memberStop);
-	async function addMembers(start, stop) {
+	async function addMembers (start, stop) {
 		let batch = await user.getUsersFromSet(`group:${groupName}:members`, uid, start, stop);
 		if (!batch.length) {
 			done = true;
@@ -217,9 +216,9 @@ Groups.getOwnersAndMembers = async function (groupName, uid, start, stop) {
 	returnUsers = countToReturn > 0 ? returnUsers.slice(0, countToReturn) : returnUsers;
 	const result = await plugins.hooks.fire('filter:group.getOwnersAndMembers', {
 		users: returnUsers,
-		uid: uid,
-		start: start,
-		stop: stop,
+		uid,
+		start,
+		stop,
 	});
 	return result.users;
 };
@@ -245,7 +244,7 @@ Groups.isHidden = async function (groupName) {
 	return await isFieldOn(groupName, 'hidden');
 };
 
-async function isFieldOn(groupName, field) {
+async function isFieldOn (groupName, field) {
 	const value = await db.getObjectField(`group:${groupName}`, field);
 	return parseInt(value, 10) === 1;
 }

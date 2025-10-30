@@ -12,7 +12,7 @@ utils.tokens = {};
 
 utils.tokens.list = async (start = 0, stop = -1) => {
 	// Validation handled at higher level
-	const tokens = await db.getSortedSetRange(`tokens:createtime`, start, stop);
+	const tokens = await db.getSortedSetRange('tokens:createtime', start, stop);
 	return await utils.tokens.get(tokens);
 };
 
@@ -75,8 +75,8 @@ utils.tokens.add = async ({ token, uid, description = '', timestamp = Date.now()
 
 	await Promise.all([
 		db.setObject(`token:${token}`, { uid, description, timestamp }),
-		db.sortedSetAdd(`tokens:createtime`, timestamp, token),
-		db.sortedSetAdd(`tokens:uid`, uid, token),
+		db.sortedSetAdd('tokens:createtime', timestamp, token),
+		db.sortedSetAdd('tokens:uid', uid, token),
 	]);
 
 	return token;
@@ -88,29 +88,29 @@ utils.tokens.update = async (token, { uid, description }) => {
 	}
 	await Promise.all([
 		db.setObject(`token:${token}`, { uid, description }),
-		db.sortedSetAdd(`tokens:uid`, uid, token),
+		db.sortedSetAdd('tokens:uid', uid, token),
 	]);
 
 	return await utils.tokens.get(token);
 };
 
 utils.tokens.roll = async (token) => {
-	const [createTime, uid, lastSeen] = await db.sortedSetsScore([`tokens:createtime`, `tokens:uid`, `tokens:lastSeen`], token);
+	const [createTime, uid, lastSeen] = await db.sortedSetsScore(['tokens:createtime', 'tokens:uid', 'tokens:lastSeen'], token);
 	const newToken = srcUtils.generateUUID();
 
 	const updates = [
 		db.rename(`token:${token}`, `token:${newToken}`),
 		db.sortedSetsRemove([
-			`tokens:createtime`,
-			`tokens:uid`,
-			`tokens:lastSeen`,
+			'tokens:createtime',
+			'tokens:uid',
+			'tokens:lastSeen',
 		], token),
-		db.sortedSetAdd(`tokens:createtime`, createTime, newToken),
-		db.sortedSetAdd(`tokens:uid`, uid, newToken),
+		db.sortedSetAdd('tokens:createtime', createTime, newToken),
+		db.sortedSetAdd('tokens:uid', uid, newToken),
 	];
 
 	if (lastSeen) {
-		updates.push(db.sortedSetAdd(`tokens:lastSeen`, lastSeen, newToken));
+		updates.push(db.sortedSetAdd('tokens:lastSeen', lastSeen, newToken));
 	}
 
 	await Promise.all(updates);
@@ -122,9 +122,9 @@ utils.tokens.delete = async (token) => {
 	await Promise.all([
 		db.delete(`token:${token}`),
 		db.sortedSetsRemove([
-			`tokens:createtime`,
-			`tokens:uid`,
-			`tokens:lastSeen`,
+			'tokens:createtime',
+			'tokens:uid',
+			'tokens:lastSeen',
 		], token),
 	]);
 };

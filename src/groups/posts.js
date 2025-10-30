@@ -25,7 +25,7 @@ module.exports = function (Groups) {
 		await Promise.all(groupNames.map(truncateMemberPosts));
 	};
 
-	async function truncateMemberPosts(groupName) {
+	async function truncateMemberPosts (groupName) {
 		let lastPid = await db.getSortedSetRevRangeByScore(`group:${groupName}:member:pids`, 10, 1, Date.now(), '-inf');
 		lastPid = lastPid[0];
 		if (!parseInt(lastPid, 10)) {

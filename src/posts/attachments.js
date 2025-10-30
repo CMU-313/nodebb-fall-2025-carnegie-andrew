@@ -14,7 +14,7 @@ Attachments.get = async (pids) => {
 	if (!isArray) {
 		pids = [pids];
 	}
-	const postData = await posts.getPostsFields(pids, [`attachments`]);
+	const postData = await posts.getPostsFields(pids, ['attachments']);
 	const allHashes = _.flatten(postData.map(p => p && p.attachments));
 	const allAttachments = await Attachments.getAttachments(allHashes);
 	const hashToAttachment = _.zipObject(allHashes, allAttachments);

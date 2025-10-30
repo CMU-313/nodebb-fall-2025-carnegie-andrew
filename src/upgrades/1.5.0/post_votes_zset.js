@@ -3,7 +3,6 @@
 const async = require('async');
 const db = require('../../database');
 
-
 module.exports = {
 	name: 'New sorted set posts:votes',
 	timestamp: Date.UTC(2017, 1, 27),

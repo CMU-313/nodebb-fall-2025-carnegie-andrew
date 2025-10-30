@@ -108,7 +108,7 @@ module.exports = function (opts) {
 	};
 	cache.clear = cache.reset;
 
-	function localReset() {
+	function localReset () {
 		lruCache.clear();
 		cache.hits = 0;
 		cache.misses = 0;

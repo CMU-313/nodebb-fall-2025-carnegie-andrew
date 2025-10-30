@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/topic/manage-editors', [
 	'autocomplete',
 	'alerts',
@@ -15,9 +14,9 @@ define('forum/topic/manage-editors', [
 		}
 		const pid = postEl.attr('data-pid');
 
-		let editors = await socket.emit('posts.getEditors', { pid: pid });
+		let editors = await socket.emit('posts.getEditors', { pid });
 		app.parseAndTranslate('modals/manage-editors', {
-			editors: editors,
+			editors,
 		}, function (html) {
 			modal = html;
 
@@ -36,7 +35,7 @@ define('forum/topic/manage-editors', [
 				if (!isInEditors) {
 					editors.push(ui.item.user);
 					app.parseAndTranslate('modals/manage-editors', 'editors', {
-						editors: editors,
+						editors,
 					}, function (html) {
 						modal.find('[component="topic/editors"]').html(html);
 						modal.find('#username').val('');
@@ -53,11 +52,11 @@ define('forum/topic/manage-editors', [
 		});
 	};
 
-	function saveEditors(pid) {
+	function saveEditors (pid) {
 		const uids = modal.find('[component="topic/editors"]>[data-uid]')
 			.map((i, el) => $(el).attr('data-uid')).get();
 
-		socket.emit('posts.saveEditors', { pid: pid, uids: uids }, function (err) {
+		socket.emit('posts.saveEditors', { pid, uids }, function (err) {
 			if (err) {
 				return alerts.error(err);
 			}
@@ -66,7 +65,7 @@ define('forum/topic/manage-editors', [
 		});
 	}
 
-	function closeModal() {
+	function closeModal () {
 		if (modal) {
 			modal.remove();
 			modal = null;

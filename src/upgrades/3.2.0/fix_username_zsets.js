@@ -1,9 +1,7 @@
 'use strict';
 
-
 const db = require('../../database');
 const batch = require('../../batch');
-
 
 module.exports = {
 	name: 'Fix username zsets',
@@ -25,7 +23,7 @@ module.exports = {
 			await db.sortedSetAddBulk(bulkAdd);
 		}, {
 			batch: 500,
-			progress: progress,
+			progress,
 		});
 	},
 };

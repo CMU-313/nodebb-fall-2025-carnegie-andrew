@@ -57,7 +57,6 @@ let launchUrl;
 let timeStart = 0;
 const totalTime = 1000 * 60 * 3;
 
-
 const viewsDir = path.join(paths.baseDir, 'build/public/templates');
 
 web.install = async function (port) {
@@ -99,7 +98,7 @@ web.install = async function (port) {
 	}
 };
 
-async function runWebpack() {
+async function runWebpack () {
 	const util = require('util');
 	const webpackCfg = require('../webpack.installer');
 	const compiler = webpack(webpackCfg);
@@ -107,13 +106,13 @@ async function runWebpack() {
 	await webpackRun();
 }
 
-function launchExpress(port) {
+function launchExpress (port) {
 	server = app.listen(port, () => {
 		winston.info('Web installer listening on http://%s:%s', '0.0.0.0', port);
 	});
 }
 
-function setupRoutes() {
+function setupRoutes () {
 	app.get('/', csrfSynchronisedProtection, welcome);
 	app.post('/', csrfSynchronisedProtection, install);
 	app.get('/testdb', testDatabase);
@@ -121,7 +120,7 @@ function setupRoutes() {
 	app.get('/sping', ping);
 }
 
-async function testDatabase(req, res) {
+async function testDatabase (req, res) {
 	let db;
 	try {
 		const keys = Object.keys(req.query);
@@ -142,40 +141,40 @@ async function testDatabase(req, res) {
 	}
 }
 
-function ping(req, res) {
+function ping (req, res) {
 	res.status(200).send(req.path === '/sping' ? 'healthy' : '200');
 }
 
-function welcome(req, res) {
+function welcome (req, res) {
 	const dbs = ['mongo', 'redis', 'postgres'];
 	const databases = dbs.map((databaseName) => {
 		const questions = require(`../src/database/${databaseName}`).questions.filter(question => question && !question.hideOnWebInstall);
 
 		return {
 			name: databaseName,
-			questions: questions,
+			questions,
 		};
 	});
 
 	const defaults = require('./data/defaults.json');
 	res.render('install/index', {
 		url: nconf.get('url') || (`${req.protocol}://${req.get('host')}`),
-		launchUrl: launchUrl,
+		launchUrl,
 		skipGeneralSetup: !!nconf.get('url'),
-		databases: databases,
+		databases,
 		skipDatabaseSetup: !!nconf.get('database'),
-		error: error,
-		success: success,
+		error,
+		success,
 		values: req.body,
 		minimumPasswordLength: defaults.minimumPasswordLength,
 		minimumPasswordStrength: defaults.minimumPasswordStrength,
-		installing: installing,
+		installing,
 		percentInstalled: installing ? ((Date.now() - timeStart) / totalTime * 100).toFixed(2) : 0,
 		csrf_token: generateToken(req),
 	});
 }
 
-function install(req, res) {
+function install (req, res) {
 	if (installing) {
 		return welcome(req, res);
 	}
@@ -222,7 +221,7 @@ function install(req, res) {
 	welcome(req, res);
 }
 
-async function launch() {
+async function launch () {
 	try {
 		server.close();
 		let child;
@@ -269,7 +268,7 @@ async function launch() {
 }
 
 // this is necessary because otherwise the compiled templates won't be available on a clean install
-async function compileTemplate() {
+async function compileTemplate () {
 	const sourceFile = path.join(__dirname, '../src/views/install/index.tpl');
 	const destTpl = path.join(viewsDir, 'install/index.tpl');
 	const destJs = path.join(viewsDir, 'install/index.js');
@@ -287,7 +286,7 @@ async function compileTemplate() {
 	]);
 }
 
-async function compileSass() {
+async function compileSass () {
 	try {
 		const installSrc = path.join(__dirname, '../public/scss/install.scss');
 		const style = await fs.promises.readFile(installSrc);
@@ -304,14 +303,14 @@ async function compileSass() {
 	}
 }
 
-async function copyCSS() {
+async function copyCSS () {
 	await fs.promises.copyFile(
 		path.join(__dirname, '../node_modules/bootstrap/dist/css/bootstrap.min.css'),
-		path.join(__dirname, '../public/bootstrap.min.css'),
+		path.join(__dirname, '../public/bootstrap.min.css')
 	);
 }
 
-async function loadDefaults() {
+async function loadDefaults () {
 	const setupDefaultsPath = path.join(__dirname, '../setup.json');
 	try {
 		// eslint-disable-next-line no-bitwise

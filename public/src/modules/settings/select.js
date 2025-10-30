@@ -3,7 +3,7 @@
 define('settings/select', function () {
 	let Settings = null;
 
-	function addOptions(element, options) {
+	function addOptions (element, options) {
 		for (let i = 0; i < options.length; i += 1) {
 			const optionData = options[i];
 			const value = optionData.text || optionData.value;
@@ -11,7 +11,6 @@ define('settings/select', function () {
 			element.append($(Settings.helper.createElement('option', optionData)).text(value));
 		}
 	}
-
 
 	const SettingsSelect = {
 		types: ['select'],

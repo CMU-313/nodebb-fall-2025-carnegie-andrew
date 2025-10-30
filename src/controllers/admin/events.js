@@ -58,7 +58,7 @@ eventsController.get = async function (req, res) {
 	res.render('admin/advanced/events', {
 		events: eventData,
 		pagination: pagination.create(page, pageCount, req.query),
-		types: types,
+		types,
 		query: {
 			start: validator.escape(String(req.query.start)),
 			end: validator.escape(String(req.query.end)),

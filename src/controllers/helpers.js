@@ -33,7 +33,7 @@ helpers.noScriptErrors = async function (req, res, error, httpStatus) {
 	res.status(httpStatus).render(httpStatusString, {
 		path: req.path,
 		loggedIn: req.loggedIn,
-		error: error,
+		error,
 		returnLink: true,
 		title: `[[global:${httpStatusString}.title]]`,
 	});
@@ -138,7 +138,7 @@ helpers.notAllowed = async function (req, res, error) {
 				res.status(403).json({
 					path: req.path.replace(/^\/api/, ''),
 					loggedIn: req.loggedIn,
-					error: error,
+					error,
 					title: '[[global:403.title]]',
 					bodyClass: middlewareHelpers.buildBodyClass(req, res),
 				});
@@ -182,9 +182,10 @@ helpers.redirect = function (res, url, permanent) {
 	}
 };
 
-function prependRelativePath(url) {
+function prependRelativePath (url) {
 	return url.startsWith('http://') || url.startsWith('https://') ?
-		url : relative_path + url;
+		url :
+		relative_path + url;
 }
 
 helpers.buildCategoryBreadcrumbs = async function (cid) {
@@ -197,7 +198,7 @@ helpers.buildCategoryBreadcrumbs = async function (cid) {
 			breadcrumbs.unshift({
 				text: String(data.name),
 				url: `${url}/category/${data.slug}`,
-				cid: cid,
+				cid,
 			});
 		}
 		cid = data.parentCid;
@@ -211,7 +212,7 @@ helpers.buildCategoryBreadcrumbs = async function (cid) {
 
 	breadcrumbs.unshift({
 		text: meta.config.homePageTitle || '[[global:home]]',
-		url: url,
+		url,
 	});
 
 	return breadcrumbs;
@@ -221,7 +222,7 @@ helpers.buildBreadcrumbs = function (crumbs) {
 	const breadcrumbs = [
 		{
 			text: meta.config.homePageTitle || '[[global:home]]',
-			url: url,
+			url,
 		},
 	];
 
@@ -257,7 +258,7 @@ helpers.getCategoriesByStates = async function (uid, selectedCid, states, privil
 	return await getCategoryData(cids, uid, selectedCid, states, privilege);
 };
 
-async function getCategoryData(cids, uid, selectedCid, states, privilege) {
+async function getCategoryData (cids, uid, selectedCid, states, privilege) {
 	const [visibleCategories, selectData] = await Promise.all([
 		helpers.getVisibleCategories({
 			cids, uid, states, privilege, showLinks: false,
@@ -292,12 +293,12 @@ helpers.getVisibleCategories = async function (params) {
 	]);
 
 	const filtered = await plugins.hooks.fire('filter:helpers.getVisibleCategories', {
-		uid: uid,
-		allowed: allowed,
-		watchState: watchState,
-		categoriesData: categoriesData,
-		isModerator: isModerator,
-		isAdmin: isAdmin,
+		uid,
+		allowed,
+		watchState,
+		categoriesData,
+		isModerator,
+		isAdmin,
 	});
 	({ allowed, watchState, categoriesData, isModerator, isAdmin } = filtered);
 
@@ -352,7 +353,7 @@ helpers.getSelectedCategory = async function (cids) {
 		selectedCategories = null;
 	}
 	return {
-		selectedCids: selectedCids,
+		selectedCids,
 		selectedCategory: selectedCategories,
 	};
 };
@@ -371,7 +372,7 @@ helpers.getSelectedTag = function (tags) {
 	}
 	return {
 		selectedTags: tagData,
-		selectedTag: selectedTag,
+		selectedTag,
 	};
 };
 
@@ -403,7 +404,7 @@ helpers.setCategoryTeaser = function (category) {
 	}
 };
 
-function checkVisibleChildren(c, cidToAllowed, cidToWatchState, states) {
+function checkVisibleChildren (c, cidToAllowed, cidToWatchState, states) {
 	if (!c || !Array.isArray(c.children)) {
 		return false;
 	}
@@ -441,8 +442,8 @@ helpers.getHomePageRoutes = async function (uid) {
 		},
 	];
 	const data = await plugins.hooks.fire('filter:homepage.get', {
-		uid: uid,
-		routes: routes,
+		uid,
+		routes,
 	});
 	return data.routes;
 };
@@ -520,7 +521,7 @@ helpers.formatApiResponse = async (statusCode, res, payload) => {
 	}
 };
 
-async function generateBannedResponse(res) {
+async function generateBannedResponse (res) {
 	const response = {};
 	const [reason, expiry] = await Promise.all([
 		user.bans.getReason(res.req.uid),
@@ -540,7 +541,7 @@ async function generateBannedResponse(res) {
 }
 
 helpers.generateError = async (statusCode, message, res) => {
-	async function translateMessage(message) {
+	async function translateMessage (message) {
 		const { req } = res;
 		const settings = req.query.lang ? null : await user.getSettings(req.uid);
 		const language = String(req.query.lang || settings.userLang || meta.config.defaultLang);

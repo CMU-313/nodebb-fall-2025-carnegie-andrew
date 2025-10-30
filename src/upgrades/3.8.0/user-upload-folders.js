@@ -1,6 +1,5 @@
 'use strict';
 
-
 const fs = require('fs');
 const nconf = require('nconf');
 const path = require('path');
@@ -8,7 +7,6 @@ const { mkdirp } = require('mkdirp');
 
 const db = require('../../database');
 const batch = require('../../batch');
-
 
 module.exports = {
 	name: 'Create user upload folders',
@@ -33,7 +31,7 @@ module.exports = {
 					await mkdirp(path.join(folder, `uid-${uid}`));
 					await fs.promises.rename(
 						path.join(folder, file),
-						path.join(folder, `uid-${uid}`, file),
+						path.join(folder, `uid-${uid}`, file)
 					);
 				}
 			}));
@@ -81,7 +79,7 @@ module.exports = {
 			await db.setObjectBulk(bulkSet);
 		}, {
 			batch: 500,
-			progress: progress,
+			progress,
 		});
 	},
 };

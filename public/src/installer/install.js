@@ -45,7 +45,7 @@ $('document').ready(function () {
 		return false;
 	});
 
-	function checkIfReady() {
+	function checkIfReady () {
 		let successCount = 0;
 		const url = $('#installing').attr('data-url');
 		const progressEl = $('#installing .progress-bar');
@@ -70,7 +70,7 @@ $('document').ready(function () {
 		checkIfReady();
 	}
 
-	function setupInputs() {
+	function setupInputs () {
 		$('form').on('focus', '.form-control', function () {
 			const parent = $(this).parents('.input-row');
 
@@ -88,7 +88,7 @@ $('document').ready(function () {
 		$('form').submit(validateAll);
 	}
 
-	function validateAll(ev) {
+	function validateAll (ev) {
 		$('form .admin [name]').each(function () {
 			activate($(this).attr('name'), $(this));
 		});
@@ -102,12 +102,12 @@ $('document').ready(function () {
 		$('#submit .working').removeClass('hide');
 	}
 
-	function activate(type, el) {
+	function activate (type, el) {
 		const field = el.val();
 		const parent = el.parents('.input-row');
 		const help = parent.children('.form-text');
 
-		function validateUsername(field) {
+		function validateUsername (field) {
 			if (!utils.isUserNameValid(field) || !slugify(field)) {
 				parent.addClass('error');
 				help.html('Invalid Username.');
@@ -116,7 +116,7 @@ $('document').ready(function () {
 			}
 		}
 
-		function validatePassword(field) {
+		function validatePassword (field) {
 			if (!utils.isPasswordValid(field)) {
 				parent.addClass('error');
 				help.html('Invalid Password.');
@@ -131,7 +131,7 @@ $('document').ready(function () {
 			}
 		}
 
-		function validateConfirmPassword() {
+		function validateConfirmPassword () {
 			if ($('[name="admin:password"]').val() !== $('[name="admin:passwordConfirm"]').val()) {
 				parent.addClass('error');
 				help.html('Passwords do not match.');
@@ -140,7 +140,7 @@ $('document').ready(function () {
 			}
 		}
 
-		function validateEmail(field) {
+		function validateEmail (field) {
 			if (!utils.isEmailValid(field)) {
 				parent.addClass('error');
 				help.html('Invalid Email Address.');
@@ -149,7 +149,7 @@ $('document').ready(function () {
 			}
 		}
 
-		function switchDatabase(field) {
+		function switchDatabase (field) {
 			$('#database-config').html($('[data-database="' + field + '"]').html());
 			$('#database-success').addClass('hidden');
 			$('#database-error').addClass('hidden');

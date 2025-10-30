@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/chats', [
 	'components',
 	'mousetrap',
@@ -204,7 +203,6 @@ define('forum/chats', [
 			});
 	};
 
-
 	Chats.addUploadHandler = function (options) {
 		uploadHelpers.init({
 			dragDropAreaEl: options.dragDropAreaEl,
@@ -246,7 +244,7 @@ define('forum/chats', [
 	};
 
 	Chats.addCopyTextLinkHandler = function (container) {
-		function doCopy(copyEl, text) {
+		function doCopy (copyEl, text) {
 			navigator.clipboard.writeText(text);
 			copyEl.find('i').addClass('fa-check').removeClass('fa-link');
 			setTimeout(() => copyEl.find('i').removeClass('fa-check').addClass('fa-link'), 2000);
@@ -397,7 +395,7 @@ define('forum/chats', [
 
 	Chats.addTypingHandler = function (parent, roomId) {
 		const textarea = parent.find('[component="chat/input"]');
-		function emitTyping(typing) {
+		function emitTyping (typing) {
 			api.put(`/chats/${roomId}/typing`, { typing }).catch(alerts.error);
 		}
 
@@ -582,7 +580,7 @@ define('forum/chats', [
 		}
 
 		const data = {
-			element: element,
+			element,
 			strategies: [],
 			options: {
 				style: {
@@ -655,7 +653,7 @@ define('forum/chats', [
 				mainWrapper.attr('data-roomid', roomId);
 				chatNavWrapper = $('[component="chat/nav-wrapper"]');
 				html.find('.timeago').timeago();
-				ajaxify.data = { ...ajaxify.data, ...payload, roomId: roomId };
+				ajaxify.data = { ...ajaxify.data, ...payload, roomId };
 				ajaxify.updateTitle(ajaxify.data.title);
 				$('body').toggleClass('chat-loaded', !!roomId);
 				mainWrapper.find('[data-bs-toggle="tooltip"]').tooltip({ trigger: 'hover', container: '#content' });
@@ -665,7 +663,7 @@ define('forum/chats', [
 				messages.scrollToBottomAfterImageLoad(mainWrapper.find('[component="chat/message/content"]'));
 				if (history.pushState) {
 					history.pushState({
-						url: url,
+						url,
 					}, null, window.location.protocol + '//' + window.location.host + config.relative_path + '/' + url);
 				}
 			})
@@ -767,12 +765,12 @@ define('forum/chats', [
 		const roomEl = chatNavWrapper.find(`[data-roomid="${roomId}"]`);
 		if (roomEl.length) {
 			const html = await app.parseAndTranslate('partials/chats/room-teaser', {
-				teaser: teaser,
+				teaser,
 			});
 			roomEl.find('[component="chat/room/teaser"]').html(html[0].outerHTML);
 			roomEl.find('.timeago').timeago();
 		} else {
-			const { rooms } = await api.get(`/chats`, { start: 0, perPage: 2 });
+			const { rooms } = await api.get('/chats', { start: 0, perPage: 2 });
 			const room = rooms.find(r => parseInt(r.roomId, 10) === parseInt(roomId, 10));
 			if (room) {
 				const recentEl = components.get('chat/recent');
@@ -828,4 +826,3 @@ define('forum/chats', [
 
 	return Chats;
 });
-

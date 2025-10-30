@@ -16,13 +16,13 @@ module.exports = {
 			const tidToCount = _.zipObject(tids, counts);
 			const tidsWithThumbs = tids.filter((t, i) => counts[i] > 0);
 			await db.setObjectBulk(
-				tidsWithThumbs.map(tid => [`topic:${tid}`, { numThumbs: tidToCount[tid] }]),
+				tidsWithThumbs.map(tid => [`topic:${tid}`, { numThumbs: tidToCount[tid] }])
 			);
 
 			progress.incr(tids.length);
 		}, {
 			batch: 500,
-			progress: progress,
+			progress,
 		});
 	},
 };

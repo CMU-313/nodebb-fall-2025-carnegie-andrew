@@ -1,4 +1,3 @@
-
 'use strict';
 
 const nconf = require('nconf');
@@ -49,11 +48,11 @@ recentController.getData = async function (req, url, sort) {
 		cids: cid,
 		tags: tag,
 		uid: req.uid,
-		start: start,
-		stop: stop,
-		filter: filter,
-		term: term,
-		sort: sort,
+		start,
+		stop,
+		filter,
+		term,
+		sort,
 		floatPinned: req.query.pinned,
 		query: req.query,
 	});
@@ -94,13 +93,12 @@ recentController.getData = async function (req, url, sort) {
 	const pageCount = Math.max(1, Math.ceil(data.topicCount / settings.topicsPerPage));
 	data.pagination = pagination.create(page, pageCount, req.query);
 	helpers.addLinkTags({
-		url: url,
+		url,
 		res: req.res,
 		tags: data.pagination.rel,
-		page: page,
+		page,
 	});
 	return data;
 };
-
 
 require('../promisify')(recentController, ['get']);

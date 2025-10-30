@@ -3,7 +3,7 @@
 const meta = require('./meta');
 const pubsub = require('./pubsub');
 
-function expandObjBy(obj1, obj2) {
+function expandObjBy (obj1, obj2) {
 	let changed = false;
 	if (!obj1 || !obj2) {
 		return changed;
@@ -23,7 +23,7 @@ function expandObjBy(obj1, obj2) {
 	return changed;
 }
 
-function trim(obj1, obj2) {
+function trim (obj1, obj2) {
 	for (const [key, val1] of Object.entries(obj1)) {
 		if (!obj2.hasOwnProperty(key)) {
 			delete obj1[key];
@@ -33,7 +33,7 @@ function trim(obj1, obj2) {
 	}
 }
 
-function mergeSettings(cfg, defCfg) {
+function mergeSettings (cfg, defCfg) {
 	if (typeof defCfg !== 'object') {
 		return;
 	}
@@ -56,7 +56,7 @@ function mergeSettings(cfg, defCfg) {
  Should be true while plugin-development to ensure structure-changes within settings persist.
  @param reset Whether to reset the settings.
  */
-function Settings(hash, version, defCfg, callback, forceUpdate, reset) {
+function Settings (hash, version, defCfg, callback, forceUpdate, reset) {
 	this.hash = hash;
 	this.version = version || this.version;
 	this.defCfg = defCfg;

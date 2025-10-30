@@ -1,16 +1,15 @@
 'use strict';
 
-
 define('share', ['hooks'], function (hooks) {
 	const module = {};
 	const baseUrl = window.location.protocol + '//' + window.location.host;
 
 	module.addShareHandlers = function (name) {
-		function openShare(url, urlToPost, width, height) {
+		function openShare (url, urlToPost, width, height) {
 			window.open(url, '_blank', 'width=' + width + ',height=' + height + ',scrollbars=no,status=no');
 			hooks.fire('action:share.open', {
-				url: url,
-				urlToPost: urlToPost,
+				url,
+				urlToPost,
 			});
 			return false;
 		}
@@ -63,14 +62,14 @@ define('share', ['hooks'], function (hooks) {
 			return openShare(linkedin_url, postUrl, 626, 436);
 		});
 
-		hooks.fire('action:share.addHandlers', { openShare: openShare });
+		hooks.fire('action:share.addHandlers', { openShare });
 	};
 
-	function addHandler(selector, callback) {
+	function addHandler (selector, callback) {
 		$('#content').off('click', selector).on('click', selector, callback);
 	}
 
-	function getPostUrl(clickedElement) {
+	function getPostUrl (clickedElement) {
 		const pid = parseInt(clickedElement.parents('[data-pid]').attr('data-pid'), 10);
 		const path = '/post' + (pid ? '/' + (pid) : '');
 		return baseUrl + config.relative_path + path;

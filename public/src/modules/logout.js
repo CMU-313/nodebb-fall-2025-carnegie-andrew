@@ -1,7 +1,7 @@
 'use strict';
 
 define('logout', ['hooks', 'alerts'], function (hooks, alerts) {
-	return function logout(redirect) {
+	return function logout (redirect) {
 		redirect = redirect === undefined ? true : redirect;
 		hooks.fire('action:app.logout');
 

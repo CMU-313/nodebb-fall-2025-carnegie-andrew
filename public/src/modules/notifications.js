@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('notifications', [
 	'translator',
 	'components',
@@ -113,7 +112,7 @@ define('notifications', [
 		markNotification(nid, read, callback);
 	};
 
-	function markNotification(nid, read, callback) {
+	function markNotification (nid, read, callback) {
 		socket.emit('notifications.mark' + (read ? 'Read' : 'Unread'), nid, function (err) {
 			if (err) {
 				return alerts.error(err);
@@ -128,7 +127,7 @@ define('notifications', [
 		});
 	}
 
-	function scrollToPostIndexIfOnPage(notifEl) {
+	function scrollToPostIndexIfOnPage (notifEl) {
 		// Scroll to index if already in topic (gh#5873)
 		const pid = notifEl.attr('data-pid');
 		const path = notifEl.attr('data-path');
@@ -151,7 +150,7 @@ define('notifications', [
 		notifIcon.attr('data-content', countText);
 		components.get('notifications/count').toggleClass('hidden', count <= 0).text(countText);
 		const payload = {
-			count: count,
+			count,
 			updateFavicon: true,
 		};
 		hooks.fire('action:notification.updateCount', payload);

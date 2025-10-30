@@ -70,7 +70,7 @@ groupsAPI.delete = async function (caller, data) {
 
 	await groups.destroy(groupName);
 	logGroupEvent(caller, 'group-delete', {
-		groupName: groupName,
+		groupName,
 	});
 };
 
@@ -105,7 +105,7 @@ groupsAPI.listMembers = async (caller, data) => {
 	return response;
 };
 
-async function canSearchMembers(uid, groupName) {
+async function canSearchMembers (uid, groupName) {
 	const [isHidden, isMember, hasAdminPrivilege, isGlobalMod, viewGroups] = await Promise.all([
 		groups.isHidden(groupName),
 		groups.isMember(uid, groupName),
@@ -154,7 +154,7 @@ groupsAPI.join = async function (caller, data) {
 		// all groups are public!
 		await groups.join(groupName, data.uid);
 		logGroupEvent(caller, 'group-join', {
-			groupName: groupName,
+			groupName,
 			targetUid: data.uid,
 		});
 		return;
@@ -167,13 +167,13 @@ groupsAPI.join = async function (caller, data) {
 	if ((!groupData.private && isSelf) || isCallerAdmin) {
 		await groups.join(groupName, data.uid);
 		logGroupEvent(caller, `group-${isSelf ? 'join' : 'add-member'}`, {
-			groupName: groupName,
+			groupName,
 			targetUid: data.uid,
 		});
 	} else if (isSelf) {
 		await groups.requestMembership(groupName, caller.uid);
 		logGroupEvent(caller, 'group-request-membership', {
-			groupName: groupName,
+			groupName,
 			targetUid: data.uid,
 		});
 	} else {
@@ -240,7 +240,7 @@ groupsAPI.leave = async function (caller, data) {
 	await notifications.push(notification, uids);
 
 	logGroupEvent(caller, `group-${isSelf ? 'leave' : 'kick'}`, {
-		groupName: groupName,
+		groupName,
 		targetUid: data.uid,
 	});
 };
@@ -251,7 +251,7 @@ groupsAPI.grant = async (caller, data) => {
 
 	await groups.ownership.grant(data.uid, groupName);
 	logGroupEvent(caller, 'group-owner-grant', {
-		groupName: groupName,
+		groupName,
 		targetUid: data.uid,
 	});
 };
@@ -360,7 +360,7 @@ groupsAPI.rejectInvite = async (caller, { slug, uid }) => {
 	}
 };
 
-async function isOwner(caller, groupName, throwOnFalse = true) {
+async function isOwner (caller, groupName, throwOnFalse = true) {
 	if (typeof groupName !== 'string') {
 		throw new Error('[[error:invalid-group-name]]');
 	}
@@ -379,7 +379,7 @@ async function isOwner(caller, groupName, throwOnFalse = true) {
 	return check;
 }
 
-function logGroupEvent(caller, event, additional) {
+function logGroupEvent (caller, event, additional) {
 	events.log({
 		type: event,
 		uid: caller.uid,

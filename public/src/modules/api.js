@@ -5,7 +5,7 @@ import { confirm } from 'bootbox';
 
 const baseUrl = config.relative_path + '/api/v3';
 
-async function call(options, callback) {
+async function call (options, callback) {
 	options.url = options.url.startsWith('/api') ?
 		config.relative_path + options.url :
 		baseUrl + options.url;
@@ -31,7 +31,7 @@ async function call(options, callback) {
 	}
 }
 
-async function xhr(options) {
+async function xhr (options) {
 	// Normalize body based on type
 	const { url } = options;
 	delete options.url;
@@ -89,20 +89,20 @@ async function xhr(options) {
 		response;
 }
 
-export function get(route, data, onSuccess) {
+export function get (route, data, onSuccess) {
 	return call({
 		url: route + (data && Object.keys(data).length ? ('?' + $.param(data)) : ''),
 	}, onSuccess);
 }
 
-export function head(route, data, onSuccess) {
+export function head (route, data, onSuccess) {
 	return call({
 		url: route + (data && Object.keys(data).length ? ('?' + $.param(data)) : ''),
 		method: 'HEAD',
 	}, onSuccess);
 }
 
-export function post(route, data, onSuccess) {
+export function post (route, data, onSuccess) {
 	return call({
 		url: route,
 		method: 'POST',
@@ -113,7 +113,7 @@ export function post(route, data, onSuccess) {
 	}, onSuccess);
 }
 
-export function patch(route, data, onSuccess) {
+export function patch (route, data, onSuccess) {
 	return call({
 		url: route,
 		method: 'PATCH',
@@ -124,7 +124,7 @@ export function patch(route, data, onSuccess) {
 	}, onSuccess);
 }
 
-export function put(route, data, onSuccess) {
+export function put (route, data, onSuccess) {
 	return call({
 		url: route,
 		method: 'PUT',
@@ -135,7 +135,7 @@ export function put(route, data, onSuccess) {
 	}, onSuccess);
 }
 
-export function del(route, data, onSuccess) {
+export function del (route, data, onSuccess) {
 	return call({
 		url: route,
 		method: 'DELETE',

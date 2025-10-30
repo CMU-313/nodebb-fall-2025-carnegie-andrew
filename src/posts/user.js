@@ -66,14 +66,14 @@ module.exports = function (Posts) {
 		}
 	};
 
-	async function checkGroupMembership(uid, groupTitleArray) {
+	async function checkGroupMembership (uid, groupTitleArray) {
 		if (!Array.isArray(groupTitleArray) || !groupTitleArray.length) {
 			return null;
 		}
 		return await groups.isMemberOfGroups(uid, groupTitleArray);
 	}
 
-	async function parseSignature(userData, uid, signatureUids) {
+	async function parseSignature (userData, uid, signatureUids) {
 		if (!userData.signature || !signatureUids.has(userData.uid) || meta.config.disableSignatures) {
 			return '';
 		}
@@ -81,7 +81,7 @@ module.exports = function (Posts) {
 		return result.userData.signature;
 	}
 
-	async function getGroupsMap(userData) {
+	async function getGroupsMap (userData) {
 		const groupTitles = _.uniq(_.flatten(userData.map(u => u && u.groupTitleArray)));
 		const groupsMap = {};
 		const groupsData = await groups.getGroupsData(groupTitles);
@@ -100,7 +100,7 @@ module.exports = function (Posts) {
 		return groupsMap;
 	}
 
-	async function getUserData(uids, uid) {
+	async function getUserData (uids, uid) {
 		const fields = [
 			'uid', 'username', 'fullname', 'userslug',
 			'reputation', 'postcount', 'topiccount', 'picture',
@@ -108,9 +108,9 @@ module.exports = function (Posts) {
 			'lastonline', 'groupTitle', 'mutedUntil',
 		];
 		const result = await plugins.hooks.fire('filter:posts.addUserFields', {
-			fields: fields,
-			uid: uid,
-			uids: uids,
+			fields,
+			uid,
+			uids,
 		});
 		return await user.getUsersFields(result.uids, _.uniq(result.fields));
 	}
@@ -184,12 +184,12 @@ module.exports = function (Posts) {
 
 		plugins.hooks.fire('action:post.changeOwner', {
 			posts: _.cloneDeep(postData),
-			toUid: toUid,
+			toUid,
 		});
 		return postData;
 	};
 
-	async function reduceCounters(postsByUser) {
+	async function reduceCounters (postsByUser) {
 		await async.eachOfSeries(postsByUser, async (posts, uid) => {
 			const repChange = posts.reduce((acc, val) => acc + val.votes, 0);
 			await Promise.all([
@@ -199,7 +199,7 @@ module.exports = function (Posts) {
 		});
 	}
 
-	async function updateTopicPosters(postData, toUid) {
+	async function updateTopicPosters (postData, toUid) {
 		const postsByTopic = _.groupBy(postData, p => String(p.tid));
 		await async.eachOf(postsByTopic, async (posts, tid) => {
 			const postsByUser = _.groupBy(posts, p => String(p.uid));
@@ -213,7 +213,7 @@ module.exports = function (Posts) {
 		});
 	}
 
-	async function handleMainPidOwnerChange(postData, toUid) {
+	async function handleMainPidOwnerChange (postData, toUid) {
 		const tids = _.uniq(postData.map(p => p.tid));
 		const topicData = await topics.getTopicsFields(tids, [
 			'tid', 'cid', 'deleted', 'title', 'uid', 'mainPid', 'timestamp',
@@ -249,11 +249,11 @@ module.exports = function (Posts) {
 		const changedTopics = mainPosts.map(p => tidToTopic[p.tid]);
 		plugins.hooks.fire('action:topic.changeOwner', {
 			topics: _.cloneDeep(changedTopics),
-			toUid: toUid,
+			toUid,
 		});
 	}
 
-	async function reduceTopicCounts(postsByUser) {
+	async function reduceTopicCounts (postsByUser) {
 		await async.eachSeries(Object.keys(postsByUser), async (uid) => {
 			const posts = postsByUser[uid];
 			const exists = await user.exists(uid);
@@ -275,7 +275,7 @@ module.exports = function (Posts) {
 		return _.union(...pidsArr);
 	};
 
-	async function filterPidsBySingleUid(pids, uid) {
+	async function filterPidsBySingleUid (pids, uid) {
 		const isMembers = await db.isSortedSetMembers(`uid:${parseInt(uid, 10)}:posts`, pids);
 		return pids.filter((pid, index) => pid && isMembers[index]);
 	}

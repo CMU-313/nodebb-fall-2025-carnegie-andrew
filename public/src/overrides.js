@@ -4,7 +4,7 @@ const translator = require('./modules/translator');
 
 window.overrides = window.overrides || {};
 
-function translate(elements, type, str) {
+function translate (elements, type, str) {
 	return elements.each(function () {
 		const el = $(this);
 		translator.translate(str, function (translated) {

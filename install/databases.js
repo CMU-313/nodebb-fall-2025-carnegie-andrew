@@ -15,7 +15,7 @@ module.exports = async function (config) {
 	return saveDatabaseConfig(config, databaseConfig);
 };
 
-async function getDatabaseConfig(config) {
+async function getDatabaseConfig (config) {
 	if (!config) {
 		throw new Error('invalid config, aborted');
 	}
@@ -39,7 +39,7 @@ async function getDatabaseConfig(config) {
 	throw new Error(`unknown database : ${config.database}`);
 }
 
-function saveDatabaseConfig(config, databaseConfig) {
+function saveDatabaseConfig (config, databaseConfig) {
 	if (!databaseConfig) {
 		throw new Error('invalid config, aborted');
 	}

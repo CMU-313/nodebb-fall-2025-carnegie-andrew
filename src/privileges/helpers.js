@@ -1,4 +1,3 @@
-
 'use strict';
 
 const _ = require('lodash');
@@ -30,7 +29,7 @@ helpers.isUsersAllowedTo = async function (privilege, uids, cid) {
 		groups.isMembersOfGroupList(uids, `cid:${cid}:privileges:groups:${privilege}`),
 	]);
 	const allowed = uids.map((uid, index) => hasUserPrivilege[index] || hasGroupPrivilege[index]);
-	const result = await plugins.hooks.fire('filter:privileges:isUsersAllowedTo', { allowed: allowed, privilege: privilege, uids: uids, cid: cid });
+	const result = await plugins.hooks.fire('filter:privileges:isUsersAllowedTo', { allowed, privilege, uids, cid });
 	return result.allowed;
 };
 
@@ -49,13 +48,13 @@ helpers.isAllowedTo = async function (privilege, uidOrGroupName, cid) {
 		allowed = await isAllowedToCids(privilege, uidOrGroupName, cid);
 	}
 	if (allowed) {
-		({ allowed } = await plugins.hooks.fire('filter:privileges:isAllowedTo', { allowed: allowed, privilege: privilege, uid: uidOrGroupName, cid: cid }));
+		({ allowed } = await plugins.hooks.fire('filter:privileges:isAllowedTo', { allowed, privilege, uid: uidOrGroupName, cid }));
 		return allowed;
 	}
 	throw new Error('[[error:invalid-data]]');
 };
 
-async function isAllowedToCids(privilege, uidOrGroupName, cids) {
+async function isAllowedToCids (privilege, uidOrGroupName, cids) {
 	if (!privilege) {
 		return cids.map(() => false);
 	}
@@ -76,7 +75,7 @@ async function isAllowedToCids(privilege, uidOrGroupName, cids) {
 	return await checkIfAllowedUser(uidOrGroupName, userKeys, groupKeys);
 }
 
-async function isAllowedToPrivileges(privileges, uidOrGroupName, cid) {
+async function isAllowedToPrivileges (privileges, uidOrGroupName, cid) {
 	const groupKeys = privileges.map(privilege => `cid:${cid}:privileges:groups:${privilege}`);
 	// Group handling
 	if (isNaN(parseInt(uidOrGroupName, 10)) && (uidOrGroupName || '').length) {
@@ -92,7 +91,7 @@ async function isAllowedToPrivileges(privileges, uidOrGroupName, cid) {
 	return await checkIfAllowedUser(uidOrGroupName, userKeys, groupKeys);
 }
 
-async function checkIfAllowedUser(uid, userKeys, groupKeys) {
+async function checkIfAllowedUser (uid, userKeys, groupKeys) {
 	const [hasUserPrivilege, hasGroupPrivilege] = await Promise.all([
 		groups.isMemberOfGroups(uid, userKeys),
 		groups.isMemberOfGroupsList(uid, groupKeys),
@@ -100,7 +99,7 @@ async function checkIfAllowedUser(uid, userKeys, groupKeys) {
 	return userKeys.map((key, index) => hasUserPrivilege[index] || hasGroupPrivilege[index]);
 }
 
-async function checkIfAllowedGroup(groupName, groupKeys) {
+async function checkIfAllowedGroup (groupName, groupKeys) {
 	const sets = await Promise.all([
 		groups.isMemberOfGroups(groupName, groupKeys),
 		groups.isMemberOfGroups('registered-users', groupKeys),
@@ -108,12 +107,12 @@ async function checkIfAllowedGroup(groupName, groupKeys) {
 	return groupKeys.map((key, index) => sets[0][index] || sets[1][index]);
 }
 
-async function isSystemGroupAllowedToCids(privilege, uid, cids) {
+async function isSystemGroupAllowedToCids (privilege, uid, cids) {
 	const groupKeys = cids.map(cid => `cid:${cid}:privileges:groups:${privilege}`);
 	return await groups.isMemberOfGroups(uidToSystemGroup[uid], groupKeys);
 }
 
-async function isSystemGroupAllowedToPrivileges(privileges, uid, cid) {
+async function isSystemGroupAllowedToPrivileges (privileges, uid, cid) {
 	const groupKeys = privileges.map(privilege => `cid:${cid}:privileges:groups:${privilege}`);
 	return await groups.isMemberOfGroups(uidToSystemGroup[uid], groupKeys);
 }
@@ -176,7 +175,7 @@ helpers.getGroupPrivileges = async function (cid, groupPrivileges) {
 			name: validator.escape(member),
 			nameEscaped: translator.escape(validator.escape(member)),
 			privileges: memberPrivs,
-			types: types,
+			types,
 			isPrivate: groupData[index] && !!groupData[index].private,
 			isSystem: groupData[index] && !!groupData[index].system,
 		};
@@ -184,15 +183,14 @@ helpers.getGroupPrivileges = async function (cid, groupPrivileges) {
 	return memberData;
 };
 
-
-function getType(privilege) {
+function getType (privilege) {
 	privilege = privilege.replace(/^groups:/, '');
 	const global = require('./global');
 	const categories = require('./categories');
 	return global.getType(privilege) || categories.getType(privilege) || 'other';
 }
 
-function moveToFront(groupNames, groupToMove) {
+function moveToFront (groupNames, groupToMove) {
 	const index = groupNames.indexOf(groupToMove);
 	if (index !== -1) {
 		groupNames.splice(0, 0, groupNames.splice(index, 1)[0]);

@@ -1,6 +1,5 @@
 'use strict';
 
-
 const nconf = require('nconf');
 const validator = require('validator');
 const qs = require('querystring');
@@ -94,14 +93,14 @@ categoryController.get = async function (req, res, next) {
 
 	const categoryData = await categories.getCategoryById({
 		uid: req.uid,
-		cid: cid,
-		start: start,
-		stop: stop,
-		sort: sort,
+		cid,
+		start,
+		stop,
+		sort,
 		settings: userSettings,
 		query: req.query,
 		tag: req.query.tag,
-		targetUid: targetUid,
+		targetUid,
 	});
 	if (!categoryData) {
 		return next();
@@ -184,7 +183,7 @@ categoryController.get = async function (req, res, next) {
 	res.render('category', categoryData);
 };
 
-async function buildBreadcrumbs(req, categoryData) {
+async function buildBreadcrumbs (req, categoryData) {
 	const breadcrumbs = [
 		{
 			text: categoryData.name,
@@ -198,7 +197,7 @@ async function buildBreadcrumbs(req, categoryData) {
 	}
 }
 
-function addTags(categoryData, res, currentPage) {
+function addTags (categoryData, res, currentPage) {
 	res.locals.metaTags = [
 		{
 			name: 'title',

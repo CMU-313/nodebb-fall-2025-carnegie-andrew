@@ -1,4 +1,3 @@
-
 'use strict';
 
 const notifications = require('../notifications');
@@ -16,7 +15,7 @@ module.exports = function (User) {
 		await toggleFollow('unfollow', uid, unfollowuid);
 	};
 
-	async function toggleFollow(type, uid, theiruid) {
+	async function toggleFollow (type, uid, theiruid) {
 		if (parseInt(uid, 10) <= 0 || parseInt(theiruid, 10) <= 0) {
 			throw new Error('[[error:invalid-uid]]');
 		}
@@ -75,7 +74,7 @@ module.exports = function (User) {
 		return await getFollow(uid, 'followers', start, stop);
 	};
 
-	async function getFollow(uid, type, start, stop) {
+	async function getFollow (uid, type, start, stop) {
 		if (parseInt(uid, 10) <= 0) {
 			return [];
 		}
@@ -89,10 +88,10 @@ module.exports = function (User) {
 		uids = uids.filter((uid, idx) => !isCategory[idx]);
 
 		const data = await plugins.hooks.fire(`filter:user.${type}`, {
-			uids: uids,
-			uid: uid,
-			start: start,
-			stop: stop,
+			uids,
+			uid,
+			start,
+			stop,
 		});
 		return await User.getUsers(data.uids, uid);
 	}

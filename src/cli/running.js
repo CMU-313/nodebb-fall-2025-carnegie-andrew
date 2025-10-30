@@ -9,7 +9,7 @@ const { paths } = require('../constants');
 
 const cwd = paths.baseDir;
 
-function getRunningPid(callback) {
+function getRunningPid (callback) {
 	fs.readFile(paths.pidfile, {
 		encoding: 'utf-8',
 	}, (err, pid) => {
@@ -28,7 +28,7 @@ function getRunningPid(callback) {
 	});
 }
 
-function start(options) {
+function start (options) {
 	if (options.dev) {
 		process.env.NODE_ENV = 'development';
 		fork(paths.loader, ['--no-daemon', '--no-silent'], {
@@ -69,7 +69,7 @@ function start(options) {
 	return child;
 }
 
-function stop() {
+function stop () {
 	getRunningPid((err, pid) => {
 		if (!err) {
 			process.kill(pid, 'SIGTERM');
@@ -80,7 +80,7 @@ function stop() {
 	});
 }
 
-function restart(options) {
+function restart (options) {
 	getRunningPid((err, pid) => {
 		if (!err) {
 			console.log(chalk.bold('\nRestarting NodeBB'));
@@ -94,7 +94,7 @@ function restart(options) {
 	});
 }
 
-function status() {
+function status () {
 	getRunningPid((err, pid) => {
 		if (!err) {
 			console.log(`\n${[
@@ -110,7 +110,7 @@ function status() {
 	});
 }
 
-function log() {
+function log () {
 	console.log(`${chalk.red('\nHit ') + chalk.bold('Ctrl-C ') + chalk.red('to exit\n')}\n`);
 	childProcess.spawn('tail', ['-F', './logs/output.log'], {
 		stdio: 'inherit',

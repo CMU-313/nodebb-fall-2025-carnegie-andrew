@@ -21,7 +21,7 @@ module.exports = function (User) {
 		const expire = parseInt(banInfo.expire, 10);
 		const expire_readable = utils.toISOString(expire);
 		return {
-			uid: uid,
+			uid,
 			timestamp: banInfo.timestamp,
 			banned_until: expire,
 			expiry: expire, /* backward compatible alias */
@@ -52,9 +52,9 @@ module.exports = function (User) {
 		]);
 
 		return {
-			flags: flags,
-			bans: bans,
-			mutes: mutes,
+			flags,
+			bans,
+			mutes,
 		};
 	};
 
@@ -80,7 +80,7 @@ module.exports = function (User) {
 		return data;
 	};
 
-	async function getFlagMetadata(flags) {
+	async function getFlagMetadata (flags) {
 		const postFlags = flags.filter(flag => flag && flag.type === 'post');
 		const reports = await Promise.all(flags.map(flag => Flags.getReports(flag.flagId)));
 
@@ -107,7 +107,7 @@ module.exports = function (User) {
 		return flags;
 	}
 
-	async function formatBanMuteData(keys, noReasonLangKey) {
+	async function formatBanMuteData (keys, noReasonLangKey) {
 		const data = await db.getObjects(keys);
 		const uids = data.map(d => d.fromUid);
 		const usersData = await User.getUsersFields(uids, ['uid', 'username', 'userslug', 'picture']);

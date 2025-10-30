@@ -30,7 +30,7 @@ module.exports = function (User) {
 		}
 	};
 
-	async function isReady(uid, cid, field) {
+	async function isReady (uid, cid, field) {
 		if (activitypub.helpers.isUri(uid) || parseInt(uid, 10) === 0) {
 			return;
 		}
@@ -129,7 +129,7 @@ module.exports = function (User) {
 		return await incrementUserFieldAndSetBy(uid, 'flags', 'users:flags', value);
 	};
 
-	async function incrementUserFieldAndSetBy(uid, field, set, value) {
+	async function incrementUserFieldAndSetBy (uid, field, set, value) {
 		value = parseInt(value, 10);
 		if (!value || !field || !(parseInt(uid, 10) > 0)) {
 			return;

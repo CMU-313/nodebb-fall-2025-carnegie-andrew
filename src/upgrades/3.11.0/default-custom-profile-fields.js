@@ -27,14 +27,14 @@ module.exports = {
 		};
 
 		await db.sortedSetAdd(
-			`user-custom-fields`,
+			'user-custom-fields',
 			[0, 1],
 			['website', 'location']
 		);
 
 		await db.setObjectBulk([
-			[`user-custom-field:website`, website],
-			[`user-custom-field:location`, location],
+			['user-custom-field:website', website],
+			['user-custom-field:location', location],
 		]);
 
 		await db.deleteObjectField('config', 'min:rep:website');

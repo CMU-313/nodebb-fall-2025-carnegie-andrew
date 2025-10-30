@@ -35,16 +35,16 @@ exports.buildReqObject = (req, payload) => {
 		params: req.params,
 		method: req.method,
 		body: payload || req.body,
-		session: session,
+		session,
 		ip: req.ip,
-		host: host,
+		host,
 		protocol: encrypted ? 'https' : 'http',
 		secure: encrypted,
 		url: referer,
 		path: referer.slice(referer.indexOf(host) + host.length),
 		baseUrl: req.baseUrl,
 		originalUrl: req.originalUrl,
-		headers: headers,
+		headers,
 	};
 };
 
@@ -73,7 +73,7 @@ exports.doTopicAction = async function (action, event, caller, { tids }) {
 	}));
 };
 
-async function logTopicAction(action, req, tid, title) {
+async function logTopicAction (action, req, tid, title) {
 	// Only log certain actions to system event log
 	const actionsToLog = ['delete', 'restore', 'purge'];
 	if (!actionsToLog.includes(action)) {
@@ -83,7 +83,7 @@ async function logTopicAction(action, req, tid, title) {
 		type: `topic-${action}`,
 		uid: req.uid,
 		ip: req.ip,
-		tid: tid,
+		tid,
 		title: String(title),
 	});
 }
@@ -122,13 +122,13 @@ exports.postCommand = async function (caller, command, eventName, notification, 
 		filter:post.unbookmark
 	 */
 	const filteredData = await plugins.hooks.fire(`filter:post.${command}`, {
-		data: data,
+		data,
 		uid: caller.uid,
 	});
 	return await executeCommand(caller, command, eventName, notification, filteredData.data);
 };
 
-async function executeCommand(caller, command, eventName, notification, data) {
+async function executeCommand (caller, command, eventName, notification, data) {
 	const api = require('.');
 	const result = await posts[command](data.pid, caller.uid);
 	if (result && eventName) {

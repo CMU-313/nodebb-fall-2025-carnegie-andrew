@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/post-queue', [
 	'categoryFilter', 'categorySelector', 'api', 'alerts', 'bootbox',
 	'accounts/moderate', 'accounts/delete',
@@ -32,7 +31,7 @@ define('forum/post-queue', [
 		showLinksInPosts();
 	};
 
-	function showLinksInPosts() {
+	function showLinksInPosts () {
 		$('.posts-list [data-id]').each((idx, el) => {
 			const $el = $(el);
 			const linkContainer = $el.find('[component="post-queue/link-container"]');
@@ -46,13 +45,13 @@ define('forum/post-queue', [
 		});
 	}
 
-	function confirmReject(msg) {
+	function confirmReject (msg) {
 		return new Promise((resolve) => {
 			bootbox.confirm(msg, resolve);
 		});
 	}
 
-	function handleContentEdit(triggerClass, editableClass, inputSelector, displayClass) {
+	function handleContentEdit (triggerClass, editableClass, inputSelector, displayClass) {
 		$('.posts-list').on('click', triggerClass, function () {
 			const el = $(this);
 			const inputEl = el.parents('[data-id]').find(editableClass);
@@ -85,7 +84,7 @@ define('forum/post-queue', [
 		});
 	}
 
-	function handleCategoryChange(categoryEl) {
+	function handleCategoryChange (categoryEl) {
 		const $this = $(categoryEl);
 		const id = $this.parents('[data-id]').attr('data-id');
 		categorySelector.modal({
@@ -99,7 +98,7 @@ define('forum/post-queue', [
 					const category = result[0];
 					app.parseAndTranslate('post-queue', 'posts', {
 						posts: [{
-							category: category,
+							category,
 						}],
 					}, function (html) {
 						if ($this.find('.category-text').length) {
@@ -115,7 +114,7 @@ define('forum/post-queue', [
 		return false;
 	}
 
-	function handleActions() {
+	function handleActions () {
 		const listEl = document.querySelector('.posts-list');
 		if (listEl) {
 			listEl.addEventListener('click', (e) => {
@@ -167,7 +166,7 @@ define('forum/post-queue', [
 		}
 	}
 
-	async function handleQueueActions() {
+	async function handleQueueActions () {
 		// accept, reject, notify
 
 		const parent = $(this).parents('[data-id]');
@@ -197,8 +196,8 @@ define('forum/post-queue', [
 		return false;
 	}
 
-	async function doAction(action, id) {
-		function getMessage() {
+	async function doAction (action, id) {
+		function getMessage () {
 			return new Promise((resolve) => {
 				const modal = bootbox.dialog({
 					title: '[[post-queue:notify-user]]',
@@ -230,7 +229,7 @@ define('forum/post-queue', [
 		throw new Error(`Unknown action: ${action}`);
 	}
 
-	function handleBulkActions() {
+	function handleBulkActions () {
 		$('[component="post-queue/bulk-actions"]').on('click', '[data-action]', async function () {
 			const bulkAction = $(this).attr('data-action');
 			let queueEls = $('.posts-list [data-id]');

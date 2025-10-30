@@ -17,7 +17,7 @@ module.exports = {
 			progress.incr(pids.length);
 		}, {
 			batch: 100,
-			progress: progress,
+			progress,
 		});
 	},
 };

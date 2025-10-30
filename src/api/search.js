@@ -60,9 +60,9 @@ searchApi.categories = async (caller, data) => {
 	return { categories: result.categories };
 };
 
-async function findMatchedCids(uid, data) {
+async function findMatchedCids (uid, data) {
 	const result = await categories.search({
-		uid: uid,
+		uid,
 		query: data.search,
 		qs: data.query,
 		paginate: false,
@@ -83,13 +83,13 @@ async function findMatchedCids(uid, data) {
 
 	return {
 		cids: _.uniq(rootCids.concat(allChildCids).concat(matchedCids)),
-		matchedCids: matchedCids,
+		matchedCids,
 	};
 }
 
-async function loadCids(uid, parentCid) {
+async function loadCids (uid, parentCid) {
 	let resultCids = [];
-	async function getCidsRecursive(cids) {
+	async function getCidsRecursive (cids) {
 		const categoryData = await categories.getCategoriesFields(cids, ['subCategoriesPerPage']);
 		const cidToData = _.zipObject(cids, categoryData);
 		await Promise.all(cids.map(async (cid) => {

@@ -13,7 +13,6 @@ const morgan = require('morgan');
 const file = require('./file');
 const meta = require('./meta');
 
-
 const opts = {
 	/*
 	 * state used by Logger
@@ -190,7 +189,7 @@ Logger.io_one = function (socket, uid) {
 	/*
 	 * This function replaces a socket's .emit/.on functions in order to intercept events
 	 */
-	function override(method, name, errorMsg) {
+	function override (method, name, errorMsg) {
 		return (...args) => {
 			if (opts.streams.log.f) {
 				opts.streams.log.f.write(Logger.prepare_io_string(name, uid, args));

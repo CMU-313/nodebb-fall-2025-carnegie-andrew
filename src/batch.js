@@ -1,4 +1,3 @@
-
 'use strict';
 
 const util = require('util');
@@ -53,7 +52,7 @@ exports.processSortedSet = async function (setKey, process, options) {
 			start,
 			isByScore ? stop - start + 1 : stop,
 			options.reverse ? options.max : options.min,
-			options.reverse ? options.min : options.max,
+			options.reverse ? options.min : options.max
 		);
 
 		if (!ids.length || options.doneIf(start, stop, ids)) {

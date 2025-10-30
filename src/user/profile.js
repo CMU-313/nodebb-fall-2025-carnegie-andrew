@@ -1,4 +1,3 @@
-
 'use strict';
 
 const _ = require('lodash');
@@ -30,9 +29,9 @@ module.exports = function (User) {
 		const updateUid = data.uid;
 
 		const result = await plugins.hooks.fire('filter:user.updateProfile', {
-			uid: uid,
-			data: data,
-			fields: fields,
+			uid,
+			data,
+			fields,
 		});
 		fields = result.fields;
 		data = result.data;
@@ -63,10 +62,10 @@ module.exports = function (User) {
 		}
 
 		plugins.hooks.fire('action:user.updateProfile', {
-			uid: uid,
-			data: data,
-			fields: fields,
-			oldData: oldData,
+			uid,
+			data,
+			fields,
+			oldData,
 		});
 		api.activitypub.update.profile({ uid }, { uid: updateUid });
 
@@ -76,7 +75,7 @@ module.exports = function (User) {
 		]);
 	};
 
-	async function validateData(callerUid, data) {
+	async function validateData (callerUid, data) {
 		await isEmailValid(data);
 		await isUsernameAvailable(data, data.uid);
 		await isAboutMeValid(callerUid, data);
@@ -87,7 +86,7 @@ module.exports = function (User) {
 		await validateCustomFields(data);
 	}
 
-	async function validateCustomFields(data) {
+	async function validateCustomFields (data) {
 		const keys = await db.getSortedSetRange('user-custom-fields', 0, -1);
 		const fields = (await db.getObjects(keys.map(k => `user-custom-field:${k}`))).filter(Boolean);
 		const reputation = await User.getUserField(data.uid, 'reputation');
@@ -145,7 +144,7 @@ module.exports = function (User) {
 		});
 	}
 
-	async function isEmailValid(data) {
+	async function isEmailValid (data) {
 		if (!data.email) {
 			return;
 		}
@@ -156,7 +155,7 @@ module.exports = function (User) {
 		}
 	}
 
-	async function isUsernameAvailable(data, uid) {
+	async function isUsernameAvailable (data, uid) {
 		if (!data.username) {
 			return;
 		}
@@ -201,7 +200,7 @@ module.exports = function (User) {
 	}
 	User.checkUsername = async username => isUsernameAvailable({ username });
 
-	async function isAboutMeValid(callerUid, data) {
+	async function isAboutMeValid (callerUid, data) {
 		if (!data.aboutme) {
 			return;
 		}
@@ -212,7 +211,7 @@ module.exports = function (User) {
 		await User.checkMinReputation(callerUid, data.uid, 'min:rep:aboutme');
 	}
 
-	async function isSignatureValid(callerUid, data) {
+	async function isSignatureValid (callerUid, data) {
 		if (!data.signature) {
 			return;
 		}
@@ -223,13 +222,13 @@ module.exports = function (User) {
 		await User.checkMinReputation(callerUid, data.uid, 'min:rep:signature');
 	}
 
-	function isFullnameValid(data) {
+	function isFullnameValid (data) {
 		if (data.fullname && (validator.isURL(data.fullname) || data.fullname.length > 255)) {
 			throw new Error('[[error:invalid-fullname]]');
 		}
 	}
 
-	function isBirthdayValid(data) {
+	function isBirthdayValid (data) {
 		if (!data.birthday) {
 			return;
 		}
@@ -240,8 +239,8 @@ module.exports = function (User) {
 		}
 	}
 
-	function isGroupTitleValid(data) {
-		function checkTitle(title) {
+	function isGroupTitleValid (data) {
+		function checkTitle (title) {
 			if (title === 'registered-users' || groups.isPrivilegeGroup(title)) {
 				throw new Error('[[error:invalid-group-title]]');
 			}
@@ -276,7 +275,7 @@ module.exports = function (User) {
 		}
 	};
 
-	async function updateEmail(uid, newEmail) {
+	async function updateEmail (uid, newEmail) {
 		let oldEmail = await db.getObjectField(`user:${uid}`, 'email');
 		oldEmail = oldEmail || '';
 		if (oldEmail === newEmail) {
@@ -295,7 +294,7 @@ module.exports = function (User) {
 		}
 	}
 
-	async function updateUsername(uid, newUsername, callerUid) {
+	async function updateUsername (uid, newUsername, callerUid) {
 		if (!newUsername) {
 			return;
 		}
@@ -314,7 +313,7 @@ module.exports = function (User) {
 		await db.sortedSetAdd('username:sorted', 0, `${newUsername.toLowerCase()}:${uid}`);
 	}
 
-	async function updateUidMapping(field, uid, value, oldValue) {
+	async function updateUidMapping (field, uid, value, oldValue) {
 		if (value === oldValue) {
 			return;
 		}
@@ -325,7 +324,7 @@ module.exports = function (User) {
 		}
 	}
 
-	async function updateFullname(uid, newFullname) {
+	async function updateFullname (uid, newFullname) {
 		const fullname = await db.getObjectField(`user:${uid}`, 'fullname');
 		await updateUidMapping('fullname', uid, newFullname, fullname);
 		if (newFullname !== fullname) {
@@ -383,6 +382,6 @@ module.exports = function (User) {
 			User.email.expireValidation(data.uid),
 		]);
 
-		plugins.hooks.fire('action:password.change', { uid: uid, targetUid: data.uid });
+		plugins.hooks.fire('action:password.change', { uid, targetUid: data.uid });
 	};
 };

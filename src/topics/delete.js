@@ -29,7 +29,7 @@ module.exports = function (Topics) {
 		await categories.updateRecentTidForCid(cid);
 	};
 
-	async function resolveTopicPostFlags(pids, uid) {
+	async function resolveTopicPostFlags (pids, uid) {
 		await batch.processArray(pids, async (pids) => {
 			const postData = await posts.getPostsFields(pids, ['pid', 'flagId']);
 			const flaggedPosts = postData.filter(p => p && parseInt(p.flagId, 10));
@@ -39,7 +39,7 @@ module.exports = function (Topics) {
 		});
 	}
 
-	async function addTopicPidsToCid(tid, cid) {
+	async function addTopicPidsToCid (tid, cid) {
 		const pids = await Topics.getPids(tid);
 		let postData = await posts.getPostsFields(pids, ['pid', 'timestamp', 'deleted']);
 		postData = postData.filter(post => post && !post.deleted);
@@ -102,11 +102,11 @@ module.exports = function (Topics) {
 			Topics.thumbs.deleteAll(tid),
 			reduceCounters(tid),
 		]);
-		plugins.hooks.fire('action:topic.purge', { topic: deletedTopic, uid: uid });
+		plugins.hooks.fire('action:topic.purge', { topic: deletedTopic, uid });
 		await db.delete(`topic:${tid}`);
 	};
 
-	async function deleteFromFollowersIgnorers(tid) {
+	async function deleteFromFollowersIgnorers (tid) {
 		const [followers, ignorers] = await Promise.all([
 			db.getSetMembers(`tid:${tid}:followers`),
 			db.getSetMembers(`tid:${tid}:ignorers`),
@@ -116,7 +116,7 @@ module.exports = function (Topics) {
 		await db.sortedSetsRemove(followerKeys.concat(ignorerKeys), tid);
 	}
 
-	async function deleteTopicFromCategoryAndUser(tid) {
+	async function deleteTopicFromCategoryAndUser (tid) {
 		const topicData = await Topics.getTopicFields(tid, ['cid', 'uid']);
 		await Promise.all([
 			db.sortedSetsRemove([
@@ -136,7 +136,7 @@ module.exports = function (Topics) {
 		await categories.updateRecentTidForCid(topicData.cid);
 	}
 
-	async function reduceCounters(tid) {
+	async function reduceCounters (tid) {
 		const incr = -1;
 		if (utils.isNumber(tid)) {
 			await db.incrObjectFieldBy('global', 'topicCount', incr);

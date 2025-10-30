@@ -30,7 +30,7 @@ SELECT COUNT(DISTINCT z."value") c
 		return await getSortedSetUnion(params);
 	};
 
-	async function getSortedSetUnion(params) {
+	async function getSortedSetUnion (params) {
 		const { sets } = params;
 		if (!sets || !sets.length) {
 			return [];

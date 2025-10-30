@@ -24,7 +24,7 @@ module.exports = {
 				await topics.updateLastPostTimeFromLastPid(tid);
 			}
 		}, {
-			progress: progress,
+			progress,
 		});
 	},
 };

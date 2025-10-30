@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('admin/settings/navigation', [
 	'translator',
 	'iconSelect',
@@ -53,13 +52,13 @@ define('admin/settings/navigation', [
 		$('#save').on('click', save);
 	};
 
-	function onSelect() {
+	function onSelect () {
 		const clickedIndex = $(this).attr('data-index');
 		selectIndex(clickedIndex);
 		return false;
 	}
 
-	function selectIndex(index) {
+	function selectIndex (index) {
 		$('#active-navigation li').removeClass('active');
 		$('#active-navigation [data-index="' + index + '"]').addClass('active');
 
@@ -71,14 +70,16 @@ define('admin/settings/navigation', [
 		}
 	}
 
-	function drop(ev, ui) {
+	function drop (ev, ui) {
 		const id = ui.helper.attr('data-id');
 		const el = $('#active-navigation [data-id="' + id + '"]');
-		const data = id === 'custom' ? {
-			iconClass: 'fa-navicon',
-			groups: available[0].groups,
-			enabled: true,
-		} : available[id];
+		const data = id === 'custom' ?
+			{
+				iconClass: 'fa-navicon',
+				groups: available[0].groups,
+				enabled: true,
+			} :
+			available[id];
 
 		data.index = (parseInt($('#enabled').children().last().attr('data-index'), 10) || 0) + 1;
 		data.title = translator.escape(data.title);
@@ -111,7 +112,7 @@ define('admin/settings/navigation', [
 		]).then(() => selectIndex(data.index));
 	}
 
-	function save() {
+	function save () {
 		const nav = [];
 
 		const indices = [];
@@ -153,14 +154,14 @@ define('admin/settings/navigation', [
 		});
 	}
 
-	function remove() {
+	function remove () {
 		const index = $(this).parents('[data-index]').attr('data-index');
 		$('#active-navigation [data-index="' + index + '"]').remove();
 		$('#enabled [data-index="' + index + '"]').remove();
 		return false;
 	}
 
-	function toggle() {
+	function toggle () {
 		const btn = $(this);
 		const disabled = btn.hasClass('enable');
 		const index = btn.parents('[data-index]').attr('data-index');

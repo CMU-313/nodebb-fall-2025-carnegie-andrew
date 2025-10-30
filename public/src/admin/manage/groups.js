@@ -13,7 +13,6 @@ define('admin/manage/groups', [
 
 		handleSearch();
 
-
 		$('.groups-list').on('click', '[data-action]', function () {
 			const el = $(this);
 			const action = el.attr('data-action');
@@ -31,7 +30,7 @@ define('admin/manage/groups', [
 		});
 	};
 
-	function handleCreate() {
+	function handleCreate () {
 		$('#create').on('click', function () {
 			app.parseAndTranslate('admin/partials/create_group_modal', {}).then((html) => {
 				html.modal('show');
@@ -79,10 +78,10 @@ define('admin/manage/groups', [
 		});
 	}
 
-	function handleSearch() {
+	function handleSearch () {
 		const queryEl = $('#group-search');
 
-		function doSearch() {
+		function doSearch () {
 			if (!queryEl.val()) {
 				return ajaxify.refresh();
 			}
@@ -99,7 +98,7 @@ define('admin/manage/groups', [
 		queryEl.on('keyup', utils.debounce(doSearch, 200));
 	}
 
-	function renderSearchResults(data) {
+	function renderSearchResults (data) {
 		const groupsEl = $('.groups-list');
 		app.parseAndTranslate('admin/manage/groups', 'groups', {
 			groups: data.groups,

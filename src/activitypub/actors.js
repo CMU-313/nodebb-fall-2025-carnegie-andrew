@@ -411,7 +411,7 @@ Actors.assertGroup = async (ids, options = {}) => {
 	return categoryObjs;
 };
 
-async function _migratePersonToGroup(categoryObjs) {
+async function _migratePersonToGroup (categoryObjs) {
 	// 4.0.0-4.1.x asserted as:Group as users. This moves relevant stuff over and deletes the now-duplicate user.
 	let ids = categoryObjs.map(category => category.cid);
 	const slugs = categoryObjs.map(category => category.slug);
@@ -439,7 +439,7 @@ async function _migratePersonToGroup(categoryObjs) {
 		await db.sortedSetAdd(
 			`cid:${id}:uid:watch:state`,
 			followers.map(() => categories.watchStates.tracking),
-			followers.map(({ value }) => value),
+			followers.map(({ value }) => value)
 		);
 		await user.deleteAccount(id);
 	}));

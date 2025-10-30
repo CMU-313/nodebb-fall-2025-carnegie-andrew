@@ -11,7 +11,6 @@ const groups = require('../../src/groups');
 const request = require('../../src/request');
 const adminUser = require('../../src/socket.io/admin/user');
 
-
 describe('custom user fields', () => {
 	let adminUid;
 	let lowRepUid;
@@ -22,7 +21,7 @@ describe('custom user fields', () => {
 		lowRepUid = await user.create({ username: 'lowRepUser' });
 		highRepUid = await user.create({ username: 'highRepUser' });
 		await db.setObjectField(`user:${highRepUid}`, 'reputation', 10);
-		await db.sortedSetAdd(`users:reputation`, 10, highRepUid);
+		await db.sortedSetAdd('users:reputation', 10, highRepUid);
 	});
 
 	it('should create custom user fields', async () => {
@@ -43,7 +42,7 @@ describe('custom user fields', () => {
 				uid: lowRepUid,
 				luckyNumber: 13,
 			}),
-			{ message: '[[error:not-enough-reputation-custom-field, 7, Lucky Number]]' },
+			{ message: '[[error:not-enough-reputation-custom-field, 7, Lucky Number]]' }
 		);
 	});
 
@@ -53,7 +52,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				location: new Array(300).fill('a').join(''),
 			}),
-			{ message: '[[error:custom-user-field-value-too-long, Location]]' },
+			{ message: '[[error:custom-user-field-value-too-long, Location]]' }
 		);
 
 		await assert.rejects(
@@ -61,7 +60,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				luckyNumber: 'not-a-number',
 			}),
-			{ message: '[[error:custom-user-field-invalid-number, Lucky Number]]' },
+			{ message: '[[error:custom-user-field-invalid-number, Lucky Number]]' }
 		);
 
 		await assert.rejects(
@@ -69,7 +68,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				location: 'https://spam.com',
 			}),
-			{ message: '[[error:custom-user-field-invalid-text, Location]]' },
+			{ message: '[[error:custom-user-field-invalid-text, Location]]' }
 		);
 
 		await assert.rejects(
@@ -77,7 +76,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				favouriteDate: 'not-a-date',
 			}),
-			{ message: '[[error:custom-user-field-invalid-date, Anniversary]]' },
+			{ message: '[[error:custom-user-field-invalid-date, Anniversary]]' }
 		);
 
 		await assert.rejects(
@@ -85,7 +84,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				website: 'not-a-url',
 			}),
-			{ message: '[[error:custom-user-field-invalid-link, Website]]' },
+			{ message: '[[error:custom-user-field-invalid-link, Website]]' }
 		);
 
 		await assert.rejects(
@@ -93,7 +92,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				soccerTeam: 'not-in-options',
 			}),
-			{ message: '[[error:custom-user-field-select-value-invalid, Soccer Team]]' },
+			{ message: '[[error:custom-user-field-select-value-invalid, Soccer Team]]' }
 		);
 
 		await assert.rejects(
@@ -101,7 +100,7 @@ describe('custom user fields', () => {
 				uid: highRepUid,
 				favouriteLanguages: '["not-in-options"]',
 			}),
-			{ message: '[[error:custom-user-field-select-value-invalid, Favourite Languages]]' },
+			{ message: '[[error:custom-user-field-select-value-invalid, Favourite Languages]]' }
 		);
 	});
 

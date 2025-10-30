@@ -36,7 +36,7 @@ describe('Analytics', () => {
 				publicKeyPem: 'publickey',
 			},
 		};
-		activitypub._cache.set(`0;https://example.org/user/foobar`, remoteUser);
+		activitypub._cache.set('0;https://example.org/user/foobar', remoteUser);
 	});
 
 	after(async () => {

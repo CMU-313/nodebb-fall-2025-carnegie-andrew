@@ -45,14 +45,14 @@ define('forum/topic/delete-posts', [
 		});
 	};
 
-	function onAjaxifyEnd() {
+	function onAjaxifyEnd () {
 		if (ajaxify.data.template.name !== 'topic' || ajaxify.data.tid !== tid) {
 			closeModal();
 			$(window).off('action:ajaxify.end', onAjaxifyEnd);
 		}
 	}
 
-	function deletePosts(btn, route) {
+	function deletePosts (btn, route) {
 		btn.attr('disabled', true);
 		Promise.all(postSelect.pids.map(pid => api.del(route(pid), {})))
 			.then(closeModal)
@@ -62,7 +62,7 @@ define('forum/topic/delete-posts', [
 			});
 	}
 
-	function showPostsSelected() {
+	function showPostsSelected () {
 		if (postSelect.pids.length) {
 			modal.find('#pids').translateHtml('[[topic:fork-pid-count, ' + postSelect.pids.length + ']]');
 		} else {
@@ -70,7 +70,7 @@ define('forum/topic/delete-posts', [
 		}
 	}
 
-	function checkButtonEnable() {
+	function checkButtonEnable () {
 		if (postSelect.pids.length) {
 			deleteBtn.removeAttr('disabled');
 			purgeBtn.removeAttr('disabled');
@@ -80,7 +80,7 @@ define('forum/topic/delete-posts', [
 		}
 	}
 
-	function closeModal() {
+	function closeModal () {
 		if (modal) {
 			modal.remove();
 			modal = null;

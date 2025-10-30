@@ -1,4 +1,3 @@
-
 'use strict';
 
 const validator = require('validator');
@@ -99,7 +98,7 @@ events.log = async function (data) {
 		db.sortedSetsAdd(setKeys, data.timestamp, eid),
 		db.setObject(`event:${eid}`, data),
 	]);
-	plugins.hooks.fire('action:events.log', { data: data });
+	plugins.hooks.fire('action:events.log', { data });
 };
 
 // filter, start, stop, from(optional), to(optional), uids(optional)
@@ -218,7 +217,7 @@ events.getEventsByEventIds = async (eids) => {
 	return eventsData;
 };
 
-async function addUserData(eventsData, field, objectName) {
+async function addUserData (eventsData, field, objectName) {
 	const uids = _.uniq(eventsData.map(event => event && event[field]));
 
 	if (!uids.length) {

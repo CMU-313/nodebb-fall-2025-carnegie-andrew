@@ -64,7 +64,7 @@ $(window).on('action:ajaxify.start', function () {
 	usedTopicColors.length = 0;
 });
 
-export function init() {
+export function init () {
 	app.enterRoom('admin');
 
 	isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -78,7 +78,7 @@ export function init() {
 	setupFullscreen();
 }
 
-function updateRoomUsage(err, data) {
+function updateRoomUsage (err, data) {
 	if (err) {
 		return alerts.error(err);
 	}
@@ -143,7 +143,7 @@ function lighten(col, amt) {
 }
 /* eslint-enable */
 
-function setupGraphs(callback) {
+function setupGraphs (callback) {
 	callback = callback || function () {};
 	const trafficCanvas = document.getElementById('analytics-traffic');
 	const registeredCanvas = document.getElementById('analytics-registered');
@@ -181,7 +181,7 @@ function setupGraphs(callback) {
 				{
 					label: translations[0],
 					fill: 'origin',
-					tension: tension,
+					tension,
 					backgroundColor: 'rgba(220,220,220,0.2)',
 					borderColor: 'rgba(220,220,220,1)',
 					pointBackgroundColor: 'rgba(220,220,220,1)',
@@ -193,7 +193,7 @@ function setupGraphs(callback) {
 				{
 					label: translations[1],
 					fill: 'origin',
-					tension: tension,
+					tension,
 					backgroundColor: '#ab464233',
 					borderColor: '#ab4642',
 					pointBackgroundColor: '#ab4642',
@@ -205,7 +205,7 @@ function setupGraphs(callback) {
 				{
 					label: translations[2],
 					fill: 'origin',
-					tension: tension,
+					tension,
 					backgroundColor: '#ba8baf33',
 					borderColor: '#ba8baf',
 					pointBackgroundColor: '#ba8baf',
@@ -217,7 +217,7 @@ function setupGraphs(callback) {
 				{
 					label: translations[3],
 					fill: 'origin',
-					tension: tension,
+					tension,
 					backgroundColor: '#f7ca8833',
 					borderColor: '#f7ca88',
 					pointBackgroundColor: '#f7ca88',
@@ -229,7 +229,7 @@ function setupGraphs(callback) {
 				{
 					label: translations[4],
 					fill: 'origin',
-					tension: tension,
+					tension,
 					backgroundColor: 'rgba(151,187,205,0.2)',
 					borderColor: 'rgba(151,187,205,1)',
 					pointBackgroundColor: 'rgba(151,187,205,1)',
@@ -251,7 +251,7 @@ function setupGraphs(callback) {
 
 		graphs.traffic = new Chart(trafficCtx, {
 			type: 'line',
-			data: data,
+			data,
 			options: {
 				responsive: true,
 				scales: {
@@ -375,7 +375,7 @@ function setupGraphs(callback) {
 					modal.find('#endRange').val(targetEl.attr('data-endRange') || today);
 				});
 
-				function submit() {
+				function submit () {
 					// NEED TO ADD VALIDATION HERE FOR YYYY-MM-DD
 					const formData = modal.find('form').serializeObject();
 					const validRegexp = /\d{4}-\d{2}-\d{2}/;
@@ -410,7 +410,7 @@ function setupGraphs(callback) {
 	});
 }
 
-function updateTrafficGraph(units, until, amount) {
+function updateTrafficGraph (units, until, amount) {
 	// until and amount are optional
 
 	if (!app.isFocused) {
@@ -420,8 +420,8 @@ function updateTrafficGraph(units, until, amount) {
 	socket.emit('admin.analytics.get', {
 		graph: 'traffic',
 		units: units || 'hours',
-		until: until,
-		amount: amount,
+		until,
+		amount,
 	}, function (err, data) {
 		if (err) {
 			return alerts.error(err);
@@ -458,14 +458,14 @@ function updateTrafficGraph(units, until, amount) {
 		const apiEl = $('#view-as-json');
 		const newHref = $.param({
 			units: units || 'hours',
-			until: until,
+			until,
 			count: amount,
 		});
 		apiEl.attr('href', config.relative_path + '/api/admin/analytics?' + newHref);
 	});
 }
 
-function updateRegisteredGraph(registered, guest) {
+function updateRegisteredGraph (registered, guest) {
 	$('#analytics-legend .registered').parent().find('.count').text(registered);
 	$('#analytics-legend .guest').parent().find('.count').text(guest);
 	graphs.registered.data.datasets[0].data[0] = registered;
@@ -473,7 +473,7 @@ function updateRegisteredGraph(registered, guest) {
 	graphs.registered.update();
 }
 
-function updatePresenceGraph(users) {
+function updatePresenceGraph (users) {
 	$('#analytics-presence-legend .on-categories').parent().find('.count').text(users.categories);
 	$('#analytics-presence-legend .reading-posts').parent().find('.count').text(users.topics);
 	$('#analytics-presence-legend .browsing-topics').parent().find('.count').text(users.category);
@@ -488,7 +488,7 @@ function updatePresenceGraph(users) {
 	graphs.presence.update();
 }
 
-function updateTopicsGraph(topics) {
+function updateTopicsGraph (topics) {
 	if (!topics.length) {
 		translator.translate('[[admin/dashboard:no-users-browsing]]', function (translated) {
 			topics = [{
@@ -512,7 +512,7 @@ function updateTopicsGraph(topics) {
 		graphs.topics.data.datasets[0].hoverBackgroundColor.push(lighten(topicColors[i], 10));
 	});
 
-	function buildTopicsLegend() {
+	function buildTopicsLegend () {
 		let html = '';
 		topics.forEach(function (t, i) {
 			const link = t.tid ? '<a title="' + t.title + '"href="' + config.relative_path + '/topic/' + t.tid + '" target="_blank"> ' + t.title + '</a>' : t.title;
@@ -530,7 +530,7 @@ function updateTopicsGraph(topics) {
 	graphs.topics.update();
 }
 
-function setupDarkModeButton() {
+function setupDarkModeButton () {
 	let bsTheme = localStorage.getItem('data-bs-theme') || 'light';
 	$('#toggle-dark-mode').prop('checked', bsTheme === 'dark')
 		.on('click', function () {
@@ -541,13 +541,13 @@ function setupDarkModeButton() {
 		});
 }
 
-function setupRealtimeButton() {
+function setupRealtimeButton () {
 	$('#toggle-realtime').on('click', function () {
 		initiateDashboard($(this).is(':checked'));
 	});
 }
 
-function initiateDashboard(realtime) {
+function initiateDashboard (realtime) {
 	clearInterval(intervals.rooms);
 	clearInterval(intervals.graphs);
 
@@ -562,7 +562,7 @@ function initiateDashboard(realtime) {
 	}, realtime ? DEFAULTS.realtimeInterval : DEFAULTS.graphInterval);
 }
 
-function setupFullscreen() {
+function setupFullscreen () {
 	const container = document.getElementById('analytics-panel');
 	const $container = $(container);
 	const btn = $container.find('#expand-analytics');

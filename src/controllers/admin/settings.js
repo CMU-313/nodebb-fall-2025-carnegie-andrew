@@ -26,7 +26,7 @@ settingsController.general = async (req, res) => {
 	});
 
 	res.render('admin/settings/general', {
-		title: `[[admin/menu:settings/general]]`,
+		title: '[[admin/menu:settings/general]]',
 		routes,
 		postSharing,
 		languages: languageData,
@@ -75,26 +75,26 @@ settingsController.user = async (req, res) => {
 	}));
 	res.render('admin/settings/user', {
 		title: '[[admin/menu:settings/user]]',
-		notificationSettings: notificationSettings,
+		notificationSettings,
 		groupsExemptFromNewUserRestrictions: groupData,
 	});
 };
 
 settingsController.reputation = async (req, res) => {
-	res.render(`admin/settings/reputation`, {
-		title: `[[admin/menu:settings/reputation]]`,
+	res.render('admin/settings/reputation', {
+		title: '[[admin/menu:settings/reputation]]',
 	});
 };
 
 settingsController.group = async (req, res) => {
-	res.render(`admin/settings/group`, {
-		title: `[[admin/menu:settings/group]]`,
+	res.render('admin/settings/group', {
+		title: '[[admin/menu:settings/group]]',
 	});
 };
 
 settingsController.tags = async (req, res) => {
-	res.render(`admin/settings/tags`, {
-		title: `[[admin/menu:settings/tags]]`,
+	res.render('admin/settings/tags', {
+		title: '[[admin/menu:settings/tags]]',
 	});
 };
 
@@ -107,8 +107,8 @@ settingsController.post = async (req, res) => {
 };
 
 settingsController.uploads = async (req, res) => {
-	res.render(`admin/settings/uploads`, {
-		title: `[[admin/menu:settings/uploads]]`,
+	res.render('admin/settings/uploads', {
+		title: '[[admin/menu:settings/uploads]]',
 	});
 };
 
@@ -117,27 +117,27 @@ settingsController.email = async (req, res) => {
 
 	res.render('admin/settings/email', {
 		title: '[[admin/menu:settings/email]]',
-		emails: emails,
+		emails,
 		sendable: emails.filter(e => !e.path.includes('_plaintext') && !e.path.includes('partials')).map(tpl => tpl.path),
 		services: emailer.listServices(),
 	});
 };
 
 settingsController.chat = async (req, res) => {
-	res.render(`admin/settings/chat`, {
-		title: `[[admin/menu:settings/chat]]`,
+	res.render('admin/settings/chat', {
+		title: '[[admin/menu:settings/chat]]',
 	});
 };
 
 settingsController.pagination = async (req, res) => {
-	res.render(`admin/settings/pagination`, {
-		title: `[[admin/menu:settings/pagination]]`,
+	res.render('admin/settings/pagination', {
+		title: '[[admin/menu:settings/pagination]]',
 	});
 };
 
 settingsController.notifications = async (req, res) => {
-	res.render(`admin/settings/notifications`, {
-		title: `[[admin/menu:settings/notifications]]`,
+	res.render('admin/settings/notifications', {
+		title: '[[admin/menu:settings/notifications]]',
 	});
 };
 
@@ -162,20 +162,20 @@ settingsController.activitypub = async (req, res) => {
 	const instanceCount = await activitypub.instances.getCount();
 
 	res.render('admin/settings/activitypub', {
-		title: `[[admin/menu:settings/activitypub]]`,
+		title: '[[admin/menu:settings/activitypub]]',
 		instanceCount,
 	});
 };
 
 settingsController.cookies = async (req, res) => {
-	res.render(`admin/settings/cookies`, {
-		title: `[[admin/menu:settings/cookies]]`,
+	res.render('admin/settings/cookies', {
+		title: '[[admin/menu:settings/cookies]]',
 	});
 };
 
 settingsController.webCrawler = async (req, res) => {
-	res.render(`admin/settings/web-crawler`, {
-		title: `[[admin/menu:settings/web-crawler]]`,
+	res.render('admin/settings/web-crawler', {
+		title: '[[admin/menu:settings/web-crawler]]',
 	});
 };
 
@@ -186,7 +186,3 @@ settingsController.advanced = async (req, res) => {
 		groupsExemptFromMaintenanceMode: groupData,
 	});
 };
-
-
-
-

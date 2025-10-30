@@ -4,7 +4,7 @@ const util = require('util');
 
 module.exports = function (theModule, ignoreKeys) {
 	ignoreKeys = ignoreKeys || [];
-	function isCallbackedFunction(func) {
+	function isCallbackedFunction (func) {
 		if (typeof func !== 'function') {
 			return false;
 		}
@@ -12,11 +12,11 @@ module.exports = function (theModule, ignoreKeys) {
 		return str.includes('callback)');
 	}
 
-	function isAsyncFunction(fn) {
+	function isAsyncFunction (fn) {
 		return fn && fn.constructor && fn.constructor.name === 'AsyncFunction';
 	}
 
-	function promisifyRecursive(module) {
+	function promisifyRecursive (module) {
 		if (!module) {
 			return;
 		}
@@ -36,8 +36,8 @@ module.exports = function (theModule, ignoreKeys) {
 		});
 	}
 
-	function wrapCallback(origFn, callbackFn) {
-		return function wrapperCallback(...args) {
+	function wrapCallback (origFn, callbackFn) {
+		return function wrapperCallback (...args) {
 			if (args.length && typeof args[args.length - 1] === 'function') {
 				const cb = args.pop();
 				args.push((err, res) => (res !== undefined ? cb(err, res) : cb(err)));
@@ -47,8 +47,8 @@ module.exports = function (theModule, ignoreKeys) {
 		};
 	}
 
-	function wrapPromise(origFn, promiseFn) {
-		return function wrapperPromise(...args) {
+	function wrapPromise (origFn, promiseFn) {
+		return function wrapperPromise (...args) {
 			if (args.length && typeof args[args.length - 1] === 'function') {
 				return origFn(...args);
 			}

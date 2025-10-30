@@ -23,7 +23,7 @@ define('admin/appearance/customise', ['admin/settings', 'ace/ace'], function (Se
 		});
 	};
 
-	function initACE(aceElementId, mode, holder) {
+	function initACE (aceElementId, mode, holder) {
 		const editorEl = ace.edit(aceElementId, {
 			mode: 'ace/mode/' + mode,
 			theme: 'ace/theme/twilight',

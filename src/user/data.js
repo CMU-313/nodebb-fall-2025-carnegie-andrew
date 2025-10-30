@@ -87,7 +87,7 @@ module.exports = function (User) {
 		}
 
 		const results = await plugins.hooks.fire('filter:user.whitelistFields', {
-			uids: uids,
+			uids,
 			whitelist: _.uniq(fieldWhitelist.concat(customFieldWhiteList)),
 		});
 		if (!fields.length) {
@@ -102,8 +102,8 @@ module.exports = function (User) {
 		);
 		const result = await plugins.hooks.fire('filter:user.getFields', {
 			uids: uniqueUids,
-			users: users,
-			fields: fields,
+			users,
+			fields,
 		});
 		result.users.forEach((user, index) => {
 			if (uniqueUids[index] > 0 && !user.uid) {
@@ -114,8 +114,8 @@ module.exports = function (User) {
 		return uidsToUsers(uids, [...uniqueUids, ...remoteIds], result.users);
 	};
 
-	function ensureRequiredFields(fields, fieldsToRemove) {
-		function addField(field) {
+	function ensureRequiredFields (fields, fieldsToRemove) {
+		function addField (field) {
 			if (!fields.includes(field)) {
 				fields.push(field);
 				fieldsToRemove.push(field);
@@ -143,7 +143,7 @@ module.exports = function (User) {
 		}
 	}
 
-	function uidsToUsers(uids, uniqueUids, usersData) {
+	function uidsToUsers (uids, uniqueUids, usersData) {
 		const uidToUser = _.zipObject(uniqueUids, usersData);
 		const users = uids.map((uid) => {
 			const user = uidToUser[uid] || { ...User.guestData };
@@ -209,7 +209,7 @@ module.exports = function (User) {
 		return single ? users.pop() : users;
 	};
 
-	async function modifyUserData(users, requestedFields, fieldsToRemove) {
+	async function modifyUserData (users, requestedFields, fieldsToRemove) {
 		let uidToSettings = {};
 		if (meta.config.showFullnameAsDisplayName) {
 			const uids = users.map(user => user.uid);
@@ -317,7 +317,7 @@ module.exports = function (User) {
 		return await plugins.hooks.fire('filter:users.get', users);
 	}
 
-	function parseDisplayName(user, uidToSettings) {
+	function parseDisplayName (user, uidToSettings) {
 		let showfullname = parseInt(meta.config.showfullname, 10) === 1;
 		if (uidToSettings[user.uid]) {
 			const userSetting = parseInt(uidToSettings[user.uid].showfullname, 10);
@@ -338,7 +338,7 @@ module.exports = function (User) {
 		));
 	}
 
-	function parseGroupTitle(user) {
+	function parseGroupTitle (user) {
 		try {
 			user.groupTitleArray = JSON.parse(user.groupTitle);
 		} catch (err) {
@@ -360,7 +360,6 @@ module.exports = function (User) {
 			user.groupTitleArray = [user.groupTitleArray[0]];
 		}
 	}
-
 
 	User.getIconBackgrounds = async () => {
 		if (iconBackgrounds) {
@@ -405,10 +404,10 @@ module.exports = function (User) {
 		return await incrDecrUserFieldBy(uid, field, -value, 'decrement');
 	};
 
-	async function incrDecrUserFieldBy(uid, field, value, type) {
+	async function incrDecrUserFieldBy (uid, field, value, type) {
 		const prefix = `user${activitypub.helpers.isUri(uid) ? 'Remote' : ''}`;
 		const newValue = await db.incrObjectFieldBy(`${prefix}:${uid}`, field, value);
-		plugins.hooks.fire('action:user.set', { uid: uid, field: field, value: newValue, type: type });
+		plugins.hooks.fire('action:user.set', { uid, field, value: newValue, type });
 		return newValue;
 	}
 };

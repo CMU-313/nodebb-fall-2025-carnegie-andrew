@@ -44,7 +44,7 @@ define('admin/manage/user/custom-fields', [
 		});
 	};
 
-	function getDataFromEl(el) {
+	function getDataFromEl (el) {
 		return {
 			key: el.attr('data-key'),
 			name: el.attr('data-name'),
@@ -56,7 +56,7 @@ define('admin/manage/user/custom-fields', [
 		};
 	}
 
-	async function showModal(field = null) {
+	async function showModal (field = null) {
 		const html = await app.parseAndTranslate('admin/partials/manage-custom-user-fields-modal', field);
 
 		const modal = bootbox.dialog({
@@ -91,7 +91,7 @@ define('admin/manage/user/custom-fields', [
 
 		modal.find('#type-select').on('change', function () {
 			const type = $(this).val();
-			modal.find(`[data-input-type]`).addClass('hidden');
+			modal.find('[data-input-type]').addClass('hidden');
 			modal.find(`[data-input-type-${type}]`).removeClass('hidden');
 		});
 
@@ -106,5 +106,3 @@ define('admin/manage/user/custom-fields', [
 
 	return manageUserFields;
 });
-
-

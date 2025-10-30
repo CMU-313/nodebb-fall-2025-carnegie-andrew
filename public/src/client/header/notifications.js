@@ -29,12 +29,12 @@ define('forum/header/notifications', function () {
 		socket.on('event:notifications.updateCount', onUpdateCount);
 	};
 
-	async function onNewNotification(data) {
+	async function onNewNotification (data) {
 		const notifications = await app.require('notifications');
 		notifications.onNewNotification(data);
 	}
 
-	async function onUpdateCount(data) {
+	async function onUpdateCount (data) {
 		const notifications = await app.require('notifications');
 		notifications.updateNotifCount(data);
 	}

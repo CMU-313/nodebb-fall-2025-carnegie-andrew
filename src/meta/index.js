@@ -62,7 +62,7 @@ Meta.restart = function () {
 	restart();
 };
 
-function restart() {
+function restart () {
 	if (process.send) {
 		process.send({
 			action: 'restart',

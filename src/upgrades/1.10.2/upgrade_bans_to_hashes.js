@@ -29,14 +29,14 @@ module.exports = {
 						Date.now()
 					);
 					const banKey = `uid:${uid}:ban:${banTimestamp}`;
-					await addBan(uid, banKey, { uid: uid, timestamp: banTimestamp });
+					await addBan(uid, banKey, { uid, timestamp: banTimestamp });
 				} else if (bans.length) {
 					// process ban history
 					for (const ban of bans) {
 						const reasonData = reasons.find(reasonData => reasonData.score === ban.score);
 						const banKey = `uid:${uid}:ban:${ban.score}`;
 						const data = {
-							uid: uid,
+							uid,
 							timestamp: ban.score,
 							expire: parseInt(ban.value, 10),
 						};
@@ -53,7 +53,7 @@ module.exports = {
 	},
 };
 
-async function addBan(uid, key, data) {
+async function addBan (uid, key, data) {
 	await db.setObject(key, data);
 	await db.sortedSetAdd(`uid:${uid}:bans:timestamp`, data.timestamp, key);
 }

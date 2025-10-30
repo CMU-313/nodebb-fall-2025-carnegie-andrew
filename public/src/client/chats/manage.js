@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/chats/manage', [
 	'api', 'alerts', 'translator', 'autocomplete', 'forum/chats/user-list',
 ], function (api, alerts, translator, autocomplete, userList) {
@@ -100,7 +99,7 @@ define('forum/chats/manage', [
 		});
 	};
 
-	function addKickHandler(roomId, modal) {
+	function addKickHandler (roomId, modal) {
 		modal.on('click', '[data-action="kick"]', function () {
 			const uid = encodeURIComponent(this.getAttribute('data-uid'));
 
@@ -110,7 +109,7 @@ define('forum/chats/manage', [
 		});
 	}
 
-	function addToggleOwnerHandler(roomId, modal) {
+	function addToggleOwnerHandler (roomId, modal) {
 		modal.on('click', '[data-action="toggleOwner"]', async function () {
 			const uid = String(this.getAttribute('data-uid'));
 			const iconEl = modal.get(0).querySelector(`[component="chat/manage/user/list"] > [data-uid="${uid}"] [component="chat/manage/user/owner/icon"]`);
@@ -125,7 +124,7 @@ define('forum/chats/manage', [
 		});
 	}
 
-	async function refreshParticipantsList(roomId, modal, data) {
+	async function refreshParticipantsList (roomId, modal, data) {
 		const listEl = modal.find('[component="chat/manage/user/list"]');
 
 		if (!data) {

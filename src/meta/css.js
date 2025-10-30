@@ -49,11 +49,11 @@ const buildImports = {
 	},
 };
 
-function boostrapImport(themeData) {
+function boostrapImport (themeData) {
 	// see https://getbootstrap.com/docs/5.0/customize/sass/#variable-defaults
 	// for an explanation of this order and https://bootswatch.com/help/
 	const { bootswatchSkin, bsVariables, isCustomSkin } = themeData;
-	function bsvariables() {
+	function bsvariables () {
 		if (bootswatchSkin) {
 			if (isCustomSkin) {
 				return themeData._variables || '';
@@ -134,13 +134,12 @@ function boostrapImport(themeData) {
 	].join('\n');
 }
 
-
-function getFontawesomeStyle() {
+function getFontawesomeStyle () {
 	const styles = utils.getFontawesomeStyles();
 	return styles.map(style => `@import "fontawesome/style-${style}";`).join('\n');
 }
 
-async function copyFontAwesomeFiles() {
+async function copyFontAwesomeFiles () {
 	await mkdirp(path.join(__dirname, '../../build/public/fontawesome/webfonts'));
 	const fonts = await fs.promises.opendir(path.join(utils.getFontawesomePath(), '/webfonts'));
 	const copyOperations = [];
@@ -154,7 +153,7 @@ async function copyFontAwesomeFiles() {
 	await Promise.all(copyOperations);
 }
 
-async function filterMissingFiles(filepaths) {
+async function filterMissingFiles (filepaths) {
 	const exists = await Promise.all(
 		filepaths.map(async (filepath) => {
 			const exists = await file.exists(path.join(__dirname, '../../node_modules', filepath));
@@ -167,11 +166,11 @@ async function filterMissingFiles(filepaths) {
 	return filepaths.filter((filePath, i) => exists[i]);
 }
 
-async function getImports(files, extension) {
+async function getImports (files, extension) {
 	const pluginDirectories = [];
 	let source = '';
 
-	function pathToImport(file) {
+	function pathToImport (file) {
 		if (!file) {
 			return '';
 		}
@@ -197,7 +196,7 @@ async function getImports(files, extension) {
 	return source;
 }
 
-async function getBundleMetadata(target) {
+async function getBundleMetadata (target) {
 	const paths = [
 		path.join(__dirname, '../../node_modules'),
 		path.join(__dirname, '../../public/scss'),
@@ -241,7 +240,7 @@ async function getBundleMetadata(target) {
 		target === 'client' ? '' : filterGetImports(plugins.acpScssFiles, '.scss'),
 	]);
 
-	async function filterGetImports(files, extension) {
+	async function filterGetImports (files, extension) {
 		const filteredFiles = await filterMissingFiles(files);
 		return await getImports(filteredFiles, extension);
 	}
@@ -249,7 +248,7 @@ async function getBundleMetadata(target) {
 	let imports = `${cssImports}\n${scssImports}\n${acpScssImports}`;
 	imports = buildImports[target](imports, themeData);
 
-	return { paths: paths, imports: imports };
+	return { paths, imports };
 }
 
 CSS.getSkinSwitcherOptions = async function (uid) {
@@ -277,7 +276,7 @@ CSS.getSkinSwitcherOptions = async function (uid) {
 	const darkSkins = [
 		'cyborg', 'darkly', 'quartz', 'slate', 'solar', 'superhero', 'vapor',
 	];
-	function parseSkins(skins) {
+	function parseSkins (skins) {
 		skins = skins.map(skin => ({
 			name: _.capitalize(skin),
 			value: skin,

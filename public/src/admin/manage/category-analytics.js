@@ -21,7 +21,7 @@ Chart.register(
 	Filler
 );
 
-export function init() {
+export function init () {
 	categorySelector.init($('[component="category-selector"]'), {
 		onSelect: function (selectedCategory) {
 			ajaxify.go('admin/manage/categories/' + selectedCategory.cid + '/analytics');
@@ -147,4 +147,3 @@ export function init() {
 		options: chartOpts,
 	});
 }
-

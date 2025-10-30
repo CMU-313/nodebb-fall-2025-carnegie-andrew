@@ -61,7 +61,7 @@ groupsController.get = async function (req, res, next) {
 	}));
 
 	res.render('admin/manage/group', {
-		group: group,
+		group,
 		groupNames: groupNameData,
 		allowPrivateGroups: meta.config.allowPrivateGroups,
 		maximumGroupNameLength: meta.config.maximumGroupNameLength,
@@ -69,7 +69,7 @@ groupsController.get = async function (req, res, next) {
 	});
 };
 
-async function getGroupNames() {
+async function getGroupNames () {
 	let groupEntries = Object.entries(await db.getObject('groupslug:groupname'));
 	groupEntries = groupEntries.map(g => ({ slug: g[0], name: g[1] }));
 	return groupEntries.filter(g => (

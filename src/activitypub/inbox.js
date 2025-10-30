@@ -20,7 +20,7 @@ const helpers = require('./helpers');
 
 const inbox = module.exports;
 
-function reject(type, object, target, senderType = 'uid', id = 0) {
+function reject (type, object, target, senderType = 'uid', id = 0) {
 	activitypub.send(senderType, id, target, {
 		id: `${helpers.resolveActor(senderType, id)}#/activity/reject/${encodeURIComponent(object.id)}`,
 		type: 'Reject',
@@ -288,7 +288,7 @@ inbox.announce = async (req) => {
 		cid = actor;
 	}
 
-	switch(true) {
+	switch (true) {
 		case object.type === 'Like': {
 			const id = object.object.id || object.object;
 			const { id: localId } = await activitypub.helpers.resolveLocalId(id);

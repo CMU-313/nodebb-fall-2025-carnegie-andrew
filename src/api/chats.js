@@ -17,7 +17,7 @@ const socketHelpers = require('../socket.io/helpers');
 
 const chatsAPI = module.exports;
 
-async function rateLimitExceeded(caller, field) {
+async function rateLimitExceeded (caller, field) {
 	const session = caller.request ? caller.request.session : caller.session; // socket vs req
 	const now = Date.now();
 	const [isPrivileged, reputation] = await Promise.all([
@@ -102,8 +102,8 @@ chatsAPI.sortPublicRooms = async (caller, { roomIds, scores }) => {
 		throw new Error('[[error:no-privileges]]');
 	}
 
-	await db.sortedSetAdd(`chat:rooms:public:order`, scores, roomIds);
-	require('../cache').del(`chat:rooms:public:order:all`);
+	await db.sortedSetAdd('chat:rooms:public:order', scores, roomIds);
+	require('../cache').del('chat:rooms:public:order:all');
 };
 
 chatsAPI.get = async (caller, { uid, roomId }) => await messaging.loadRoom(caller.uid, { uid, roomId });
@@ -197,7 +197,7 @@ chatsAPI.mark = async (caller, data) => {
 		await messaging.markUnread([caller.uid], roomId);
 	} else {
 		await messaging.markRead(caller.uid, roomId);
-		socketHelpers.emitToUids('event:chats.markedAsRead', { roomId: roomId }, [caller.uid]);
+		socketHelpers.emitToUids('event:chats.markedAsRead', { roomId }, [caller.uid]);
 		const nids = await user.notifications.getUnreadByField(caller.uid, 'roomId', [roomId]);
 		await notifications.markReadMultiple(nids, caller.uid);
 		user.notifications.pushCount(caller.uid);

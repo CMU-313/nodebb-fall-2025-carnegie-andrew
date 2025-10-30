@@ -67,7 +67,7 @@ app = window.app || {};
 		socket.connect();
 	};
 
-	function addHandlers() {
+	function addHandlers () {
 		socket.on('connect', onConnect);
 
 		socket.on('disconnect', onDisconnect);
@@ -122,7 +122,7 @@ app = window.app || {};
 		});
 	}
 
-	function handleInvalidSession() {
+	function handleInvalidSession () {
 		socket.disconnect();
 		require(['messages', 'logout'], function (messages, logout) {
 			logout(false);
@@ -130,7 +130,7 @@ app = window.app || {};
 		});
 	}
 
-	function handleSessionMismatch() {
+	function handleSessionMismatch () {
 		if (app.flags._login || app.flags._logout) {
 			return;
 		}
@@ -141,7 +141,7 @@ app = window.app || {};
 		});
 	}
 
-	async function onConnect() {
+	async function onConnect () {
 		if (!reconnecting) {
 			hooks.fire('action:connected');
 		} else {
@@ -178,7 +178,7 @@ app = window.app || {};
 		}
 	}
 
-	function reJoinCurrentRoom() {
+	function reJoinCurrentRoom () {
 		if (app.currentRoom) {
 			const current = app.currentRoom;
 			app.currentRoom = '';
@@ -194,7 +194,7 @@ app = window.app || {};
 		}
 	}
 
-	function onReconnecting() {
+	function onReconnecting () {
 		const reconnectEl = $('#reconnect');
 		const reconnectAlert = $('#reconnect-alert');
 
@@ -210,7 +210,7 @@ app = window.app || {};
 		});
 	}
 
-	function onDisconnect() {
+	function onDisconnect () {
 		reconnecting = true;
 		setTimeout(function () {
 			if (!socket.connected) {
@@ -221,7 +221,7 @@ app = window.app || {};
 		hooks.fire('action:disconnected');
 	}
 
-	function onEventBanned(data) {
+	function onEventBanned (data) {
 		require(['bootbox', 'translator'], function (bootbox, translator) {
 			const message = data.until ?
 				translator.compile('error:user-banned-reason-until', (new Date(data.until).toLocaleString()), data.reason) :
@@ -229,7 +229,7 @@ app = window.app || {};
 			translator.translate(message, function (message) {
 				bootbox.alert({
 					title: '[[error:user-banned]]',
-					message: message,
+					message,
 					closeButton: false,
 					callback: function () {
 						window.location.href = config.relative_path + '/';
@@ -239,7 +239,7 @@ app = window.app || {};
 		});
 	}
 
-	function onEventUnbanned() {
+	function onEventUnbanned () {
 		require(['bootbox'], function (bootbox) {
 			bootbox.alert({
 				title: '[[global:alert.unbanned]]',

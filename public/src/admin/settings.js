@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('admin/settings', [
 	'uploader', 'mousetrap', 'hooks', 'alerts', 'settings', 'bootstrap',
 ], function (uploader, mousetrap, hooks, alerts, settings, bootstrap) {
@@ -97,7 +96,7 @@ define('admin/settings', [
 				return;
 			}
 
-			saveFields(fields, function onFieldsSaved(err) {
+			saveFields(fields, function onFieldsSaved (err) {
 				if (err) {
 					return alerts.alert({
 						alert_id: 'config_status',
@@ -148,7 +147,7 @@ define('admin/settings', [
 		}
 	};
 
-	function handleUploads() {
+	function handleUploads () {
 		$('#content input[data-action="upload"]').each(function () {
 			const uploadBtn = $(this);
 			uploadBtn.on('click', function () {
@@ -166,7 +165,7 @@ define('admin/settings', [
 		});
 	}
 
-	function setupTagsInput() {
+	function setupTagsInput () {
 		$('[data-field-type="tagsinput"]').tagsinput({
 			tagClass: 'badge bg-info',
 			confirmKeys: [13, 44],
@@ -179,7 +178,7 @@ define('admin/settings', [
 		socket.emit('admin.config.remove', key);
 	};
 
-	function saveFields(fields, callback) {
+	function saveFields (fields, callback) {
 		const data = {};
 
 		fields.each(function () {

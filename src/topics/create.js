@@ -1,4 +1,3 @@
-
 'use strict';
 
 const _ = require('lodash');
@@ -25,13 +24,13 @@ module.exports = function (Topics) {
 		const tid = data.tid || await db.incrObjectField('global', 'nextTid');
 
 		let topicData = {
-			tid: tid,
+			tid,
 			uid: data.uid,
 			cid: data.cid,
 			mainPid: 0,
 			title: data.title,
 			slug: `${tid}/${slugify(data.title) || 'topic'}`,
-			timestamp: timestamp,
+			timestamp,
 			lastposttime: 0,
 			postcount: 0,
 			viewcount: 0,
@@ -41,7 +40,7 @@ module.exports = function (Topics) {
 			topicData.tags = data.tags.join(',');
 		}
 
-		const result = await plugins.hooks.fire('filter:topic.create', { topic: topicData, data: data });
+		const result = await plugins.hooks.fire('filter:topic.create', { topic: topicData, data });
 		topicData = result.topic;
 		await db.setObject(`topic:${topicData.tid}`, topicData);
 
@@ -76,7 +75,7 @@ module.exports = function (Topics) {
 			await Topics.scheduled.pin(tid, topicData);
 		}
 
-		plugins.hooks.fire('action:topic.save', { topic: _.clone(topicData), data: data });
+		plugins.hooks.fire('action:topic.save', { topic: _.clone(topicData), data });
 		return topicData.tid;
 	};
 
@@ -152,7 +151,7 @@ module.exports = function (Topics) {
 		}
 
 		analytics.increment(['topics', `topics:byCid:${topicData.cid}`]);
-		plugins.hooks.fire('action:topic.post', { topic: topicData, post: postData, data: data });
+		plugins.hooks.fire('action:topic.post', { topic: topicData, post: postData, data });
 
 		if (!topicData.scheduled) {
 			setImmediate(async () => {
@@ -171,8 +170,8 @@ module.exports = function (Topics) {
 		}
 
 		return {
-			topicData: topicData,
-			postData: postData,
+			topicData,
+			postData,
 		};
 	};
 
@@ -234,12 +233,12 @@ module.exports = function (Topics) {
 		}
 
 		analytics.increment(['posts', `posts:byCid:${data.cid}`]);
-		plugins.hooks.fire('action:topic.reply', { post: _.clone(postData), data: data });
+		plugins.hooks.fire('action:topic.reply', { post: _.clone(postData), data });
 
 		return postData;
 	};
 
-	async function onNewPost({ pid, tid, uid: postOwner }, { uid, handle }) {
+	async function onNewPost ({ pid, tid, uid: postOwner }, { uid, handle }) {
 		const [[postData], [userInfo]] = await Promise.all([
 			posts.getPostSummaryByPids([pid], uid, {}),
 			posts.getUserInfoForPosts([postOwner], uid),
@@ -271,7 +270,7 @@ module.exports = function (Topics) {
 		check(content, meta.config.minimumPostLength, meta.config.maximumPostLength, 'content-too-short', 'content-too-long');
 	};
 
-	function check(item, min, max, minError, maxError) {
+	function check (item, min, max, minError, maxError) {
 		// Trim and remove HTML (latter for composers that send in HTML, like redactor)
 		if (typeof item === 'string') {
 			item = utils.stripHTMLTags(item).trim();
@@ -284,7 +283,7 @@ module.exports = function (Topics) {
 		}
 	}
 
-	async function guestHandleValid(data) {
+	async function guestHandleValid (data) {
 		if (meta.config.allowGuestHandles && parseInt(data.uid, 10) === 0 && data.handle) {
 			if (data.handle.length > meta.config.maximumUsernameLength) {
 				throw new Error('[[error:guest-handle-invalid]]');
@@ -296,7 +295,7 @@ module.exports = function (Topics) {
 		}
 	}
 
-	async function canReply(data, topicData) {
+	async function canReply (data, topicData) {
 		if (!topicData) {
 			throw new Error('[[error:no-topic]]');
 		}

@@ -22,8 +22,8 @@ define('accounts/picture', [
 			}, false);
 
 			app.parseAndTranslate('modals/change-picture', {
-				pictures: pictures,
-				uploaded: uploaded,
+				pictures,
+				uploaded,
 				icon: { text: ajaxify.data['icon:text'], bgColor: ajaxify.data['icon:bgColor'] },
 				defaultAvatar: ajaxify.data.defaultAvatar,
 				allowProfileImageUploads: ajaxify.data.allowProfileImageUploads,
@@ -56,7 +56,7 @@ define('accounts/picture', [
 				});
 
 				modal.on('shown.bs.modal', updateImages);
-				modal.on('click', '.list-group-item', function selectImageType() {
+				modal.on('click', '.list-group-item', function selectImageType () {
 					modal.find('.list-group-item').removeClass('active');
 					$(this).addClass('active');
 				});
@@ -69,7 +69,7 @@ define('accounts/picture', [
 
 				handleImageUpload(modal);
 
-				function updateImages() {
+				function updateImages () {
 					// Check to see which one is the active picture
 					if (!ajaxify.data.picture) {
 						modal.find('[data-type="default"]').addClass('active');
@@ -90,7 +90,7 @@ define('accounts/picture', [
 					}
 				}
 
-				function saveSelection() {
+				function saveSelection () {
 					const type = modal.find('.list-group-item.active').attr('data-type');
 					const iconBgColor = modal.find('[data-bg-color].selected').attr('data-bg-color') || 'transparent';
 
@@ -103,7 +103,7 @@ define('accounts/picture', [
 					}).catch(alerts.error);
 				}
 
-				function onCloseModal() {
+				function onCloseModal () {
 					modal.modal('hide');
 				}
 			});
@@ -117,8 +117,8 @@ define('accounts/picture', [
 		if (!picture && ajaxify.data.defaultAvatar) {
 			picture = ajaxify.data.defaultAvatar;
 		}
-		const headerPictureEl = $(`[component="header/avatar"] [component="avatar/picture"]`);
-		const headerIconEl = $(`[component="header/avatar"] [component="avatar/icon"]`);
+		const headerPictureEl = $('[component="header/avatar"] [component="avatar/picture"]');
+		const headerIconEl = $('[component="header/avatar"] [component="avatar/icon"]');
 
 		if (picture) {
 			if (!headerPictureEl.length && headerIconEl.length) {
@@ -141,8 +141,8 @@ define('accounts/picture', [
 		}
 	};
 
-	function handleImageUpload(modal) {
-		function onUploadComplete(urlOnServer) {
+	function handleImageUpload (modal) {
+		function onUploadComplete (urlOnServer) {
 			urlOnServer = (!urlOnServer.startsWith('http') ? config.relative_path : '') + urlOnServer;
 			const cacheBustedUrl = urlOnServer + '?' + Date.now();
 			Picture.updateHeader(cacheBustedUrl);
@@ -158,7 +158,7 @@ define('accounts/picture', [
 			}
 		}
 
-		function onRemoveComplete() {
+		function onRemoveComplete () {
 			if (ajaxify.data.uploadedpicture === ajaxify.data.picture) {
 				ajaxify.refresh();
 				Picture.updateHeader();
@@ -200,7 +200,7 @@ define('accounts/picture', [
 					uploadModal.modal('hide');
 
 					pictureCropper.handleImageCrop({
-						url: url,
+						url,
 						socketMethod: 'user.uploadCroppedPicture',
 						aspectRatio: 1,
 						allowSkippingCrop: false,
@@ -228,7 +228,7 @@ define('accounts/picture', [
 		});
 	}
 
-	function changeUserPicture(type, bgColor) {
+	function changeUserPicture (type, bgColor) {
 		return api.put(`/users/${ajaxify.data.theirid}/picture`, { type, bgColor });
 	}
 

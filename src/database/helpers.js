@@ -3,7 +3,7 @@
 const helpers = module.exports;
 
 helpers.mergeBatch = function (batchData, start, stop, sort) {
-	function getFirst() {
+	function getFirst () {
 		let selectedArray = batchData[0];
 		for (let i = 1; i < batchData.length; i++) {
 			if (batchData[i].length && (

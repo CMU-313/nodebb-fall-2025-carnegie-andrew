@@ -9,7 +9,7 @@ module.exports = {
 		const { progress } = this;
 		const batch = require('../../batch');
 
-		async function upgradePosts() {
+		async function upgradePosts () {
 			await batch.processSortedSet('posts:pid', async (ids) => {
 				await Promise.all(ids.map(async (id) => {
 					progress.incr();
@@ -21,11 +21,11 @@ module.exports = {
 					await db.deleteObjectField(`post:${id}`, 'reputation');
 				}));
 			}, {
-				progress: progress,
+				progress,
 			});
 		}
 
-		async function upgradeUsers() {
+		async function upgradeUsers () {
 			await batch.processSortedSet('users:joindate', async (ids) => {
 				await Promise.all(ids.map(async (id) => {
 					await db.rename(`uid:${id}:favourites`, `uid:${id}:bookmarks`);

@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/topic/move-post', [
 	'components', 'postSelect', 'translator', 'alerts', 'api',
 ], function (components, postSelect, translator, alerts, api) {
@@ -67,7 +66,7 @@ define('forum/topic/move-post', [
 		});
 	};
 
-	function onAjaxifyEnd() {
+	function onAjaxifyEnd () {
 		if (!moveModal) {
 			return;
 		}
@@ -84,7 +83,7 @@ define('forum/topic/move-post', [
 		checkMoveButtonEnable();
 	}
 
-	function getTargetTid() {
+	function getTargetTid () {
 		const tidInput = moveModal.find('#topicId');
 		if (tidInput.length && tidInput.val()) {
 			return tidInput.val();
@@ -92,7 +91,7 @@ define('forum/topic/move-post', [
 		return ajaxify.data.template.topic && ajaxify.data.tid;
 	}
 
-	function showPostsSelected() {
+	function showPostsSelected () {
 		if (!moveModal) {
 			return;
 		}
@@ -117,7 +116,7 @@ define('forum/topic/move-post', [
 		}
 	}
 
-	function checkMoveButtonEnable() {
+	function checkMoveButtonEnable () {
 		if (!moveModal) {
 			return;
 		}
@@ -132,11 +131,11 @@ define('forum/topic/move-post', [
 		showPostsSelected();
 	}
 
-	function onPostToggled() {
+	function onPostToggled () {
 		checkMoveButtonEnable();
 	}
 
-	function movePosts(data) {
+	function movePosts (data) {
 		if (!data.tid) {
 			return;
 		}
@@ -157,7 +156,7 @@ define('forum/topic/move-post', [
 		}).catch(alerts.error);
 	}
 
-	function closeMoveModal() {
+	function closeMoveModal () {
 		if (moveModal) {
 			moveModal.remove();
 			moveModal = null;

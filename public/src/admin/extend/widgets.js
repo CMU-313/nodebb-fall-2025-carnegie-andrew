@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('admin/extend/widgets', [
 	'bootbox',
 	'alerts',
@@ -45,7 +44,7 @@ define('admin/extend/widgets', [
 		});
 	};
 
-	function prepareWidgets() {
+	function prepareWidgets () {
 		const draftContainer = $('[component="drafts-container"]');
 		$('[data-location="drafts"]').appendTo(draftContainer);
 
@@ -102,7 +101,7 @@ define('admin/extend/widgets', [
 
 		$('#save').on('click', saveWidgets);
 
-		function saveWidgets() {
+		function saveWidgets () {
 			const saveData = [];
 			$('#widgets [data-template][data-location]').each(function (i, el) {
 				el = $(el);
@@ -138,9 +137,9 @@ define('admin/extend/widgets', [
 				});
 
 				saveData.push({
-					template: template,
-					location: location,
-					widgets: widgets,
+					template,
+					location,
+					widgets,
 				});
 			});
 
@@ -176,7 +175,7 @@ define('admin/extend/widgets', [
 		});
 	}
 
-	function appendToggle(el) {
+	function appendToggle (el) {
 		if (!el.hasClass('block')) {
 			el.addClass('block').css('width', '').css('height', '')
 				.droppable({
@@ -196,8 +195,8 @@ define('admin/extend/widgets', [
 		}
 	}
 
-	function loadWidgetData() {
-		function populateWidget(widget, data) {
+	function loadWidgetData () {
+		function populateWidget (widget, data) {
 			if (data.title) {
 				const title = widget.find('.card-header strong');
 				title.text(title.text() + ' - ' + data.title);
@@ -239,7 +238,7 @@ define('admin/extend/widgets', [
 		});
 	}
 
-	function setupCloneButton() {
+	function setupCloneButton () {
 		const clone = $('[component="clone"]');
 		const cloneBtn = $('[component="clone/button"]');
 
@@ -267,7 +266,7 @@ define('admin/extend/widgets', [
 				return currentAreas.indexOf(location) !== -1 ? location : undefined;
 			}).get().filter(function (i) { return i; });
 
-			function clone(location) {
+			function clone (location) {
 				$('#active-widgets .tab-pane[data-template="' + template + '"] [data-location="' + location + '"]').each(function () {
 					$(this).find('[data-widget]').each(function () {
 						const widget = $(this).clone(true);

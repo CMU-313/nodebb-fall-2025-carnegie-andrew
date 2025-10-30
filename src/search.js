@@ -53,7 +53,7 @@ search.search = async function (data) {
 	return result;
 };
 
-async function searchInContent(data) {
+async function searchInContent (data) {
 	data.uid = data.uid || 0;
 
 	const [searchCids, searchUids] = await Promise.all([
@@ -61,7 +61,7 @@ async function searchInContent(data) {
 		getSearchUids(data),
 	]);
 
-	async function doSearch(type, searchIn) {
+	async function doSearch (type, searchIn) {
 		if (searchIn.includes(data.searchIn)) {
 			const result = await plugins.hooks.fire('filter:search.query', {
 				index: type,
@@ -122,7 +122,7 @@ async function searchInContent(data) {
 
 	const metadata = await plugins.hooks.fire('filter:search.inContent', {
 		pids: allPids,
-		data: data,
+		data,
 	});
 
 	if (data.returnIds) {
@@ -149,13 +149,13 @@ async function searchInContent(data) {
 	returnData.posts = await posts.getPostSummaryByPids(metadata.pids, data.uid, {
 		extraFields: ['attachments'],
 	});
-	await plugins.hooks.fire('filter:search.contentGetResult', { result: returnData, data: data });
+	await plugins.hooks.fire('filter:search.contentGetResult', { result: returnData, data });
 	delete metadata.pids;
 	delete metadata.data;
 	return Object.assign(returnData, metadata);
 }
 
-async function fetchRemoteObject(data) {
+async function fetchRemoteObject (data) {
 	const { uid, query: uri } = data;
 
 	try {
@@ -187,7 +187,7 @@ async function fetchRemoteObject(data) {
 	}
 }
 
-async function searchInBookmarks(data, searchCids, searchUids) {
+async function searchInBookmarks (data, searchCids, searchUids) {
 	const { uid, query, matchWords } = data;
 	const allPids = [];
 	await batch.processSortedSet(`uid:${uid}:bookmarks`, async (pids) => {
@@ -220,7 +220,7 @@ async function searchInBookmarks(data, searchCids, searchUids) {
 	return allPids;
 }
 
-async function filterAndSort(pids, data) {
+async function filterAndSort (pids, data) {
 	if (data.sortBy === 'relevance' &&
 		!data.replies &&
 		!data.timeRange &&
@@ -241,11 +241,11 @@ async function filterAndSort(pids, data) {
 
 	sortPosts(postsData, data);
 
-	const result = await plugins.hooks.fire('filter:search.filterAndSort', { pids: pids, posts: postsData, data: data });
+	const result = await plugins.hooks.fire('filter:search.filterAndSort', { pids, posts: postsData, data });
 	return result.posts.map(post => post && post.pid);
 }
 
-async function getMatchedPosts(pids, data) {
+async function getMatchedPosts (pids, data) {
 	const postFields = ['pid', 'uid', 'tid', 'timestamp', 'deleted', 'upvotes', 'downvotes'];
 
 	let postsData = await posts.getPostsFields(pids, postFields);
@@ -276,14 +276,14 @@ async function getMatchedPosts(pids, data) {
 	return postsData.filter(post => post && post.topic && !post.topic.deleted);
 }
 
-async function getUsers(uids, data) {
+async function getUsers (uids, data) {
 	if (data.sortBy.startsWith('user')) {
 		return user.getUsersFields(uids, ['username']);
 	}
 	return [];
 }
 
-async function getTopics(tids, data) {
+async function getTopics (tids, data) {
 	const topicsData = await topics.getTopicsData(tids);
 	const cids = _.uniq(topicsData.map(topic => topic && topic.cid));
 	const categories = await getCategories(cids, data);
@@ -301,7 +301,7 @@ async function getTopics(tids, data) {
 	return topicsData;
 }
 
-async function getCategories(cids, data) {
+async function getCategories (cids, data) {
 	const categoryFields = [];
 
 	if (data.sortBy.startsWith('category.')) {
@@ -314,7 +314,7 @@ async function getCategories(cids, data) {
 	return await db.getObjectsFields(cids.map(cid => `category:${cid}`), categoryFields);
 }
 
-function filterByPostcount(posts, postCount, repliesFilter) {
+function filterByPostcount (posts, postCount, repliesFilter) {
 	postCount = parseInt(postCount, 10);
 	if (postCount) {
 		if (repliesFilter === 'atleast') {
@@ -326,7 +326,7 @@ function filterByPostcount(posts, postCount, repliesFilter) {
 	return posts;
 }
 
-function filterByTimerange(posts, timeRange, timeFilter) {
+function filterByTimerange (posts, timeRange, timeFilter) {
 	timeRange = parseInt(timeRange, 10) * 1000;
 	if (timeRange) {
 		const time = Date.now() - timeRange;
@@ -339,7 +339,7 @@ function filterByTimerange(posts, timeRange, timeFilter) {
 	return posts;
 }
 
-function filterByTags(posts, hasTags) {
+function filterByTags (posts, hasTags) {
 	if (Array.isArray(hasTags) && hasTags.length) {
 		posts = posts.filter((post) => {
 			let hasAllTags = false;
@@ -352,7 +352,7 @@ function filterByTags(posts, hasTags) {
 	return posts;
 }
 
-function sortPosts(posts, data) {
+function sortPosts (posts, data) {
 	if (!posts.length || data.sortBy === 'relevance') {
 		return;
 	}
@@ -385,7 +385,7 @@ function sortPosts(posts, data) {
 	}
 }
 
-async function getSearchCids(data) {
+async function getSearchCids (data) {
 	if (!Array.isArray(data.categories) || !data.categories.length) {
 		return [];
 	}
@@ -401,14 +401,14 @@ async function getSearchCids(data) {
 	return _.uniq(watchedCids.concat(childrenCids).concat(data.categories).filter(Boolean));
 }
 
-async function getWatchedCids(data) {
+async function getWatchedCids (data) {
 	if (!data.categories.includes('watched')) {
 		return [];
 	}
 	return await user.getWatchedCategories(data.uid);
 }
 
-async function getChildrenCids(data) {
+async function getChildrenCids (data) {
 	if (!data.searchChildren) {
 		return [];
 	}
@@ -416,7 +416,7 @@ async function getChildrenCids(data) {
 	return await privileges.categories.filterCids('find', _.uniq(_.flatten(childrenCids)), data.uid);
 }
 
-async function getSearchUids(data) {
+async function getSearchUids (data) {
 	if (!data.postedBy) {
 		return [];
 	}

@@ -8,7 +8,6 @@ define('settings/sorted-list', [
 ], function (benchpress, bootbox, hooks) {
 	let Settings;
 
-
 	const SortedList = {
 		types: ['sorted-list'],
 		use: function () {
@@ -94,14 +93,14 @@ define('settings/sorted-list', [
 		},
 	};
 
-	function setupRemoveButton($container, itemUUID) {
+	function setupRemoveButton ($container, itemUUID) {
 		const removeBtn = $container.find('[data-sorted-list-uuid="' + itemUUID + '"] [data-type="remove"]');
 		removeBtn.on('click', function () {
 			$('[data-sorted-list-uuid="' + itemUUID + '"]').remove();
 		});
 	}
 
-	function setupEditButton($container, itemUUID) {
+	function setupEditButton ($container, itemUUID) {
 		const $list = $container.find('[data-type="list"]');
 		const key = $container.attr('data-sorted-list');
 		const editBtn = $('[data-sorted-list-uuid="' + itemUUID + '"] [data-type="edit"]');
@@ -123,7 +122,6 @@ define('settings/sorted-list', [
 					$('#content').find('[data-sorted-list-uuid="' + itemUUID + '"][data-sorted-list-object="' + key + '"]').remove();
 					$('#content').append(form.hide());
 
-
 					let data = Settings.helper.serializeForm(form);
 					({ item: data } = await hooks.fire('filter:settings.sorted-list.loadItem', { item: data }));
 					stripTags(data);
@@ -136,7 +134,7 @@ define('settings/sorted-list', [
 		});
 	}
 
-	function parse($container, itemUUID, data, replaceEl) {
+	function parse ($container, itemUUID, data, replaceEl) {
 		// replaceEl is optional
 		const $list = $container.find('[data-type="list"]');
 		const itemTpl = $container.attr('data-item-template');
@@ -161,7 +159,7 @@ define('settings/sorted-list', [
 		});
 	}
 
-	function stripTags(data) {
+	function stripTags (data) {
 		return Object.entries(data || {}).forEach(([field, value]) => {
 			data[field] = typeof value === 'string' ? utils.stripHTMLTags(value, utils.stripTags) : value;
 		});

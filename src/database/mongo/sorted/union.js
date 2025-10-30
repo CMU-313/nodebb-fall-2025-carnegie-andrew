@@ -24,7 +24,7 @@ module.exports = function (module) {
 		return await getSortedSetUnion(params);
 	};
 
-	async function getSortedSetUnion(params) {
+	async function getSortedSetUnion (params) {
 		if (!Array.isArray(params.sets) || !params.sets.length) {
 			return [];
 		}

@@ -31,7 +31,7 @@ module.exports = function (module) {
 		return await getSortedSetRange(key, start, stop, '-inf', '+inf', -1, true);
 	};
 
-	async function getSortedSetRange(key, start, stop, min, max, sort, withScores) {
+	async function getSortedSetRange (key, start, stop, min, max, sort, withScores) {
 		if (!key) {
 			return;
 		}
@@ -83,9 +83,9 @@ module.exports = function (module) {
 		}
 
 		let result = [];
-		async function doQuery(_key, fields, skip, limit) {
+		async function doQuery (_key, fields, skip, limit) {
 			return await module.client.collection('objects').find({
-				...query, ...{ _key: _key },
+				...query, ...{ _key },
 			}, { projection: fields })
 				.sort({ score: sort })
 				.skip(skip)
@@ -135,7 +135,7 @@ module.exports = function (module) {
 		return await getSortedSetRangeByScore(key, start, count, min, max, -1, true);
 	};
 
-	async function getSortedSetRangeByScore(key, start, count, min, max, sort, withScores) {
+	async function getSortedSetRangeByScore (key, start, count, min, max, sort, withScores) {
 		if (parseInt(count, 10) === 0) {
 			return [];
 		}
@@ -200,7 +200,7 @@ module.exports = function (module) {
 		return await getSortedSetRank(true, key, value);
 	};
 
-	async function getSortedSetRank(reverse, key, value) {
+	async function getSortedSetRank (reverse, key, value) {
 		if (!key) {
 			return;
 		}
@@ -218,7 +218,7 @@ module.exports = function (module) {
 				},
 				{
 					_key: key,
-					score: score,
+					score,
 					value: reverse ? { $gt: value } : { $lt: value },
 				},
 			],
@@ -233,7 +233,7 @@ module.exports = function (module) {
 		return await sortedSetsRanks(module.sortedSetRevRank, keys, values);
 	};
 
-	async function sortedSetsRanks(method, keys, values) {
+	async function sortedSetsRanks (method, keys, values) {
 		if (!Array.isArray(keys) || !keys.length) {
 			return [];
 		}
@@ -253,7 +253,7 @@ module.exports = function (module) {
 		return await sortedSetRanks(true, key, values);
 	};
 
-	async function sortedSetRanks(reverse, key, values) {
+	async function sortedSetRanks (reverse, key, values) {
 		if (values.length === 1) {
 			return [await getSortedSetRank(reverse, key, values[0])];
 		}
@@ -272,7 +272,7 @@ module.exports = function (module) {
 			return null;
 		}
 		value = helpers.valueToString(value);
-		const result = await module.client.collection('objects').findOne({ _key: key, value: value }, { projection: { _id: 0, _key: 0, value: 0 } });
+		const result = await module.client.collection('objects').findOne({ _key: key, value }, { projection: { _id: 0, _key: 0, value: 0 } });
 		return result ? result.score : null;
 	};
 
@@ -281,7 +281,7 @@ module.exports = function (module) {
 			return [];
 		}
 		value = helpers.valueToString(value);
-		const result = await module.client.collection('objects').find({ _key: { $in: keys }, value: value }, { projection: { _id: 0, value: 0 } }).toArray();
+		const result = await module.client.collection('objects').find({ _key: { $in: keys }, value }, { projection: { _id: 0, value: 0 } }).toArray();
 		const map = {};
 		result.forEach((item) => {
 			if (item) {
@@ -318,7 +318,7 @@ module.exports = function (module) {
 		}
 		value = helpers.valueToString(value);
 		const result = await module.client.collection('objects').findOne({
-			_key: key, value: value,
+			_key: key, value,
 		}, {
 			projection: { _id: 0, value: 1 },
 		});
@@ -355,7 +355,7 @@ module.exports = function (module) {
 		}
 		value = helpers.valueToString(value);
 		const results = await module.client.collection('objects').find({
-			_key: { $in: keys }, value: value,
+			_key: { $in: keys }, value,
 		}, {
 			projection: { _id: 0, _key: 1, value: 1 },
 		}).toArray();
@@ -388,7 +388,7 @@ module.exports = function (module) {
 		return await getSortedSetsMembersWithScores(keys, true);
 	};
 
-	async function getSortedSetsMembersWithScores(keys, withScores) {
+	async function getSortedSetsMembersWithScores (keys, withScores) {
 		if (!Array.isArray(keys) || !keys.length) {
 			return [];
 		}
@@ -402,7 +402,7 @@ module.exports = function (module) {
 		}
 		const data = await module.client.collection('objects').find({
 			_key: arrayOfKeys ? { $in: keys } : keys[0],
-		}, { projection: projection })
+		}, { projection })
 			.sort({ score: 1 })
 			.toArray();
 
@@ -436,7 +436,7 @@ module.exports = function (module) {
 		try {
 			const result = await module.client.collection('objects').findOneAndUpdate({
 				_key: key,
-				value: value,
+				value,
 			}, {
 				$inc: data,
 			}, {
@@ -493,7 +493,7 @@ module.exports = function (module) {
 		return data ? data.length : null;
 	};
 
-	async function sortedSetLex(key, min, max, sort, start, count) {
+	async function sortedSetLex (key, min, max, sort, start, count) {
 		const query = { _key: key };
 		start = start !== undefined ? start : 0;
 		count = count !== undefined ? count : 0;
@@ -515,7 +515,7 @@ module.exports = function (module) {
 		await module.client.collection('objects').deleteMany(query);
 	};
 
-	function buildLexQuery(query, min, max) {
+	function buildLexQuery (query, min, max) {
 		if (min !== '-') {
 			if (min.match(/^\(/)) {
 				query.value = { $gt: min.slice(1) };

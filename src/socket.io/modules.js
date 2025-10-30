@@ -111,7 +111,7 @@ SocketModules.chats.leavePublic = async function (socket, roomIds) {
 	await joinLeave(socket, roomIds, 'leave', 'chat_room_public');
 };
 
-async function joinLeave(socket, roomIds, method, prefix = 'chat_room') {
+async function joinLeave (socket, roomIds, method, prefix = 'chat_room') {
 	if (!(socket.uid > 0)) {
 		throw new Error('[[error:not-allowed]]');
 	}
@@ -220,6 +220,5 @@ SocketModules.chats.typing = async (socket, data) => {
 
 	await api.chats.toggleTyping(socket, data);
 };
-
 
 require('../promisify')(SocketModules);

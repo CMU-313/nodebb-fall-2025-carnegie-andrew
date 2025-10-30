@@ -19,7 +19,7 @@ define('forum/header', [
 		handleLogout();
 	};
 
-	function handleStatusChange() {
+	function handleStatusChange () {
 		$('[component="header/usercontrol"] [data-status]').off('click').on('click', function (e) {
 			const status = $(this).attr('data-status');
 			socket.emit('user.setStatus', status, function (err) {
@@ -38,7 +38,7 @@ define('forum/header', [
 		});
 	}
 
-	function createHeaderTooltips() {
+	function createHeaderTooltips () {
 		const env = utils.findBootstrapEnvironment();
 		if (env === 'xs' || env === 'sm' || utils.isTouchDevice()) {
 			return;
@@ -65,7 +65,7 @@ define('forum/header', [
 		});
 	}
 
-	function handleLogout() {
+	function handleLogout () {
 		$('body').on('click', '[component="user/logout"]', function () {
 			require(['logout'], function (logout) {
 				logout();

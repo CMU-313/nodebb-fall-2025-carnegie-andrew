@@ -1,6 +1,5 @@
 'use strict';
 
-
 const async = require('async');
 const groups = require('../../groups');
 const privileges = require('../../privileges');
@@ -38,7 +37,7 @@ module.exports = {
 	},
 };
 
-function getGroupPrivileges(cid, callback) {
+function getGroupPrivileges (cid, callback) {
 	const tasks = {};
 
 	['groups:find', 'groups:read', 'groups:topics:read'].forEach((privilege) => {

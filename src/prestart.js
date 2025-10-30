@@ -9,7 +9,7 @@ const chalk = require('chalk');
 const pkg = require('../package.json');
 const { paths } = require('./constants');
 
-function setupWinston() {
+function setupWinston () {
 	if (!winston.format) {
 		return;
 	}
@@ -44,7 +44,7 @@ function setupWinston() {
 	});
 }
 
-function loadConfig(configFile) {
+function loadConfig (configFile) {
 	nconf.file({
 		file: configFile,
 	});
@@ -84,7 +84,6 @@ function loadConfig(configFile) {
 	nconf.set('upload_path', path.resolve(nconf.get('base_dir'), nconf.get('upload_path')));
 	nconf.set('upload_url', '/assets/uploads');
 
-
 	// nconf defaults, if not set in config
 	if (!nconf.get('sessionKey')) {
 		nconf.set('sessionKey', 'express.sid');
@@ -112,7 +111,7 @@ function loadConfig(configFile) {
 	}
 }
 
-function versionCheck() {
+function versionCheck () {
 	const version = process.version.slice(1);
 	const range = pkg.engines.node;
 	const semver = require('semver');

@@ -15,7 +15,7 @@ define('groupSearch', function () {
 
 		const groupEls = el.find('[component="group-list"] [data-name]');
 		el.on('show.bs.dropdown', function () {
-			function updateList() {
+			function updateList () {
 				const val = searchEl.find('input').val().toLowerCase();
 				let noMatch = true;
 				groupEls.each(function () {

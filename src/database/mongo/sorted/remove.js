@@ -30,7 +30,7 @@ module.exports = function (module) {
 		}
 		value = helpers.valueToString(value);
 
-		await module.client.collection('objects').deleteMany({ _key: { $in: keys }, value: value });
+		await module.client.collection('objects').deleteMany({ _key: { $in: keys }, value });
 	};
 
 	module.sortedSetsRemoveRangeByScore = async function (keys, min, max) {

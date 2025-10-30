@@ -81,7 +81,7 @@ postsAPI.getRaw = async (caller, { pid }) => {
 		return null;
 	}
 	postData.pid = pid;
-	const result = await plugins.hooks.fire('filter:post.getRawPost', { uid: caller.uid, postData: postData });
+	const result = await plugins.hooks.fire('filter:post.getRawPost', { uid: caller.uid, postData });
 	return result.postData.content;
 };
 
@@ -126,7 +126,7 @@ postsAPI.edit = async function (caller, data) {
 	const selfPost = parseInt(caller.uid, 10) === parseInt(editResult.post.uid, 10);
 	if (!selfPost && editResult.post.changed) {
 		await events.log({
-			type: `post-edit`,
+			type: 'post-edit',
 			uid: caller.uid,
 			ip: caller.ip,
 			pid: editResult.post.pid,
@@ -188,7 +188,7 @@ postsAPI.restore = async function (caller, data) {
 	});
 };
 
-async function deleteOrRestore(caller, data, params) {
+async function deleteOrRestore (caller, data, params) {
 	if (!data || !data.pid) {
 		throw new Error('[[error:invalid-data]]');
 	}
@@ -214,7 +214,7 @@ async function deleteOrRestore(caller, data, params) {
 	});
 }
 
-async function deleteOrRestoreTopicOf(command, pid, caller) {
+async function deleteOrRestoreTopicOf (command, pid, caller) {
 	const topic = await posts.getTopicFields(pid, ['tid', 'cid', 'deleted', 'scheduled']);
 	// exempt scheduled topics from being deleted/restored
 	if (topic.scheduled) {
@@ -281,13 +281,13 @@ postsAPI.purge = async function (caller, data) {
 	}
 };
 
-async function isMainAndLastPost(pid) {
+async function isMainAndLastPost (pid) {
 	const [isMain, topicData] = await Promise.all([
 		posts.isMain(pid),
 		posts.getTopicFields(pid, ['postcount']),
 	]);
 	return {
-		isMain: isMain,
+		isMain,
 		isLast: topicData && topicData.postcount === 1,
 	};
 }
@@ -313,7 +313,7 @@ postsAPI.move = async function (caller, data) {
 		posts.getPostField(data.pid, 'deleted'),
 		topics.getTopicField(data.tid, 'deleted'),
 		await events.log({
-			type: `post-move`,
+			type: 'post-move',
 			uid: caller.uid,
 			ip: caller.ip,
 			pid: data.pid,
@@ -374,10 +374,10 @@ postsAPI.getVoters = async function (caller, data) {
 	return {
 		upvoteCount: upvoters.length,
 		downvoteCount: downvoters.length,
-		showUpvotes: showUpvotes,
-		showDownvotes: showDownvotes,
-		upvoters: upvoters,
-		downvoters: downvoters,
+		showUpvotes,
+		showDownvotes,
+		upvoters,
+		downvoters,
 	};
 };
 
@@ -395,7 +395,7 @@ postsAPI.getUpvoters = async function (caller, data) {
 	return await getTooltipData(upvotedUids);
 };
 
-async function getTooltipData(uids) {
+async function getTooltipData (uids) {
 	const cutoff = 6;
 	if (!uids.length) {
 		return {
@@ -442,7 +442,7 @@ postsAPI.getAnnouncers = async (caller, data) => {
 	};
 };
 
-async function canSeeVotes(uid, cids, type) {
+async function canSeeVotes (uid, cids, type) {
 	const isArray = Array.isArray(cids);
 	if (!isArray) {
 		cids = [cids];
@@ -489,7 +489,7 @@ postsAPI.getPinnedPosts = async function (caller, data) {
 	return await user.pin.getPinnedPosts(data.tid, caller.uid);
 };
 
-async function diffsPrivilegeCheck(pid, uid) {
+async function diffsPrivilegeCheck (pid, uid) {
 	const [deleted, privilegesData] = await Promise.all([
 		posts.getPostField(pid, 'deleted'),
 		privileges.posts.get([pid], uid),
@@ -525,9 +525,9 @@ postsAPI.getDiffs = async (caller, data) => {
 	const result = await plugins.hooks.fire('filter:post.getDiffs', {
 		uid: caller.uid,
 		pid: data.pid,
-		timestamps: timestamps,
+		timestamps,
 		revisions: timestamps.map((timestamp, idx) => ({
-			timestamp: timestamp,
+			timestamp,
 			username: usernames[idx],
 			uid: uids[idx],
 		})),
@@ -632,7 +632,7 @@ postsAPI.notifyQueuedPostOwner = async (caller, data) => {
 	}
 };
 
-async function canEditQueue(uid, data, action) {
+async function canEditQueue (uid, data, action) {
 	const [canEditQueue, queuedPost] = await Promise.all([
 		posts.canEditQueue(uid, data, action),
 		posts.getFromQueue(data.id),
@@ -645,7 +645,7 @@ async function canEditQueue(uid, data, action) {
 	}
 }
 
-async function logQueueEvent(caller, result, type) {
+async function logQueueEvent (caller, result, type) {
 	const eventData = {
 		type: `post-queue-${result.type}-${type}`,
 		uid: caller.uid,
@@ -665,15 +665,15 @@ async function logQueueEvent(caller, result, type) {
 	await events.log(eventData);
 }
 
-async function sendQueueNotification(type, targetUid, path, notificationText) {
+async function sendQueueNotification (type, targetUid, path, notificationText) {
 	const bodyShort = notificationText ?
 		translator.compile(`notifications:${type}`, notificationText) :
 		translator.compile(`notifications:${type}`);
 	const notifData = {
-		type: type,
+		type,
 		nid: `${type}-${targetUid}-${path}`,
-		bodyShort: bodyShort,
-		path: path,
+		bodyShort,
+		path,
 	};
 	if (parseInt(meta.config.postQueueNotificationUid, 10) > 0) {
 		notifData.from = meta.config.postQueueNotificationUid;

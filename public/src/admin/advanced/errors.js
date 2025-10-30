@@ -22,14 +22,13 @@ Chart.register(
 	Filler
 );
 
-
-export function init() {
+export function init () {
 	setupCharts();
 
 	$('[data-action="clear"]').on('click', clear404);
 }
 
-function clear404() {
+function clear404 () {
 	bootbox.confirm('[[admin/advanced/errors:clear404-confirm]]', function (ok) {
 		if (ok) {
 			socket.emit('admin.errors.clear', {}, function (err) {
@@ -44,7 +43,7 @@ function clear404() {
 	});
 }
 
-function setupCharts() {
+function setupCharts () {
 	const notFoundCanvas = document.getElementById('not-found');
 	const tooBusyCanvas = document.getElementById('toobusy');
 	let dailyLabels = utils.getDaysArray();

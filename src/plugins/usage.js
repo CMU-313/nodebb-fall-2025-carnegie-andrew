@@ -12,9 +12,9 @@ const meta = require('../meta');
 
 module.exports = function (Plugins) {
 	Plugins.startJobs = function () {
-		new cronJob('0 0 0 * * *', (async () => {
+		new cronJob('0 0 0 * * *', async () => {
 			await Plugins.submitUsageData();
-		}), null, true);
+		}, null, true);
 	};
 
 	Plugins.submitUsageData = async function () {

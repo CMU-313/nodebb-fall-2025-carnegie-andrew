@@ -3,7 +3,7 @@
 define('admin/modules/search', ['mousetrap', 'alerts'], function (mousetrap, alerts) {
 	const search = {};
 
-	function find(dict, term) {
+	function find (dict, term) {
 		const html = dict.filter(function (elem) {
 			return elem.translations.toLowerCase().includes(term);
 		}).map(function (params) {
@@ -13,17 +13,17 @@ define('admin/modules/search', ['mousetrap', 'alerts'], function (mousetrap, ale
 			const escaped = utils.escapeRegexChars(term);
 
 			const results = translations
-				// remove all lines without a match
+			// remove all lines without a match
 				.replace(new RegExp('^(?:(?!' + escaped + ').)*$', 'gmi'), '')
-				// remove lines that only match the title
+			// remove lines that only match the title
 				.replace(new RegExp('(^|\\n).*?' + title + '.*?(\\n|$)', 'g'), '')
-				// get up to 25 characters of context on both sides of the match
-				// and wrap the match in a `.search-match` element
+			// get up to 25 characters of context on both sides of the match
+			// and wrap the match in a `.search-match` element
 				.replace(
 					new RegExp('^[\\s\\S]*?(.{0,25})(' + escaped + ')(.{0,25})[\\s\\S]*?$', 'gmi'),
 					'...$1<span class="search-match fw-bold">$2</span>$3...<br>'
 				)
-				// collapse whitespace
+			// collapse whitespace
 				.replace(/(?:\n ?)+/g, '\n')
 				.trim();
 
@@ -35,7 +35,8 @@ define('admin/modules/search', ['mousetrap', 'alerts'], function (mousetrap, ale
 			return '<li role="presentation" class="result">' +
 				'<a class="dropdown-item rounded-1" role="menuitem" href= "' + config.relative_path + '/' + namespace + '" >' +
 					title +
-					'<br>' + (!results ? '' :
+					'<br>' + (!results ?
+				'' :
 				('<small><code>' +
 						results +
 					'</small></code>')) +
@@ -59,14 +60,14 @@ define('admin/modules/search', ['mousetrap', 'alerts'], function (mousetrap, ale
 		});
 	};
 
-	function setupACPSearch(dict) {
+	function setupACPSearch (dict) {
 		const searchEls = $('[component="acp/search"]');
 		searchEls.each((index, searchEl) => {
 			setupSearch(dict, $(searchEl));
 		});
 	}
 
-	function setupSearch(dict, searchEl) {
+	function setupSearch (dict, searchEl) {
 		const dropdown = searchEl.find('.dropdown');
 		const menu = searchEl.find('.dropdown-menu');
 		const input = searchEl.find('input');

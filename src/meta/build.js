@@ -59,7 +59,7 @@ const aliasMap = Object.keys(aliases).reduce((prev, key) => {
 	return prev;
 }, {});
 
-async function beforeBuild(targets) {
+async function beforeBuild (targets) {
 	const db = require('../database');
 	process.stdout.write(`${chalk.green('  started')}\n`);
 	try {
@@ -70,18 +70,18 @@ async function beforeBuild(targets) {
 		await plugins.prepareForBuild(targets);
 		await mkdirp(path.join(__dirname, '../../build/public'));
 	} catch (err) {
-		winston.error(`[build] Encountered error preparing for build`);
+		winston.error('[build] Encountered error preparing for build');
 		throw err;
 	}
 }
 
 const allTargets = Object.keys(targetHandlers).filter(name => typeof targetHandlers[name] === 'function');
 
-async function buildTargets(targets, parallel, options) {
+async function buildTargets (targets, parallel, options) {
 	const length = Math.max(...targets.map(name => name.length));
 	const jsTargets = targets.filter(target => targetHandlers.javascript.includes(target));
 	const otherTargets = targets.filter(target => !targetHandlers.javascript.includes(target));
-	async function buildJSTargets() {
+	async function buildJSTargets () {
 		await Promise.all(
 			jsTargets.map(
 				target => step(target, parallel, `${_.padStart(target, length)} `)
@@ -110,7 +110,7 @@ async function buildTargets(targets, parallel, options) {
 	}
 }
 
-async function step(target, parallel, targetStr) {
+async function step (target, parallel, targetStr) {
 	const startTime = Date.now();
 	winston.info(`[build] ${targetStr} build started`);
 	try {
@@ -145,7 +145,7 @@ exports.build = async function (targets, options) {
 	}
 
 	targets = targets
-		// get full target name
+	// get full target name
 		.map((target) => {
 			target = target.toLowerCase().replace(/-/g, '');
 			if (!aliasMap[target]) {
@@ -160,7 +160,7 @@ exports.build = async function (targets, options) {
 
 			return aliasMap[target];
 		})
-		// filter nonexistent targets
+	// filter nonexistent targets
 		.filter(Boolean);
 
 	// map multitargets to their sets
@@ -197,12 +197,12 @@ exports.build = async function (targets, options) {
 		await cacheBuster.write();
 		winston.info(`[build] Asset compilation successful. Completed in ${totalTime}sec.`);
 	} catch (err) {
-		winston.error(`[build] Encountered error during build step`);
+		winston.error('[build] Encountered error during build step');
 		throw err;
 	}
 };
 
-function getWebpackConfig() {
+function getWebpackConfig () {
 	return require(process.env.NODE_ENV !== 'development' ? '../../webpack.prod' : '../../webpack.dev');
 }
 

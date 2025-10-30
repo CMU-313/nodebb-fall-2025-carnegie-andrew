@@ -56,7 +56,7 @@ SocketAdmin.restart = async function (socket) {
 	meta.restart();
 };
 
-async function logRestart(socket) {
+async function logRestart (socket) {
 	await events.log({
 		type: 'restart',
 		uid: socket.uid,

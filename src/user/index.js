@@ -79,10 +79,10 @@ User.getUsersFromSet = async function (set, uid, start, stop) {
 };
 
 User.getUsersWithFields = async function (uids, fields, uid) {
-	let results = await plugins.hooks.fire('filter:users.addFields', { fields: fields });
+	let results = await plugins.hooks.fire('filter:users.addFields', { fields });
 	results.fields = _.uniq(results.fields);
 	const userData = await User.getUsersFields(uids, results.fields);
-	results = await plugins.hooks.fire('filter:userlist.get', { users: userData, uid: uid });
+	results = await plugins.hooks.fire('filter:userlist.get', { users: userData, uid });
 	return results.users;
 };
 
@@ -132,11 +132,11 @@ User.getUidsByUserslugs = async function (userslugs) {
 	const apSlugs = userslugs.filter(slug => slug.includes('@'));
 	const normalSlugs = userslugs.filter(slug => !slug.includes('@'));
 	const slugToUid = Object.create(null);
-	async function getApSlugs() {
+	async function getApSlugs () {
 		await Promise.all(apSlugs.map(slug => activitypub.actors.assert(slug)));
 		const apUids = await db.getObjectFields(
 			'handle:uid',
-			apSlugs.map(slug => String(slug).toLowerCase()),
+			apSlugs.map(slug => String(slug).toLowerCase())
 		);
 		return apUids;
 	}
@@ -238,7 +238,7 @@ User.isPrivilegedOrSelf = async function (callerUid, uid) {
 	await isSelfOrMethod(callerUid, uid, User.isPrivileged);
 };
 
-async function isSelfOrMethod(callerUid, uid, method) {
+async function isSelfOrMethod (callerUid, uid, method) {
 	if (parseInt(callerUid, 10) === parseInt(uid, 10)) {
 		return;
 	}

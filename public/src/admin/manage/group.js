@@ -121,7 +121,7 @@ define('admin/manage/group', [
 		});
 	};
 
-	function setupGroupMembersMenu() {
+	function setupGroupMembersMenu () {
 		$('[component="groups/members"]').on('click', '[data-action]', function () {
 			const btnEl = $(this);
 			const userRow = btnEl.parents('[data-uid]');
@@ -153,7 +153,7 @@ define('admin/manage/group', [
 		});
 	}
 
-	function navigateToCategory(cid) {
+	function navigateToCategory (cid) {
 		if (cid) {
 			const url = 'admin/manage/privileges/' + cid + '?group=' + ajaxify.data.group.nameEncoded;
 			if (app.flags && app.flags._unsaved === true) {

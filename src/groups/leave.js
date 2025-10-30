@@ -63,11 +63,11 @@ module.exports = function (Groups) {
 
 		plugins.hooks.fire('action:group.leave', {
 			groupNames: groupsToLeave,
-			uid: uid,
+			uid,
 		});
 	};
 
-	async function leavePublicRooms(groupNames, uid) {
+	async function leavePublicRooms (groupNames, uid) {
 		const allRoomIds = await messaging.getPublicRoomIdsFromSet('chat:rooms:public:order');
 		const allRoomData = await messaging.getRoomsData(allRoomIds);
 		const roomData = allRoomData.filter(
@@ -81,7 +81,7 @@ module.exports = function (Groups) {
 		await messaging.leaveRooms(uid, roomIds);
 	}
 
-	async function clearGroupTitleIfSet(groupNames, uid) {
+	async function clearGroupTitleIfSet (groupNames, uid) {
 		groupNames = groupNames.filter(groupName => groupName !== 'registered-users' && !Groups.isPrivilegeGroup(groupName));
 		if (!groupNames.length) {
 			return;

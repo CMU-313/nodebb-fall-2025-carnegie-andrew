@@ -37,8 +37,8 @@ const passportAuthenticateAsync = function (req, res) {
 };
 
 module.exports = function (middleware) {
-	async function authenticate(req, res) {
-		async function finishLogin(req, user) {
+	async function authenticate (req, res) {
+		async function finishLogin (req, user) {
 			const loginAsync = util.promisify(req.login).bind(req);
 			await loginAsync(user, { keepSessionInfo: true });
 			await controllers.authentication.onSuccessfulLogin(req, user.uid, false);
@@ -77,8 +77,8 @@ module.exports = function (middleware) {
 		}
 
 		await plugins.hooks.fire('response:middleware.authenticate', {
-			req: req,
-			res: res,
+			req,
+			res,
 			next: function () {}, // no-op for backwards compatibility
 		});
 
@@ -117,7 +117,7 @@ module.exports = function (middleware) {
 		await ensureSelfOrMethod(user.isPrivileged, req, res, next);
 	});
 
-	async function ensureSelfOrMethod(method, req, res, next) {
+	async function ensureSelfOrMethod (method, req, res, next) {
 		/*
 			The "self" part of this middleware hinges on you having used
 			middleware.exposeUid prior to invoking this middleware.
@@ -271,7 +271,7 @@ module.exports = function (middleware) {
 		next();
 	};
 
-	middleware.registrationComplete = async function registrationComplete(req, res, next) {
+	middleware.registrationComplete = async function registrationComplete (req, res, next) {
 		/**
 		 * Redirect the user to complete registration if:
 		 *   * user's session contains registration data
@@ -304,7 +304,7 @@ module.exports = function (middleware) {
 		controllers.helpers.redirect(res, '/register/complete');
 	};
 
-	async function requiresEmailConfirmation(req) {
+	async function requiresEmailConfirmation (req) {
 		/**
 		 * N.B. THIS IS NOT AN AUTHENTICATION MECHANISM
 		 *

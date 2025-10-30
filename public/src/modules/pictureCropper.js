@@ -7,7 +7,7 @@ define('pictureCropper', ['alerts'], function (alerts) {
 		const fileSize = data.hasOwnProperty('fileSize') && data.fileSize !== undefined ? parseInt(data.fileSize, 10) : false;
 		app.parseAndTranslate('modals/upload-file', {
 			showHelp: data.hasOwnProperty('showHelp') && data.showHelp !== undefined ? data.showHelp : true,
-			fileSize: fileSize,
+			fileSize,
 			title: data.title || '[[global:upload-file]]',
 			description: data.description || '',
 			button: data.button || '[[global:upload]]',
@@ -111,8 +111,8 @@ define('pictureCropper', ['alerts'], function (alerts) {
 						cropperModal.find('#upload-progress-box').show().removeClass('hide');
 
 						socketUpload({
-							data: data,
-							imageData: imageData,
+							data,
+							imageData,
 							progressBarEl: cropperModal.find('#upload-progress-bar'),
 						}, function (err, result) {
 							if (err) {
@@ -126,7 +126,6 @@ define('pictureCropper', ['alerts'], function (alerts) {
 							cropperModal.modal('hide');
 						});
 					});
-
 
 					cropperModal.find('.upload-btn').on('click', async function () {
 						$(this).addClass('disabled');
@@ -145,7 +144,7 @@ define('pictureCropper', ['alerts'], function (alerts) {
 		});
 	};
 
-	function socketUpload(params, callback) {
+	function socketUpload (params, callback) {
 		const socketData = {};
 		socketData[params.data.paramName] = params.data.paramValue;
 		socketData.method = params.data.socketMethod;
@@ -153,10 +152,10 @@ define('pictureCropper', ['alerts'], function (alerts) {
 		socketData.progress = 0;
 
 		const chunkSize = 100000;
-		function doUpload() {
+		function doUpload () {
 			const chunk = params.imageData.slice(socketData.progress, socketData.progress + chunkSize);
 			socket.emit('uploads.upload', {
-				chunk: chunk,
+				chunk,
 				params: socketData,
 			}, function (err, result) {
 				if (err) {
@@ -175,7 +174,7 @@ define('pictureCropper', ['alerts'], function (alerts) {
 		doUpload();
 	}
 
-	function checkCORS(cropperTool, data) {
+	function checkCORS (cropperTool, data) {
 		let imageData;
 		try {
 			imageData = data.imageType ?
@@ -196,8 +195,8 @@ define('pictureCropper', ['alerts'], function (alerts) {
 		return imageData;
 	}
 
-	function onSubmit(data, callback) {
-		function showAlert(type, message) {
+	function onSubmit (data, callback) {
+		function showAlert (type, message) {
 			if (type === 'error') {
 				data.uploadModal.find('#fileUploadSubmitBtn').removeClass('disabled');
 			}

@@ -8,7 +8,7 @@ define('forum/account/edit/username', [
 	AccountEditUsername.init = function () {
 		header.init();
 
-		$('#submitBtn').on('click', function updateUsername() {
+		$('#submitBtn').on('click', function updateUsername () {
 			const userData = {
 				uid: $('#inputUID').val(),
 				username: $('#inputNewUsername').val(),

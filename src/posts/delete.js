@@ -21,9 +21,9 @@ module.exports = function (Posts) {
 		return await deleteOrRestore('restore', pid, uid);
 	};
 
-	async function deleteOrRestore(type, pid, uid) {
+	async function deleteOrRestore (type, pid, uid) {
 		const isDeleting = type === 'delete';
-		await plugins.hooks.fire(`filter:post.${type}`, { pid: pid, uid: uid });
+		await plugins.hooks.fire(`filter:post.${type}`, { pid, uid });
 		await Posts.setPostFields(pid, {
 			deleted: isDeleting ? 1 : 0,
 			deleterUid: isDeleting ? uid : 0,
@@ -39,7 +39,7 @@ module.exports = function (Posts) {
 				db.sortedSetAdd(`cid:${topicData.cid}:pids`, postData.timestamp, pid),
 		]);
 		await categories.updateRecentTidForCid(postData.cid);
-		plugins.hooks.fire(`action:post.${type}`, { post: _.clone(postData), uid: uid });
+		plugins.hooks.fire(`action:post.${type}`, { post: _.clone(postData), uid });
 		if (type === 'delete') {
 			await flags.resolveFlag('post', pid, uid);
 		}
@@ -66,7 +66,7 @@ module.exports = function (Posts) {
 		await plugins.hooks.fire('filter:posts.purge', {
 			posts: postData,
 			pids: postData.map(p => p.pid),
-			uid: uid,
+			uid,
 		});
 
 		await Promise.all([
@@ -86,12 +86,12 @@ module.exports = function (Posts) {
 
 		await resolveFlags(postData, uid);
 
-		plugins.hooks.fire('action:posts.purge', { posts: postData, uid: uid });
+		plugins.hooks.fire('action:posts.purge', { posts: postData, uid });
 
 		await db.deleteAll(postData.map(p => `post:${p.pid}`));
 	};
 
-	async function deleteFromTopicUserNotification(postData) {
+	async function deleteFromTopicUserNotification (postData) {
 		const bulkRemove = [];
 		postData.forEach((p) => {
 			bulkRemove.push([`tid:${p.tid}:posts`, p.pid]);
@@ -152,14 +152,14 @@ module.exports = function (Posts) {
 		);
 	}
 
-	async function deleteFromCategoryRecentPosts(postData) {
+	async function deleteFromCategoryRecentPosts (postData) {
 		const uniqCids = _.uniq(postData.map(p => p.cid));
 		const sets = uniqCids.map(cid => `cid:${cid}:pids`);
 		await db.sortedSetRemove(sets, postData.map(p => p.pid));
 		await Promise.all(uniqCids.map(categories.updateRecentTidForCid));
 	}
 
-	async function deleteFromUsersBookmarks(pids) {
+	async function deleteFromUsersBookmarks (pids) {
 		const arrayOfUids = await db.getSetsMembers(pids.map(pid => `pid:${pid}:users_bookmarked`));
 		const bulkRemove = [];
 		pids.forEach((pid, index) => {
@@ -171,7 +171,7 @@ module.exports = function (Posts) {
 		await db.deleteAll(pids.map(pid => `pid:${pid}:users_bookmarked`));
 	}
 
-	async function deleteFromUsersVotes(pids) {
+	async function deleteFromUsersVotes (pids) {
 		const [upvoters, downvoters] = await Promise.all([
 			db.getSetsMembers(pids.map(pid => `pid:${pid}:upvote`)),
 			db.getSetsMembers(pids.map(pid => `pid:${pid}:downvote`)),
@@ -195,7 +195,7 @@ module.exports = function (Posts) {
 		]);
 	}
 
-	async function deleteFromReplies(postData) {
+	async function deleteFromReplies (postData) {
 		const arrayOfReplyPids = await db.getSortedSetsMembers(postData.map(p => `pid:${p.pid}:replies`));
 		const allReplyPids = _.flatten(arrayOfReplyPids);
 		const promises = [
@@ -215,13 +215,13 @@ module.exports = function (Posts) {
 		await db.setObjectBulk(parentPids.map((pid, index) => [`post:${pid}`, { replies: counts[index] }]));
 	}
 
-	async function deleteFromGroups(pids) {
+	async function deleteFromGroups (pids) {
 		const groupNames = await db.getSortedSetMembers('groups:visible:createtime');
 		const keys = groupNames.map(groupName => `group:${groupName}:member:pids`);
 		await db.sortedSetRemove(keys, pids);
 	}
 
-	async function deleteDiffs(pids) {
+	async function deleteDiffs (pids) {
 		const timestamps = await Promise.all(pids.map(pid => Posts.diffs.list(pid)));
 		await db.deleteAll([
 			...pids.map(pid => `post:${pid}:diffs`),
@@ -229,11 +229,11 @@ module.exports = function (Posts) {
 		]);
 	}
 
-	async function deleteFromUploads(pids) {
+	async function deleteFromUploads (pids) {
 		await Promise.all(pids.map(Posts.uploads.dissociateAll));
 	}
 
-	async function resolveFlags(postData, uid) {
+	async function resolveFlags (postData, uid) {
 		const flaggedPosts = postData.filter(p => p && parseInt(p.flagId, 10));
 		await Promise.all(flaggedPosts.map(p => flags.update(p.flagId, uid, { state: 'resolved' })));
 	}

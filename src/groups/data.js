@@ -61,11 +61,11 @@ module.exports = function (Groups) {
 
 	Groups.setGroupField = async function (groupName, field, value) {
 		await db.setObjectField(`group:${groupName}`, field, value);
-		plugins.hooks.fire('action:group.set', { field: field, value: value, type: 'set' });
+		plugins.hooks.fire('action:group.set', { field, value, type: 'set' });
 	};
 };
 
-function modifyGroup(group, fields) {
+function modifyGroup (group, fields) {
 	if (group) {
 		db.parseIntFields(group, intFields, fields);
 
@@ -97,7 +97,7 @@ function modifyGroup(group, fields) {
 	}
 }
 
-function escapeGroupData(group) {
+function escapeGroupData (group) {
 	if (group) {
 		group.nameEncoded = encodeURIComponent(group.name);
 		group.displayName = validator.escape(String(group.name));

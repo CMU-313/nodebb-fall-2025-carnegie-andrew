@@ -43,7 +43,7 @@ Flags._states = new Map([
 
 Flags.init = async function () {
 	// Query plugins for custom filter strategies and merge into core filter strategies
-	function prepareSets(sets, orSets, prefix, value) {
+	function prepareSets (sets, orSets, prefix, value) {
 		if (!Array.isArray(value)) {
 			sets.push(prefix + value);
 		} else if (value.length) {
@@ -91,7 +91,7 @@ Flags.init = async function () {
 		},
 		states: Flags._states,
 		helpers: {
-			prepareSets: prepareSets,
+			prepareSets,
 		},
 	};
 
@@ -156,7 +156,7 @@ Flags.getFlagIdsWithFilters = async function ({ filters, uid, query }) {
 	if (sets.length === 1) {
 		flagIds = await db.getSortedSetRevRange(sets[0], 0, -1);
 	} else if (sets.length > 1) {
-		flagIds = await db.getSortedSetRevIntersect({ sets: sets, start: 0, stop: -1, aggregate: 'MAX' });
+		flagIds = await db.getSortedSetRevIntersect({ sets, start: 0, stop: -1, aggregate: 'MAX' });
 	}
 
 	if (orSets.length) {
@@ -218,7 +218,7 @@ Flags.list = async function (data) {
 	}));
 
 	const payload = await plugins.hooks.fire('filter:flags.list', {
-		flags: flags,
+		flags,
 		page: filters.page,
 		uid: data.uid,
 	});
@@ -227,7 +227,7 @@ Flags.list = async function (data) {
 		flags: payload.flags,
 		count,
 		page: payload.page,
-		pageCount: pageCount,
+		pageCount,
 	};
 };
 
@@ -357,7 +357,7 @@ Flags.getFlagIdByTarget = async function (type, id) {
 	return utils.isNumber(flagId) ? parseInt(flagId, 10) : flagId;
 };
 
-async function modifyNotes(notes) {
+async function modifyNotes (notes) {
 	const uids = [];
 	notes = notes.map((note) => {
 		const noteObj = JSON.parse(note.value);
@@ -433,10 +433,10 @@ Flags.create = async function (type, id, uid, reason, timestamp, forceFlag = fal
 
 	batched.push(
 		db.setObject(`flag:${flagId}`, {
-			flagId: flagId,
-			type: type,
+			flagId,
+			type,
 			targetId: id,
-			targetUid: targetUid,
+			targetUid,
 			datetime: timestamp,
 		}),
 		Flags.addReport(flagId, type, id, uid, reason, timestamp, targetUid, notifyRemote),
@@ -500,7 +500,7 @@ Flags.purge = async function (flagIds) {
 	flagData.forEach((flagObj, i) => {
 		if (Array.isArray(allReporterUids[i])) {
 			allReporterUids[i].forEach((uid) => {
-				removeReporters.push([`flags:hash`, [flagObj.type, flagObj.targetId, uid].join(':')]);
+				removeReporters.push(['flags:hash', [flagObj.type, flagObj.targetId, uid].join(':')]);
 				removeReporters.push([`flags:byReporter:${uid}`, flagObj.flagId]);
 			});
 		}
@@ -769,7 +769,7 @@ Flags.update = async function (flagId, uid, changeset) {
 		return allowed;
 	};
 
-	async function rescindNotifications(match) {
+	async function rescindNotifications (match) {
 		const nids = await db.getSortedSetScan({ key: 'notifications', match: `${match}*` });
 		return notifications.rescind(nids);
 	}
@@ -795,7 +795,7 @@ Flags.update = async function (flagId, uid, changeset) {
 		} else if (prop === 'assignee') {
 			if (changeset[prop] === '') {
 				tasks.push(db.sortedSetRemove(`flags:byAssignee:${changeset[prop]}`, flagId));
-			/* eslint-disable-next-line */
+				/* eslint-disable-next-line */
 			} else if (!await isAssignable(parseInt(changeset[prop], 10))) {
 				delete changeset[prop];
 			} else {
@@ -813,7 +813,7 @@ Flags.update = async function (flagId, uid, changeset) {
 	tasks.push(Flags.appendHistory(flagId, uid, changeset));
 	await Promise.all(tasks);
 
-	plugins.hooks.fire('action:flags.update', { flagId: flagId, changeset: changeset, uid: uid });
+	plugins.hooks.fire('action:flags.update', { flagId, changeset, uid });
 };
 
 Flags.resolveFlag = async function (type, id, uid) {
@@ -910,7 +910,7 @@ Flags.appendNote = async function (flagId, uid, note, datetime) {
 	await db.sortedSetAdd(`flag:${flagId}:notes`, datetime, payload);
 	await Flags.appendHistory(flagId, uid, {
 		notes: null,
-		datetime: datetime,
+		datetime,
 	});
 };
 
@@ -972,7 +972,7 @@ Flags.notify = async function (flagObj, uid, notifySelf = false) {
 	await notifications.push(notifObj, uids);
 };
 
-async function mergeBanHistory(history, targetUid, uids) {
+async function mergeBanHistory (history, targetUid, uids) {
 	return await mergeBanMuteHistory(history, uids, {
 		set: `uid:${targetUid}:bans:timestamp`,
 		label: '[[user:banned]]',
@@ -981,7 +981,7 @@ async function mergeBanHistory(history, targetUid, uids) {
 	});
 }
 
-async function mergeMuteHistory(history, targetUid, uids) {
+async function mergeMuteHistory (history, targetUid, uids) {
 	return await mergeBanMuteHistory(history, uids, {
 		set: `uid:${targetUid}:mutes:timestamp`,
 		label: '[[user:muted]]',
@@ -990,7 +990,7 @@ async function mergeMuteHistory(history, targetUid, uids) {
 	});
 }
 
-async function mergeBanMuteHistory(history, uids, params) {
+async function mergeBanMuteHistory (history, uids, params) {
 	let recentObjs = await db.getSortedSetRevRange(params.set, 0, 19);
 	recentObjs = await db.getObjects(recentObjs);
 
@@ -1018,7 +1018,7 @@ async function mergeBanMuteHistory(history, uids, params) {
 	}, []));
 }
 
-async function mergeUsernameEmailChanges(history, targetUid, uids) {
+async function mergeUsernameEmailChanges (history, targetUid, uids) {
 	const usernameChanges = await user.getHistory(`user:${targetUid}:usernames`);
 	const emailChanges = await user.getHistory(`user:${targetUid}:emails`);
 

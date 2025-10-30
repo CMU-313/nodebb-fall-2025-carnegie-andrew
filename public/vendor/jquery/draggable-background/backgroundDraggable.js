@@ -8,88 +8,88 @@
  * Licensed under the MIT license:
  *   http://www.opensource.org/licenses/mit-license.php
  */
-;(function($) {
-  var $window = $(window);
+;(function ($) {
+  const $window = $(window)
 
   // Helper function to guarantee a value between low and hi unless bool is false
-  var limit = function(low, hi, value, bool) {
+  const limit = function (low, hi, value, bool) {
     if (arguments.length === 3 || bool) {
-      if (value < low) return low;
-      if (value > hi) return hi;
+      if (value < low) return low
+      if (value > hi) return hi
     }
-    return value;
-  };
-
-  // Adds clientX and clientY properties to the jQuery's event object from touch
-  var modifyEventForTouch = function(e) {
-    e.clientX = e.originalEvent.touches[0].clientX;
-    e.clientY = e.originalEvent.touches[0].clientY;
-  };
-
-  var getBackgroundImageDimensions = function($el) {
-    var bgSrc = ($el.css('background-image').match(/^url\(['"]?(.*?)['"]?\)$/i) || [])[1];
-    if (!bgSrc) return;
-
-    var imageDimensions = { width: 0, height: 0 },
-        image = new Image();
-
-    image.onload = function() {
-      if ($el.css('background-size') == "cover") {
-        var elementWidth = $el.innerWidth(),
-            elementHeight = $el.innerHeight(),
-            elementAspectRatio = elementWidth / elementHeight,
-            imageAspectRatio = image.width / image.height,
-            scale = 1;
-
-        if (imageAspectRatio >= elementAspectRatio) {
-          scale = elementHeight / image.height;
-        } else {
-          scale = elementWidth / image.width;
-        }
-
-        imageDimensions.width = image.width * scale;
-        imageDimensions.height = image.height * scale;
-      } else {
-        imageDimensions.width = image.width;
-        imageDimensions.height = image.height;
-      }
-    };
-
-    image.src = bgSrc;
-
-    return imageDimensions;
-  };
-
-  function Plugin(element, options) {
-    this.element = element;
-    this.options = options;
-    this.init();
+    return value
   }
 
-  Plugin.prototype.init = function() {
-    var $el = $(this.element),
-        bgSrc = ($el.css('background-image').match(/^url\(['"]?(.*?)['"]?\)$/i) || [])[1],
-        options = this.options;
+  // Adds clientX and clientY properties to the jQuery's event object from touch
+  const modifyEventForTouch = function (e) {
+    e.clientX = e.originalEvent.touches[0].clientX
+    e.clientY = e.originalEvent.touches[0].clientY
+  }
 
-    if (!bgSrc) return;
+  const getBackgroundImageDimensions = function ($el) {
+    const bgSrc = ($el.css('background-image').match(/^url\(['"]?(.*?)['"]?\)$/i) || [])[1]
+    if (!bgSrc) return
+
+    const imageDimensions = { width: 0, height: 0 }
+    const image = new Image()
+
+    image.onload = function () {
+      if ($el.css('background-size') == 'cover') {
+        const elementWidth = $el.innerWidth()
+        const elementHeight = $el.innerHeight()
+        const elementAspectRatio = elementWidth / elementHeight
+        const imageAspectRatio = image.width / image.height
+        let scale = 1
+
+        if (imageAspectRatio >= elementAspectRatio) {
+          scale = elementHeight / image.height
+        } else {
+          scale = elementWidth / image.width
+        }
+
+        imageDimensions.width = image.width * scale
+        imageDimensions.height = image.height * scale
+      } else {
+        imageDimensions.width = image.width
+        imageDimensions.height = image.height
+      }
+    }
+
+    image.src = bgSrc
+
+    return imageDimensions
+  }
+
+  function Plugin (element, options) {
+    this.element = element
+    this.options = options
+    this.init()
+  }
+
+  Plugin.prototype.init = function () {
+    const $el = $(this.element)
+    const bgSrc = ($el.css('background-image').match(/^url\(['"]?(.*?)['"]?\)$/i) || [])[1]
+    const options = this.options
+
+    if (!bgSrc) return
 
     // Get the image's width and height if bound
-    var imageDimensions = { width: 0, height: 0 };
+    let imageDimensions = { width: 0, height: 0 }
     if (options.bound || options.units == 'percent') {
-      imageDimensions = getBackgroundImageDimensions($el);
+      imageDimensions = getBackgroundImageDimensions($el)
     }
 
     $(window).on('keydown.dbg', (e) => {
-      var pos = $el.css('background-position').match(/(-?\d+).*?\s(-?\d+)/) || [];
-      var xPos = parseInt(pos[1]) || 0;
-      var yPos = parseInt(pos[2]) || 0;
+      const pos = $el.css('background-position').match(/(-?\d+).*?\s(-?\d+)/) || []
+      let xPos = parseInt(pos[1]) || 0
+      let yPos = parseInt(pos[2]) || 0
       // We must convert percentage back to pixels
       if (options.units == 'percent') {
-        xPos = Math.round(xPos / -200 * imageDimensions.width);
-        yPos = Math.round(yPos / -200 * imageDimensions.height);
+        xPos = Math.round(xPos / -200 * imageDimensions.width)
+        yPos = Math.round(yPos / -200 * imageDimensions.height)
       }
 
-      var x = 0, y = 0;
+      let x = 0; let y = 0
       if (e.which === 37) { // left
         x = -5
       } else if (e.which === 39) { // right
@@ -100,107 +100,106 @@
         y = +5
       }
       if (options.units === 'percent') {
-        xPos = options.axis === 'y' ? xPos : limit(-imageDimensions.width/2, 0, xPos+x, options.bound);
-        yPos = options.axis === 'x' ? yPos : limit(-imageDimensions.height/2, 0, yPos+y, options.bound);
+        xPos = options.axis === 'y' ? xPos : limit(-imageDimensions.width / 2, 0, xPos + x, options.bound)
+        yPos = options.axis === 'x' ? yPos : limit(-imageDimensions.height / 2, 0, yPos + y, options.bound)
 
         // Convert pixels to percentage
-        $el.css('background-position', xPos / imageDimensions.width * -200 + '% ' + yPos / imageDimensions.height * -200 + '%');
+        $el.css('background-position', xPos / imageDimensions.width * -200 + '% ' + yPos / imageDimensions.height * -200 + '%')
       } else {
-        xPos = options.axis === 'y' ? xPos : limit($el.innerWidth()-imageDimensions.width, 0, xPos+x, options.bound);
-        yPos = options.axis === 'x' ? yPos : limit($el.innerHeight()-imageDimensions.height, 0, yPos+y, options.bound);
+        xPos = options.axis === 'y' ? xPos : limit($el.innerWidth() - imageDimensions.width, 0, xPos + x, options.bound)
+        yPos = options.axis === 'x' ? yPos : limit($el.innerHeight() - imageDimensions.height, 0, yPos + y, options.bound)
       }
-      return [37, 38, 39, 40].includes(e.which) ? false : undefined;
-    });
+      return [37, 38, 39, 40].includes(e.which) ? false : undefined
+    })
 
-    $el.on('mousedown.dbg touchstart.dbg', function(e) {
+    $el.on('mousedown.dbg touchstart.dbg', function (e) {
       if (e.target !== $el[0]) {
-        return;
+        return
       }
-      e.preventDefault();
+      e.preventDefault()
 
       if (e.originalEvent.touches) {
-        modifyEventForTouch(e);
+        modifyEventForTouch(e)
       } else if (e.which !== 1) {
-        return;
+        return
       }
 
-      var x0 = e.clientX,
-          y0 = e.clientY,
-          pos = $el.css('background-position').match(/(-?\d+).*?\s(-?\d+)/) || [],
-          xPos = parseInt(pos[1]) || 0,
-          yPos = parseInt(pos[2]) || 0;
+      let x0 = e.clientX
+      let y0 = e.clientY
+      const pos = $el.css('background-position').match(/(-?\d+).*?\s(-?\d+)/) || []
+      let xPos = parseInt(pos[1]) || 0
+      let yPos = parseInt(pos[2]) || 0
 
       // We must convert percentage back to pixels
       if (options.units == 'percent') {
-        xPos = Math.round(xPos / -200 * imageDimensions.width);
-        yPos = Math.round(yPos / -200 * imageDimensions.height);
+        xPos = Math.round(xPos / -200 * imageDimensions.width)
+        yPos = Math.round(yPos / -200 * imageDimensions.height)
       }
 
-      $window.on('mousemove.dbg touchmove.dbg', function(e) {
-        e.preventDefault();
+      $window.on('mousemove.dbg touchmove.dbg', function (e) {
+        e.preventDefault()
 
         if (e.originalEvent.touches) {
-          modifyEventForTouch(e);
+          modifyEventForTouch(e)
         }
 
-        var x = e.clientX,
-            y = e.clientY;
+        const x = e.clientX
+        const y = e.clientY
 
         if (options.units == 'percent') {
-          xPos = options.axis === 'y' ? xPos : limit(-imageDimensions.width/2, 0, xPos+x-x0, options.bound);
-          yPos = options.axis === 'x' ? yPos : limit(-imageDimensions.height/2, 0, yPos+y-y0, options.bound);
+          xPos = options.axis === 'y' ? xPos : limit(-imageDimensions.width / 2, 0, xPos + x - x0, options.bound)
+          yPos = options.axis === 'x' ? yPos : limit(-imageDimensions.height / 2, 0, yPos + y - y0, options.bound)
 
           // Convert pixels to percentage
-          $el.css('background-position', xPos / imageDimensions.width * -200 + '% ' + yPos / imageDimensions.height * -200 + '%');
+          $el.css('background-position', xPos / imageDimensions.width * -200 + '% ' + yPos / imageDimensions.height * -200 + '%')
         } else {
-          xPos = options.axis === 'y' ? xPos : limit($el.innerWidth()-imageDimensions.width, 0, xPos+x-x0, options.bound);
-          yPos = options.axis === 'x' ? yPos : limit($el.innerHeight()-imageDimensions.height, 0, yPos+y-y0, options.bound);
+          xPos = options.axis === 'y' ? xPos : limit($el.innerWidth() - imageDimensions.width, 0, xPos + x - x0, options.bound)
+          yPos = options.axis === 'x' ? yPos : limit($el.innerHeight() - imageDimensions.height, 0, yPos + y - y0, options.bound)
 
-          $el.css('background-position', xPos + 'px ' + yPos + 'px');
+          $el.css('background-position', xPos + 'px ' + yPos + 'px')
         }
 
-        x0 = x;
-        y0 = y;
+        x0 = x
+        y0 = y
+      })
 
-      });
-
-      $window.on('mouseup.dbg touchend.dbg mouseleave.dbg', function() {
+      $window.on('mouseup.dbg touchend.dbg mouseleave.dbg', function () {
         if (options.done) {
-          options.done();
+          options.done()
         }
 
-        $window.off('mousemove.dbg touchmove.dbg');
-        $window.off('mouseup.dbg touchend.dbg mouseleave.dbg');
-      });
-    });
-  };
-
-  Plugin.prototype.disable = function() {
-    var $el = $(this.element);
-    $el.off('mousedown.dbg touchstart.dbg');
-    $window.off('mousemove.dbg touchmove.dbg mouseup.dbg touchend.dbg mouseleave.dbg keydown.dbg');
+        $window.off('mousemove.dbg touchmove.dbg')
+        $window.off('mouseup.dbg touchend.dbg mouseleave.dbg')
+      })
+    })
   }
 
-  $.fn.backgroundDraggable = function(options) {
-    var args = Array.prototype.slice.call(arguments, 1);
+  Plugin.prototype.disable = function () {
+    const $el = $(this.element)
+    $el.off('mousedown.dbg touchstart.dbg')
+    $window.off('mousemove.dbg touchmove.dbg mouseup.dbg touchend.dbg mouseleave.dbg keydown.dbg')
+  }
 
-    return this.each(function() {
-      var $this = $(this);
-      var plugin;
-      if (typeof options == 'undefined' || typeof options == 'object') {
-        options = $.extend({}, $.fn.backgroundDraggable.defaults, options);
-        plugin = new Plugin(this, options);
-        $this.data('dbg', plugin);
-      } else if (typeof options == 'string' && $this.data('dbg')) {
-        plugin = $this.data('dbg');
-        Plugin.prototype[options].apply(plugin, args);
+  $.fn.backgroundDraggable = function (options) {
+    const args = Array.prototype.slice.call(arguments, 1)
+
+    return this.each(function () {
+      const $this = $(this)
+      let plugin
+      if (typeof options === 'undefined' || typeof options === 'object') {
+        options = $.extend({}, $.fn.backgroundDraggable.defaults, options)
+        plugin = new Plugin(this, options)
+        $this.data('dbg', plugin)
+      } else if (typeof options === 'string' && $this.data('dbg')) {
+        plugin = $this.data('dbg')
+        Plugin.prototype[options].apply(plugin, args)
       }
-    });
-  };
+    })
+  }
 
   $.fn.backgroundDraggable.defaults = {
     bound: true,
     axis: undefined,
-    units: 'pixels',
-  };
-}(jQuery));
+    units: 'pixels'
+  }
+}(jQuery))

@@ -56,7 +56,7 @@ UserReset.send = async function (email) {
 			reset_link: `${nconf.get('url')}/reset/${code}`,
 			subject: '[[email:password-reset-requested]]',
 			template: 'reset',
-			uid: uid,
+			uid,
 		}).catch(err => winston.error(`[emailer.send] ${err.stack}`));
 
 		return code;
@@ -65,7 +65,7 @@ UserReset.send = async function (email) {
 	}
 };
 
-async function lockReset(uid, error) {
+async function lockReset (uid, error) {
 	const value = `reset${uid}`;
 	const count = await db.incrObjectField('locks', value);
 	if (count > 1) {
@@ -74,7 +74,7 @@ async function lockReset(uid, error) {
 	return value;
 }
 
-async function canGenerate(uid) {
+async function canGenerate (uid) {
 	const score = await db.sortedSetScore('reset:issueDate:uid', uid);
 	if (score > Date.now() - (UserReset.minSecondsBetweenEmails * 1000)) {
 		throw new Error('[[error:reset-rate-limited]]');
@@ -96,7 +96,7 @@ UserReset.commit = async function (code, password) {
 		['password', 'passwordExpiry', 'password:shaWrapped', 'username']
 	);
 
-	await plugins.hooks.fire('filter:password.check', { password: password, uid });
+	await plugins.hooks.fire('filter:password.check', { password, uid });
 
 	const ok = await Password.compare(password, userData.password, !!parseInt(userData['password:shaWrapped'], 10));
 	if (ok) {
@@ -178,7 +178,7 @@ UserReset.cleanByUid = async function (uid) {
 	]);
 };
 
-async function cleanTokens(tokens) {
+async function cleanTokens (tokens) {
 	await Promise.all([
 		db.deleteObjectFields('reset:uid', tokens),
 		db.sortedSetRemove('reset:issueDate', tokens),

@@ -598,7 +598,7 @@ describe.skip('Controllers', () => {
 		it('should serve the the backgroundImage in `icon` if set', async () => {
 			const payload = {};
 			payload[cid] = {
-				backgroundImage: `/assets/uploads/files/test.png`,
+				backgroundImage: '/assets/uploads/files/test.png',
 			};
 			await categories.update(payload);
 

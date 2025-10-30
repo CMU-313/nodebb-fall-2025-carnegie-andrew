@@ -2,7 +2,7 @@
 
 /**
  * User pinning functionality - handles both topics and posts
- * 
+ *
  * Topic pins: users can bookmark important topics (stored in sets)
  * Post pins: mods can highlight key comments in discussions (stored as flags)
  */
@@ -15,11 +15,11 @@ const MAX_PINS = 5;
 const INSTRUCTOR_GROUP = 'instructors';
 
 // Topic pinning stuff
-function keyFor(uid) {
+function keyFor (uid) {
 	return `user:${uid}:pinnedTids`;
 }
 
-async function canPin(uid) {
+async function canPin (uid) {
 	if (!(parseInt(uid, 10) > 0)) {
 		return false;
 	}
@@ -30,14 +30,14 @@ async function canPin(uid) {
 	return Boolean(isAdmin || isInstructor);
 }
 
-async function getPinnedTids(uid) {
+async function getPinnedTids (uid) {
 	const tids = await db.getSetMembers(keyFor(uid));
 	return (tids || [])
 		.map(t => Number(t))
 		.filter(n => Number.isFinite(n));
 }
 
-async function addPinnedTid(uid, tid) {
+async function addPinnedTid (uid, tid) {
 	if (!(await canPin(uid))) {
 		const err = new Error('Not authorized to pin');
 		err.status = 403;
@@ -66,7 +66,7 @@ async function addPinnedTid(uid, tid) {
 	return getPinnedTids(uid);
 }
 
-async function removePinnedTid(uid, tid) {
+async function removePinnedTid (uid, tid) {
 	if (!(await canPin(uid))) {
 		const err = new Error('Not authorized to unpin');
 		err.status = 403;
@@ -86,7 +86,7 @@ async function removePinnedTid(uid, tid) {
 
 // Post pinning stuff
 
-async function canPinPosts(pid, uid) {
+async function canPinPosts (pid, uid) {
 	const user = require('./index');
 	const [isAdmin, isModerator, postData] = await Promise.all([
 		user.isAdministrator(uid),
@@ -106,7 +106,7 @@ async function canPinPosts(pid, uid) {
 	return false;
 }
 
-async function pinPost(pid, uid) {
+async function pinPost (pid, uid) {
 	const [canPin, postData] = await Promise.all([
 		canPinPosts(pid, uid),
 		getPostFields(pid, ['pid', 'tid', 'pinned']),
@@ -128,7 +128,7 @@ async function pinPost(pid, uid) {
 	return await getPostData(pid);
 }
 
-async function unpinPost(pid, uid) {
+async function unpinPost (pid, uid) {
 	const [canPin, postData] = await Promise.all([
 		canPinPosts(pid, uid),
 		getPostFields(pid, ['pid', 'tid', 'pinned']),
@@ -150,7 +150,7 @@ async function unpinPost(pid, uid) {
 	return await getPostData(pid);
 }
 
-async function getPinnedPosts(tid, uid) {
+async function getPinnedPosts (tid, uid) {
 	const [canRead, pids] = await Promise.all([
 		privileges.topics.can('topics:read', tid, uid),
 		db.getSortedSetRange(`tid:${tid}:posts`, 0, -1),
@@ -177,32 +177,32 @@ async function getPinnedPosts(tid, uid) {
 }
 
 // Helper functions - these just wrap the posts module methods
-async function getPostFields(pid, fields) {
+async function getPostFields (pid, fields) {
 	const posts = require('../posts');
 	return await posts.getPostFields(pid, fields);
 }
 
-async function setPostField(pid, field, value) {
+async function setPostField (pid, field, value) {
 	const posts = require('../posts');
 	return await posts.setPostField(pid, field, value);
 }
 
-async function getPostData(pid) {
+async function getPostData (pid) {
 	const posts = require('../posts');
 	return await posts.getPostData(pid);
 }
 
-async function getPostsFields(pids, fields) {
+async function getPostsFields (pids, fields) {
 	const posts = require('../posts');
 	return await posts.getPostsFields(pids, fields);
 }
 
-async function getPostsData(pids) {
+async function getPostsData (pids) {
 	const posts = require('../posts');
 	return await posts.getPostsData(pids);
 }
 
-async function getPostField(pid, field) {
+async function getPostField (pid, field) {
 	const posts = require('../posts');
 	return await posts.getPostField(pid, field);
 }
@@ -215,7 +215,7 @@ module.exports = {
 	getPinnedTids,
 	addPinnedTid,
 	removePinnedTid,
-	
+
 	// post stuff
 	canPinPosts,
 	pinPost,

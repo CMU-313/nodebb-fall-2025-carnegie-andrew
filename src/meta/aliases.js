@@ -22,7 +22,7 @@ const aliases = {
 
 exports.aliases = aliases;
 
-function buildTargets() {
+function buildTargets () {
 	let length = 0;
 	const output = Object.keys(aliases).map((name) => {
 		const arr = aliases[name];

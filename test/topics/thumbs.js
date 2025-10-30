@@ -39,7 +39,7 @@ describe('Topic thumbs', () => {
 
 	const uuid = utils.generateUUID();
 
-	function createFiles() {
+	function createFiles () {
 		fs.closeSync(fs.openSync(path.resolve(__dirname, '../uploads', thumbPaths[0]), 'w'));
 		fs.closeSync(fs.openSync(path.resolve(__dirname, '../uploads', thumbPaths[1]), 'w'));
 	}
@@ -224,13 +224,13 @@ describe('Topic thumbs', () => {
 		});
 	});
 
-	describe(`.delete()`, () => {
+	describe('.delete()', () => {
 		it('should remove a file from sorted set', async () => {
 			await topics.thumbs.associate({
 				id: 1,
-				path: `/files/test.png`,
+				path: '/files/test.png',
 			});
-			await topics.thumbs.delete(1, `/files/test.png`);
+			await topics.thumbs.delete(1, '/files/test.png');
 
 			assert.strictEqual(await db.isSortedSetMember('topic:1:thumbs', '/files/test.png'), false);
 		});
@@ -244,7 +244,7 @@ describe('Topic thumbs', () => {
 		it('should also work with UUIDs', async () => {
 			await topics.thumbs.associate({
 				id: uuid,
-				path: `/files/test.png`,
+				path: '/files/test.png',
 			});
 			await topics.thumbs.delete(uuid, '/files/test.png');
 
@@ -269,12 +269,12 @@ describe('Topic thumbs', () => {
 		});
 
 		it('should have no more thumbs left', async () => {
-			const associated = await db.isSortedSetMembers(`topic:1:thumbs`, [relativeThumbPaths[0], relativeThumbPaths[1]]);
+			const associated = await db.isSortedSetMembers('topic:1:thumbs', [relativeThumbPaths[0], relativeThumbPaths[1]]);
 			assert.strictEqual(associated.some(Boolean), false);
 		});
 
 		it('should decrement numThumbs if dissociated one by one', async () => {
-			console.log('before', await db.getSortedSetRange(`topic:1:thumbs`, 0, -1));
+			console.log('before', await db.getSortedSetRange('topic:1:thumbs', 0, -1));
 			await topics.thumbs.associate({ id: 1, path: `${nconf.get('relative_path')}${nconf.get('upload_url')}/files/test.png` });
 			await topics.thumbs.associate({ id: 1, path: `${nconf.get('relative_path')}${nconf.get('upload_url')}/files/test2.png` });
 
@@ -299,7 +299,7 @@ describe('Topic thumbs', () => {
 
 		it('should have thumbs prior to tests', async () => {
 			const associated = await db.isSortedSetMembers(
-				`topic:1:thumbs`, ['/files/test.png', '/files/test2.png']
+				'topic:1:thumbs', ['/files/test.png', '/files/test2.png']
 			);
 			assert.strictEqual(associated.every(Boolean), true);
 		});
@@ -310,7 +310,7 @@ describe('Topic thumbs', () => {
 
 		it('should remove all associated thumbs with that topic', async () => {
 			const associated = await db.isSortedSetMembers(
-				`topic:1:thumbs`, ['/files/test.png', '/files/test2.png']
+				'topic:1:thumbs', ['/files/test.png', '/files/test2.png']
 			);
 			assert.strictEqual(associated.some(Boolean), false);
 		});

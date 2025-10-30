@@ -143,15 +143,15 @@ module.exports = async function (app, middleware) {
 	// homepage handled by `action:homepage.get:[route]`
 	setupPageRoute(router, '/', [], controllers.home.pluginHook);
 
-	await plugins.reloadRoutes({ router: router });
-	await authRoutes.reloadRoutes({ router: router });
-	await writeRoutes.reload({ router: router });
+	await plugins.reloadRoutes({ router });
+	await authRoutes.reloadRoutes({ router });
+	await writeRoutes.reload({ router });
 	addCoreRoutes(app, router, middleware, mounts);
 
 	winston.info('[router] Routes added');
 };
 
-function addCoreRoutes(app, router, middleware, mounts) {
+function addCoreRoutes (app, router, middleware, mounts) {
 	_mounts.meta(router, middleware, controllers);
 	_mounts.api(router, middleware, controllers);
 	_mounts.feed(router, middleware, controllers);
@@ -203,7 +203,7 @@ function addCoreRoutes(app, router, middleware, mounts) {
 	app.use(controllers.errors.handleErrors);
 }
 
-function addRemountableRoutes(app, router, middleware, mounts) {
+function addRemountableRoutes (app, router, middleware, mounts) {
 	Object.keys(mounts).map(async (mount) => {
 		const original = mount;
 		mount = mounts[original];

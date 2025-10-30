@@ -92,7 +92,7 @@ define('forum/topic/diffs', ['api', 'bootbox', 'alerts', 'forum/topic/images'], 
 		}).catch(alerts.error);
 	};
 
-	function parsePostHistory(data, blockName) {
+	function parsePostHistory (data, blockName) {
 		return new Promise((resolve) => {
 			const params = [{
 				diffs: data.revisions.map(function (revision) {
@@ -100,7 +100,7 @@ define('forum/topic/diffs', ['api', 'bootbox', 'alerts', 'forum/topic/images'], 
 
 					return {
 						username: revision.username,
-						timestamp: timestamp,
+						timestamp,
 						pretty: new Date(timestamp).toLocaleString(config.userLang.replace('_', '-'), localeStringOpts),
 					};
 				}),

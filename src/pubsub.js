@@ -7,7 +7,7 @@ let real;
 let noCluster;
 let singleHost;
 
-function get() {
+function get () {
 	if (real) {
 		return real;
 	}
@@ -34,8 +34,8 @@ function get() {
 			singleHost.publish = function (event, data) {
 				process.send({
 					action: 'pubsub',
-					event: event,
-					data: data,
+					event,
+					data,
 				});
 			};
 			process.on('message', (message) => {

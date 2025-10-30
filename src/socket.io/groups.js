@@ -112,7 +112,7 @@ SocketGroups.cover.remove = async (socket, data) => {
 	});
 };
 
-async function canModifyGroup(uid, groupName) {
+async function canModifyGroup (uid, groupName) {
 	if (typeof groupName !== 'string') {
 		throw new Error('[[error:invalid-group-name]]');
 	}

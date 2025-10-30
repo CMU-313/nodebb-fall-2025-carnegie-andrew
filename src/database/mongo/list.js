@@ -25,7 +25,7 @@ module.exports = function (module) {
 		await listPush(key, value);
 	};
 
-	async function listPush(key, values, position) {
+	async function listPush (key, values, position) {
 		values = values.map(helpers.valueToString);
 		await module.client.collection('objects').updateOne({
 			_key: key,

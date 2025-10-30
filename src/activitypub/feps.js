@@ -8,7 +8,7 @@ const utils = require('../utils');
 const activitypub = module.parent.exports;
 const Feps = module.exports;
 
-Feps.announce = async function announce(id, activity) {
+Feps.announce = async function announce (id, activity) {
 	let localId;
 	if (String(id).startsWith(nconf.get('url'))) {
 		({ id: localId } = await activitypub.helpers.resolveLocalId(id));

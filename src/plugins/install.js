@@ -72,14 +72,14 @@ module.exports = function (Plugins) {
 		}
 		meta.reloadRequired = true;
 		const hook = isActive ? 'deactivate' : 'activate';
-		Plugins.hooks.fire(`action:plugin.${hook}`, { id: id });
-		return { id: id, active: !isActive };
+		Plugins.hooks.fire(`action:plugin.${hook}`, { id });
+		return { id, active: !isActive };
 	};
 
 	Plugins.checkWhitelist = async function (id, version) {
 		const { response, body } = await request.get(`https://packages.nodebb.org/api/v1/plugins/${encodeURIComponent(id)}`);
 		if (!response.ok) {
-			throw new Error(`[[error:cant-connect-to-nbbpm]]`);
+			throw new Error('[[error:cant-connect-to-nbbpm]]');
 		}
 		if (body && body.code === 'ok' && (version === 'latest' || body.payload.valid.includes(version))) {
 			return;
@@ -91,19 +91,19 @@ module.exports = function (Plugins) {
 	Plugins.suggest = async function (pluginId, nbbVersion) {
 		const { response, body } = await request.get(`https://packages.nodebb.org/api/v1/suggest?package=${encodeURIComponent(pluginId)}&version=${encodeURIComponent(nbbVersion)}`);
 		if (!response.ok) {
-			throw new Error(`[[error:cant-connect-to-nbbpm]]`);
+			throw new Error('[[error:cant-connect-to-nbbpm]]');
 		}
 		return body;
 	};
 
 	Plugins.toggleInstall = async function (id, version) {
-		pubsub.publish('plugins:toggleInstall', { hostname: os.hostname(), id: id, version: version });
+		pubsub.publish('plugins:toggleInstall', { hostname: os.hostname(), id, version });
 		return await toggleInstall(id, version);
 	};
 
 	const runPackageManagerCommandAsync = util.promisify(runPackageManagerCommand);
 
-	async function toggleInstall(id, version) {
+	async function toggleInstall (id, version) {
 		const [installed, active] = await Promise.all([
 			Plugins.isInstalled(id),
 			Plugins.isActive(id),
@@ -114,11 +114,11 @@ module.exports = function (Plugins) {
 		}
 		await runPackageManagerCommandAsync(type, id, version || 'latest');
 		const pluginData = await Plugins.get(id);
-		Plugins.hooks.fire(`action:plugin.${type}`, { id: id, version: version });
+		Plugins.hooks.fire(`action:plugin.${type}`, { id, version });
 		return pluginData;
 	}
 
-	function runPackageManagerCommand(command, pkgName, version, callback) {
+	function runPackageManagerCommand (command, pkgName, version, callback) {
 		cproc.execFile(packageManagerExecutable, [
 			packageManagerCommands[packageManager][command],
 			pkgName + (command === 'install' && version ? `@${version}` : ''),
@@ -133,13 +133,12 @@ module.exports = function (Plugins) {
 		});
 	}
 
-
 	Plugins.upgrade = async function (id, version) {
-		pubsub.publish('plugins:upgrade', { hostname: os.hostname(), id: id, version: version });
+		pubsub.publish('plugins:upgrade', { hostname: os.hostname(), id, version });
 		return await upgrade(id, version);
 	};
 
-	async function upgrade(id, version) {
+	async function upgrade (id, version) {
 		await runPackageManagerCommandAsync('install', id, version || 'latest');
 		const isActive = await Plugins.isActive(id);
 		meta.reloadRequired = isActive;

@@ -3,7 +3,6 @@
 const db = require('../../database');
 const batch = require('../../batch');
 
-
 module.exports = {
 	name: 'Set "followercount" on each topic object',
 	timestamp: Date.UTC(2025, 3, 15),
@@ -21,7 +20,7 @@ module.exports = {
 			followerCounts.forEach((count, idx) => {
 				const tid = tids[idx];
 				if (count > 0) {
-					bulkSet.push([`topic:${tid}`, {followercount: count}]);
+					bulkSet.push([`topic:${tid}`, { followercount: count }]);
 				}
 			});
 

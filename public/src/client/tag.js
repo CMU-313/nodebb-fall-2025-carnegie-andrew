@@ -18,7 +18,7 @@ define('forum/tag', [
 			changeWatching('unfollow', 'del');
 		});
 
-		function changeWatching(type, method) {
+		function changeWatching (type, method) {
 			api[method](`/tags/${ajaxify.data.tag}/follow`, {}).then(() => {
 				let message = '';
 				if (type === 'follow') {
@@ -31,16 +31,16 @@ define('forum/tag', [
 
 				alerts.alert({
 					alert_id: 'follow_tag',
-					message: message,
+					message,
 					type: type === 'follow' ? 'success' : 'info',
 					timeout: 5000,
 				});
 
-				hooks.fire('action:tags.changeWatching', { tag: ajaxify.data.tag, type: type });
+				hooks.fire('action:tags.changeWatching', { tag: ajaxify.data.tag, type });
 			}).catch(err => alerts.error(err));
 		}
 
-		function setFollowState(state) {
+		function setFollowState (state) {
 			const titles = {
 				follow: '[[tags:watching]]',
 				unfollow: '[[tags:not-watching]]',

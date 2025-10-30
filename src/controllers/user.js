@@ -27,7 +27,7 @@ userController.getUserByEmail = async function (req, res, next) {
 	await byType('email', req, res, next);
 };
 
-async function byType(type, req, res, next) {
+async function byType (type, req, res, next) {
 	const userData = await userController.getUserDataByField(req.uid, type, req.params[type]);
 	if (!userData) {
 		return next();

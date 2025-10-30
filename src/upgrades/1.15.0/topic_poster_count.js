@@ -23,7 +23,7 @@ module.exports = {
 			}
 			await db.setObjectBulk(bulkSet);
 		}, {
-			progress: progress,
+			progress,
 			batchSize: 500,
 		});
 	},

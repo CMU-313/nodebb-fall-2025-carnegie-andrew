@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('admin/settings/email', ['ace/ace', 'alerts', 'admin/settings'], function (ace, alerts) {
 	const module = {};
 	let emailEditor;
@@ -16,17 +15,17 @@ define('admin/settings/email', ['ace/ace', 'alerts', 'admin/settings'], function
 			.on('action:admin.settingsSaved', onSettingsSaved);
 	};
 
-	function onSettingsLoaded() {
+	function onSettingsLoaded () {
 		handleDigestHourChange();
 		handleSmtpServiceChange();
 	}
 
-	function onSettingsSaved() {
+	function onSettingsSaved () {
 		handleDigestHourChange();
 		socket.emit('admin.user.restartJobs');
 	}
 
-	function configureEmailTester() {
+	function configureEmailTester () {
 		$('button[data-action="email.test"]').off('click').on('click', function () {
 			socket.emit('admin.email.test', { template: $('#test-email').val() }, function (err) {
 				if (err) {
@@ -39,7 +38,7 @@ define('admin/settings/email', ['ace/ace', 'alerts', 'admin/settings'], function
 		});
 	}
 
-	function configureEmailEditor() {
+	function configureEmailEditor () {
 		$('#email-editor-selector').on('change', updateEmailEditor);
 
 		emailEditor = ace.edit('email-editor');
@@ -71,7 +70,7 @@ define('admin/settings/email', ['ace/ace', 'alerts', 'admin/settings'], function
 		updateEmailEditor();
 	}
 
-	function updateEmailEditor() {
+	function updateEmailEditor () {
 		ajaxify.data.emails.forEach(function (email) {
 			if (email.path === $('#email-editor-selector').val()) {
 				emailEditor.getSession().setValue(email.text);
@@ -82,7 +81,7 @@ define('admin/settings/email', ['ace/ace', 'alerts', 'admin/settings'], function
 		});
 	}
 
-	function handleDigestHourChange() {
+	function handleDigestHourChange () {
 		let hour = parseInt($('#digestHour').val(), 10);
 
 		if (isNaN(hour)) {
@@ -113,8 +112,8 @@ define('admin/settings/email', ['ace/ace', 'alerts', 'admin/settings'], function
 		});
 	}
 
-	function handleSmtpServiceChange() {
-		function toggleCustomService() {
+	function handleSmtpServiceChange () {
+		function toggleCustomService () {
 			const isCustom = $('[id="email:smtpTransport:service"]').val() === 'nodebb-custom-smtp';
 			$('[id="email:smtpTransport:custom-service"]')[isCustom ? 'slideDown' : 'slideUp'](isCustom);
 		}

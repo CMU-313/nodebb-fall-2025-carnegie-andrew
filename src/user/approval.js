@@ -14,13 +14,13 @@ const slugify = require('../slugify');
 const plugins = require('../plugins');
 
 module.exports = function (User) {
-	new cronJob('0 * * * *', (async () => {
+	new cronJob('0 * * * *', async () => {
 		try {
 			await User.autoApprove();
 		} catch (err) {
 			winston.error(err.stack);
 		}
-	}), null, true);
+	}, null, true);
 
 	User.addToApprovalQueue = async function (userData) {
 		userData.username = userData.username.trim();
@@ -31,15 +31,15 @@ module.exports = function (User) {
 			username: userData.username,
 			email: userData.email,
 			ip: userData.ip,
-			hashedPassword: hashedPassword,
+			hashedPassword,
 		};
-		const results = await plugins.hooks.fire('filter:user.addToApprovalQueue', { data: data, userData: userData });
+		const results = await plugins.hooks.fire('filter:user.addToApprovalQueue', { data, userData });
 		await db.setObject(`registration:queue:name:${userData.username}`, results.data);
 		await db.sortedSetAdd('registration:queue', Date.now(), userData.username);
 		await sendNotificationToAdmins(userData.username);
 	};
 
-	async function canQueue(userData) {
+	async function canQueue (userData) {
 		await User.isDataValid(userData);
 		const usernames = await db.getSortedSetRange('registration:queue', 0, -1);
 		if (usernames.includes(userData.username)) {
@@ -53,7 +53,7 @@ module.exports = function (User) {
 		}
 	}
 
-	async function sendNotificationToAdmins(username) {
+	async function sendNotificationToAdmins (username) {
 		const notifObj = await notifications.create({
 			type: 'new-register',
 			bodyShort: `[[notifications:new-register, ${username}]]`,
@@ -77,12 +77,12 @@ module.exports = function (User) {
 		});
 		await removeFromQueue(username);
 		await markNotificationRead(username);
-		await plugins.hooks.fire('filter:register.complete', { uid: uid });
+		await plugins.hooks.fire('filter:register.complete', { uid });
 		await emailer.send('registration_accepted', uid, {
-			username: username,
+			username,
 			subject: `[[email:welcome-to, ${meta.config.title || meta.config.browserTitle || 'NodeBB'}]]`,
 			template: 'registration_accepted',
-			uid: uid,
+			uid,
 		}).catch(err => winston.error(`[emailer.send] ${err.stack}`));
 		const total = await db.incrObjectFieldBy('registration:queue:approval:times', 'totalTime', Math.floor((Date.now() - creation_time) / 60000));
 		const counter = await db.incrObjectField('registration:queue:approval:times', 'counter');
@@ -90,7 +90,7 @@ module.exports = function (User) {
 		return uid;
 	};
 
-	async function markNotificationRead(username) {
+	async function markNotificationRead (username) {
 		const nid = `new-register:${username}`;
 		const uids = await groups.getMembers('administrators', 0, -1);
 		const promises = uids.map(uid => notifications.markRead(nid, uid));
@@ -102,7 +102,7 @@ module.exports = function (User) {
 		await markNotificationRead(username);
 	};
 
-	async function removeFromQueue(username) {
+	async function removeFromQueue (username) {
 		await Promise.all([
 			db.sortedSetRemove('registration:queue', username),
 			db.delete(`registration:queue:name:${username}`),
@@ -148,11 +148,11 @@ module.exports = function (User) {
 			 */
 		}));
 
-		const results = await plugins.hooks.fire('filter:user.getRegistrationQueue', { users: users });
+		const results = await plugins.hooks.fire('filter:user.getRegistrationQueue', { users });
 		return results.users;
 	};
 
-	async function getIPMatchedUsers(user) {
+	async function getIPMatchedUsers (user) {
 		const uids = await User.getUidsFromSet(`ip:${user.ip}:uid`, 0, -1);
 		user.ipMatch = await User.getUsersFields(uids, ['uid', 'username', 'picture']);
 	}

@@ -1,4 +1,3 @@
-
 'use strict';
 
 const winston = require('winston');
@@ -30,11 +29,11 @@ UserNotifications.get = async function (uid) {
 	return await plugins.hooks.fire('filter:user.notifications.get', {
 		uid,
 		read: read.filter(Boolean),
-		unread: unread,
+		unread,
 	});
 };
 
-async function filterNotifications(nids, filter) {
+async function filterNotifications (nids, filter) {
 	if (!filter) {
 		return nids;
 	}
@@ -65,7 +64,7 @@ UserNotifications.getAllWithCounts = async function (uid, filter) {
 	return { counts, nids: notifications.map(n => n.nid) };
 };
 
-async function getAllNids(uid) {
+async function getAllNids (uid) {
 	let nids = await db.getSortedSetRevRange([
 		`uid:${uid}:notifications:unread`,
 		`uid:${uid}:notifications:read`,
@@ -84,14 +83,14 @@ async function getAllNids(uid) {
 	return nids;
 }
 
-async function deleteUserNids(nids, uid) {
+async function deleteUserNids (nids, uid) {
 	await db.sortedSetRemove([
 		`uid:${uid}:notifications:read`,
 		`uid:${uid}:notifications:unread`,
 	], nids);
 }
 
-async function getNotificationsFromSet(set, uid, start, stop) {
+async function getNotificationsFromSet (set, uid, start, stop) {
 	const nids = await db.getSortedSetRevRange(set, start, stop);
 	return await UserNotifications.getNotifications(nids, uid);
 }
@@ -129,7 +128,7 @@ UserNotifications.getNotifications = async function (nids, uid) {
 	}));
 
 	const result = await plugins.hooks.fire('filter:user.notifications.getNotifications', {
-		uid: uid,
+		uid,
 		notifications: notificationData,
 	});
 	return result && result.notifications;
@@ -235,7 +234,7 @@ UserNotifications.sendWelcomeNotification = async function (uid) {
 	const path = meta.config.welcomeLink ? meta.config.welcomeLink : '#';
 	const notifObj = await notifications.create({
 		bodyShort: meta.config.welcomeNotification,
-		path: path,
+		path,
 		nid: `welcome_${uid}`,
 		from: meta.config.welcomeUid ? meta.config.welcomeUid : null,
 	});

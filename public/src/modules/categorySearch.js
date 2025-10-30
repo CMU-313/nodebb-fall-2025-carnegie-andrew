@@ -32,7 +32,7 @@ define('categorySearch', ['alerts', 'bootstrap', 'api'], function (alerts, boots
 				searchEl.removeClass('hidden');
 			}
 
-			function doSearch() {
+			function doSearch () {
 				const val = searchEl.find('input').val();
 				if (val.length > 1 || (!val && !categoriesList)) {
 					loadList(val, function (categories) {
@@ -67,9 +67,9 @@ define('categorySearch', ['alerts', 'bootstrap', 'api'], function (alerts, boots
 			searchEl.find('input').off('keyup');
 		});
 
-		function loadList(search, callback) {
+		function loadList (search, callback) {
 			api.get('/search/categories', {
-				search: search,
+				search,
 				query: utils.params(),
 				parentCid: options.parentCid || 0,
 				selectedCids: options.selectedCids,
@@ -84,7 +84,7 @@ define('categorySearch', ['alerts', 'bootstrap', 'api'], function (alerts, boots
 			});
 		}
 
-		function renderList(categories) {
+		function renderList (categories) {
 			const selectedCids = options.selectedCids.map(String);
 			categories.forEach(function (c) {
 				c.selected = selectedCids.includes(String(c.cid));

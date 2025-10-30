@@ -11,7 +11,7 @@ const middleware = require('../middleware');
 const middlewareHelpers = require('../middleware/helpers');
 const helpers = require('./helpers');
 
-exports.handleURIErrors = async function handleURIErrors(err, req, res, next) {
+exports.handleURIErrors = async function handleURIErrors (err, req, res, next) {
 	// Handle cases where malformed URIs are passed in
 	if (err instanceof URIError) {
 		const cleanPath = req.path.replace(new RegExp(`^${nconf.get('relative_path')}`), '');
@@ -40,7 +40,7 @@ exports.handleURIErrors = async function handleURIErrors(err, req, res, next) {
 
 // this needs to have four arguments or express treats it as `(req, res, next)`
 // don't remove `next`!
-exports.handleErrors = async function handleErrors(err, req, res, next) { // eslint-disable-line no-unused-vars
+exports.handleErrors = async function handleErrors (err, req, res, next) { // eslint-disable-line no-unused-vars
 	const cases = {
 		EBADCSRFTOKEN: function () {
 			winston.error(`${req.method} ${req.originalUrl}\n${err.message}`);
@@ -118,10 +118,10 @@ exports.handleErrors = async function handleErrors(err, req, res, next) { // esl
 	}
 };
 
-async function getErrorHandlers(cases) {
+async function getErrorHandlers (cases) {
 	try {
 		return await plugins.hooks.fire('filter:error.handle', {
-			cases: cases,
+			cases,
 		});
 	} catch (err) {
 		// Assume defaults

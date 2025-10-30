@@ -6,7 +6,6 @@ const winston = require('winston');
 const batch = require('../../batch');
 const groups = require('../../groups');
 
-
 module.exports = {
 	name: 'rename user mod privileges group',
 	timestamp: Date.UTC(2017, 4, 26),
@@ -27,7 +26,7 @@ module.exports = {
 				});
 			}, next);
 		}, {
-			progress: progress,
+			progress,
 		}, callback);
 	},
 };

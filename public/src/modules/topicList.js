@@ -42,7 +42,7 @@ define('topicList', [
 		}
 
 		categoryFilter.init($('[component="category/dropdown"]'), {
-			states: states,
+			states,
 		});
 
 		tagFilter.init($('[component="tag/filter"]'));
@@ -71,7 +71,7 @@ define('topicList', [
 		hooks.fire('action:topics.loaded', { topics: ajaxify.data.topics });
 	};
 
-	function findTopicListElement() {
+	function findTopicListElement () {
 		return $('[component="category"]').filter(function (i, e) {
 			return !$(e).parents('[widget-area],[data-widget-area]').length;
 		});
@@ -90,7 +90,7 @@ define('topicList', [
 		socket.removeListener('event:new_post', onNewPost);
 	};
 
-	function onNewTopic(data) {
+	function onNewTopic (data) {
 		const d = ajaxify.data;
 
 		const categories = d.selectedCids &&
@@ -115,7 +115,7 @@ define('topicList', [
 		});
 	}
 
-	function onNewPost(data) {
+	function onNewPost (data) {
 		const post = data.posts[0];
 		if (!post || !post.topic || post.topic.isFollowing) {
 			return;
@@ -146,7 +146,7 @@ define('topicList', [
 		});
 	}
 
-	function updateAlertText() {
+	function updateAlertText () {
 		if (newTopicCount > 0 || newPostCount > 0) {
 			$('#new-topics-alert').removeClass('hide').fadeIn('slow');
 			$('#category-no-topics').addClass('hide');
@@ -170,24 +170,24 @@ define('topicList', [
 		});
 	};
 
-	function calculateNextPage(after, direction) {
+	function calculateNextPage (after, direction) {
 		return Math.floor(after / config.topicsPerPage) + (direction > 0 ? 1 : 0);
 	}
 
-	function loadTopicsAfter(after, direction, callback) {
+	function loadTopicsAfter (after, direction, callback) {
 		callback = callback || function () {};
 		const query = utils.params();
 		query.page = calculateNextPage(after, direction);
 		infinitescroll.loadMoreXhr(query, callback);
 	}
 
-	function filterTopicsOnDom(topics) {
+	function filterTopicsOnDom (topics) {
 		return topics.filter(function (topic) {
 			return !topicListEl.find('[component="category/topic"][data-tid="' + topic.tid + '"]').length;
 		});
 	}
 
-	function onTopicsLoaded(templateName, topics, showSelect, direction, callback) {
+	function onTopicsLoaded (templateName, topics, showSelect, direction, callback) {
 		if (!topics || !topics.length) {
 			$('#load-more-btn').hide();
 			return callback();
@@ -210,15 +210,15 @@ define('topicList', [
 		}
 
 		const tplData = {
-			topics: topics,
-			showSelect: showSelect,
+			topics,
+			showSelect,
 			template: {
 				name: templateName,
 			},
 		};
 		tplData.template[templateName] = true;
 
-		hooks.fire('action:topics.loading', { topics: topics, after: after, before: before });
+		hooks.fire('action:topics.loading', { topics, after, before });
 
 		app.parseAndTranslate(templateName, 'topics', tplData, function (html) {
 			topicListEl.removeClass('hidden');
@@ -242,7 +242,7 @@ define('topicList', [
 			}
 
 			html.find('.timeago').timeago();
-			hooks.fire('action:topics.loaded', { topics: topics, template: templateName });
+			hooks.fire('action:topics.loaded', { topics, template: templateName });
 			callback();
 		});
 	}

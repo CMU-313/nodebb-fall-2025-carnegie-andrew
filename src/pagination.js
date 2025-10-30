@@ -41,7 +41,7 @@ pagination.create = function (currentPage, pageCount, queryObj) {
 
 	const pages = pagesToShow.map((page) => {
 		queryObj.page = page;
-		return { page: page, active: page === currentPage, qs: qs.stringify(queryObj) };
+		return { page, active: page === currentPage, qs: qs.stringify(queryObj) };
 	});
 
 	for (let i = pages.length - 1; i > 0; i -= 1) {
@@ -53,7 +53,7 @@ pagination.create = function (currentPage, pageCount, queryObj) {
 		}
 	}
 
-	const data = { rel: [], pages: pages, currentPage: currentPage, pageCount: pageCount };
+	const data = { rel: [], pages, currentPage, pageCount };
 	queryObj.page = previous;
 	data.prev = { page: previous, active: currentPage > 1, qs: qs.stringify(queryObj) };
 	queryObj.page = next;

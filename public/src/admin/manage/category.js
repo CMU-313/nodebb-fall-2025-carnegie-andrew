@@ -203,7 +203,7 @@ define('admin/manage/category', [
 			uploader.show({
 				title: '[[admin/manage/categories:alert.upload-image]]',
 				route: config.relative_path + '/api/admin/category/uploadpicture',
-				params: { cid: cid },
+				params: { cid },
 			}, function (imageUrlOnServer) {
 				$('#category-image').val(imageUrlOnServer);
 				previewEl.css('background-image', 'url(' + imageUrlOnServer + '?' + new Date().getTime() + ')');
@@ -246,7 +246,7 @@ define('admin/manage/category', [
 		});
 	};
 
-	function modified(el) {
+	function modified (el) {
 		let value;
 		if ($(el).is(':checkbox')) {
 			value = $(el).is(':checked') ? 1 : 0;
@@ -256,7 +256,7 @@ define('admin/manage/category', [
 		const dataName = $(el).attr('data-name');
 		const fields = dataName.match(/[^\][.]+/g);
 
-		function setNestedFields(obj, index) {
+		function setNestedFields (obj, index) {
 			if (index === fields.length) {
 				return;
 			}
@@ -279,7 +279,7 @@ define('admin/manage/category', [
 		app.flags._unsaved = true;
 	}
 
-	function handleTags() {
+	function handleTags () {
 		const tagEl = $('#tag-whitelist');
 		tagEl.tagsinput({
 			tagClass: 'badge bg-info',

@@ -32,7 +32,7 @@ define('forum/world', ['topicList', 'search', 'sort', 'hooks', 'alerts', 'api', 
 		hooks.fire('action:category.loaded', { cid: ajaxify.data.cid });
 	};
 
-	function handleIgnoreWatch(cid) {
+	function handleIgnoreWatch (cid) {
 		$('[component="category/watching"], [component="category/tracking"], [component="category/ignoring"], [component="category/notwatching"]').on('click', function () {
 			const $this = $(this);
 			const state = $this.attr('data-state');
@@ -59,7 +59,7 @@ define('forum/world', ['topicList', 'search', 'sort', 'hooks', 'alerts', 'api', 
 		});
 	}
 
-	function handleHelp() {
+	function handleHelp () {
 		const trigger = document.getElementById('world-help');
 		if (!trigger) {
 			return;
@@ -82,7 +82,7 @@ define('forum/world', ['topicList', 'search', 'sort', 'hooks', 'alerts', 'api', 
 		});
 	}
 
-	function handleCategories() {
+	function handleCategories () {
 		// const optionsEl = document.getElementById('category-options');
 		// const dropdownEl = optionsEl.querySelector('ul');
 		const showEl = document.getElementById('show-categories');

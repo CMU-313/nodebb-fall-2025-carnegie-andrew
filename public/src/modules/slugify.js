@@ -20,7 +20,7 @@
 	const isLatin = /^[\w\d\s.,\-@]+$/;
 
 	// http://dense13.com/blog/2009/05/03/converting-string-to-slug-javascript/
-	return function slugify(str, preserveCase) {
+	return function slugify (str, preserveCase) {
 		if (!str) {
 			return '';
 		}

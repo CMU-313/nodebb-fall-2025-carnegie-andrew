@@ -1,6 +1,5 @@
 'use strict';
 
-
 const batch = require('../../batch');
 const db = require('../../database');
 
@@ -20,8 +19,8 @@ module.exports = {
 						const upvotes = parseInt(postData.upvotes, 10) || 0;
 						const downvotes = parseInt(postData.downvotes, 10) || 0;
 						const data = {
-							upvotes: upvotes,
-							downvotes: downvotes,
+							upvotes,
+							downvotes,
 						};
 						const votes = upvotes - downvotes;
 						await Promise.all([
@@ -35,7 +34,7 @@ module.exports = {
 				}
 			}));
 		}, {
-			progress: progress,
+			progress,
 			batch: 500,
 		});
 	},

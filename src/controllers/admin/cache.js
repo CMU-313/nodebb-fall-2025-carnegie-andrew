@@ -11,7 +11,7 @@ cacheController.get = async function (req, res) {
 	const { objectCache } = require('../../database');
 	const localCache = require('../../cache');
 	const uptimeInSeconds = process.uptime();
-	function getInfo(cache) {
+	function getInfo (cache) {
 		return {
 			length: cache.length,
 			max: cache.max,

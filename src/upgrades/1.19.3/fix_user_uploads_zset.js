@@ -32,12 +32,12 @@ module.exports = {
 					);
 					// Add uid to the upload's hash object
 					uploads = await db.getSortedSetMembers(key);
-					await db.setObjectBulk(uploads.map(relativePath => [`upload:${md5(relativePath)}`, { uid: uid }]));
+					await db.setObjectBulk(uploads.map(relativePath => [`upload:${md5(relativePath)}`, { uid }]));
 				}
 			}));
 		}, {
 			batch: 500,
-			progress: progress,
+			progress,
 		});
 	},
 };

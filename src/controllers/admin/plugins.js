@@ -40,7 +40,7 @@ pluginsController.get = async function (req, res) {
 		inactive: inactivePlugins,
 		inactiveCount: inactivePlugins.length,
 		canChangeState: !nconf.get('plugins:active'),
-		upgrade: upgrade,
+		upgrade,
 		upgradeCount: upgrade.length,
 		download: compatible.filter(plugin => !plugin.installed),
 		incompatible: all.filter(plugin => !compatiblePkgNames.includes(plugin.name)),
@@ -51,15 +51,15 @@ pluginsController.get = async function (req, res) {
 	});
 };
 
-async function getCompatiblePlugins() {
+async function getCompatiblePlugins () {
 	return await getPlugins(true);
 }
 
-async function getAllPlugins() {
+async function getAllPlugins () {
 	return await getPlugins(false);
 }
 
-async function getPlugins(matching) {
+async function getPlugins (matching) {
 	try {
 		const pluginsData = await plugins.list(matching);
 		return pluginsData || [];

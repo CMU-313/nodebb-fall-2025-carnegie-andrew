@@ -59,8 +59,8 @@ module.exports = function (User) {
 		}
 		const cids = await User.getCategoriesByStates(uid, [categories.watchStates.ignoring]);
 		const result = await plugins.hooks.fire('filter:user.getIgnoredCategories', {
-			uid: uid,
-			cids: cids,
+			uid,
+			cids,
 		});
 		return result.cids;
 	};
@@ -73,8 +73,8 @@ module.exports = function (User) {
 		const categoryData = await categories.getCategoriesFields(cids, ['disabled']);
 		cids = cids.filter((cid, index) => categoryData[index] && !categoryData[index].disabled);
 		const result = await plugins.hooks.fire('filter:user.getWatchedCategories', {
-			uid: uid,
-			cids: cids,
+			uid,
+			cids,
 		});
 		return result.cids;
 	};

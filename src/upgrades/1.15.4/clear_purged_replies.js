@@ -26,7 +26,7 @@ module.exports = {
 			const repliesToDelete = _.uniq(toPids.filter((pid, index) => !exists[index]));
 			await db.deleteAll(repliesToDelete.map(pid => `pid:${pid}:replies`));
 		}, {
-			progress: progress,
+			progress,
 			batchSize: 500,
 		});
 	},

@@ -88,7 +88,7 @@ NUMERIC)-- WsPn&query[cid]=-1&parentCid=0&selectedCids[]=-1&privilege=topics:rea
 			const match = `*${query.toLowerCase()}*`;
 			const data = await db.getSortedSetScan({
 				key: 'categories:name',
-				match: match,
+				match,
 				limit: 500,
 			});
 			assert.strictEqual(data.length, 0);
@@ -172,7 +172,6 @@ NUMERIC)-- WsPn&query[cid]=-1&parentCid=0&selectedCids[]=-1&privilege=topics:rea
 				});
 			});
 		});
-
 
 		it('should error if keys.length is different than scores.length', (done) => {
 			db.sortedSetsAdd(['sorted1', 'sorted2'], [4], 'value4', (err) => {
@@ -1089,18 +1088,18 @@ NUMERIC)-- WsPn&query[cid]=-1&parentCid=0&selectedCids[]=-1&privilege=topics:rea
 			assert.deepStrictEqual(data, [1, 2, 3, 4]);
 			assert.deepStrictEqual(
 				await db.getSortedSetRangeWithScores('sortedIncrBulk1', 0, -1),
-				[{ value: 'value1', score: 1 }],
+				[{ value: 'value1', score: 1 }]
 			);
 			assert.deepStrictEqual(
 				await db.getSortedSetRangeWithScores('sortedIncrBulk2', 0, -1),
-				[{ value: 'value2', score: 2 }],
+				[{ value: 'value2', score: 2 }]
 			);
 			assert.deepStrictEqual(
 				await db.getSortedSetRangeWithScores('sortedIncrBulk3', 0, -1),
 				[
 					{ value: 'value3', score: 3 },
 					{ value: 'value4', score: 4 },
-				],
+				]
 			);
 		});
 
@@ -1116,11 +1115,10 @@ NUMERIC)-- WsPn&query[cid]=-1&parentCid=0&selectedCids[]=-1&privilege=topics:rea
 				await db.getSortedSetRangeWithScores('sortedIncrBulk5', 0, -1),
 				[
 					{ value: 'value5', score: 10 },
-				],
+				]
 			);
 		});
 	});
-
 
 	describe('sortedSetRemove()', () => {
 		before((done) => {

@@ -18,7 +18,7 @@ module.exports = function (app, name, middleware, controllers) {
 	];
 
 	// Block direct viewing of the anonymous/guest account
-	function blockAnonymousProfile(req, res, next) {
+	function blockAnonymousProfile (req, res, next) {
 		const slug = String(req.params.userslug || '').toLowerCase();
 		// Adjust these checks to whatever your forum uses for the anon account
 		if (slug === 'anonymous' || slug === 'guest') {
@@ -70,7 +70,7 @@ module.exports = function (app, name, middleware, controllers) {
 	setupPageRoute(app, `/${name}/:userslug/chats/:roomid?/:index?`, [middleware.exposeUid, middleware.canViewUsers], controllers.accounts.chats.get);
 	setupPageRoute(app, '/chats/:roomid?/:index?', [middleware.ensureLoggedIn], controllers.accounts.chats.redirectToChat);
 
-	setupPageRoute(app, `/message/:mid`, [middleware.ensureLoggedIn], controllers.accounts.chats.redirectToMessage);
+	setupPageRoute(app, '/message/:mid', [middleware.ensureLoggedIn], controllers.accounts.chats.redirectToMessage);
 
 	module.exports._blockAnonymousProfile = blockAnonymousProfile;
 };

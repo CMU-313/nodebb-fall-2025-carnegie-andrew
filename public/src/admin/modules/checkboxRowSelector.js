@@ -27,12 +27,12 @@ define('admin/modules/checkboxRowSelector', function () {
 		$toggler.prop('checked', rowState);
 	};
 
-	function handleChange(ev) {
+	function handleChange (ev) {
 		const $checkboxEl = $(ev.target);
 		toggleAll($checkboxEl);
 	}
 
-	function toggleAll($checkboxEl) {
+	function toggleAll ($checkboxEl) {
 		self.toggling = true;
 		const state = $checkboxEl.prop('checked');
 		$checkboxEl.closest('tr').find('input:not(.checkbox-helper):visible').each((idx, el) => {

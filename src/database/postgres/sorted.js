@@ -28,7 +28,7 @@ module.exports = function (module) {
 		return await getSortedSetRange(key, start, stop, -1, true);
 	};
 
-	async function getSortedSetRange(key, start, stop, sort, withScores) {
+	async function getSortedSetRange (key, start, stop, sort, withScores) {
 		if (!key) {
 			return;
 		}
@@ -103,7 +103,7 @@ OFFSET $2::INTEGER`,
 		return await getSortedSetRangeByScore(key, start, count, min, max, -1, true);
 	};
 
-	async function getSortedSetRangeByScore(key, start, count, min, max, sort, withScores) {
+	async function getSortedSetRangeByScore (key, start, count, min, max, sort, withScores) {
 		if (!key) {
 			return;
 		}
@@ -269,7 +269,7 @@ SELECT o."_key" k,
 		return result ? result[0] : null;
 	};
 
-	async function getSortedSetRank(sort, keys, values) {
+	async function getSortedSetRank (sort, keys, values) {
 		values = values.map(helpers.valueToString);
 		const res = await module.pool.query({
 			name: `getSortedSetRank${sort}`,
@@ -607,7 +607,7 @@ SELECT COUNT(*) c
 		return parseInt(res.rows[0].c, 10);
 	};
 
-	async function sortedSetLex(key, min, max, sort, start, count) {
+	async function sortedSetLex (key, min, max, sort, start, count) {
 		start = start !== undefined ? start : 0;
 		count = count !== undefined ? count : 0;
 
@@ -646,10 +646,10 @@ DELETE FROM "legacy_zset" z
 		});
 	};
 
-	function buildLexQuery(key, min, max) {
+	function buildLexQuery (key, min, max) {
 		const q = {
 			suffix: '',
-			where: `o."_key" = $1::TEXT`,
+			where: 'o."_key" = $1::TEXT',
 			values: [key],
 		};
 

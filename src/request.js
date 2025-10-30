@@ -12,7 +12,7 @@ exports.jar = function () {
 const userAgent = `NodeBB/${version.split('.').shift()}.x (${nconf.get('url')})`;
 
 // Initialize fetch - somewhat hacky, but it's required for globalDispatcher to be available
-async function call(url, method, { body, timeout, jar, ...config } = {}) {
+async function call (url, method, { body, timeout, jar, ...config } = {}) {
 	let fetchImpl = fetch;
 	if (jar) {
 		fetchImpl = fetchCookie(fetch, jar);
@@ -41,7 +41,7 @@ async function call(url, method, { body, timeout, jar, ...config } = {}) {
 	// Workaround for https://github.com/nodejs/undici/issues/1305
 	if (global[Symbol.for('undici.globalDispatcher.1')] !== undefined) {
 		class FetchAgent extends global[Symbol.for('undici.globalDispatcher.1')].constructor {
-			dispatch(opts, handler) {
+			dispatch (opts, handler) {
 				delete opts.headers['sec-fetch-mode'];
 				return super.dispatch(opts, handler);
 			}
@@ -91,5 +91,3 @@ const { body, response } = await request.post('someurl', { body: { foo: 1, baz: 
 exports.post = async (url, config) => call(url, 'POST', config);
 exports.put = async (url, config) => call(url, 'PUT', config);
 exports.patch = async (url, config) => call(url, 'PATCH', config);
-
-

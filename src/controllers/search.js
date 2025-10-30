@@ -1,4 +1,3 @@
-
 'use strict';
 
 const validator = require('validator');
@@ -67,7 +66,7 @@ searchController.search = async function (req, res, next) {
 		timeFilter: validator.escape(String(req.query.timeFilter || '')),
 		sortBy: validator.escape(String(req.query.sortBy || '')) || meta.config.searchDefaultSortBy || '',
 		sortDirection: validator.escape(String(req.query.sortDirection || '')),
-		page: page,
+		page,
 		itemsPerPage: req.query.itemsPerPage,
 		uid: req.uid,
 		qs: req.query,
@@ -86,7 +85,6 @@ searchController.search = async function (req, res, next) {
 	if (searchOnly) {
 		return res.json(searchData);
 	}
-
 
 	searchData.breadcrumbs = helpers.buildBreadcrumbs([{ text: '[[global:search]]' }]);
 	searchData.showAsPosts = !req.query.showAs || req.query.showAs === 'posts';
@@ -146,7 +144,7 @@ searchController.search = async function (req, res, next) {
 
 const searches = {};
 
-async function recordSearch(data) {
+async function recordSearch (data) {
 	const { query, searchIn } = data;
 	if (!query || parseInt(data.qs.composer, 10) === 1) {
 		return;
@@ -176,7 +174,7 @@ async function recordSearch(data) {
 	}
 }
 
-async function getSelectedUsers(postedBy) {
+async function getSelectedUsers (postedBy) {
 	if (!Array.isArray(postedBy) || !postedBy.length) {
 		return [];
 	}
@@ -184,7 +182,7 @@ async function getSelectedUsers(postedBy) {
 	return await user.getUsersFields(uids, ['username', 'userslug', 'picture']);
 }
 
-function getSelectedTags(hasTags) {
+function getSelectedTags (hasTags) {
 	if (!Array.isArray(hasTags) || !hasTags.length) {
 		return [];
 	}
@@ -192,13 +190,13 @@ function getSelectedTags(hasTags) {
 	return topics.getTagData(tags);
 }
 
-async function buildSelectedCategoryLabel(selectedCids) {
+async function buildSelectedCategoryLabel (selectedCids) {
 	let label = '[[search:categories]]';
 	if (Array.isArray(selectedCids)) {
 		if (selectedCids.length > 1) {
 			label = `[[search:categories-x, ${selectedCids.length}]]`;
 		} else if (selectedCids.length === 1 && selectedCids[0] === 'watched') {
-			label = `[[search:categories-watched-categories]]`;
+			label = '[[search:categories-watched-categories]]';
 		} else if (selectedCids.length === 1 && parseInt(selectedCids[0], 10)) {
 			const categoryData = await categories.getCategoryData(selectedCids[0]);
 			if (categoryData && categoryData.name) {

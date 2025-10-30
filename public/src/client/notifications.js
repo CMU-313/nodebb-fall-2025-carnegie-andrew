@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/notifications', ['components', 'notifications'], function (components, notifications) {
 	const Notifications = {};
 

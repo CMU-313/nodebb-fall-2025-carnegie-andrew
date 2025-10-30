@@ -40,9 +40,9 @@ define('forum/groups/details', [
 				components.get('groups/cover'),
 				function (imageData, position, callback) {
 					socket.emit('groups.cover.update', {
-						groupName: groupName,
-						imageData: imageData,
-						position: position,
+						groupName,
+						imageData,
+						position,
 					}, callback);
 				},
 				function () {
@@ -288,25 +288,25 @@ define('forum/groups/details', [
 		});
 	};
 
-	function updatePendingAlertVisibility() {
+	function updatePendingAlertVisibility () {
 		$('[component="groups/pending/alert"]').toggleClass(
 			'hidden',
 			$('[component="groups/pending"] tbody tr').length > 0
 		);
 	}
 
-	function updateInviteAlertVisibility() {
+	function updateInviteAlertVisibility () {
 		$('[component="groups/invited/alert"]').toggleClass(
 			'hidden',
 			$('[component="groups/invited"] tbody tr').length > 0
 		);
 	}
 
-	function handleMemberInvitations() {
+	function handleMemberInvitations () {
 		if (!ajaxify.data.group.isOwner) {
 			return;
 		}
-		async function updateList() {
+		async function updateList () {
 			const data = await api.get(`/api/groups/${ajaxify.data.group.slug}`);
 			const html = await app.parseAndTranslate('groups/details', 'group.invited', { group: data.group });
 			$('[component="groups/invited"] tbody').html(html);
@@ -339,7 +339,7 @@ define('forum/groups/details', [
 		});
 	}
 
-	function removeCover() {
+	function removeCover () {
 		bootbox.confirm('[[groups:remove-group-cover-confirm]]', function (confirm) {
 			if (!confirm) {
 				return;

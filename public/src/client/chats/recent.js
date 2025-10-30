@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/chats/recent', ['alerts', 'api', 'chat'], function (alerts, api, chat) {
 	const recent = {};
 
@@ -29,13 +28,13 @@ define('forum/chats/recent', ['alerts', 'api', 'chat'], function (alerts, api, c
 		});
 	};
 
-	async function loadMoreRecentChats() {
+	async function loadMoreRecentChats () {
 		const recentChats = $('[component="chat/recent"]');
 		if (recentChats.attr('loading')) {
 			return;
 		}
 		recentChats.attr('loading', 1);
-		api.get(`/chats`, {
+		api.get('/chats', {
 			uid: ajaxify.data.uid,
 			start: recentChats.attr('data-nextstart'),
 		}).then(({ rooms, nextStart }) => {
@@ -50,7 +49,7 @@ define('forum/chats/recent', ['alerts', 'api', 'chat'], function (alerts, api, c
 		}).catch(alerts.error);
 	}
 
-	function onRecentChatsLoaded(data, callback) {
+	function onRecentChatsLoaded (data, callback) {
 		if (!data.rooms.length) {
 			return callback();
 		}
@@ -61,7 +60,6 @@ define('forum/chats/recent', ['alerts', 'api', 'chat'], function (alerts, api, c
 			callback();
 		});
 	}
-
 
 	return recent;
 });

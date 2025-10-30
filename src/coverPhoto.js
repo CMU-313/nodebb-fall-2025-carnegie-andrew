@@ -1,6 +1,5 @@
 'use strict';
 
-
 const nconf = require('nconf');
 const meta = require('./meta');
 
@@ -16,7 +15,7 @@ coverPhoto.getDefaultProfileCover = function (uid) {
 	return getCover('profile', parseInt(uid, 10));
 };
 
-function getCover(type, id) {
+function getCover (type, id) {
 	const defaultCover = `${relative_path}/assets/images/cover-default.png`;
 	if (meta.config[`${type}:defaultCovers`]) {
 		const covers = String(meta.config[`${type}:defaultCovers`]).trim().split(/[\s,]+/g);

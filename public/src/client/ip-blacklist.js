@@ -15,7 +15,7 @@ import * as alerts from '../modules/alerts';
 
 Chart.register(LineController, CategoryScale, LinearScale, LineElement, PointElement, Tooltip, Filler);
 
-export function init() {
+export function init () {
 	const blacklist = $('#blacklist-rules');
 
 	blacklist.on('keyup', function () {
@@ -52,7 +52,7 @@ export function init() {
 	setupAnalytics();
 }
 
-export function setupAnalytics() {
+export function setupAnalytics () {
 	const hourlyCanvas = document.getElementById('blacklist:hourly');
 	const dailyCanvas = document.getElementById('blacklist:daily');
 	const hourlyLabels = utils.getHoursArray().map(function (text, idx) {
@@ -126,4 +126,3 @@ export function setupAnalytics() {
 		options: chartOpts,
 	});
 }
-

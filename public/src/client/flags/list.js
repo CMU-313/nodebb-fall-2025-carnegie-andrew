@@ -25,14 +25,15 @@ const selected = new Map([
 	['reporterId', []],
 ]);
 
-export function init() {
+export function init () {
 	enableFilterForm();
 	enableCheckboxes();
 	handleBulkActions();
 
 	if (ajaxify.data.filters.hasOwnProperty('cid')) {
 		selected.set('cids', Array.isArray(ajaxify.data.filters.cid) ?
-			ajaxify.data.filters.cid : [ajaxify.data.filters.cid]);
+			ajaxify.data.filters.cid :
+			[ajaxify.data.filters.cid]);
 	}
 
 	categoryFilter.init($('[component="category/dropdown"]'), {
@@ -81,7 +82,7 @@ export function init() {
 	});
 }
 
-export function enableFilterForm() {
+export function enableFilterForm () {
 	const $filtersEl = components.get('flags/filters');
 	if ($filtersEl && $filtersEl.get(0).nodeName !== 'FORM') {
 		// Harmony; update hidden form and submit on change
@@ -123,7 +124,7 @@ export function enableFilterForm() {
 	}
 }
 
-function applyFilters() {
+function applyFilters () {
 	let formEl = components.get('flags/filters').get(0);
 	if (!formEl) {
 		return;
@@ -152,7 +153,7 @@ function applyFilters() {
 	ajaxify.go('flags?' + (length ? qs : 'reset=1'));
 }
 
-export function enableCheckboxes() {
+export function enableCheckboxes () {
 	const flagsList = document.querySelector('[component="flags/list"]');
 	const checkboxes = flagsList.querySelectorAll('[data-flag-id] input[type="checkbox"]');
 	const bulkEl = document.querySelector('[component="flags/bulk-actions"] button');
@@ -206,7 +207,7 @@ export function enableCheckboxes() {
 	});
 }
 
-export function handleBulkActions() {
+export function handleBulkActions () {
 	document.querySelector('[component="flags/bulk-actions"]').addEventListener('click', function (e) {
 		const subselector = e.target.closest('[data-action]');
 		if (subselector) {
@@ -263,7 +264,7 @@ export function handleBulkActions() {
 	});
 }
 
-export function getSelected() {
+export function getSelected () {
 	const checkboxes = document.querySelectorAll('[component="flags/list"] [data-flag-id] input[type="checkbox"]');
 	const payload = [];
 	checkboxes.forEach(function (el) {
@@ -275,7 +276,7 @@ export function getSelected() {
 	return payload;
 }
 
-export function handleGraphs() {
+export function handleGraphs () {
 	const dailyCanvas = document.getElementById('flags:daily');
 	const dailyLabels = utils.getDaysArray().map(function (text, idx) {
 		return idx % 3 ? '' : text;
@@ -317,4 +318,3 @@ export function handleGraphs() {
 		},
 	});
 }
-

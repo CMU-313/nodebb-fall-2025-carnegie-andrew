@@ -67,11 +67,11 @@ define('forum/account/blocks', [
 		});
 	};
 
-	async function performBlock(uid, action) {
+	async function performBlock (uid, action) {
 		return socket.emit('user.toggleBlock', {
 			blockeeUid: uid,
 			blockerUid: ajaxify.data.uid,
-			action: action,
+			action,
 		}).catch(alerts.error);
 	}
 

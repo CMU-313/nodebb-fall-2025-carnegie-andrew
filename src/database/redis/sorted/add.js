@@ -17,7 +17,7 @@ module.exports = function (module) {
 		await module.client.zadd(key, score, String(value));
 	};
 
-	async function sortedSetAddMulti(key, scores, values) {
+	async function sortedSetAddMulti (key, scores, values) {
 		if (!scores.length || !values.length) {
 			return;
 		}

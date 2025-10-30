@@ -17,7 +17,6 @@ Helpers.mocks.person = (override = {}) => {
 		id = override.id;
 	}
 
-
 	const actor = {
 		'@context': [
 			'https://www.w3.org/ns/activitystreams',
@@ -224,4 +223,3 @@ Helpers.mocks.delete = (override = {}) => {
 
 	return { activity };
 };
-

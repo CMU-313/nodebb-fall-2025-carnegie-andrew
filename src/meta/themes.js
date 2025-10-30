@@ -58,7 +58,7 @@ Themes.get = async () => {
 	return themes.filter(Boolean);
 };
 
-async function getThemes(themePath) {
+async function getThemes (themePath) {
 	let dirs = await fs.promises.readdir(themePath);
 	dirs = dirs.filter(dir => themeNamePattern.test(dir) || dir.startsWith('@'));
 	return await Promise.all(dirs.map(async (dir) => {

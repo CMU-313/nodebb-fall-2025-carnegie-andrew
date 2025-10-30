@@ -27,7 +27,7 @@ module.exports = function (Categories) {
 		const colours = Categories.assignColours();
 
 		let category = {
-			cid: cid,
+			cid,
 			name: data.name,
 			handle,
 			description: data.description ? data.description : '',
@@ -35,12 +35,12 @@ module.exports = function (Categories) {
 			icon: data.icon ? data.icon : '',
 			bgColor: data.bgColor || colours[0],
 			color: data.color || colours[1],
-			slug: slug,
-			parentCid: parentCid,
+			slug,
+			parentCid,
 			topic_count: 0,
 			post_count: 0,
 			disabled: data.disabled ? 1 : 0,
-			order: order,
+			order,
 			link: data.link || '',
 			numRecentReplies: 1,
 			class: (data.class ? data.class : 'col-md-3 col-6'),
@@ -75,11 +75,11 @@ module.exports = function (Categories) {
 		const guestPrivileges = ['groups:find', 'groups:read', 'groups:topics:read'];
 
 		const result = await plugins.hooks.fire('filter:category.create', {
-			category: category,
-			data: data,
-			defaultPrivileges: defaultPrivileges,
-			modPrivileges: modPrivileges,
-			guestPrivileges: guestPrivileges,
+			category,
+			data,
+			defaultPrivileges,
+			modPrivileges,
+			guestPrivileges,
 		});
 		category = result.category;
 
@@ -110,11 +110,11 @@ module.exports = function (Categories) {
 			await duplicateCategoriesChildren(category.cid, data.cloneFromCid, data.uid);
 		}
 
-		plugins.hooks.fire('action:category.create', { category: category });
+		plugins.hooks.fire('action:category.create', { category });
 		return category;
 	};
 
-	async function clearParentCategoryCache(parentCid) {
+	async function clearParentCategoryCache (parentCid) {
 		while (parseInt(parentCid, 10) >= 0) {
 			cache.del([
 				`cid:${parentCid}:children`,
@@ -130,7 +130,7 @@ module.exports = function (Categories) {
 		}
 	}
 
-	async function duplicateCategoriesChildren(parentCid, cid, uid) {
+	async function duplicateCategoriesChildren (parentCid, cid, uid) {
 		let children = await Categories.getChildren([cid], uid);
 		if (!children.length) {
 			return;
@@ -150,7 +150,7 @@ module.exports = function (Categories) {
 		await async.each(children, Categories.create);
 	}
 
-	async function generateHandle(slug) {
+	async function generateHandle (slug) {
 		let taken;
 		try {
 			taken = await meta.slugTaken(slug);
@@ -217,9 +217,9 @@ module.exports = function (Categories) {
 			destination.parentCid = source.parentCid || 0;
 		}
 		await plugins.hooks.fire('filter:categories.copySettingsFrom', {
-			source: source,
-			destination: destination,
-			copyParent: copyParent,
+			source,
+			destination,
+			copyParent,
 		});
 
 		await db.setObject(`category:${toCid}`, destination);
@@ -231,7 +231,7 @@ module.exports = function (Categories) {
 		return destination;
 	};
 
-	async function copyTagWhitelist(fromCid, toCid) {
+	async function copyTagWhitelist (fromCid, toCid) {
 		const data = await db.getSortedSetRangeWithScores(`cid:${fromCid}:tag:whitelist`, 0, -1);
 		await db.delete(`cid:${toCid}:tag:whitelist`);
 		await db.sortedSetAdd(`cid:${toCid}:tag:whitelist`, data.map(item => item.score), data.map(item => item.value));
@@ -250,9 +250,9 @@ module.exports = function (Categories) {
 
 		const data = await plugins.hooks.fire('filter:categories.copyPrivilegesFrom', {
 			privileges: privsToCopy,
-			fromCid: fromCid,
-			toCid: toCid,
-			group: group,
+			fromCid,
+			toCid,
+			group,
 		});
 		if (group) {
 			await copyPrivilegesByGroup(data.privileges, data.fromCid, data.toCid, group);
@@ -261,7 +261,7 @@ module.exports = function (Categories) {
 		}
 	};
 
-	async function copyPrivileges(privileges, fromCid, toCid) {
+	async function copyPrivileges (privileges, fromCid, toCid) {
 		const toGroups = privileges.map(privilege => `group:cid:${toCid}:privileges:${privilege}:members`);
 		const fromGroups = privileges.map(privilege => `group:cid:${fromCid}:privileges:${privilege}:members`);
 
@@ -272,7 +272,7 @@ module.exports = function (Categories) {
 		});
 	}
 
-	async function copyPrivilegesByGroup(privilegeList, fromCid, toCid, group) {
+	async function copyPrivilegesByGroup (privilegeList, fromCid, toCid, group) {
 		const fromGroups = privilegeList.map(privilege => `group:cid:${fromCid}:privileges:${privilege}:members`);
 		const toGroups = privilegeList.map(privilege => `group:cid:${toCid}:privileges:${privilege}:members`);
 		const [fromChecks, toChecks] = await Promise.all([

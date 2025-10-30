@@ -36,7 +36,7 @@ SELECT COUNT(*) c
 		return await getSortedSetIntersect(params);
 	};
 
-	async function getSortedSetIntersect(params) {
+	async function getSortedSetIntersect (params) {
 		const { sets } = params;
 		const start = params.hasOwnProperty('start') ? params.start : 0;
 		const stop = params.hasOwnProperty('stop') ? params.stop : -1;

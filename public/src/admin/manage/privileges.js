@@ -155,7 +155,7 @@ define('admin/manage/privileges', [
 			ev.preventDefault();
 		});
 
-		function throwConfirmModal(method, onConfirm) {
+		function throwConfirmModal (method, onConfirm) {
 			const privilegeSubset = getPrivilegeSubset();
 			bootbox.confirm(`[[admin/manage/privileges:alert.confirm-${method}, ${privilegeSubset}]]<br /><br />[[admin/manage/privileges:alert.no-undo]]`, function (ok) {
 				if (ok) {
@@ -306,7 +306,8 @@ define('admin/manage/privileges', [
 	Privileges.copyPrivilegesFromCategory = function (cid, group) {
 		const privilegeSubset = getPrivilegeSubset();
 		const message = '<br>' +
-			(group ? `[[admin/manage/privileges:alert.copyPrivilegesFromGroup-warning, ${privilegeSubset}]]` :
+			(group ?
+				`[[admin/manage/privileges:alert.copyPrivilegesFromGroup-warning, ${privilegeSubset}]]` :
 				`[[admin/manage/privileges:alert.copyPrivilegesFrom-warning, ${privilegeSubset}]]`) +
 			'<br><br>[[admin/manage/privileges:alert.no-undo]]';
 		categorySelector.modal({
@@ -319,7 +320,7 @@ define('admin/manage/privileges', [
 					toCid: cid,
 					filter: getGroupPrivilegeFilter(),
 					fromCid: selectedCategory.cid,
-					group: group,
+					group,
 				}, function (err) {
 					if (err) {
 						return alerts.error(err);
@@ -340,7 +341,7 @@ define('admin/manage/privileges', [
 		});
 	};
 
-	function getPrivilegesFromRow(sourceGroupName) {
+	function getPrivilegesFromRow (sourceGroupName) {
 		const privs = [];
 		$(`.privilege-table tr[data-group-name="${sourceGroupName}"] td input[type="checkbox"]:not(.checkbox-helper)`)
 			.parents('[data-privilege]')
@@ -360,11 +361,11 @@ define('admin/manage/privileges', [
 		})).filter(Boolean);
 	}
 
-	function getPrivilegeFromColumn(sourceGroupName, columnNo) {
+	function getPrivilegeFromColumn (sourceGroupName, columnNo) {
 		return $(`.privilege-table tr[data-group-name="${sourceGroupName}"] td:nth-child(${columnNo}) input[type="checkbox"]`)[0].checked;
 	}
 
-	function applyPrivileges(privs, inputSelectorFn) {
+	function applyPrivileges (privs, inputSelectorFn) {
 		for (let x = 0, numPrivs = privs.length; x < numPrivs; x += 1) {
 			const inputs = $(inputSelectorFn(privs, x));
 			inputs.each(function (idx, el) {
@@ -375,14 +376,14 @@ define('admin/manage/privileges', [
 		}
 	}
 
-	function applyPrivilegesToColumn(inputSelectorFn, sourceChecked) {
+	function applyPrivilegesToColumn (inputSelectorFn, sourceChecked) {
 		const $inputs = $(inputSelectorFn());
 		$inputs.each((idx, el) => {
 			el.indeterminate = el.checked ? false : sourceChecked;
 		});
 	}
 
-	function hightlightRowByDataAttr(attrName, attrValue) {
+	function hightlightRowByDataAttr (attrName, attrValue) {
 		if (attrValue) {
 			const $el = $('[' + attrName + ']').filter(function () {
 				return $(this).attr(attrName) === String(attrValue);
@@ -396,7 +397,7 @@ define('admin/manage/privileges', [
 		return false;
 	}
 
-	function highlightRow() {
+	function highlightRow () {
 		if (ajaxify.data.group) {
 			if (hightlightRowByDataAttr('data-group-name', ajaxify.data.group)) {
 				return;
@@ -405,7 +406,7 @@ define('admin/manage/privileges', [
 		}
 	}
 
-	function addGroupToCategory(group, cb) {
+	function addGroupToCategory (group, cb) {
 		cb = cb || function () {};
 		const groupRow = document.querySelector('.privilege-table [data-group-name="' + group + '"]');
 		if (groupRow) {
@@ -444,7 +445,7 @@ define('admin/manage/privileges', [
 		});
 	}
 
-	async function addUserToCategory(user, cb) {
+	async function addUserToCategory (user, cb) {
 		cb = cb || function () {};
 		const userRow = document.querySelector('.privilege-table [data-uid="' + user.uid + '"]');
 		if (userRow) {
@@ -487,7 +488,7 @@ define('admin/manage/privileges', [
 		cb();
 	}
 
-	function filterPrivileges(ev) {
+	function filterPrivileges (ev) {
 		const btn = $(ev.target);
 		const filter = btn.attr('data-filter');
 		const rows = btn.closest('table').find('thead tr:last-child, tbody tr');
@@ -501,11 +502,11 @@ define('admin/manage/privileges', [
 		btn.addClass('btn-warning');
 	}
 
-	function getGroupPrivilegeFilter() {
+	function getGroupPrivilegeFilter () {
 		return $('[component="privileges/groups/filters"] .btn-warning').attr('data-filter');
 	}
 
-	function getPrivilegeSubset() {
+	function getPrivilegeSubset () {
 		const currentPrivFilter = document.querySelector('.privilege-filters .btn-warning');
 		const filterText = currentPrivFilter ? currentPrivFilter.textContent.toLocaleLowerCase() : '';
 		return filterText.indexOf('privileges') > -1 ? filterText : `${filterText} privileges`.trim();

@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('admin/appearance/themes', ['bootbox', 'translator', 'alerts'], function (bootbox, translator, alerts) {
 	const Themes = {};
 
@@ -83,7 +82,7 @@ define('admin/appearance/themes', ['bootbox', 'translator', 'alerts'], function 
 				instListEl.append($('<li/ >').addClass('no-themes').translateHtml('[[admin/appearance/themes:no-themes]]'));
 			} else {
 				app.parseAndTranslate('admin/partials/theme_list', {
-					themes: themes,
+					themes,
 				}, function (html) {
 					instListEl.html(html);
 					highlightSelectedTheme(config['theme:id']);
@@ -92,7 +91,7 @@ define('admin/appearance/themes', ['bootbox', 'translator', 'alerts'], function 
 		});
 	};
 
-	function highlightSelectedTheme(themeId) {
+	function highlightSelectedTheme (themeId) {
 		translator.translate('[[admin/appearance/themes:select-theme]]  ||  [[admin/appearance/themes:current-theme]]', function (text) {
 			text = text.split('  ||  ');
 			const select = text[0];

@@ -19,7 +19,7 @@ define('search', [
 		});
 	};
 
-	function init(searchForm, searchOptions) {
+	function init (searchForm, searchOptions) {
 		const searchButton = searchForm.find('[component="search/button"]');
 		const searchFields = searchForm.find('[component="search/fields"]');
 		const searchInput = searchFields.find('input[name="query"]');
@@ -29,7 +29,7 @@ define('search', [
 		const webfingerRegex = /^(@|acct:)?[\w-]+@.+$/; // should match src/activitypub/helpers.js
 
 		if (toggleVisibility) {
-			searchFields.off('focusout').on('focusout', function dismissSearch() {
+			searchFields.off('focusout').on('focusout', function dismissSearch () {
 				setTimeout(function () {
 					if (!searchFields.find(':focus').length) {
 						searchFields.addClass('hidden');
@@ -47,8 +47,8 @@ define('search', [
 		};
 
 		Search.enableQuickSearch({
-			searchOptions: searchOptions,
-			searchElements: searchElements,
+			searchOptions,
+			searchElements,
 		});
 
 		searchButton.off('click').on('click', function (e) {
@@ -79,7 +79,7 @@ define('search', [
 
 			hooks.fire('action:search.submit', {
 				searchOptions: data,
-				searchElements: searchElements,
+				searchElements,
 			});
 			Search.query(data, function () {
 				input.val('');
@@ -101,7 +101,7 @@ define('search', [
 		let oldValue = inputEl.val();
 		const filterCategoryEl = quickSearchResults.find('.filter-category');
 
-		function updateCategoryFilterName() {
+		function updateCategoryFilterName () {
 			if (ajaxify.data.template.category && ajaxify.data.cid) {
 				translator.translate('[[search:search-in-category, ' + ajaxify.data.name + ']]', function (translated) {
 					const name = $('<div></div>').html(translated).text();
@@ -111,7 +111,7 @@ define('search', [
 			filterCategoryEl.toggleClass('hidden', !(ajaxify.data.template.category && ajaxify.data.cid));
 		}
 
-		function doSearch() {
+		function doSearch () {
 			options.searchOptions = Object.assign({}, searchOptions);
 			options.searchOptions.term = inputEl.val();
 			updateCategoryFilterName();
@@ -148,8 +148,8 @@ define('search', [
 							.html(html.length ? html : '');
 
 						hooks.fire('action:search.quick.complete', {
-							data: data,
-							options: options,
+							data,
+							options,
 						});
 					});
 				} else {
@@ -177,8 +177,8 @@ define('search', [
 						);
 						Search.highlightMatches(options.searchOptions.term, highlightEls);
 						hooks.fire('action:search.quick.complete', {
-							data: data,
-							options: options,
+							data,
+							options,
 						});
 					});
 				}
@@ -216,7 +216,7 @@ define('search', [
 		const resultParent = quickSearchResults.parent();
 		inputParent.on('focusout', hideResults);
 		resultParent.on('focusout', hideResults);
-		function hideResults() {
+		function hideResults () {
 			setTimeout(function () {
 				if (!inputParent.find(':focus').length && !resultParent.find(':focus').length && !quickSearchResults.hasClass('hidden')) {
 					quickSearchResults.addClass('hidden');
@@ -287,19 +287,19 @@ define('search', [
 		});
 	};
 
-	function createQueryString(data) {
+	function createQueryString (data) {
 		const searchIn = data.in || 'titles';
 		const term = data.term.replace(/^[ ?#]*/, '');
 
 		const query = {
 			...data,
-			term: term,
+			term,
 			in: searchIn,
 		};
 
 		hooks.fire('action:search.createQueryString', {
-			query: query,
-			data: data,
+			query,
+			data,
 		});
 
 		return $.param(query);

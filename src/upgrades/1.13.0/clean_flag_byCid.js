@@ -21,7 +21,7 @@ module.exports = {
 
 			await db.sortedSetRemoveBulk(bulkRemove);
 		}, {
-			progress: progress,
+			progress,
 		});
 	},
 };

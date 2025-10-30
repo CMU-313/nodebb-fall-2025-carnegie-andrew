@@ -16,7 +16,8 @@ uploads.upload = async function (socket, data) {
 	}
 	const { method } = data.params;
 	const defaultMaxSize = method === 'user.uploadCroppedPicture' ?
-		meta.config.maximumProfileImageSize : meta.config.maximumCoverImageSize;
+		meta.config.maximumProfileImageSize :
+		meta.config.maximumCoverImageSize;
 
 	const { methods, maxSize } = await plugins.hooks.fire('filter:uploads.upload', {
 		methods: {
@@ -25,7 +26,7 @@ uploads.upload = async function (socket, data) {
 			'groups.cover.update': socketGroup.cover.update,
 		},
 		maxSize: defaultMaxSize,
-		data: data,
+		data,
 	});
 
 	if (!methods.hasOwnProperty(data.params.method)) {

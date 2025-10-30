@@ -25,7 +25,7 @@ chatsController.get = async function (req, res, next) {
 
 	const payload = {
 		title: '[[pages:chats]]',
-		uid: uid,
+		uid,
 		userslug: req.params.userslug,
 	};
 	const isSwitch = res.locals.isAPI && parseInt(req.query.switch, 10) === 1;
@@ -57,9 +57,9 @@ chatsController.get = async function (req, res, next) {
 		payload.scrollToIndex = Math.min(msgCount, Math.max(0, parseInt(index, 10) || 1));
 	}
 	const room = await messaging.loadRoom(req.uid, {
-		uid: uid,
+		uid,
 		roomId: req.params.roomid,
-		start: start,
+		start,
 	});
 	if (!room) {
 		return next();

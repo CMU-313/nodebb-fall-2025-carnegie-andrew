@@ -11,7 +11,7 @@ define('forum/header/unread', ['hooks'], function (hooks) {
 	unread.initUnreadTopics = function () {
 		const unreadTopics = app.user.unreadData;
 
-		function onNewPost(data) {
+		function onNewPost (data) {
 			if (data && data.posts && data.posts.length && unreadTopics) {
 				const post = data.posts[0];
 				if (parseInt(post.uid, 10) === parseInt(app.user.uid, 10) ||
@@ -48,13 +48,13 @@ define('forum/header/unread', ['hooks'], function (hooks) {
 			}
 		}
 
-		function increaseUnreadCount(filter) {
+		function increaseUnreadCount (filter) {
 			const unreadUrl = '/unread' + (filter ? '?filter=' + filter : '');
 			const newCount = 1 + parseInt($('a[href="' + config.relative_path + unreadUrl + '"].navigation-link i').attr('data-content'), 10);
 			updateUnreadTopicCount(unreadUrl, newCount);
 		}
 
-		function markTopicsUnread(tid) {
+		function markTopicsUnread (tid) {
 			$('[data-tid="' + tid + '"]').addClass('unread');
 		}
 
@@ -72,14 +72,14 @@ define('forum/header/unread', ['hooks'], function (hooks) {
 		socket.on('event:unread.updateCount', updateUnreadCounters);
 	};
 
-	function updateUnreadCounters(data) {
+	function updateUnreadCounters (data) {
 		updateUnreadTopicCount('/unread', data.unreadTopicCount);
 		updateUnreadTopicCount('/unread?filter=new', data.unreadNewTopicCount);
 		updateUnreadTopicCount('/unread?filter=watched', data.unreadWatchedTopicCount);
 		updateUnreadTopicCount('/unread?filter=unreplied', data.unreadUnrepliedTopicCount);
 	}
 
-	function updateUnreadTopicCount(url, count) {
+	function updateUnreadTopicCount (url, count) {
 		if (!utils.isNumber(count)) {
 			return;
 		}

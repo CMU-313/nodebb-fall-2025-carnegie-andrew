@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('topicSelect', ['components'], function (components) {
 	const TopicSelect = {};
 	let lastSelectedTopic;
@@ -31,7 +30,7 @@ define('topicSelect', ['components'], function (components) {
 		});
 	};
 
-	function toggleSelected(topicEl, isSelected) {
+	function toggleSelected (topicEl, isSelected) {
 		const select = topicEl.find('[component="topic/select"]');
 		select.toggleClass('fa-check-square-o', isSelected);
 		select.toggleClass('fa-square-o', !isSelected);
@@ -39,7 +38,7 @@ define('topicSelect', ['components'], function (components) {
 		updateSelectedBadgeCount();
 	}
 
-	function updateSelectedBadgeCount() {
+	function updateSelectedBadgeCount () {
 		const badge = $('[component="topic/selected/badge"]');
 		if (badge.length) {
 			const count = topicsContainer.find('[component="category/topic"].selected').length;
@@ -66,7 +65,7 @@ define('topicSelect', ['components'], function (components) {
 		}
 	};
 
-	function selectRange(clickedTid) {
+	function selectRange (clickedTid) {
 		if (!lastSelectedTopic) {
 			lastSelectedTopic = $('[component="category/topic"]').first();
 		}
@@ -78,7 +77,7 @@ define('topicSelect', ['components'], function (components) {
 		selectIndexRange(clickedIndex, lastIndex, !isClickedSelected);
 	}
 
-	function selectIndexRange(start, end, isSelected) {
+	function selectIndexRange (start, end, isSelected) {
 		if (start > end) {
 			const tmp = start;
 			start = end;
@@ -91,7 +90,7 @@ define('topicSelect', ['components'], function (components) {
 		}
 	}
 
-	function getIndex(tid) {
+	function getIndex (tid) {
 		return components.get('category/topic', 'tid', tid).index('[component="category/topic"]');
 	}
 

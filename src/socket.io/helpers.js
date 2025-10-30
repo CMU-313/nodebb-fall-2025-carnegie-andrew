@@ -30,7 +30,7 @@ SocketHelpers.notifyNew = async function (uid, type, result) {
 	});
 };
 
-async function notifyUids(uid, uids, type, result) {
+async function notifyUids (uid, uids, type, result) {
 	const post = result.posts[0];
 	const { tid, cid } = post.topic;
 	uids = await privileges.topics.filterUids('topics:read', tid, uids);
@@ -46,8 +46,8 @@ async function notifyUids(uid, uids, type, result) {
 	const data = await plugins.hooks.fire('filter:sockets.sendNewPostToUids', {
 		uidsTo: uids,
 		uidFrom: uid,
-		type: type,
-		post: post,
+		type,
+		post,
 	});
 
 	post.ip = undefined;
@@ -76,7 +76,7 @@ async function notifyUids(uid, uids, type, result) {
 	}));
 }
 
-async function getWatchStates(uids, tid, cid) {
+async function getWatchStates (uids, tid, cid) {
 	return await utils.promiseParallel({
 		topicFollowed: db.isSetMembers(`tid:${tid}:followers`, uids),
 		topicIgnored: db.isSetMembers(`tid:${tid}:ignorers`, uids),
@@ -84,7 +84,7 @@ async function getWatchStates(uids, tid, cid) {
 	});
 }
 
-function filterTidCidIgnorers(uids, watchStates) {
+function filterTidCidIgnorers (uids, watchStates) {
 	return uids.filter((uid, index) => watchStates.topicFollowed[index] ||
 			(!watchStates.topicIgnored[index] && watchStates.categoryWatchStates[index] !== categories.watchStates.ignoring));
 }
@@ -117,18 +117,17 @@ SocketHelpers.sendNotificationToPostOwner = async function (pid, fromuid, comman
 		type: command,
 		bodyShort: `[[${notification}, ${displayname}, ${titleEscaped}]]`,
 		bodyLong: postObj.content,
-		pid: pid,
+		pid,
 		tid: postData.tid,
 		path: `/post/${pid}`,
 		nid: `${command}:post:${pid}:uid:${fromuid}`,
 		from: fromuid,
 		mergeId: `${notification}|${pid}`,
-		topicTitle: topicTitle,
+		topicTitle,
 	});
 
 	notifications.push(notifObj, [postData.uid]);
 };
-
 
 SocketHelpers.sendNotificationToTopicOwner = async function (tid, fromuid, command, notification) {
 	if (!tid || !fromuid || !notification) {

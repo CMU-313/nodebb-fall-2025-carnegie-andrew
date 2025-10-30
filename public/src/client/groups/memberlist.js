@@ -31,7 +31,7 @@ define('forum/groups/memberlist', ['api', 'bootbox', 'alerts', 'helpers'], funct
 		ajaxify.data.group.pending = group.pending;
 	};
 
-	function handleMemberAdd() {
+	function handleMemberAdd () {
 		$('[component="groups/members/add"]').on('click', function () {
 			app.parseAndTranslate('admin/partials/groups/add-members', {}, function (html) {
 				const foundUsers = [];
@@ -82,7 +82,7 @@ define('forum/groups/memberlist', ['api', 'bootbox', 'alerts', 'helpers'], funct
 		});
 	}
 
-	async function addUsersToGroup(users) {
+	async function addUsersToGroup (users) {
 		const uids = users.map(u => u.uid);
 		if (ajaxify.data.group.name === 'administrators') {
 			await socket.emit('admin.user.makeAdmins', uids).catch(alerts.error);
@@ -95,7 +95,7 @@ define('forum/groups/memberlist', ['api', 'bootbox', 'alerts', 'helpers'], funct
 		$('[component="groups/members"] tbody').prepend(html);
 	}
 
-	function handleMemberSearch() {
+	function handleMemberSearch () {
 		const searchEl = $('[component="groups/members/search"]');
 		searchEl.on('keyup', utils.debounce(async function () {
 			const query = searchEl.val();
@@ -106,7 +106,7 @@ define('forum/groups/memberlist', ['api', 'bootbox', 'alerts', 'helpers'], funct
 		}, 250));
 	}
 
-	function handleMemberInfiniteScroll() {
+	function handleMemberInfiniteScroll () {
 		$('[component="groups/members"]').on('scroll', utils.debounce(function () {
 			const $this = $(this);
 			const bottom = ($this[0].scrollHeight - $this.innerHeight()) * 0.9;
@@ -117,7 +117,7 @@ define('forum/groups/memberlist', ['api', 'bootbox', 'alerts', 'helpers'], funct
 		}, 250));
 	}
 
-	async function loadMoreMembers() {
+	async function loadMoreMembers () {
 		const members = $('[component="groups/members"]');
 		if (members.attr('loading')) {
 			return;
@@ -137,7 +137,7 @@ define('forum/groups/memberlist', ['api', 'bootbox', 'alerts', 'helpers'], funct
 		}
 	}
 
-	async function onMembersLoaded(users) {
+	async function onMembersLoaded (users) {
 		users = users.filter(function (user) {
 			return !$('[component="groups/members"] [data-uid="' + user.uid + '"]').length;
 		});
@@ -146,7 +146,7 @@ define('forum/groups/memberlist', ['api', 'bootbox', 'alerts', 'helpers'], funct
 		$('[component="groups/members"] tbody').append(html);
 	}
 
-	async function parseAndTranslate(users) {
+	async function parseAndTranslate (users) {
 		return await app.parseAndTranslate(templateName, 'group.members', {
 			group: {
 				members: users,

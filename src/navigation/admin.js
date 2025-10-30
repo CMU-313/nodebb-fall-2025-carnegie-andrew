@@ -39,7 +39,7 @@ admin.getAdmin = async function () {
 		admin.get(),
 		getAvailable(),
 	]);
-	return { enabled: enabled, available: available };
+	return { enabled, available };
 };
 
 const fieldsToEscape = ['iconClass', 'class', 'route', 'id', 'text', 'textClass', 'title'];
@@ -47,7 +47,7 @@ const fieldsToEscape = ['iconClass', 'class', 'route', 'id', 'text', 'textClass'
 admin.escapeFields = navItems => toggleEscape(navItems, true);
 admin.unescapeFields = navItems => toggleEscape(navItems, false);
 
-function toggleEscape(navItems, flag) {
+function toggleEscape (navItems, flag) {
 	navItems.forEach((item) => {
 		if (item) {
 			fieldsToEscape.forEach((field) => {
@@ -98,7 +98,7 @@ admin.update = async function (route, data) {
 	}
 };
 
-async function getAvailable() {
+async function getAvailable () {
 	const core = require('../../install/data/navigation.json').map((item) => {
 		item.core = true;
 		item.id = item.id || '';

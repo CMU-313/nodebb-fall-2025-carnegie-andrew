@@ -25,7 +25,7 @@ JS.scripts = {
 
 const basePath = path.resolve(__dirname, '../..');
 
-async function linkModules() {
+async function linkModules () {
 	const { modules } = JS.scripts;
 
 	await Promise.all([
@@ -48,7 +48,7 @@ async function linkModules() {
 		} else {
 			// Get the relative path to the destination directory
 			const relPath = path.relative(destDir, srcPath)
-				// and convert to a posix path
+			// and convert to a posix path
 				.split(path.sep).join(path.posix.sep);
 
 			// Instead of copying file, create a new file re-exporting it
@@ -60,7 +60,7 @@ async function linkModules() {
 
 const moduleDirs = ['modules', 'admin', 'client'];
 
-async function clearModules() {
+async function clearModules () {
 	const builtPaths = moduleDirs.map(
 		p => path.join(__dirname, '../../build/public/src', p)
 	);
@@ -74,8 +74,8 @@ JS.buildModules = async function () {
 
 	const fse = require('fs-extra');
 	await fse.copy(
-		path.join(__dirname, `../../public/src`),
-		path.join(__dirname, `../../build/public/src`)
+		path.join(__dirname, '../../public/src'),
+		path.join(__dirname, '../../build/public/src')
 	);
 
 	await linkModules();
@@ -96,7 +96,7 @@ JS.linkStatics = async function () {
 	}));
 };
 
-async function getBundleScriptList(target) {
+async function getBundleScriptList (target) {
 	const pluginDirectories = [];
 
 	if (target === 'admin') {
@@ -119,7 +119,7 @@ async function getBundleScriptList(target) {
 	pluginScripts = JS.scripts.base.concat(pluginScripts).map((script) => {
 		const srcPath = path.resolve(basePath, script).replace(/\\/g, '/');
 		return {
-			srcPath: srcPath,
+			srcPath,
 			filename: path.relative(basePath, srcPath).replace(/\\/g, '/'),
 		};
 	});
@@ -133,8 +133,8 @@ JS.buildBundle = async function (target, fork) {
 	const filePath = path.join(__dirname, '../../build/public', filename);
 
 	await minifier.js.bundle({
-		files: files,
-		filename: filename,
+		files,
+		filename,
 		destPath: filePath,
 	}, fork);
 };

@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/topic/votes', [
 	'components', 'translator', 'api', 'hooks', 'bootbox', 'alerts', 'bootstrap',
 ], function (components, translator, api, hooks, bootbox, alerts, bootstrap) {
@@ -18,21 +17,21 @@ define('forum/topic/votes', [
 		components.get('topic').on('mouseleave', '[data-pid] [component="post/announce-count"]', destroyTooltip);
 	};
 
-	function canSeeUpVotes() {
+	function canSeeUpVotes () {
 		const { upvoteVisibility, privileges } = ajaxify.data;
 		return privileges.isAdminOrMod ||
 			upvoteVisibility === 'all' ||
 			(upvoteVisibility === 'loggedin' && config.loggedIn);
 	}
 
-	function canSeeVotes() {
+	function canSeeVotes () {
 		const { upvoteVisibility, downvoteVisibility, privileges } = ajaxify.data;
 		return privileges.isAdminOrMod ||
 			upvoteVisibility === 'all' || downvoteVisibility === 'all' ||
 			((upvoteVisibility === 'loggedin' || downvoteVisibility === 'loggedin') && config.loggedIn);
 	}
 
-	function destroyTooltip() {
+	function destroyTooltip () {
 		const $this = $(this);
 		const pid = $this.parents('[data-pid]').attr('data-pid');
 		const tooltip = bootstrap.Tooltip.getInstance(this);
@@ -43,7 +42,7 @@ define('forum/topic/votes', [
 		_showTooltip[pid] = false;
 	}
 
-	function loadDataAndCreateTooltip() {
+	function loadDataAndCreateTooltip () {
 		const $this = $(this);
 		const el = $this.parent();
 		const pid = el.parents('[data-pid]').attr('data-pid');
@@ -74,12 +73,12 @@ define('forum/topic/votes', [
 		});
 	}
 
-	function createVoteBreakdownTooltip(el, upvotes, downvotes) {
+	function createVoteBreakdownTooltip (el, upvotes, downvotes) {
 		const tooltipContent = `<div style="text-align: center;">
 			<div style="color: #28a745; font-weight: bold;">↑ ${upvotes} upvote${upvotes !== 1 ? 's' : ''}</div>
 			<div style="color: #dc3545; font-weight: bold;">↓ ${downvotes} downvote${downvotes !== 1 ? 's' : ''}</div>
 		</div>`;
-		
+
 		el.attr('title', tooltipContent);
 		(new bootstrap.Tooltip(el, {
 			container: '#content',
@@ -87,8 +86,8 @@ define('forum/topic/votes', [
 		})).show();
 	}
 
-	function createTooltip(el, data) {
-		function doCreateTooltip(title) {
+	function createTooltip (el, data) {
+		function doCreateTooltip (title) {
 			el.attr('title', title);
 			(new bootstrap.Tooltip(el, {
 				container: '#content',
@@ -112,7 +111,6 @@ define('forum/topic/votes', [
 		}
 	}
 
-
 	Votes.toggleVote = function (button, className, delta) {
 		const post = button.closest('[data-pid]');
 		const currentState = post.find(className).length;
@@ -120,7 +118,7 @@ define('forum/topic/votes', [
 		const method = currentState ? 'del' : 'put';
 		const pid = post.attr('data-pid');
 		api[method](`/posts/${encodeURIComponent(pid)}/vote`, {
-			delta: delta,
+			delta,
 		}, function (err) {
 			if (err) {
 				if (!app.user.uid) {
@@ -130,8 +128,8 @@ define('forum/topic/votes', [
 				return alerts.error(err);
 			}
 			hooks.fire('action:post.toggleVote', {
-				pid: pid,
-				delta: delta,
+				pid,
+				delta,
 				unvote: method === 'del',
 			});
 		});

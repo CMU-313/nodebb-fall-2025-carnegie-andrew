@@ -16,8 +16,8 @@ exports.get = async function (req, res, callback) {
 	};
 
 	const data = await plugins.hooks.fire('filter:composer.build', {
-		req: req,
-		res: res,
+		req,
+		res,
 		next: callback,
 		templateData: {},
 	});
@@ -43,7 +43,7 @@ exports.post = async function (req, res) {
 	const { body } = req;
 	const data = {
 		uid: req.uid,
-		req: req,
+		req,
 		timestamp: Date.now(),
 		content: body.content,
 		handle: body.handle,
@@ -54,7 +54,7 @@ exports.post = async function (req, res) {
 	if (!data.content) {
 		return helpers.noScriptErrors(req, res, '[[error:invalid-data]]', 400);
 	}
-	async function queueOrPost(postFn, data) {
+	async function queueOrPost (postFn, data) {
 		const shouldQueue = await posts.shouldQueue(req.uid, data);
 		if (shouldQueue) {
 			delete data.req;

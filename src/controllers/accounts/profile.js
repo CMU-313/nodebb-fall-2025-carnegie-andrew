@@ -57,7 +57,7 @@ profileController.get = async function (req, res, next) {
 	res.render('account/profile', userData);
 };
 
-async function incrementProfileViews(req, userData) {
+async function incrementProfileViews (req, userData) {
 	if (req.uid >= 1) {
 		req.session.uids_viewed = req.session.uids_viewed || {};
 
@@ -71,15 +71,15 @@ async function incrementProfileViews(req, userData) {
 	}
 }
 
-async function getLatestPosts(callerUid, userData) {
+async function getLatestPosts (callerUid, userData) {
 	return await getPosts(callerUid, userData, 'pids');
 }
 
-async function getBestPosts(callerUid, userData) {
+async function getBestPosts (callerUid, userData) {
 	return await getPosts(callerUid, userData, 'pids:votes');
 }
 
-async function getPosts(callerUid, userData, setSuffix) {
+async function getPosts (callerUid, userData, setSuffix) {
 	const cids = await categories.getCidsByPrivilege('categories:cid', callerUid, 'topics:read');
 	const keys = cids.map(c => `cid:${c}:uid:${userData.uid}:${setSuffix}`);
 	let hasMorePosts = true;
@@ -123,7 +123,7 @@ async function getPosts(callerUid, userData, setSuffix) {
 	return postData.slice(0, count);
 }
 
-function addTags(res, userData) {
+function addTags (res, userData) {
 	const plainAboutMe = userData.aboutme ? utils.stripHTMLTags(utils.decodeHTMLEntities(userData.aboutme)) : '';
 	res.locals.metaTags = [
 		{

@@ -39,7 +39,7 @@ Errors.init = async function () {
 	}
 };
 
-function publishLocalErrors() {
+function publishLocalErrors () {
 	pubsub.publish('errors:publish', {
 		local: counters,
 	});
@@ -57,7 +57,7 @@ Errors.writeData = async function () {
 
 		const bulkIncrement = [];
 		for (const key of keys) {
-			bulkIncrement.push(['errors:404', _counters[key], key ]);
+			bulkIncrement.push(['errors:404', _counters[key], key]);
 		}
 		await db.sortedSetIncrByBulk(bulkIncrement);
 	} catch (err) {

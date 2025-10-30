@@ -53,11 +53,11 @@ module.exports = function (Messaging) {
 		const mid = data.mid || await db.incrObjectField('global', 'nextMid');
 		const timestamp = data.timestamp || Date.now();
 		let message = {
-			mid: mid,
+			mid,
 			content: String(data.content),
-			timestamp: timestamp,
+			timestamp,
 			fromuid: uid,
-			roomId: roomId,
+			roomId,
 		};
 		if (data.toMid) {
 			message.toMid = data.toMid;
@@ -92,7 +92,7 @@ module.exports = function (Messaging) {
 			uids = await user.blocks.filterUids(uid, uids);
 			tasks.push(
 				Messaging.addRoomToUsers(roomId, uids, timestamp),
-				Messaging.markUnread(uids.filter(uid => uid !== String(data.uid)), roomId),
+				Messaging.markUnread(uids.filter(uid => uid !== String(data.uid)), roomId)
 			);
 		}
 		await Promise.all(tasks);
@@ -103,15 +103,15 @@ module.exports = function (Messaging) {
 		}
 
 		messages[0].newSet = isNewSet;
-		plugins.hooks.fire('action:messaging.save', { message: message, data: data });
+		plugins.hooks.fire('action:messaging.save', { message, data });
 		return messages[0];
 	};
 
 	Messaging.addSystemMessage = async (content, uid, roomId) => {
 		const message = await Messaging.addMessage({
-			content: content,
-			uid: uid,
-			roomId: roomId,
+			content,
+			uid,
+			roomId,
 			system: 1,
 		});
 		Messaging.notifyUsersInRoom(uid, roomId, message);

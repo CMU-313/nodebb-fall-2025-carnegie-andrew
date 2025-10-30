@@ -420,7 +420,7 @@ describe.skip('Notes', () => {
 					'@context': 'https://www.w3.org/ns/activitystreams',
 					id: `${helpers.mocks._baseUrl}/announce/${encodeURIComponent(like.id)}`,
 					type: 'Announce',
-					to: [ 'https://www.w3.org/ns/activitystreams#Public' ],
+					to: ['https://www.w3.org/ns/activitystreams#Public'],
 					cc: [
 						`${gActor}/followers`,
 					],
@@ -598,9 +598,9 @@ describe.skip('Notes', () => {
 					const uid = await user.create({ username: utils.generateUUID().slice(0, 10) });
 					await db.sortedSetAdd(`followersRemote:${activity.actor}`, Date.now(), uid);
 
-					const beforeCount = await db.sortedSetCard(`cid:-1:tids`);
+					const beforeCount = await db.sortedSetCard('cid:-1:tids');
 					await activitypub.inbox.announce({ body: activity });
-					const count = await db.sortedSetCard(`cid:-1:tids`);
+					const count = await db.sortedSetCard('cid:-1:tids');
 
 					assert.strictEqual(count, beforeCount + 1);
 				});

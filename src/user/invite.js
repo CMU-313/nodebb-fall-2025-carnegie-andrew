@@ -1,4 +1,3 @@
-
 'use strict';
 
 const async = require('async');
@@ -136,7 +135,7 @@ module.exports = function (User) {
 		}
 	};
 
-	async function deleteFromReferenceList(uid, email) {
+	async function deleteFromReferenceList (uid, email) {
 		await Promise.all([
 			db.setRemove(`invitation:uid:${uid}`, email),
 			db.delete(`invitation:uid:${uid}:invited:${email}`),
@@ -147,7 +146,7 @@ module.exports = function (User) {
 		}
 	}
 
-	async function prepareInvitation(uid, email, groupsToJoin) {
+	async function prepareInvitation (uid, email, groupsToJoin) {
 		const inviterExists = await User.exists(uid);
 		if (!inviterExists) {
 			throw new Error('[[error:invalid-uid]]');
@@ -180,11 +179,11 @@ module.exports = function (User) {
 		return {
 			...emailer._defaultPayload, // Append default data to this email payload
 			site_title: title,
-			registerLink: registerLink,
-			subject: subject,
-			username: username,
+			registerLink,
+			subject,
+			username,
 			template: 'invitation',
-			expireDays: expireDays,
+			expireDays,
 		};
 	}
 };

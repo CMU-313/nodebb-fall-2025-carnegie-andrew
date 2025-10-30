@@ -41,7 +41,7 @@ infoController.get = async function (req, res) {
 	res.render('account/info', payload);
 };
 
-async function getNotes({ uid, isPrivileged }, start, stop) {
+async function getNotes ({ uid, isPrivileged }, start, stop) {
 	if (!isPrivileged) {
 		return;
 	}
@@ -49,5 +49,5 @@ async function getNotes({ uid, isPrivileged }, start, stop) {
 		user.getModerationNotes(uid, start, stop),
 		db.sortedSetCard(`uid:${uid}:moderation:notes`),
 	]);
-	return { notes: notes, count: count };
+	return { notes, count };
 }

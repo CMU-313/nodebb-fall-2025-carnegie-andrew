@@ -70,7 +70,7 @@ start.start = async function () {
 	}
 };
 
-async function runUpgrades() {
+async function runUpgrades () {
 	const upgrade = require('./upgrade');
 	try {
 		await upgrade.check();
@@ -83,7 +83,7 @@ async function runUpgrades() {
 	}
 }
 
-function printStartupInfo() {
+function printStartupInfo () {
 	if (nconf.get('isPrimary')) {
 		winston.info('Initializing NodeBB v%s %s', nconf.get('version'), nconf.get('url'));
 
@@ -95,7 +95,7 @@ function printStartupInfo() {
 	}
 }
 
-function addProcessHandlers() {
+function addProcessHandlers () {
 	['SIGTERM', 'SIGINT', 'SIGQUIT'].forEach((signal) => {
 		process.on(signal, () => shutdown());
 	});
@@ -130,7 +130,7 @@ function addProcessHandlers() {
 	});
 }
 
-function restart() {
+function restart () {
 	if (process.send) {
 		winston.info('[app] Restarting...');
 		process.send({
@@ -142,7 +142,7 @@ function restart() {
 	}
 }
 
-async function shutdown(code) {
+async function shutdown (code) {
 	winston.info('[app] Shutdown (SIGTERM/SIGINT/SIGQUIT) Initialised.');
 	try {
 		await require('./webserver').destroy();

@@ -100,8 +100,8 @@ define('navigator', [
 	};
 
 	let lastNextIndex = 0;
-	async function gotoMyNextPost() {
-		async function getNext(startIndex) {
+	async function gotoMyNextPost () {
+		async function getNext (startIndex) {
 			return await socket.emit('topics.getMyNextPostIndex', {
 				tid: ajaxify.data.tid,
 				index: Math.max(1, startIndex),
@@ -132,7 +132,7 @@ define('navigator', [
 		}
 	}
 
-	function clampTop(thumb, newTop) {
+	function clampTop (thumb, newTop) {
 		const parent = thumb.parent();
 		const parentOffset = parent.offset();
 		const thumbIcon = thumb.find('.scroller-thumb-icon');
@@ -145,7 +145,7 @@ define('navigator', [
 		return newTop;
 	}
 
-	function setThumbToIndex(index) {
+	function setThumbToIndex (index) {
 		if (!thumbs || !thumbs.length || !thumbs.is(':visible')) {
 			return;
 		}
@@ -172,7 +172,7 @@ define('navigator', [
 		renderPost(index);
 	}
 
-	function updateThumbTextToIndex(thumb, index) {
+	function updateThumbTextToIndex (thumb, index) {
 		if (bsEnv === 'xs' || bsEnv === 'sm' || bsEnv === 'md') {
 			thumb.find('.thumb-text').text(`${index}/${ajaxify.data.postcount}`);
 		} else {
@@ -180,7 +180,7 @@ define('navigator', [
 		}
 	}
 
-	async function updateThumbTimestampToIndex(thumb, index) {
+	async function updateThumbTimestampToIndex (thumb, index) {
 		const el = thumb.find('.thumb-timestamp');
 		if (el.length) {
 			const postAtIndex = ajaxify.data.posts.find(
@@ -191,7 +191,7 @@ define('navigator', [
 		}
 	}
 
-	async function getPostTimestampByIndex(index) {
+	async function getPostTimestampByIndex (index) {
 		// load timestamp of post from DOM if it exists
 		// if not load from server
 		const postEl = $(`[component="post"][data-index=${index - 1}]`);
@@ -204,8 +204,7 @@ define('navigator', [
 		});
 	}
 
-
-	function handleScrollNav() {
+	function handleScrollNav () {
 		if (!thumbs.length) {
 			return;
 		}
@@ -220,7 +219,7 @@ define('navigator', [
 			}
 		});
 
-		function calculateIndexFromY(thumb, y) {
+		function calculateIndexFromY (thumb, y) {
 			const parent = thumb.parent();
 			const thumbIcon = thumb.find('.scroller-thumb-icon');
 			const thumbIconHeight = thumbIcon.height();
@@ -244,7 +243,7 @@ define('navigator', [
 		// the thumb that's being dragged, there can be more than on on the DOM
 		let dragThumb = null;
 		const debounceUpdateThumbTimestamp = utils.debounce(updateThumbTimestampToIndex, 50);
-		function mousemove(ev) {
+		function mousemove (ev) {
 			if (!dragThumb || !dragThumb.length) {
 				return;
 			}
@@ -276,7 +275,7 @@ define('navigator', [
 			firstMove = true;
 		});
 
-		function mouseup() {
+		function mouseup () {
 			$(window).off('mousemove', mousemove);
 			if (mouseDragging) {
 				navigator.scrollToIndex(index - 1, true, 0);
@@ -291,7 +290,7 @@ define('navigator', [
 			dragThumb = null;
 		}
 
-		function delayedRenderPost() {
+		function delayedRenderPost () {
 			clearRenderInterval();
 			renderPostIntervalId = setInterval(function () {
 				renderPost(index);
@@ -355,7 +354,7 @@ define('navigator', [
 		});
 	}
 
-	async function updateUnreadIndicator(index) {
+	async function updateUnreadIndicator (index) {
 		const { bookmarkThreshold } = ajaxify.data;
 		if (!paginationBlockUnreadEl.length || ajaxify.data.postcount <= bookmarkThreshold || !bookmarkThreshold) {
 			return;
@@ -375,7 +374,7 @@ define('navigator', [
 		const anchorEl = unreadEl.querySelector('.meta a');
 		remaining = Math.min(remaining, ajaxify.data.postcount - index);
 
-		function toggleAnchor(text) {
+		function toggleAnchor (text) {
 			anchorEl.innerText = text;
 			anchorEl.setAttribute('aria-disabled', text ? 'false' : 'true');
 			if (text) {
@@ -395,14 +394,14 @@ define('navigator', [
 		}
 	}
 
-	function clearRenderInterval() {
+	function clearRenderInterval () {
 		if (renderPostIntervalId) {
 			clearInterval(renderPostIntervalId);
 			renderPostIntervalId = 0;
 		}
 	}
 
-	async function renderPost(index) {
+	async function renderPost (index) {
 		if (!index || renderPostIndex === index || !paginationBlockEl.find('.post-content').is(':visible')) {
 			return;
 		}
@@ -417,13 +416,13 @@ define('navigator', [
 			.find('.timeago').timeago();
 	}
 
-	function handleKeys() {
+	function handleKeys () {
 		if (!config.usePagination) {
 			$(window).off('keydown', onKeyDown).on('keydown', onKeyDown);
 		}
 	}
 
-	function onKeyDown(ev) {
+	function onKeyDown (ev) {
 		if (ev.target.nodeName === 'BODY') {
 			if (ev.shiftKey || ev.ctrlKey || ev.altKey) {
 				return;
@@ -438,7 +437,7 @@ define('navigator', [
 		}
 	}
 
-	function generateUrl(index) {
+	function generateUrl (index) {
 		const pathname = window.location.pathname.replace(config.relative_path, '');
 		const parts = pathname.split('/');
 		return parts[1] + '/' + parts[2] + '/' + parts[3] + (index ? '/' + index : '');
@@ -470,7 +469,7 @@ define('navigator', [
 		toggle(false);
 	};
 
-	function toggle(flag) {
+	function toggle (flag) {
 		if (flag && (!ajaxify.data.template.topic && !ajaxify.data.template.category)) {
 			return;
 		}
@@ -694,8 +693,8 @@ define('navigator', [
 		navigator.scrollActive = true;
 		let done = false;
 
-		function animateScroll() {
-			function reenableScroll() {
+		function animateScroll () {
+			function reenableScroll () {
 				// Re-enable onScroll behaviour
 				setTimeout(() => { // fixes race condition from jQuery — onAnimateComplete called too quickly
 					$(window).off('scroll', navigator.delayedUpdate)
@@ -704,7 +703,7 @@ define('navigator', [
 					hooks.fire('action:navigator.scrolled', { scrollTo, highlight, duration, newIndex: newIndex + 1 });
 				}, 50);
 			}
-			function onAnimateComplete() {
+			function onAnimateComplete () {
 				if (done) {
 					reenableScroll();
 					return;
@@ -739,7 +738,7 @@ define('navigator', [
 			}, duration, onAnimateComplete);
 		}
 
-		function highlightPost() {
+		function highlightPost () {
 			if (highlight) {
 				$('[component="post"],[component="category/topic"]').removeClass('highlight');
 				scrollTo.addClass('highlight');
@@ -754,4 +753,3 @@ define('navigator', [
 
 	return navigator;
 });
-

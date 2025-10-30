@@ -20,7 +20,7 @@ const sockets = require('../socket.io');
 
 const authenticationController = module.exports;
 
-async function registerAndLoginUser(req, res, userData) {
+async function registerAndLoginUser (req, res, userData) {
 	if (!userData.hasOwnProperty('email')) {
 		userData.updateEmail = true;
 	}
@@ -42,7 +42,7 @@ async function registerAndLoginUser(req, res, userData) {
 	}
 
 	const queue = await user.shouldQueueUser(req.ip);
-	const result = await plugins.hooks.fire('filter:register.shouldQueue', { req: req, res: res, userData: userData, queue: queue });
+	const result = await plugins.hooks.fire('filter:register.shouldQueue', { req, res, userData, queue });
 	if (result.queue) {
 		return await addToApprovalQueue(req, userData);
 	}
@@ -68,7 +68,7 @@ async function registerAndLoginUser(req, res, userData) {
 	if (req.loggedIn && next === `${nconf.get('relative_path')}/login`) {
 		next = `${nconf.get('relative_path')}/`;
 	}
-	const complete = await plugins.hooks.fire('filter:register.complete', { uid: uid, next: next });
+	const complete = await plugins.hooks.fire('filter:register.complete', { uid, next });
 	req.session.returnTo = complete.next;
 	return complete;
 }
@@ -108,10 +108,10 @@ authenticationController.register = async function (req, res) {
 
 		user.isPasswordValid(userData.password);
 
-		await plugins.hooks.fire('filter:password.check', { password: userData.password, uid: 0, userData: userData });
+		await plugins.hooks.fire('filter:password.check', { password: userData.password, uid: 0, userData });
 
 		res.locals.processLogin = true; // set it to false in plugin if you wish to just register only
-		await plugins.hooks.fire('filter:register.check', { req: req, res: res, userData: userData });
+		await plugins.hooks.fire('filter:register.check', { req, res, userData });
 
 		const data = await registerAndLoginUser(req, res, userData);
 		if (data) {
@@ -125,7 +125,7 @@ authenticationController.register = async function (req, res) {
 	}
 };
 
-async function addToApprovalQueue(req, userData) {
+async function addToApprovalQueue (req, userData) {
 	userData.ip = req.ip;
 	await user.addToApprovalQueue(userData);
 	let message = '[[register:registration-added-to-queue]]';
@@ -138,7 +138,7 @@ async function addToApprovalQueue(req, userData) {
 	if (meta.config.autoApproveTime > 0) {
 		message += ` [[register:registration-queue-auto-approve-time, ${meta.config.autoApproveTime}]]`;
 	}
-	return { message: message };
+	return { message };
 }
 
 authenticationController.registerComplete = async function (req, res) {
@@ -251,7 +251,7 @@ authenticationController.login = async (req, res, next) => {
 	req.body.username = String(req.body.username).trim();
 	const errorHandler = res.locals.noScriptErrors || helpers.noScriptErrors;
 	try {
-		await plugins.hooks.fire('filter:login.check', { req: req, res: res, userData: req.body });
+		await plugins.hooks.fire('filter:login.check', { req, res, userData: req.body });
 	} catch (err) {
 		return errorHandler(req, res, err.message, 403);
 	}
@@ -274,7 +274,7 @@ authenticationController.login = async (req, res, next) => {
 	}
 };
 
-function continueLogin(strategy, req, res, next) {
+function continueLogin (strategy, req, res, next) {
 	passport.authenticate(strategy, async (err, userData, info) => {
 		if (err) {
 			plugins.hooks.fire('action:login.continue', { req, strategy, userData, error: err });
@@ -329,7 +329,7 @@ function continueLogin(strategy, req, res, next) {
 	})(req, res, next);
 }
 
-function redirectAfterLogin(req, res, destination) {
+function redirectAfterLogin (req, res, destination) {
 	if (req.body?.noscript === 'true') {
 		res.redirect(`${destination}?loggedin`);
 	} else {
@@ -344,7 +344,7 @@ authenticationController.doLogin = async function (req, uid) {
 		return;
 	}
 	const loginAsync = util.promisify(req.login).bind(req);
-	await loginAsync({ uid: uid }, { keepSessionInfo: req.res.locals.reroll !== false });
+	await loginAsync({ uid }, { keepSessionInfo: req.res.locals.reroll !== false });
 	await authenticationController.onSuccessfulLogin(req, uid);
 };
 
@@ -376,7 +376,7 @@ authenticationController.onSuccessfulLogin = async function (req, uid, trackSess
 
 		// Associate metadata retrieved via user-agent
 		req.session.meta = _.extend(req.session.meta, {
-			uuid: uuid,
+			uuid,
 			datetime: Date.now(),
 			platform: req.useragent.platform,
 			browser: req.useragent.browser,
@@ -396,7 +396,7 @@ authenticationController.onSuccessfulLogin = async function (req, uid, trackSess
 		// Force session check for all connected socket.io clients with the same session id
 		sockets.in(`sess_${req.sessionID}`).emit('checkSession', uid);
 
-		plugins.hooks.fire('action:user.loggedIn', { uid: uid, req: req });
+		plugins.hooks.fire('action:user.loggedIn', { uid, req });
 	} catch (err) {
 		req.session.destroy();
 		throw err;
@@ -494,7 +494,7 @@ authenticationController.logout = async function (req, res) {
 	}
 };
 
-async function getBanError(uid) {
+async function getBanError (uid) {
 	try {
 		const banInfo = await user.getLatestBanInfo(uid);
 

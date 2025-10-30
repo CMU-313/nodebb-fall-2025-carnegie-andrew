@@ -15,8 +15,8 @@ admin.get = async function () {
 
 	return {
 		templates: buildTemplatesFromAreas(areas),
-		areas: areas,
-		availableWidgets: availableWidgets,
+		areas,
+		availableWidgets,
 	};
 };
 
@@ -33,7 +33,7 @@ admin.getAreas = async function () {
 	return areas;
 };
 
-async function getAvailableWidgets() {
+async function getAvailableWidgets () {
 	const [availableWidgets, adminTemplate] = await Promise.all([
 		plugins.hooks.fire('filter:widgets.getWidgets', []),
 		renderAdminTemplate(),
@@ -44,13 +44,13 @@ async function getAvailableWidgets() {
 	return availableWidgets;
 }
 
-async function renderAdminTemplate() {
+async function renderAdminTemplate () {
 	const groupsData = await groups.getNonPrivilegeGroups('groups:createtime', 0, -1);
 	groupsData.sort((a, b) => b.system - a.system);
 	return await webserver.app.renderAsync('admin/partials/widget-settings', { groups: groupsData });
 }
 
-function buildTemplatesFromAreas(areas) {
+function buildTemplatesFromAreas (areas) {
 	const templates = [];
 	const list = {};
 	let index = 0;

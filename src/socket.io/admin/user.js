@@ -87,7 +87,7 @@ User.sendValidationEmail = async function (socket, uids) {
 		const email = await user.email.getEmailForValidation(uid);
 		await user.email.sendValidationEmail(uid, {
 			force: true,
-			email: email,
+			email,
 		}).catch((err) => {
 			if (!errorLogged) {
 				winston.error(`[user.create] Validation email failed to send\n[emailer.send] ${err.stack}`);
@@ -209,7 +209,7 @@ User.saveCustomFields = async function (socket, fields) {
 	await db.deleteAll(keys.map(k => `user-custom-field:${k}`));
 
 	await db.sortedSetAdd(
-		`user-custom-fields`,
+		'user-custom-fields',
 		fields.map((f, i) => i),
 		fields.map(f => f.key)
 	);
@@ -218,4 +218,3 @@ User.saveCustomFields = async function (socket, fields) {
 	);
 	await user.reloadCustomFieldWhitelist();
 };
-

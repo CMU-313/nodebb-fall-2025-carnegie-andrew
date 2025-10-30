@@ -129,7 +129,7 @@ Contexts.getItems = async (uid, id, options) => {
 	return chain;
 };
 
-async function parseString(uid, item) {
+async function parseString (uid, item) {
 	const { type, id } = await activitypub.helpers.resolveLocalId(item);
 	const pid = type === 'post' && id ? id : item;
 	const postData = await posts.getPostData(pid);
@@ -151,7 +151,7 @@ async function parseString(uid, item) {
 	}
 }
 
-async function parseItem(uid, item) {
+async function parseItem (uid, item) {
 	const { type, id } = await activitypub.helpers.resolveLocalId(item.id);
 	const pid = type === 'post' && id ? id : item.id;
 	const postData = await posts.getPostData(pid);

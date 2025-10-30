@@ -1,4 +1,3 @@
-
 'use strict';
 
 const db = require('../database');
@@ -17,10 +16,10 @@ module.exports = function (Topics) {
 	Topics.getRecentTopics = async function (cid, uid, start, stop, filter) {
 		return await Topics.getSortedTopics({
 			cids: cid,
-			uid: uid,
-			start: start,
-			stop: stop,
-			filter: filter,
+			uid,
+			start,
+			stop,
+			filter,
 			sort: 'recent',
 		});
 	};
@@ -30,7 +29,7 @@ module.exports = function (Topics) {
 		// uid, start, stop, term
 		const tids = await Topics.getLatestTidsFromSet('topics:recent', options.start, options.stop, options.term);
 		const topics = await Topics.getTopics(tids, options);
-		return { topics: topics, nextStart: options.stop + 1 };
+		return { topics, nextStart: options.stop + 1 };
 	};
 
 	Topics.getSinceFromTerm = function (term) {

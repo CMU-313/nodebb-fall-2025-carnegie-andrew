@@ -26,7 +26,7 @@ usersController.index = async function (req, res) {
 	}
 };
 
-async function getUsers(req, res) {
+async function getUsers (req, res) {
 	const sortDirection = req.query.sortDirection || 'desc';
 	const reverse = sortDirection === 'desc';
 
@@ -40,7 +40,7 @@ async function getUsers(req, res) {
 	const start = Math.max(0, page - 1) * resultsPerPage;
 	const stop = start + resultsPerPage - 1;
 
-	function buildSet() {
+	function buildSet () {
 		const sortToSet = {
 			postcount: 'users:postcount',
 			reputation: 'users:reputation',
@@ -69,22 +69,22 @@ async function getUsers(req, res) {
 		return set.length > 1 ? set : set[0];
 	}
 
-	async function getCount(set) {
+	async function getCount (set) {
 		if (Array.isArray(set)) {
 			return await db.sortedSetIntersectCard(set);
 		}
 		return await db.sortedSetCard(set);
 	}
 
-	async function getUids(set) {
+	async function getUids (set) {
 		let uids = [];
 		if (Array.isArray(set)) {
 			const weights = set.map((s, index) => (index ? 0 : 1));
 			uids = await db[reverse ? 'getSortedSetRevIntersect' : 'getSortedSetIntersect']({
 				sets: set,
-				start: start,
-				stop: stop,
-				weights: weights,
+				start,
+				stop,
+				weights,
 			});
 		} else {
 			uids = await db[reverse ? 'getSortedSetRevRange' : 'getSortedSetRange'](set, start, stop);
@@ -102,16 +102,16 @@ async function getUsers(req, res) {
 
 	await render(req, res, {
 		users: users.filter(user => user && parseInt(user.uid, 10)),
-		page: page,
+		page,
 		pageCount: Math.max(1, Math.ceil(count / resultsPerPage)),
-		resultsPerPage: resultsPerPage,
-		reverse: reverse,
-		sortBy: sortBy,
+		resultsPerPage,
+		reverse,
+		sortBy,
 		customUserFields,
 	});
 }
 
-async function getCustomUserFields() {
+async function getCustomUserFields () {
 	const keys = await db.getSortedSetRange('user-custom-fields', 0, -1);
 	return (await db.getObjects(keys.map(k => `user-custom-field:${k}`))).filter(Boolean);
 }
@@ -130,10 +130,10 @@ usersController.search = async function (req, res) {
 		query: req.query.query,
 		searchBy: req.query.searchBy,
 		sortBy: req.query.sortBy,
-		sortDirection: sortDirection,
+		sortDirection,
 		filters: req.query.filters,
-		page: page,
-		resultsPerPage: resultsPerPage,
+		page,
+		resultsPerPage,
 		findUids: async function (query, searchBy, hardCap) {
 			if (!query || query.length < 2) {
 				return [];
@@ -167,11 +167,11 @@ usersController.search = async function (req, res) {
 	await render(req, res, searchData);
 };
 
-async function loadUserInfo(callerUid, uids) {
-	async function getIPs() {
+async function loadUserInfo (callerUid, uids) {
+	async function getIPs () {
 		return await Promise.all(uids.map(uid => db.getSortedSetRevRange(`uid:${uid}:ip`, 0, 4)));
 	}
-	async function getConfirmObjs() {
+	async function getConfirmObjs () {
 		const keys = uids.map(uid => `confirm:byUid:${uid}`);
 		const codes = await db.mget(keys);
 		const confirmObjs = await db.getObjects(codes.map(code => `confirm:${code}`));
@@ -225,7 +225,7 @@ usersController.registrationQueue = async function (req, res) {
 	res.render('admin/manage/registration', data);
 };
 
-async function getInvites() {
+async function getInvites () {
 	const invitations = await user.getAllInvites();
 	const uids = invitations.map(invite => invite.uid);
 	let usernames = await user.getUsersFields(uids, ['username']);
@@ -235,7 +235,7 @@ async function getInvites() {
 		invites.username = usernames[index];
 	});
 
-	async function getUsernamesByEmails(emails) {
+	async function getUsernamesByEmails (emails) {
 		const uids = await db.sortedSetScores('email:uid', emails.map(email => String(email).toLowerCase()));
 		const usernames = await user.getUsersFields(uids, ['username']);
 		return usernames.map(user => user.username);
@@ -245,14 +245,14 @@ async function getInvites() {
 
 	invitations.forEach((invites, index) => {
 		invites.invitations = invites.invitations.map((email, i) => ({
-			email: email,
+			email,
 			username: usernames[index][i] === '[[global:guest]]' ? '' : usernames[index][i],
 		}));
 	});
 	return invitations;
 }
 
-async function render(req, res, data) {
+async function render (req, res, data) {
 	data.pagination = pagination.create(data.page, data.pageCount, req.query);
 
 	const { registrationType } = meta.config;
@@ -312,5 +312,5 @@ usersController.customFields = async function (req, res) {
 		field['min:rep'] = field['min:rep'] || 0;
 		field.visibility = field.visibility || 'all';
 	});
-	res.render('admin/manage/users/custom-fields', { fields: fields });
+	res.render('admin/manage/users/custom-fields', { fields });
 };

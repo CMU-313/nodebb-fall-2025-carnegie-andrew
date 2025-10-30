@@ -81,13 +81,13 @@ Events.init = async () => {
 	Events._types = types;
 };
 
-async function translateEventArgs(event, language, prefix, ...args) {
+async function translateEventArgs (event, language, prefix, ...args) {
 	const key = getTranslationKey(event, prefix);
 	const compiled = translator.compile.apply(null, [key, ...args]);
 	return utils.decodeHTMLEntities(await translator.translate(compiled, language));
 }
 
-async function translateSimple(event, language, prefix) {
+async function translateSimple (event, language, prefix) {
 	return await translateEventArgs(event, language, prefix, renderUser(event), renderTimeago(event));
 }
 
@@ -95,7 +95,7 @@ Events.translateSimple = translateSimple; // so plugins can perform translate
 Events.translateEventArgs = translateEventArgs; // so plugins can perform translate
 
 // generate `user-locked-topic-ago` or `user-locked-topic-on` based on timeago cutoff setting
-function getTranslationKey(event, prefix) {
+function getTranslationKey (event, prefix) {
 	const cutoffMs = 1000 * 60 * 60 * 24 * Math.max(0, parseInt(meta.config.timeagoCutoff, 10));
 	let translationSuffix = 'ago';
 	if (cutoffMs > 0 && Date.now() - event.timestamp > cutoffMs) {
@@ -104,7 +104,7 @@ function getTranslationKey(event, prefix) {
 	return `${prefix}-${translationSuffix}`;
 }
 
-function renderUser(event) {
+function renderUser (event) {
 	if (!event.user || event.user.system) {
 		return '[[global:system-user]]';
 	}
@@ -117,7 +117,7 @@ function renderUser(event) {
 	return `${helpers.buildAvatar(user, '16px', true)} <a href="${relative_path}/user/${user.userslug}">${user.displayname}</a>`;
 }
 
-function renderTimeago(event) {
+function renderTimeago (event) {
 	return `<span class="timeago timeline-text" title="${event.timestampISO}"></span>`;
 }
 
@@ -152,7 +152,7 @@ Events.find = async (tid, match) => {
 	return eventIds;
 };
 
-async function getUserInfo(uids) {
+async function getUserInfo (uids) {
 	uids = new Set(uids); // eliminate dupes
 	const userData = await user.getUsersFields(Array.from(uids), ['picture', 'username', 'userslug']);
 	const userMap = userData.reduce((memo, cur) => memo.set(cur.uid, cur), new Map());
@@ -163,13 +163,13 @@ async function getUserInfo(uids) {
 	return userMap;
 }
 
-async function getCategoryInfo(cids) {
+async function getCategoryInfo (cids) {
 	const uniqCids = _.uniq(cids);
 	const catData = await categories.getCategoriesFields(uniqCids, ['name', 'slug', 'icon', 'color', 'bgColor']);
 	return _.zipObject(uniqCids, catData);
 }
 
-async function addEventsFromPostQueue(tid, uid, events) {
+async function addEventsFromPostQueue (tid, uid, events) {
 	const isPrivileged = await user.isPrivileged(uid);
 	if (isPrivileged) {
 		const queuedPosts = await posts.getQueuedPosts({ tid }, { metadata: false });
@@ -182,7 +182,7 @@ async function addEventsFromPostQueue(tid, uid, events) {
 	}
 }
 
-async function modifyEvent({ uid, events }) {
+async function modifyEvent ({ uid, events }) {
 	const [users, fromCategories, userSettings] = await Promise.all([
 		getUserInfo(events.map(event => event.uid).filter(Boolean)),
 		getCategoryInfo(events.map(event => event.fromCid).filter(Boolean)),

@@ -1,4 +1,3 @@
-
 'use strict';
 
 const validator = require('validator');
@@ -47,8 +46,8 @@ module.exports = function (User) {
 		return await Promise.all(settings.map(s => onSettingsLoaded(s.uid, s)));
 	};
 
-	async function onSettingsLoaded(uid, settings) {
-		const data = await plugins.hooks.fire('filter:user.getSettings', { uid: uid, settings: settings });
+	async function onSettingsLoaded (uid, settings) {
+		const data = await plugins.hooks.fire('filter:user.getSettings', { uid, settings });
 		settings = data.settings;
 
 		const defaultTopicsPerPage = meta.config.topicsPerPage;
@@ -94,7 +93,7 @@ module.exports = function (User) {
 		return settings;
 	}
 
-	function parseJSONSetting(value, defaultValue) {
+	function parseJSONSetting (value, defaultValue) {
 		try {
 			return JSON.parse(value);
 		} catch (err) {
@@ -102,7 +101,7 @@ module.exports = function (User) {
 		}
 	}
 
-	function getSetting(settings, key, defaultValue) {
+	function getSetting (settings, key, defaultValue) {
 		if (settings[key] || settings[key] === 0) {
 			return settings[key];
 		} else if (activitypub.helpers.isUri(settings.uid) && remoteDefaultSettings[key]) {
@@ -141,7 +140,7 @@ module.exports = function (User) {
 		}
 		data.userLang = data.userLang || meta.config.defaultLang;
 
-		plugins.hooks.fire('action:user.saveSettings', { uid: uid, settings: data });
+		plugins.hooks.fire('action:user.saveSettings', { uid, settings: data });
 
 		const settings = {
 			showemail: data.showemail,
@@ -174,7 +173,7 @@ module.exports = function (User) {
 				settings[notificationType] = data[notificationType];
 			}
 		});
-		const result = await plugins.hooks.fire('filter:user.saveSettings', { uid: uid, settings: settings, data: data });
+		const result = await plugins.hooks.fire('filter:user.saveSettings', { uid, settings, data });
 		await db.setObject(`user:${uid}:settings`, result.settings);
 		await User.updateDigestSetting(uid, data.dailyDigestFreq);
 		return await User.getSettings(uid);

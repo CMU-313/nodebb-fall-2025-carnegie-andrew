@@ -1,6 +1,5 @@
 'use strict';
 
-
 // add default escape function for escaping HTML entities
 const escapeCharMap = Object.freeze({
 	'&': '&amp;',
@@ -11,7 +10,7 @@ const escapeCharMap = Object.freeze({
 	'`': '&#x60;',
 	'=': '&#x3D;',
 });
-function replaceChar(c) {
+function replaceChar (c) {
 	return escapeCharMap[c];
 }
 const escapeChars = /[&<>"'`=]/g;

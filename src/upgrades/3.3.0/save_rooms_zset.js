@@ -13,7 +13,7 @@ module.exports = {
 		for (let x = 1; x <= lastRoomId; x++) {
 			allRoomIds.push(x);
 		}
-		const users = await db.getSortedSetRangeWithScores(`users:joindate`, 0, 0);
+		const users = await db.getSortedSetRangeWithScores('users:joindate', 0, 0);
 		const timestamp = users.length ? users[0].score : Date.now();
 		progress.total = allRoomIds.length;
 

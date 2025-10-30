@@ -1,4 +1,3 @@
-
 'use strict';
 
 const _ = require('lodash');
@@ -114,7 +113,7 @@ Thumbs.get = async function (tids, options) {
 	return singular ? response.pop() : response;
 };
 
-async function getThumbs(set) {
+async function getThumbs (set) {
 	const cached = cache.get(set);
 	if (cached !== undefined) {
 		return cached.slice();

@@ -6,7 +6,7 @@ const nconf = require('nconf');
 
 const { install } = require('../../install/web');
 
-async function setup(initConfig) {
+async function setup (initConfig) {
 	const { paths } = require('../constants');
 	const install = require('../install');
 	const build = require('../meta/build');

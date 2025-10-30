@@ -3,7 +3,7 @@
 import * as components from './components';
 import * as hooks from './hooks';
 
-export function alert(params) {
+export function alert (params) {
 	params.alert_id = 'alert_button_' + (params.alert_id ? params.alert_id : new Date().getTime());
 	params.title = params.title ? params.title.trim() || '' : '';
 	params.message = params.message ? params.message.trim() : '';
@@ -17,37 +17,37 @@ export function alert(params) {
 	}
 }
 
-export function success(message, timeout) {
+export function success (message, timeout) {
 	alert({
 		alert_id: utils.generateUUID(),
 		title: '[[global:alert.success]]',
-		message: message,
+		message,
 		type: 'success',
 		timeout: timeout !== undefined ? timeout : 5000,
 	});
 }
 
-export function info(message, timeout) {
+export function info (message, timeout) {
 	alert({
 		alert_id: utils.generateUUID(),
 		title: '[[global:alert.info]]',
-		message: message,
+		message,
 		type: 'info',
 		timeout: timeout !== undefined ? timeout : 5000,
 	});
 }
 
-export function warning(message, timeout) {
+export function warning (message, timeout) {
 	alert({
 		alert_id: utils.generateUUID(),
 		title: '[[global:alert.warning]]',
-		message: message,
+		message,
 		type: 'warning',
 		timeout: timeout !== undefined ? timeout : 5000,
 	});
 }
 
-export function error(message, timeout) {
+export function error (message, timeout) {
 	message = (message && message.message) || message;
 
 	if (message === '[[error:revalidate-failure]]') {
@@ -59,17 +59,17 @@ export function error(message, timeout) {
 	alert({
 		alert_id: utils.generateUUID(),
 		title: '[[global:alert.error]]',
-		message: message,
+		message,
 		type: 'danger',
 		timeout: timeout || 10000,
 	});
 }
 
-export function remove(id) {
+export function remove (id) {
 	$('#alert_button_' + id).remove();
 }
 
-function updateAlert(alert, params) {
+function updateAlert (alert, params) {
 	alert.find('strong').translateHtml(params.title);
 	alert.find('p').translateHtml(params.message);
 	alert.removeClass('alert-success alert-danger alert-info alert-warning')
@@ -96,7 +96,7 @@ function updateAlert(alert, params) {
 	}
 }
 
-function createNew(params) {
+function createNew (params) {
 	app.parseAndTranslate('partials/toast', params, function (html) {
 		let alert = $('#' + params.alert_id);
 		if (alert.length) {
@@ -137,11 +137,11 @@ function createNew(params) {
 	});
 }
 
-function close(alert) {
+function close (alert) {
 	alert.alert('close');
 }
 
-function startTimeout(alert, params) {
+function startTimeout (alert, params) {
 	const timeout = parseInt(params.timeout, 10);
 
 	const timeoutId = setTimeout(function () {
@@ -173,4 +173,3 @@ function startTimeout(alert, params) {
 			alertProgress.css('transition-duration', 0);
 		});
 }
-

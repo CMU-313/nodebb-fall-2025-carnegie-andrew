@@ -11,7 +11,7 @@ define('forum/groups/list', [
 			bootbox.prompt('[[groups:new-group.group-name]]', function (name) {
 				if (name && name.length) {
 					api.post('/groups', {
-						name: name,
+						name,
 					}).then((res) => {
 						ajaxify.go('groups/' + res.slug);
 					}).catch(alerts.error);
@@ -42,7 +42,7 @@ define('forum/groups/list', [
 		return false;
 	};
 
-	function renderSearchResults(data) {
+	function renderSearchResults (data) {
 		app.parseAndTranslate('partials/paginator', {
 			pagination: data.pagination,
 		}).then(function (html) {

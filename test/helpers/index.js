@@ -38,7 +38,7 @@ helpers.loginUser = async (username, password, payload = {}) => {
 	const csrf_token = await helpers.getCsrfToken(jar);
 	const { response, body } = await request.post(`${nconf.get('url')}/login`, {
 		body: data,
-		jar: jar,
+		jar,
 		headers: {
 			'x-csrf-token': csrf_token,
 		},
@@ -156,7 +156,7 @@ helpers.copyFile = function (source, target, callback) {
 	});
 	rd.pipe(wr);
 
-	function done(err) {
+	function done (err) {
 		if (!cbCalled) {
 			callback(err);
 			cbCalled = true;
@@ -166,7 +166,7 @@ helpers.copyFile = function (source, target, callback) {
 
 helpers.invite = async function (data, uid, jar, csrf_token) {
 	return await request.post(`${nconf.get('url')}/api/v3/users/${uid}/invites`, {
-		jar: jar,
+		jar,
 		body: data,
 		headers: {
 			'x-csrf-token': csrf_token,

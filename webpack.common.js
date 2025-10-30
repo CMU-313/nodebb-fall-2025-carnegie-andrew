@@ -29,7 +29,7 @@ module.exports = {
 		path: path.resolve(__dirname, 'build/public'),
 		publicPath: `${relativePath}/assets/`,
 		clean: {
-			keep(asset) {
+			keep (asset) {
 				return asset === 'installer.min.js' ||
 					!asset.endsWith('.min.js');
 			},

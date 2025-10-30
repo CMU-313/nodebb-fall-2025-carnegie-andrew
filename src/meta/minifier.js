@@ -45,7 +45,7 @@ Minifier.killAll = function () {
 	free.length = 0;
 };
 
-function getChild() {
+function getChild () {
 	if (free.length) {
 		return free.shift();
 	}
@@ -61,19 +61,19 @@ function getChild() {
 	return proc;
 }
 
-function freeChild(proc) {
+function freeChild (proc) {
 	proc.removeAllListeners();
 	free.push(proc);
 }
 
-function removeChild(proc) {
+function removeChild (proc) {
 	const i = pool.indexOf(proc);
 	if (i !== -1) {
 		pool.splice(i, 1);
 	}
 }
 
-function forkAction(action) {
+function forkAction (action) {
 	return new Promise((resolve, reject) => {
 		const proc = getChild();
 		proc.on('message', (message) => {
@@ -95,7 +95,7 @@ function forkAction(action) {
 
 		proc.send({
 			type: 'action',
-			action: action,
+			action,
 		});
 	});
 }
@@ -117,7 +117,7 @@ if (process.env.minifier_child) {
 				const result = await actions[action.act](action);
 				process.send({
 					type: 'end',
-					result: result,
+					result,
 				});
 			} catch (err) {
 				process.send({
@@ -129,7 +129,7 @@ if (process.env.minifier_child) {
 	});
 }
 
-async function executeAction(action, fork) {
+async function executeAction (action, fork) {
 	if (fork && (pool.length - free.length) < Minifier.maxThreads) {
 		return await forkAction(action);
 	}
@@ -139,7 +139,7 @@ async function executeAction(action, fork) {
 	return await actions[action.act](action);
 }
 
-actions.concat = async function concat(data) {
+actions.concat = async function concat (data) {
 	if (data.files && data.files.length) {
 		const files = await async.mapLimit(data.files, 1000, async ref => await fs.promises.readFile(ref.srcPath, 'utf8'));
 		const output = files.join('\n;');
@@ -157,7 +157,7 @@ Minifier.js.bundle = async function (data, fork) {
 	}, fork);
 };
 
-actions.buildCSS = async function buildCSS(data) {
+actions.buildCSS = async function buildCSS (data) {
 	let css = '';
 	try {
 		const opts = {
@@ -175,8 +175,7 @@ actions.buildCSS = async function buildCSS(data) {
 		console.error(err.stack);
 	}
 
-
-	async function processScss(direction) {
+	async function processScss (direction) {
 		if (direction === 'rtl') {
 			css = await postcss([rtlcss()]).process(css, {
 				from: undefined,
@@ -208,9 +207,9 @@ Minifier.css = {};
 Minifier.css.bundle = async function (source, paths, minify, fork) {
 	return await executeAction({
 		act: 'buildCSS',
-		source: source,
-		paths: paths,
-		minify: minify,
+		source,
+		paths,
+		minify,
 	}, fork);
 };
 

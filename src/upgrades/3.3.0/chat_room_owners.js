@@ -1,9 +1,7 @@
 'use strict';
 
-
 const db = require('../../database');
 const batch = require('../../batch');
-
 
 module.exports = {
 	name: 'Create chat:room:<room_id>:owners zset',
@@ -12,7 +10,7 @@ module.exports = {
 		const { progress } = this;
 
 		progress.total = await db.sortedSetCard('chat:rooms');
-		const users = await db.getSortedSetRangeWithScores(`users:joindate`, 0, 0);
+		const users = await db.getSortedSetRangeWithScores('users:joindate', 0, 0);
 		const timestamp = users.length ? users[0].score : Date.now();
 
 		await batch.processSortedSet('chat:rooms', async (roomIds) => {

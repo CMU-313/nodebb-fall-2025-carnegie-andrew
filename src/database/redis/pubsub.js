@@ -38,7 +38,7 @@ const PubSub = function () {
 util.inherits(PubSub, EventEmitter);
 
 PubSub.prototype.publish = function (event, data) {
-	const payload = JSON.stringify({ event: event, data: data });
+	const payload = JSON.stringify({ event, data });
 	if (this.pubClient) {
 		this.pubClient.publish(channelName, payload);
 	} else {

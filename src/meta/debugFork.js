@@ -14,7 +14,7 @@ let lastAddress = parseInt(debugArg[1], 10);
  * @param {string[]} [args]
  * @param {any} [options]
  */
-function debugFork(modulePath, args, options) {
+function debugFork (modulePath, args, options) {
 	let execArgv = [];
 	if (global.v8debug || debugging) {
 		lastAddress += 1;
@@ -28,7 +28,7 @@ function debugFork(modulePath, args, options) {
 	}
 
 	options = options || {};
-	options = { ...options, execArgv: execArgv };
+	options = { ...options, execArgv };
 
 	return fork(modulePath, args, options);
 }

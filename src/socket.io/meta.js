@@ -77,7 +77,7 @@ SocketMeta.rooms.leaveCurrent = async function (socket) {
 	leaveCurrentRoom(socket);
 };
 
-function leaveCurrentRoom(socket) {
+function leaveCurrentRoom (socket) {
 	if (socket.currentRoom) {
 		socket.leave(socket.currentRoom);
 		socket.currentRoom = '';

@@ -110,7 +110,7 @@ helpers.getUserDataByUserSlug = async function (userslug, callerUID, query = {})
 		moderator: isModerator,
 		globalMod: isGlobalModerator,
 		admin: isAdmin,
-		canViewInfo: canViewInfo,
+		canViewInfo,
 	});
 
 	userData.banned = Boolean(userData.banned);
@@ -133,9 +133,9 @@ helpers.getUserDataByUserSlug = async function (userslug, callerUID, query = {})
 	await getCounts(userData, callerUID);
 
 	const hookData = await plugins.hooks.fire('filter:helpers.getUserDataByUserSlug', {
-		userData: userData,
-		callerUID: callerUID,
-		query: query,
+		userData,
+		callerUID,
+		query,
 	});
 	return hookData.userData;
 };
@@ -216,11 +216,11 @@ helpers.getCustomUserFields = async function (callerUID, userData) {
 	return fields;
 };
 
-function escape(value) {
+function escape (value) {
 	return translator.escape(validator.escape(String(value || '')));
 }
 
-async function getAllData(uid, callerUID) {
+async function getAllData (uid, callerUID) {
 	// loading these before caches them, so the big promiseParallel doesn't make extra db calls
 	const [[isTargetAdmin, isCallerAdmin], isGlobalModerator] = await Promise.all([
 		user.isAdministrator([uid, callerUID]),
@@ -229,10 +229,10 @@ async function getAllData(uid, callerUID) {
 
 	return await utils.promiseParallel({
 		userData: user.getUserData(uid),
-		isTargetAdmin: isTargetAdmin,
+		isTargetAdmin,
 		userSettings: user.getSettings(uid),
 		isAdmin: isCallerAdmin,
-		isGlobalModerator: isGlobalModerator,
+		isGlobalModerator,
 		isModerator: user.isModeratorOfAnyCategory(callerUID),
 		isFollowing: user.isFollowing(callerUID, uid),
 		isFollowPending: user.isFollowPending(callerUID, uid),
@@ -250,7 +250,7 @@ async function getAllData(uid, callerUID) {
 	});
 }
 
-async function canChat(callerUID, uid) {
+async function canChat (callerUID, uid) {
 	try {
 		await messaging.canMessageUser(callerUID, uid);
 	} catch (err) {
@@ -262,7 +262,7 @@ async function canChat(callerUID, uid) {
 	return true;
 }
 
-async function getCounts(userData, callerUID) {
+async function getCounts (userData, callerUID) {
 	const { uid } = userData;
 	const isRemote = activitypub.helpers.isUri(uid);
 	const cids = await categories.getCidsByPrivilege('categories:cid', callerUID, 'topics:read');
@@ -287,7 +287,7 @@ async function getCounts(userData, callerUID) {
 	userData.counts = counts;
 }
 
-async function getProfileMenu(uid, callerUID) {
+async function getProfileMenu (uid, callerUID) {
 	const links = [{
 		id: 'info',
 		route: 'info',
@@ -334,9 +334,9 @@ async function getProfileMenu(uid, callerUID) {
 	}
 
 	const data = await plugins.hooks.fire('filter:user.profileMenu', {
-		uid: uid,
-		callerUID: callerUID,
-		links: links,
+		uid,
+		callerUID,
+		links,
 	});
 	const userslug = await user.getUserField(uid, 'userslug');
 	data.links.forEach((link) => {
@@ -347,7 +347,7 @@ async function getProfileMenu(uid, callerUID) {
 	return data;
 }
 
-async function parseAboutMe(userData) {
+async function parseAboutMe (userData) {
 	if (!userData.aboutme) {
 		userData.aboutme = '';
 		userData.aboutmeParsed = '';
@@ -364,7 +364,7 @@ async function parseAboutMe(userData) {
 	userData.aboutmeParsed = translator.escape(parsed);
 }
 
-function filterLinks(links, states) {
+function filterLinks (links, states) {
 	return links.filter((link, index) => {
 		// Default visibility
 		link.visibility = {

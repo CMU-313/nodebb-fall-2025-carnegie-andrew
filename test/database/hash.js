@@ -1,6 +1,5 @@
 'use strict';
 
-
 const async = require('async');
 const assert = require('assert');
 const db = require('../mocks/databasemock');
@@ -452,7 +451,6 @@ describe('Hash methods', () => {
 			assert.strictEqual(value, false);
 		});
 	});
-
 
 	describe('isObjectFields()', () => {
 		it('should return an array of false if object does not exist', (done) => {

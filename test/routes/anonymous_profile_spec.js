@@ -22,10 +22,10 @@ describe('anonymous profile route guard', () => {
 		getStub.restore();
 	});
 
-	function mkRes() {
+	function mkRes () {
 		return {
 			_redirectedTo: null,
-			redirect(path) { this._redirectedTo = path; },
+			redirect (path) { this._redirectedTo = path; },
 		};
 	}
 

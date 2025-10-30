@@ -3,7 +3,6 @@
 const async = require('async');
 const db = require('../../database');
 
-
 module.exports = {
 	name: 'Giving upload privileges',
 	timestamp: Date.UTC(2016, 6, 12),

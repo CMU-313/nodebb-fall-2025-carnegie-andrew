@@ -9,7 +9,7 @@ const { paths, pluginNamePattern } = require('../constants');
 
 const pkgInstall = module.exports;
 
-function sortDependencies(dependencies) {
+function sortDependencies (dependencies) {
 	return Object.entries(dependencies)
 		.sort((a, b) => (a < b ? -1 : 1))
 		.reduce((memo, pkg) => {
@@ -93,7 +93,7 @@ pkgInstall.getPackageManager = () => {
 	}
 };
 
-function getPackageManagerByLockfile() {
+function getPackageManagerByLockfile () {
 	for (const [packageManager, lockfile] of Object.entries({ npm: 'package-lock.json', yarn: 'yarn.lock', pnpm: 'pnpm-lock.yaml' })) {
 		try {
 			fs.accessSync(path.resolve(__dirname, `../../${lockfile}`), fs.constants.R_OK);
@@ -153,14 +153,14 @@ pkgInstall.preserveExtraneousPlugins = () => {
 	const packageContents = JSON.parse(fs.readFileSync(paths.currentPackage, 'utf8'));
 
 	const extraneous = packages
-		// only extraneous plugins (ones not in package.json) which are not links
+	// only extraneous plugins (ones not in package.json) which are not links
 		.filter((pkgName) => {
 			const extraneous = !packageContents.dependencies.hasOwnProperty(pkgName);
 			const isLink = fs.lstatSync(path.join(paths.nodeModules, pkgName)).isSymbolicLink();
 
 			return extraneous && !isLink;
 		})
-		// reduce to a map of package names to package versions
+	// reduce to a map of package names to package versions
 		.reduce((map, pkgName) => {
 			const pkgConfig = JSON.parse(fs.readFileSync(path.join(paths.nodeModules, pkgName, 'package.json'), 'utf8'));
 			map[pkgName] = pkgConfig.version;

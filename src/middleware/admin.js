@@ -1,6 +1,5 @@
 'use strict';
 
-
 const nconf = require('nconf');
 
 const user = require('../user');

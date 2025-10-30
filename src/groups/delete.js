@@ -47,7 +47,7 @@ module.exports = function (Groups) {
 		plugins.hooks.fire('action:groups.destroy', { groups: groupsData });
 	};
 
-	async function removeGroupsFromPrivilegeGroups(groupNames) {
+	async function removeGroupsFromPrivilegeGroups (groupNames) {
 		await batch.processSortedSet('groups:createtime', async (otherGroups) => {
 			const privilegeGroups = otherGroups.filter(group => Groups.isPrivilegeGroup(group));
 			const keys = privilegeGroups.map(group => `group:${group}:members`);

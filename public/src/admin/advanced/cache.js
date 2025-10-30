@@ -9,7 +9,7 @@ define('admin/advanced/cache', ['alerts'], function (alerts) {
 
 		$('.clear').on('click', function () {
 			const name = $(this).attr('data-name');
-			socket.emit('admin.cache.clear', { name: name }, function (err) {
+			socket.emit('admin.cache.clear', { name }, function (err) {
 				if (err) {
 					return alerts.error(err);
 				}
@@ -21,7 +21,7 @@ define('admin/advanced/cache', ['alerts'], function (alerts) {
 			const input = $(this).find('input');
 			const flag = input.is(':checked');
 			const name = $(this).attr('data-name');
-			socket.emit('admin.cache.toggle', { name: name, enabled: flag }, function (err) {
+			socket.emit('admin.cache.toggle', { name, enabled: flag }, function (err) {
 				if (err) {
 					return alerts.error(err);
 				}

@@ -59,7 +59,7 @@ SocketRooms.getAll = async function () {
 
 	let topTenTopics = [];
 	Object.keys(topicData).forEach((tid) => {
-		topTenTopics.push({ tid: tid, count: topicData[tid].count });
+		topTenTopics.push({ tid, count: topicData[tid].count });
 	});
 	topTenTopics = topTenTopics.sort((a, b) => b.count - a.count).slice(0, 10);
 	const topTenTids = topTenTopics.map(topic => topic.tid);

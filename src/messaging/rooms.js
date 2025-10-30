@@ -43,7 +43,7 @@ module.exports = function (Messaging) {
 		return roomData;
 	};
 
-	function modifyRoomData(rooms, fields) {
+	function modifyRoomData (rooms, fields) {
 		rooms.forEach((data) => {
 			if (data) {
 				db.parseIntFields(data, intFields, fields);
@@ -84,7 +84,7 @@ module.exports = function (Messaging) {
 		const now = Date.now();
 		const roomId = await db.incrObjectField('global', 'nextChatRoomId');
 		const room = {
-			roomId: roomId,
+			roomId,
 			timestamp: now,
 			notificationSetting: data.notificationSetting,
 			messageCount: 0,
@@ -185,8 +185,8 @@ module.exports = function (Messaging) {
 
 		const data = await Promise.all(roomIds.map(async (roomId, idx) => {
 			const data = await plugins.hooks.fire('filter:messaging.isUserInRoom', {
-				uid: uid,
-				roomId: roomId,
+				uid,
+				roomId,
 				inRoom: inRooms[idx],
 			});
 			return data.inRoom;
@@ -203,13 +203,13 @@ module.exports = function (Messaging) {
 
 		const inRooms = await db.isSortedSetMembers(
 			`chat:room:${roomId}:uids`,
-			uids,
+			uids
 		);
 
 		const data = await plugins.hooks.fire('filter:messaging.isUsersInRoom', {
-			uids: uids,
-			roomId: roomId,
-			inRooms: inRooms,
+			uids,
+			roomId,
+			inRooms,
 		});
 
 		return single ? data.inRooms.pop() : data.inRooms;
@@ -277,7 +277,7 @@ module.exports = function (Messaging) {
 		await addUidsToRoom(payload.uids, roomId);
 	};
 
-	async function addUidsToRoom(uids, roomId) {
+	async function addUidsToRoom (uids, roomId) {
 		const now = Date.now();
 		const timestamps = uids.map(() => now);
 		await Promise.all([
@@ -306,7 +306,7 @@ module.exports = function (Messaging) {
 		return (await Messaging.getRoomData(roomId)).groupChat;
 	};
 
-	async function updateUserCount(roomIds) {
+	async function updateUserCount (roomIds) {
 		const userCounts = await db.sortedSetsCard(roomIds.map(roomId => `chat:room:${roomId}:uids`));
 		const countMap = _.zipObject(roomIds, userCounts);
 		const groupChats = roomIds.filter((roomId, index) => userCounts[index] > 2);
@@ -364,7 +364,7 @@ module.exports = function (Messaging) {
 		await updateUserCount(roomIds);
 	};
 
-	async function updateOwner(roomId) {
+	async function updateOwner (roomId) {
 		let nextOwner = await db.getSortedSetRange(`chat:room:${roomId}:owners`, 0, 0);
 		if (!nextOwner.length) {
 			// no owners left grab next user
@@ -421,9 +421,9 @@ module.exports = function (Messaging) {
 		checkRoomName(newName);
 
 		const payload = await plugins.hooks.fire('filter:chat.renameRoom', {
-			uid: uid,
-			roomId: roomId,
-			newName: newName,
+			uid,
+			roomId,
+			newName,
 		});
 		const isOwner = await Messaging.isRoomOwner(payload.uid, payload.roomId);
 		if (!isOwner) {
@@ -439,7 +439,7 @@ module.exports = function (Messaging) {
 		});
 	};
 
-	function checkRoomName(roomName) {
+	function checkRoomName (roomName) {
 		if (!roomName && roomName !== '') {
 			throw new Error('[[error:invalid-room-name]]');
 		}
@@ -450,7 +450,7 @@ module.exports = function (Messaging) {
 
 	Messaging.canReply = async (roomId, uid) => {
 		const inRoom = await db.isSortedSetMember(`chat:room:${roomId}:uids`, uid);
-		const data = await plugins.hooks.fire('filter:messaging.canReply', { uid: uid, roomId: roomId, inRoom: inRoom, canReply: inRoom });
+		const data = await plugins.hooks.fire('filter:messaging.canReply', { uid, roomId, inRoom, canReply: inRoom });
 		return data.canReply;
 	};
 
@@ -484,7 +484,7 @@ module.exports = function (Messaging) {
 			await db.sortedSetAdd(`chat:room:${roomId}:uids:online`, Date.now(), uid);
 		}
 
-		async function getNotificationOptions() {
+		async function getNotificationOptions () {
 			const userSetting = await db.getObjectField(`chat:room:${roomId}:notification:settings`, uid);
 			const roomDefault = room.notificationSetting;
 			const currentSetting = userSetting || roomDefault;
@@ -520,7 +520,7 @@ module.exports = function (Messaging) {
 				callerUid: uid,
 				start: data.start || 0,
 				uid: data.uid || uid,
-				roomId: roomId,
+				roomId,
 				isNew: false,
 			}),
 			user.getSettings(uid),

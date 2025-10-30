@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('admin/advanced/events', ['bootbox', 'alerts', 'autocomplete'], function (bootbox, alerts, autocomplete) {
 	const Events = {};
 

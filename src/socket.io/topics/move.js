@@ -23,7 +23,6 @@ module.exports = function (SocketTopics) {
 		});
 	};
 
-
 	SocketTopics.moveAll = async function (socket, data) {
 		if (!data || !data.cid || !data.currentCid) {
 			throw new Error('[[error:invalid-data]]');
@@ -40,7 +39,7 @@ module.exports = function (SocketTopics) {
 		});
 		await categories.onTopicsMoved([data.currentCid, data.cid]);
 		await events.log({
-			type: `topic-move-all`,
+			type: 'topic-move-all',
 			uid: socket.uid,
 			ip: socket.ip,
 			fromCid: data.currentCid,

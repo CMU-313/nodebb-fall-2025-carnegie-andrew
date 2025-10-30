@@ -1,4 +1,3 @@
-
 'use strict';
 
 const _ = require('lodash');
@@ -37,9 +36,9 @@ module.exports = function (Topics) {
 		return data;
 	};
 
-	async function getTids(params) {
+	async function getTids (params) {
 		if (plugins.hooks.hasListeners('filter:topics.getSortedTids')) {
-			const result = await plugins.hooks.fire('filter:topics.getSortedTids', { params: params, tids: [] });
+			const result = await plugins.hooks.fire('filter:topics.getSortedTids', { params, tids: [] });
 			return result.tids;
 		}
 		let tids = [];
@@ -72,7 +71,7 @@ module.exports = function (Topics) {
 		return tids;
 	}
 
-	function sortToSet(sort) {
+	function sortToSet (sort) {
 		const map = {
 			recent: 'topics:recent',
 			old: 'topics:recent',
@@ -87,7 +86,7 @@ module.exports = function (Topics) {
 		return 'topics:recent';
 	}
 
-	async function getCids(cids, uid) {
+	async function getCids (cids, uid) {
 		if (Array.isArray(cids)) {
 			cids = await privileges.categories.filterCids('topics:read', cids, uid);
 		} else {
@@ -97,7 +96,7 @@ module.exports = function (Topics) {
 		return cids;
 	}
 
-	async function getTidsWithMostPostsInTerm(cids, uid, term) {
+	async function getTidsWithMostPostsInTerm (cids, uid, term) {
 		cids = await getCids(cids, uid);
 		const pids = await db.getSortedSetRevRangeByScore(
 			cids.map(cid => `cid:${cid}:pids`),
@@ -117,7 +116,7 @@ module.exports = function (Topics) {
 			.sort((t1, t2) => tidToCount[t2] - tidToCount[t1]);
 	}
 
-	async function getWatchedTopics(params) {
+	async function getWatchedTopics (params) {
 		const sortSet = ['recent', 'old'].includes(params.sort) ? 'topics:recent' : `topics:${params.sort}`;
 		const method = params.sort === 'old' ? 'getSortedSetIntersect' : 'getSortedSetRevIntersect';
 		return await db[method]({
@@ -128,7 +127,7 @@ module.exports = function (Topics) {
 		});
 	}
 
-	async function getTagTids(params) {
+	async function getTagTids (params) {
 		const sets = [
 			sortToSet(params.sort),
 			...params.tags.map(tag => `tag:${tag}:topics`),
@@ -137,14 +136,14 @@ module.exports = function (Topics) {
 			'getSortedSetIntersect' :
 			'getSortedSetRevIntersect';
 		return await db[method]({
-			sets: sets,
+			sets,
 			start: 0,
 			stop: meta.config.recentMaxTopics - 1,
 			weights: sets.map((s, index) => (index ? 0 : 1)),
 		});
 	}
 
-	async function getCidTids(params) {
+	async function getCidTids (params) {
 		if (params.tags.length) {
 			return _.intersection(...await Promise.all(params.tags.map(async (tag) => {
 				const sets = params.cids.map(cid => `cid:${cid}:tag:${tag}:topics`);
@@ -171,7 +170,7 @@ module.exports = function (Topics) {
 		return pinnedTids.concat(tids);
 	}
 
-	async function sortTids(tids, params) {
+	async function sortTids (tids, params) {
 		if (params.term === 'alltime' && !params.cids && !params.tags.length && params.filter !== 'watched' && !params.floatPinned) {
 			return tids;
 		}
@@ -197,7 +196,8 @@ module.exports = function (Topics) {
 
 		const topicData = await Topics.getTopicsFields(tids, fields);
 		const sortFn = sortMap.hasOwnProperty(params.sort) && sortMap[params.sort] ?
-			sortMap[params.sort] : sortRecent;
+			sortMap[params.sort] :
+			sortRecent;
 
 		if (params.floatPinned) {
 			floatPinned(topicData, sortFn);
@@ -208,41 +208,41 @@ module.exports = function (Topics) {
 		return topicData.map(topic => topic && topic.tid);
 	}
 
-	function floatPinned(topicData, sortFn) {
+	function floatPinned (topicData, sortFn) {
 		topicData.sort((a, b) => (a.pinned !== b.pinned ? b.pinned - a.pinned : sortFn(a, b)));
 	}
 
-	function sortRecent(a, b) {
+	function sortRecent (a, b) {
 		return b.lastposttime - a.lastposttime;
 	}
 
-	function sortOld(a, b) {
+	function sortOld (a, b) {
 		return a.lastposttime - b.lastposttime;
 	}
 
-	function sortCreate(a, b) {
+	function sortCreate (a, b) {
 		return b.timestamp - a.timestamp;
 	}
 
-	function sortVotes(a, b) {
+	function sortVotes (a, b) {
 		if (a.votes !== b.votes) {
 			return b.votes - a.votes;
 		}
 		return b.postcount - a.postcount;
 	}
 
-	function sortPopular(a, b) {
+	function sortPopular (a, b) {
 		if (a.postcount !== b.postcount) {
 			return b.postcount - a.postcount;
 		}
 		return b.viewcount - a.viewcount;
 	}
 
-	function sortViews(a, b) {
+	function sortViews (a, b) {
 		return b.viewcount - a.viewcount;
 	}
 
-	async function filterTids(tids, params) {
+	async function filterTids (tids, params) {
 		const { filter, uid } = params;
 
 		if (filter === 'new') {
@@ -257,7 +257,7 @@ module.exports = function (Topics) {
 		let topicData = await Topics.getTopicsFields(tids, ['uid', 'tid', 'cid', 'tags']);
 		const topicCids = _.uniq(topicData.map(topic => topic.cid)).filter(Boolean);
 
-		async function getIgnoredCids() {
+		async function getIgnoredCids () {
 			if (params.cids || filter === 'watched' || meta.config.disableRecentCategoryFilter) {
 				return [];
 			}
@@ -282,11 +282,11 @@ module.exports = function (Topics) {
 			(!tags.length || tags.every(tag => t.tags.find(topicTag => topicTag.value === tag)))
 		)).map(t => t.tid);
 
-		const result = await plugins.hooks.fire('filter:topics.filterSortedTids', { tids: tids, params: params });
+		const result = await plugins.hooks.fire('filter:topics.filterSortedTids', { tids, params });
 		return result.tids;
 	}
 
-	async function getTopics(tids, params) {
+	async function getTopics (tids, params) {
 		tids = tids.slice(params.start, params.stop !== -1 ? params.stop + 1 : undefined);
 		const topicData = await Topics.getTopicsByTids(tids, params);
 		Topics.calculateTopicIndices(topicData, params.start);

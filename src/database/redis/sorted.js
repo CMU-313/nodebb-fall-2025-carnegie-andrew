@@ -26,7 +26,7 @@ module.exports = function (module) {
 		return await sortedSetRange('zrevrange', key, start, stop, '-inf', '+inf', true);
 	};
 
-	async function sortedSetRange(method, key, start, stop, min, max, withScores) {
+	async function sortedSetRange (method, key, start, stop, min, max, withScores) {
 		if (Array.isArray(key)) {
 			if (!key.length) {
 				return [];
@@ -57,7 +57,7 @@ module.exports = function (module) {
 		return objects;
 	}
 
-	function genParams(method, key, start, stop, min, max, withScores) {
+	function genParams (method, key, start, stop, min, max, withScores) {
 		const params = {
 			zrevrange: [key, start, stop],
 			zrange: [key, start, stop],
@@ -91,7 +91,7 @@ module.exports = function (module) {
 		return await sortedSetRangeByScore('zrevrangebyscore', key, start, count, min, max, true);
 	};
 
-	async function sortedSetRangeByScore(method, key, start, count, min, max, withScores) {
+	async function sortedSetRangeByScore (method, key, start, count, min, max, withScores) {
 		if (parseInt(count, 10) === 0) {
 			return [];
 		}
@@ -286,7 +286,7 @@ module.exports = function (module) {
 		return await sortedSetLex('zlexcount', false, key, min, max);
 	};
 
-	async function sortedSetLex(method, reverse, key, min, max, start, count) {
+	async function sortedSetLex (method, reverse, key, min, max, start, count) {
 		let minmin;
 		let maxmax;
 		if (reverse) {
@@ -329,7 +329,7 @@ module.exports = function (module) {
 					seen[value] = 1;
 
 					if (params.withScores) {
-						returnData.push({ value: value, score: parseFloat(data[i + 1]) });
+						returnData.push({ value, score: parseFloat(data[i + 1]) });
 					} else {
 						returnData.push(value);
 					}

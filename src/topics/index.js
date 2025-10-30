@@ -46,7 +46,7 @@ Topics.getTopicsFromSet = async function (set, uid, start, stop) {
 	const tids = await db.getSortedSetRevRange(set, start, stop);
 	const topics = await Topics.getTopics(tids, uid);
 	Topics.calculateTopicIndices(topics, start);
-	return { topics: topics, nextStart: stop + 1 };
+	return { topics, nextStart: stop + 1 };
 };
 
 Topics.getTopics = async function (tids, options) {
@@ -68,7 +68,7 @@ Topics.getTopicsByTids = async function (tids, options) {
 		uid = options.uid;
 	}
 
-	async function loadTopics() {
+	async function loadTopics () {
 		const topics = await Topics.getTopicsData(tids);
 		const uids = _.uniq(topics
 			.map(t => t && t.uid && t.uid.toString())
@@ -77,13 +77,13 @@ Topics.getTopicsByTids = async function (tids, options) {
 			.map(t => t && t.cid && t.cid.toString()));
 		const guestTopics = topics.filter(t => t && t.uid === 0);
 
-		async function loadGuestHandles() {
+		async function loadGuestHandles () {
 			const mainPids = guestTopics.map(t => t.mainPid);
 			const postData = await posts.getPostsFields(mainPids, ['handle']);
 			return postData.map(p => p.handle);
 		}
 
-		async function loadShowfullnameSettings() {
+		async function loadShowfullnameSettings () {
 			if (meta.config.hideFullname) {
 				return uids.map(() => ({ showfullname: false }));
 			}
@@ -154,7 +154,7 @@ Topics.getTopicsByTids = async function (tids, options) {
 
 	const filteredTopics = result.topics.filter(topic => topic && topic.category && !topic.category.disabled);
 
-	const hookResult = await plugins.hooks.fire('filter:topics.get', { topics: filteredTopics, uid: uid });
+	const hookResult = await plugins.hooks.fire('filter:topics.get', { topics: filteredTopics, uid });
 	return hookResult.topics;
 };
 
@@ -177,7 +177,7 @@ Topics.getTopicWithPosts = async function (topicData, set, uid, start, stop, rev
 		Topics.getTopicPosts(topicData, set, start, stop, uid, reverse),
 		categories.getCategoryData(topicData.cid),
 		categories.getTagWhitelist([topicData.cid]),
-		plugins.hooks.fire('filter:topic.thread_tools', { topic: topicData, uid: uid, tools: [] }),
+		plugins.hooks.fire('filter:topic.thread_tools', { topic: topicData, uid, tools: [] }),
 		Topics.getFollowData([topicData.tid], uid),
 		Topics.getUserBookmark(topicData.tid, uid),
 		social.getActivePostSharing(),
@@ -226,11 +226,11 @@ Topics.getTopicWithPosts = async function (topicData, set, uid, start, stop, rev
 	topicData.unreplied = topicData.postcount === 1;
 	topicData.icons = [];
 
-	const result = await plugins.hooks.fire('filter:topic.get', { topic: topicData, uid: uid });
+	const result = await plugins.hooks.fire('filter:topic.get', { topic: topicData, uid });
 	return result.topic;
 };
 
-function mergeConsecutiveShareEvents(arr) {
+function mergeConsecutiveShareEvents (arr) {
 	return arr.reduce((acc, curr) => {
 		const last = acc[acc.length - 1];
 		if (last && last.type === curr.type && last.type === 'share') {
@@ -246,15 +246,14 @@ function mergeConsecutiveShareEvents(arr) {
 	}, []);
 }
 
-
-async function getDeleter(topicData) {
+async function getDeleter (topicData) {
 	if (!parseInt(topicData.deleterUid, 10)) {
 		return null;
 	}
 	return await user.getUserFields(topicData.deleterUid, ['username', 'userslug', 'picture']);
 }
 
-async function getMerger(topicData) {
+async function getMerger (topicData) {
 	if (!parseInt(topicData.mergerUid, 10)) {
 		return null;
 	}
@@ -269,7 +268,7 @@ async function getMerger(topicData) {
 	return merger;
 }
 
-async function getForker(topicData) {
+async function getForker (topicData) {
 	if (!parseInt(topicData.forkerUid, 10)) {
 		return null;
 	}
@@ -302,7 +301,7 @@ Topics.getMainPosts = async function (tids, uid) {
 	return await getMainPosts(mainPids, uid);
 };
 
-async function getMainPosts(mainPids, uid) {
+async function getMainPosts (mainPids, uid) {
 	let postData = await posts.getPostsByPids(mainPids, uid);
 	postData = await user.blocks.filter(uid, postData);
 	postData.forEach((post) => {
@@ -323,8 +322,8 @@ Topics.search = async function (tid, term) {
 		throw new Error('[[error:invalid-data]]');
 	}
 	const result = await plugins.hooks.fire('filter:topic.search', {
-		tid: tid,
-		term: term,
+		tid,
+		term,
 		ids: [],
 	});
 	return Array.isArray(result) ? result : result.ids;

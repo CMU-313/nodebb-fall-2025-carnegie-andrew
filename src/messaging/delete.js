@@ -8,7 +8,7 @@ module.exports = function (Messaging) {
 	Messaging.deleteMessage = async (mid, uid) => await doDeleteRestore(mid, 1, uid);
 	Messaging.restoreMessage = async (mid, uid) => await doDeleteRestore(mid, 0, uid);
 
-	async function doDeleteRestore(mid, state, uid) {
+	async function doDeleteRestore (mid, state, uid) {
 		const field = state ? 'deleted' : 'restored';
 		const msgData = await Messaging.getMessageFields(mid, [
 			'mid', 'fromuid', 'deleted', 'roomId', 'content', 'system',

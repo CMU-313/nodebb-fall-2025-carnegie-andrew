@@ -18,7 +18,7 @@ define('admin/settings/api', ['settings', 'clipboard', 'bootbox', 'benchpress', 
 		handleActions();
 	};
 
-	function handleActions() {
+	function handleActions () {
 		const formEl = document.querySelector('#content form');
 		if (!formEl) {
 			return;
@@ -46,7 +46,7 @@ define('admin/settings/api', ['settings', 'clipboard', 'bootbox', 'benchpress', 
 		});
 	}
 
-	async function handleTokenCreation() {
+	async function handleTokenCreation () {
 		const html = await Benchpress.render('admin/partials/edit-token-modal', {});
 		const parseForm = async function () {
 			const modal = this;
@@ -94,7 +94,7 @@ define('admin/settings/api', ['settings', 'clipboard', 'bootbox', 'benchpress', 
 		});
 	}
 
-	async function handleTokenUpdate(el) {
+	async function handleTokenUpdate (el) {
 		const rowEl = el.closest('[data-token]');
 		const token = rowEl.getAttribute('data-token');
 		const { uid, description } = await api.get(`/admin/tokens/${token}`);
@@ -138,7 +138,7 @@ define('admin/settings/api', ['settings', 'clipboard', 'bootbox', 'benchpress', 
 		});
 	}
 
-	async function handleTokenDeletion(el) {
+	async function handleTokenDeletion (el) {
 		const rowEl = el.closest('[data-token]');
 		const token = rowEl.getAttribute('data-token');
 
@@ -155,7 +155,7 @@ define('admin/settings/api', ['settings', 'clipboard', 'bootbox', 'benchpress', 
 		});
 	}
 
-	async function handleTokenRolling(el) {
+	async function handleTokenRolling (el) {
 		const rowEl = el.closest('[data-token]');
 		const token = rowEl.getAttribute('data-token');
 

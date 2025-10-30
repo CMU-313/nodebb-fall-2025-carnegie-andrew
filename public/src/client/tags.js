@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/tags', ['forum/infinitescroll', 'alerts'], function (infinitescroll, alerts) {
 	const Tags = {};
 
@@ -39,7 +38,7 @@ define('forum/tags', ['forum/infinitescroll', 'alerts'], function (infinitescrol
 		});
 	};
 
-	function resetSearch() {
+	function resetSearch () {
 		socket.emit('topics.loadMoreTags', {
 			after: 0,
 		}, function (err, data) {
@@ -50,9 +49,9 @@ define('forum/tags', ['forum/infinitescroll', 'alerts'], function (infinitescrol
 		});
 	}
 
-	function onTagsLoaded(tags, replace, callback) {
+	function onTagsLoaded (tags, replace, callback) {
 		callback = callback || function () {};
-		app.parseAndTranslate('tags', 'tags', { tags: tags }, function (html) {
+		app.parseAndTranslate('tags', 'tags', { tags }, function (html) {
 			$('.tag-list')[replace ? 'html' : 'append'](html);
 			callback();
 		});

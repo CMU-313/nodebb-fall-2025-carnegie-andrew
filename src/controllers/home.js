@@ -6,11 +6,11 @@ const plugins = require('../plugins');
 const meta = require('../meta');
 const user = require('../user');
 
-function adminHomePageRoute() {
+function adminHomePageRoute () {
 	return ((meta.config.homePageRoute === 'custom' ? meta.config.homePageCustom : meta.config.homePageRoute) || 'categories').replace(/^\//, '');
 }
 
-async function getUserHomeRoute(uid) {
+async function getUserHomeRoute (uid) {
 	const settings = await user.getSettings(uid);
 	let route = adminHomePageRoute();
 
@@ -21,7 +21,7 @@ async function getUserHomeRoute(uid) {
 	return route;
 }
 
-async function rewrite(req, res, next) {
+async function rewrite (req, res, next) {
 	if (req.path !== '/' && req.path !== '/api/' && req.path !== '/api') {
 		return next();
 	}
@@ -51,13 +51,13 @@ async function rewrite(req, res, next) {
 
 exports.rewrite = rewrite;
 
-function pluginHook(req, res, next) {
+function pluginHook (req, res, next) {
 	const hook = `action:homepage.get:${res.locals.homePageRoute}`;
 
 	plugins.hooks.fire(hook, {
-		req: req,
-		res: res,
-		next: next,
+		req,
+		res,
+		next,
 	});
 }
 

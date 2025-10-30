@@ -3,7 +3,6 @@
 const async = require('async');
 const db = require('../../database');
 
-
 module.exports = {
 	name: 'Social: Post Sharing',
 	timestamp: Date.UTC(2016, 1, 25),

@@ -16,7 +16,7 @@ module.exports = {
 				privileges.categories.give(['groups:topics:tag'], cid, 'registered-users', next);
 			}, next);
 		}, {
-			progress: progress,
+			progress,
 		}, callback);
 	},
 };

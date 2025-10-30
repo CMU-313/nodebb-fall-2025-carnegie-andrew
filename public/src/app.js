@@ -20,7 +20,7 @@ require('./ajaxify');
 app = window.app || {};
 
 Object.defineProperty(app, 'isFocused', {
-	get() {
+	get () {
 		return document.visibilityState === 'visible';
 	},
 });
@@ -127,7 +127,7 @@ if (document.readyState === 'loading') {
 		if (single) {
 			modules = [modules];
 		}
-		async function requireModule(moduleName) {
+		async function requireModule (moduleName) {
 			let _module;
 			try {
 				switch (moduleName) {
@@ -188,9 +188,9 @@ if (document.readyState === 'loading') {
 		});
 	};
 
-	function highlightNavigationLink() {
+	function highlightNavigationLink () {
 		const pageParams = utils.params();
-		function queryMatch(search) {
+		function queryMatch (search) {
 			const mySearchParams = new URLSearchParams(search);
 			for (const [key, value] of mySearchParams) {
 				if (pageParams[key] === value) {
@@ -351,7 +351,7 @@ if (document.readyState === 'loading') {
 		});
 	};
 
-	function registerServiceWorker() {
+	function registerServiceWorker () {
 		// Do not register for Safari browsers
 		if (!config.useragent.isSafari && 'serviceWorker' in navigator) {
 			navigator.serviceWorker.register(config.relative_path + '/service-worker.js', { scope: config.relative_path + '/' })

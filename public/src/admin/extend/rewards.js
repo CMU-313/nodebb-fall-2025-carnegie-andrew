@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('admin/extend/rewards', [
 	'alerts',
 	'jquery-ui/widgets/sortable',
@@ -30,7 +29,7 @@ define('admin/extend/rewards', [
 				const parent = $(this).parents('[data-id]');
 				const id = parent.attr('data-id');
 
-				socket.emit('admin.rewards.delete', { id: id }, function (err) {
+				socket.emit('admin.rewards.delete', { id }, function (err) {
 					if (err) {
 						alerts.error(err);
 					} else {
@@ -60,7 +59,7 @@ define('admin/extend/rewards', [
 		populateInputs();
 	};
 
-	function select(el) {
+	function select (el) {
 		el.val(el.attr('data-selected'));
 		switch (el.attr('name')) {
 			case 'rid':
@@ -69,7 +68,7 @@ define('admin/extend/rewards', [
 		}
 	}
 
-	function update(el) {
+	function update (el) {
 		el.attr('data-selected', el.val());
 		switch (el.attr('name')) {
 			case 'rid':
@@ -78,7 +77,7 @@ define('admin/extend/rewards', [
 		}
 	}
 
-	function selectReward(el) {
+	function selectReward (el) {
 		const parent = el.parents('[data-rid]');
 		const div = parent.find('.inputs');
 		let inputs;
@@ -113,7 +112,7 @@ define('admin/extend/rewards', [
 		div.html(html);
 	}
 
-	function populateInputs() {
+	function populateInputs () {
 		$('[data-rid]').each(function (i) {
 			const div = $(this).find('.inputs');
 			const rewards = active[i].rewards;
@@ -124,7 +123,7 @@ define('admin/extend/rewards', [
 		});
 	}
 
-	function newReward() {
+	function newReward () {
 		const ul = $('#active');
 
 		const data = {
@@ -135,8 +134,8 @@ define('admin/extend/rewards', [
 				rid: null,
 				id: null,
 			}],
-			conditions: conditions,
-			conditionals: conditionals,
+			conditions,
+			conditionals,
 			rewards: available,
 		};
 
@@ -146,7 +145,7 @@ define('admin/extend/rewards', [
 		});
 	}
 
-	function saveRewards() {
+	function saveRewards () {
 		const activeRewards = [];
 
 		$('#active li').each(function () {

@@ -12,7 +12,7 @@ module.exports = function (Posts) {
 		return await toggleBookmark('unbookmark', pid, uid);
 	};
 
-	async function toggleBookmark(type, pid, uid) {
+	async function toggleBookmark (type, pid, uid) {
 		if (parseInt(uid, 10) <= 0) {
 			throw new Error('[[error:not-logged-in]]');
 		}
@@ -42,8 +42,8 @@ module.exports = function (Posts) {
 		await Posts.setPostField(pid, 'bookmarks', postData.bookmarks);
 
 		plugins.hooks.fire(`action:post.${type}`, {
-			pid: pid,
-			uid: uid,
+			pid,
+			uid,
 			owner: postData.uid,
 			current: hasBookmarked ? 'bookmarked' : 'unbookmarked',
 		});

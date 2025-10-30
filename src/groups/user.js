@@ -24,7 +24,7 @@ module.exports = function (Groups) {
 		return await Promise.all(uids.map(uid => findUserGroups(uid, groupNames)));
 	};
 
-	async function findUserGroups(uid, groupNames) {
+	async function findUserGroups (uid, groupNames) {
 		const isMembers = await Groups.isMemberOfGroups(uid, groupNames);
 		return groupNames.filter((name, i) => isMembers[i]);
 	}

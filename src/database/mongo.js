@@ -1,6 +1,4 @@
-
 'use strict';
-
 
 const winston = require('winston');
 const nconf = require('nconf');
@@ -14,7 +12,7 @@ const connection = require('./mongo/connection');
 
 const mongoModule = module.exports;
 
-function isUriNotSpecified() {
+function isUriNotSpecified () {
 	return !prompt.history('mongo:uri').value;
 }
 
@@ -111,7 +109,7 @@ mongoModule.info = async function (db) {
 	mongoModule.client = mongoModule.client || db;
 	let serverStatusError = '';
 
-	async function getServerStatus() {
+	async function getServerStatus () {
 		try {
 			return await db.command({ serverStatus: 1 });
 		} catch (err) {
@@ -167,7 +165,7 @@ mongoModule.info = async function (db) {
 	return stats;
 };
 
-async function getCollectionStats(db) {
+async function getCollectionStats (db) {
 	const items = await db.listCollections().toArray();
 	const cols = await Promise.all(
 		items.map(

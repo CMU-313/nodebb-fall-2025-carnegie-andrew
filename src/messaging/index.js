@@ -66,11 +66,11 @@ Messaging.getMessages = async (params) => {
 	return messageData;
 };
 
-async function getMessageIds(roomId, uid, start, stop) {
+async function getMessageIds (roomId, uid, start, stop) {
 	const isPublic = await db.getObjectField(`chat:room:${roomId}`, 'public');
 	if (parseInt(isPublic, 10) === 1) {
 		return await db.getSortedSetRevRange(
-			`chat:room:${roomId}:mids`, start, stop,
+			`chat:room:${roomId}:mids`, start, stop
 		);
 	}
 	const userjoinTimestamp = await db.sortedSetScore(`chat:room:${roomId}:uids`, uid);
@@ -79,10 +79,10 @@ async function getMessageIds(roomId, uid, start, stop) {
 	);
 }
 
-async function canGet(hook, callerUid, uid) {
+async function canGet (hook, callerUid, uid) {
 	const data = await plugins.hooks.fire(hook, {
-		callerUid: callerUid,
-		uid: uid,
+		callerUid,
+		uid,
 		canGet: parseInt(callerUid, 10) === parseInt(uid, 10),
 	});
 
@@ -92,12 +92,12 @@ async function canGet(hook, callerUid, uid) {
 Messaging.parse = async (message, fromuid, uid, roomId, isNew) => {
 	const parsed = await plugins.hooks.fire('filter:parse.raw', String(message || ''));
 	let messageData = {
-		message: message,
-		parsed: parsed,
-		fromuid: fromuid,
-		uid: uid,
-		roomId: roomId,
-		isNew: isNew,
+		message,
+		parsed,
+		fromuid,
+		uid,
+		roomId,
+		isNew,
 		parsedMessage: parsed,
 	};
 
@@ -148,7 +148,7 @@ Messaging.getPublicRooms = async (callerUid, uid) => {
 	const roomIds = roomData.map(r => r.roomId);
 	const userReadTimestamps = await db.getObjectFields(
 		`uid:${uid}:chat:rooms:read`,
-		roomIds,
+		roomIds
 	);
 
 	const maxUnread = 50;
@@ -179,7 +179,7 @@ Messaging.getRecentChats = async (callerUid, uid, start, stop) => {
 
 	const roomIds = await db.getSortedSetRevRange(`uid:${uid}:chat:rooms`, start, stop);
 
-	async function getUsers(roomIds) {
+	async function getUsers (roomIds) {
 		const arrayOfUids = await Promise.all(
 			roomIds.map(roomId => Messaging.getUidsInRoom(roomId, 0, 9))
 		);
@@ -227,8 +227,8 @@ Messaging.getRecentChats = async (callerUid, uid, start, stop) => {
 	return await plugins.hooks.fire('filter:messaging.getRecentChats', {
 		rooms: ref.rooms,
 		nextStart: ref.nextStart,
-		uid: uid,
-		callerUid: callerUid,
+		uid,
+		callerUid,
 	});
 };
 
@@ -263,7 +263,7 @@ Messaging.generateChatWithMessage = async function (room, callerUid, userLang) {
 	} else {
 		compiled = translator.compile(
 			'modules:chat.chat-with-usernames',
-			usernames.join(', '),
+			usernames.join(', ')
 		);
 	}
 	return utils.decodeHTMLEntities(await translator.translate(compiled, userLang));
@@ -305,7 +305,7 @@ Messaging.getTeasers = async (uid, roomIds) => {
 			String(utils.stripHTMLTags(utils.decodeHTMLEntities(teaser.content)))
 		);
 		teaser.roomId = roomId;
-		const payload = await plugins.hooks.fire('filter:messaging.getTeaser', { teaser: teaser });
+		const payload = await plugins.hooks.fire('filter:messaging.getTeaser', { teaser });
 		return payload.teaser;
 	}));
 };
@@ -382,8 +382,8 @@ Messaging.canMessageUser = async (uid, toUid) => {
 	}
 
 	await plugins.hooks.fire('static:messaging.canMessageUser', {
-		uid: uid,
-		toUid: toUid,
+		uid,
+		toUid,
 	});
 };
 
@@ -412,12 +412,12 @@ Messaging.canMessageRoom = async (uid, roomId) => {
 	}
 
 	await plugins.hooks.fire('static:messaging.canMessageRoom', {
-		uid: uid,
-		roomId: roomId,
+		uid,
+		roomId,
 	});
 };
 
-async function checkReputation(uid) {
+async function checkReputation (uid) {
 	if (meta.config['reputation:disabled']) {
 		return;
 	}

@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/account/categories', ['forum/account/header', 'alerts', 'api'], function (header, alerts, api) {
 	const Categories = {};
 
@@ -30,7 +29,7 @@ define('forum/account/categories', ['forum/account/header', 'alerts', 'api'], fu
 		});
 	};
 
-	function handleIgnoreWatch(cid) {
+	function handleIgnoreWatch (cid) {
 		const category = $('[data-cid="' + cid + '"]');
 		category.find(
 			'[component="category/watching"], [component="category/tracking"], [component="category/ignoring"], [component="category/notwatching"]'
@@ -44,7 +43,7 @@ define('forum/account/categories', ['forum/account/header', 'alerts', 'api'], fu
 		});
 	}
 
-	function updateDropdowns(modified_cids, state) {
+	function updateDropdowns (modified_cids, state) {
 		modified_cids.forEach(function (cid) {
 			const category = $('[data-cid="' + cid + '"]');
 			category.find('[component="category/watching/menu"]').toggleClass('hidden', state !== 'watching');

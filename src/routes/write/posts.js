@@ -46,7 +46,6 @@ module.exports = function () {
 	setupApiRoute(router, 'put', '/queue/:id', controllers.write.posts.editQueuedPost);
 	setupApiRoute(router, 'post', '/queue/:id/notify', [middleware.checkRequired.bind(null, ['message'])], controllers.write.posts.notifyQueuedPostOwner);
 
-
 	// Shorthand route to access post routes by topic index
 	router.all('/+byIndex/:index*?', [middleware.checkRequired.bind(null, ['tid'])], controllers.write.posts.redirectByIndex);
 

@@ -152,7 +152,7 @@ apiController.getConfig = async function (req, res) {
 
 apiController.getModerators = async function (req, res) {
 	const moderators = await categories.getModerators(req.params.cid);
-	res.json({ moderators: moderators });
+	res.json({ moderators });
 };
 
 require('../promisify')(apiController, ['getConfig', 'getObject', 'getModerators']);

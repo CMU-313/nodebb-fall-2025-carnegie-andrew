@@ -1,6 +1,4 @@
-
 'use strict';
-
 
 define('forum/topic/events', [
 	'forum/topic/postTools',
@@ -61,11 +59,11 @@ define('forum/topic/events', [
 		}
 	};
 
-	function onUserStatusChange(data) {
+	function onUserStatusChange (data) {
 		app.updateUserStatus($('[data-uid="' + data.uid + '"] [component="user/status"]'), data.status);
 	}
 
-	function updatePostVotesAndUserReputation(data) {
+	function updatePostVotesAndUserReputation (data) {
 		const votes = $('[data-pid="' + data.post.pid + '"] [component="post/vote-count"]').filter(function (index, el) {
 			return $(el).closest('[data-pid]').attr('data-pid') === String(data.post.pid);
 		});
@@ -76,13 +74,13 @@ define('forum/topic/events', [
 		reputationElements.html(data.user.reputation).attr('data-reputation', data.user.reputation);
 	}
 
-	function updateBookmarkCount(data) {
+	function updateBookmarkCount (data) {
 		$('[data-pid="' + data.post.pid + '"] .bookmarkCount').filter(function (index, el) {
 			return $(el).closest('[data-pid]').attr('data-pid') === String(data.post.pid);
 		}).html(data.post.bookmarks).attr('data-bookmarks', data.post.bookmarks);
 	}
 
-	function onTopicPurged(data) {
+	function onTopicPurged (data) {
 		if (
 			ajaxify.data.category &&
 			ajaxify.data.category.slug &&
@@ -92,13 +90,13 @@ define('forum/topic/events', [
 		}
 	}
 
-	function onTopicMoved(data) {
+	function onTopicMoved (data) {
 		if (data && data.slug && String(data.tid) === String(ajaxify.data.tid)) {
 			ajaxify.go('topic/' + data.slug, null, true);
 		}
 	}
 
-	function onPostEdited(data) {
+	function onPostEdited (data) {
 		if (!data || !data.post || String(data.post.tid) !== String(ajaxify.data.tid)) {
 			return;
 		}
@@ -181,7 +179,7 @@ define('forum/topic/events', [
 		postTools.removeMenu(components.get('post', 'pid', data.post.pid));
 	}
 
-	function onPostPurged(postData) {
+	function onPostPurged (postData) {
 		if (!postData || String(postData.tid) !== String(ajaxify.data.tid)) {
 			return;
 		}
@@ -197,7 +195,7 @@ define('forum/topic/events', [
 		$(`[component="post/parent"][data-parent-pid="${postData.pid}"]`).remove();
 	}
 
-	function togglePostDeleteState(data) {
+	function togglePostDeleteState (data) {
 		const postEl = components.get('post', 'pid', data.pid);
 
 		const { isAdminOrMod } = ajaxify.data.privileges;
@@ -230,7 +228,7 @@ define('forum/topic/events', [
 		}
 	}
 
-	function togglePostBookmark(data) {
+	function togglePostBookmark (data) {
 		const el = $('[data-pid="' + data.post.pid + '"] [component="post/bookmark"]').filter(function (index, el) {
 			return $(el).closest('[data-pid]').attr('data-pid') === String(data.post.pid);
 		});
@@ -244,7 +242,7 @@ define('forum/topic/events', [
 		el.find('[component="post/bookmark/off"]').toggleClass('hidden', data.isBookmarked);
 	}
 
-	function togglePostVote(data) {
+	function togglePostVote (data) {
 		const post = $('[data-pid="' + data.post.pid + '"]');
 		post.find('[component="post/upvote"]').filter(function (index, el) {
 			return $(el).closest('[data-pid]').attr('data-pid') === String(data.post.pid);
@@ -258,7 +256,7 @@ define('forum/topic/events', [
 		}).attr('data-upvotes', data.post.upvotes).attr('data-downvotes', data.post.downvotes);
 	}
 
-	function onNewNotification(data) {
+	function onNewNotification (data) {
 		const tid = ajaxify.data.tid;
 		if (data && data.tid && String(data.tid) === String(tid)) {
 			socket.emit('topics.markTopicNotificationsRead', [tid]);

@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/chats/pinned-messages', ['api', 'alerts'], function (api, alerts) {
 	const pinnedMessages = {};
 	let container;
@@ -20,7 +19,7 @@ define('forum/chats/pinned-messages', ['api', 'alerts'], function (api, alerts) 
 		handleInfiniteScroll(container);
 	};
 
-	function handleInfiniteScroll(container) {
+	function handleInfiniteScroll (container) {
 		const listEl = container.find('[component="chat/messages/pinned"]');
 		listEl.on('scroll', utils.debounce(async () => {
 			const bottom = (listEl[0].scrollHeight - listEl.height()) * 0.85;
@@ -49,7 +48,7 @@ define('forum/chats/pinned-messages', ['api', 'alerts'], function (api, alerts) 
 		html.find('.timeago').timeago();
 	};
 
-	async function parseMessages(data) {
+	async function parseMessages (data) {
 		return await app.parseAndTranslate('partials/chats/pinned-messages-list', 'messages', {
 			isOwner: ajaxify.data.isOwner,
 			isAdminOrGlobalMod: ajaxify.data.isAdminOrGlobalMod,
@@ -57,7 +56,7 @@ define('forum/chats/pinned-messages', ['api', 'alerts'], function (api, alerts) 
 		});
 	}
 
-	async function loadData(start) {
+	async function loadData (start) {
 		const { messages } = await api.get(`/chats/${ajaxify.data.roomId}/messages/pinned`, { start });
 		return messages;
 	}
@@ -73,7 +72,7 @@ define('forum/chats/pinned-messages', ['api', 'alerts'], function (api, alerts) 
 		api.del(`/chats/${roomId}/messages/${mid}/pin`, {}).then(() => {
 			$(`[component="chat/message"][data-mid="${mid}"]`).toggleClass('pinned', false);
 			container.find(`[component="chat/messages/pinned"] [data-mid="${mid}"]`).remove();
-			if (!container.find(`[component="chat/messages/pinned"] [data-mid]`).length) {
+			if (!container.find('[component="chat/messages/pinned"] [data-mid]').length) {
 				container.find('[component="chat/messages/pinned/empty"]').removeClass('hidden');
 			}
 		}).catch(alerts.error);

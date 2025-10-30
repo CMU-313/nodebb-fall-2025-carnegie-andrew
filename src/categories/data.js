@@ -53,10 +53,10 @@ module.exports = function (Categories) {
 		}
 
 		const result = await plugins.hooks.fire('filter:category.getFields', {
-			cids: cids,
-			categories: categories,
-			fields: fields,
-			keys: keys,
+			cids,
+			categories,
+			fields,
+			keys,
 		});
 		result.categories.forEach(category => modifyCategory(category, fields));
 		return result.categories;
@@ -95,7 +95,7 @@ module.exports = function (Categories) {
 	};
 };
 
-function defaultIntField(category, fields, fieldName, defaultField) {
+function defaultIntField (category, fields, fieldName, defaultField) {
 	if (!fields.length || fields.includes(fieldName)) {
 		const useDefault = !category.hasOwnProperty(fieldName) ||
 			category[fieldName] === null ||
@@ -106,7 +106,7 @@ function defaultIntField(category, fields, fieldName, defaultField) {
 	}
 }
 
-function modifyCategory(category, fields) {
+function modifyCategory (category, fields) {
 	if (!category) {
 		return;
 	}

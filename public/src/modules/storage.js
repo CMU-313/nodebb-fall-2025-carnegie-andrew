@@ -4,7 +4,7 @@
  * Checks localStorage and provides a fallback if it doesn't exist or is disabled
  */
 define('storage', function () {
-	function Storage() {
+	function Storage () {
 		this._store = {};
 		this._keys = [];
 	}

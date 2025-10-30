@@ -77,7 +77,7 @@ Sockets.init = async function (server) {
 	Sockets.server = io;
 };
 
-function onConnection(socket) {
+function onConnection (socket) {
 	socket.uid = socket.request.uid;
 	socket.data.uid = socket.uid; // socket.data is shared between nodes via fetchSockets
 	socket.ip = (
@@ -89,7 +89,7 @@ function onConnection(socket) {
 
 	onConnect(socket);
 	socket.onAny((event, ...args) => {
-		const payload = { event: event, ...deserializePayload(args) };
+		const payload = { event, ...deserializePayload(args) };
 
 		als.run({
 			uid: socket.uid,
@@ -116,12 +116,12 @@ function onConnection(socket) {
 	});
 }
 
-function onDisconnect(socket) {
+function onDisconnect (socket) {
 	require('./uploads').clear(socket.id);
-	plugins.hooks.fire('action:sockets.disconnect', { socket: socket });
+	plugins.hooks.fire('action:sockets.disconnect', { socket });
 }
 
-async function onConnect(socket) {
+async function onConnect (socket) {
 	try {
 		await validateSession(socket, '[[error:invalid-session]]');
 	} catch (e) {
@@ -142,10 +142,10 @@ async function onConnect(socket) {
 	socket.join(`sess_${socket.request.signedCookies[nconf.get('sessionKey')]}`);
 	socket.emit('checkSession', socket.uid);
 	socket.emit('setHostname', os.hostname());
-	plugins.hooks.fire('action:sockets.connect', { socket: socket });
+	plugins.hooks.fire('action:sockets.connect', { socket });
 }
 
-function deserializePayload(payload) {
+function deserializePayload (payload) {
 	if (!Array.isArray(payload) || !payload.length) {
 		winston.warn('[socket.io] Empty payload');
 		return {};
@@ -155,7 +155,7 @@ function deserializePayload(payload) {
 	return { params, callback };
 }
 
-async function onMessage(socket, payload) {
+async function onMessage (socket, payload) {
 	const { event, params, callback } = payload;
 	try {
 		if (!event) {
@@ -217,7 +217,7 @@ async function onMessage(socket, payload) {
 	}
 }
 
-function requireModules() {
+function requireModules () {
 	const modules = [
 		'admin', 'categories', 'groups', 'meta', 'modules',
 		'notifications', 'plugins', 'posts', 'topics', 'user',
@@ -229,7 +229,7 @@ function requireModules() {
 	});
 }
 
-async function checkMaintenance(socket) {
+async function checkMaintenance (socket) {
 	const meta = require('../meta');
 	if (!meta.config.maintenanceMode) {
 		return;
@@ -242,7 +242,7 @@ async function checkMaintenance(socket) {
 	throw new Error(`[[pages:maintenance.text, ${validator.escape(String(meta.config.title || 'NodeBB'))}]]`);
 }
 
-async function validateSession(socket, errorMsg) {
+async function validateSession (socket, errorMsg) {
 	const req = socket.request;
 	const { sessionId } = await plugins.hooks.fire('filter:sockets.sessionId', {
 		sessionId: req.signedCookies ? req.signedCookies[nconf.get('sessionKey')] : null,
@@ -259,15 +259,15 @@ async function validateSession(socket, errorMsg) {
 	}
 
 	await plugins.hooks.fire('static:sockets.validateSession', {
-		req: req,
-		socket: socket,
+		req,
+		socket,
 		session: sessionData,
 	});
 }
 
 const cookieParserAsync = util.promisify((req, callback) => cookieParser(req, {}, err => callback(err)));
 
-async function authorize(request, callback) {
+async function authorize (request, callback) {
 	if (!request) {
 		return callback(new Error('[[error:not-authorized]]'));
 	}
@@ -276,7 +276,7 @@ async function authorize(request, callback) {
 
 	const { sessionId } = await plugins.hooks.fire('filter:sockets.sessionId', {
 		sessionId: request.signedCookies ? request.signedCookies[nconf.get('sessionKey')] : null,
-		request: request,
+		request,
 	});
 
 	const sessionData = await db.sessionStoreGet(sessionId);
@@ -327,7 +327,7 @@ Sockets.warnDeprecated = (socket, replacement) => {
 	if (socket.previousEvents && socket.emit) {
 		socket.emit('event:deprecated_call', {
 			eventName: socket.previousEvents[socket.previousEvents.length - 1],
-			replacement: replacement,
+			replacement,
 		});
 	}
 	winston.warn([

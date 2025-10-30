@@ -1,4 +1,3 @@
-
 'use strict';
 
 const _ = require('lodash');
@@ -43,7 +42,7 @@ module.exports = function (Topics) {
 		return topicData;
 	};
 
-	async function getTidsWithSameTags(tid, tags, cutoff) {
+	async function getTidsWithSameTags (tid, tags, cutoff) {
 		let tids = cutoff === 0 ?
 			await db.getSortedSetRevRange(tags.map(tag => `tag:${tag}:topics`), 0, -1) :
 			await db.getSortedSetRevRangeByScore(tags.map(tag => `tag:${tag}:topics`), 0, -1, '+inf', Date.now() - cutoff);
@@ -51,7 +50,7 @@ module.exports = function (Topics) {
 		return _.shuffle(_.uniq(tids)).slice(0, 10);
 	}
 
-	async function getSearchTids(tid, title, cid, cutoff) {
+	async function getSearchTids (tid, title, cid, cutoff) {
 		let { ids: tids } = await plugins.hooks.fire('filter:search.query', {
 			index: 'topic',
 			content: title,
@@ -70,7 +69,7 @@ module.exports = function (Topics) {
 		return _.shuffle(tids).slice(0, 10).map(String);
 	}
 
-	async function getCategoryTids(tid, cid, cutoff) {
+	async function getCategoryTids (tid, cid, cutoff) {
 		const tids = cutoff === 0 ?
 			await db.getSortedSetRevRange(`cid:${cid}:tids:lastposttime`, 0, 9) :
 			await db.getSortedSetRevRangeByScore(`cid:${cid}:tids:lastposttime`, 0, 10, '+inf', Date.now() - cutoff);

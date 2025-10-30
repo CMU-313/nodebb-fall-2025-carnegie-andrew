@@ -39,11 +39,11 @@ module.exports = function (utils, Benchpress, relative_path) {
 		__escape: identity,
 	};
 
-	function identity(str) {
+	function identity (str) {
 		return str;
 	}
 
-	function displayMenuItem(data, index) {
+	function displayMenuItem (data, index) {
 		const item = data.navigation[index];
 		if (!item) {
 			return false;
@@ -64,7 +64,7 @@ module.exports = function (utils, Benchpress, relative_path) {
 		return true;
 	}
 
-	function buildMetaTag(tag) {
+	function buildMetaTag (tag) {
 		const name = tag.name ? 'name="' + tag.name + '" ' : '';
 		const property = tag.property ? 'property="' + tag.property + '" ' : '';
 		const content = tag.content ? 'content="' + tag.content.replace(/\n/g, ' ') + '" ' : '';
@@ -72,28 +72,28 @@ module.exports = function (utils, Benchpress, relative_path) {
 		return '<meta ' + name + property + content + '/>\n\t';
 	}
 
-	function buildLinkTag(tag) {
+	function buildLinkTag (tag) {
 		const attributes = ['link', 'rel', 'as', 'type', 'href', 'sizes', 'title', 'crossorigin'];
 		const [link, rel, as, type, href, sizes, title, crossorigin] = attributes.map(attr => (tag[attr] ? `${attr}="${tag[attr]}" ` : ''));
 
 		return '<link ' + link + rel + as + type + sizes + title + href + crossorigin + '/>\n\t';
 	}
 
-	function stringify(obj) {
+	function stringify (obj) {
 		// Turns the incoming object into a JSON string
 		return JSON.stringify(obj).replace(/&/gm, '&amp;').replace(/</gm, '&lt;').replace(/>/gm, '&gt;')
 			.replace(/"/g, '&quot;');
 	}
 
-	function escape(str) {
+	function escape (str) {
 		return utils.escapeHTML(str);
 	}
 
-	function stripTags(str) {
+	function stripTags (str) {
 		return utils.stripHTMLTags(str);
 	}
 
-	function buildCategoryIcon(category, size, rounded) {
+	function buildCategoryIcon (category, size, rounded) {
 		if (!category) {
 			return '';
 		}
@@ -101,7 +101,7 @@ module.exports = function (utils, Benchpress, relative_path) {
 		return `<span class="icon d-inline-flex justify-content-center align-items-center align-middle ${rounded}" style="${generateCategoryBackground(category)} width:${size}; height: ${size}; font-size: ${parseInt(size, 10) / 2}px;">${category.icon ? `<i class="fa fa-fw ${category.icon}"></i>` : ''}</span>`;
 	}
 
-	function buildCategoryLabel(category, tag = 'a', className = '') {
+	function buildCategoryLabel (category, tag = 'a', className = '') {
 		if (!category) {
 			return '';
 		}
@@ -113,7 +113,7 @@ module.exports = function (utils, Benchpress, relative_path) {
 		</${tag}>`;
 	}
 
-	function generateCategoryBackground(category) {
+	function generateCategoryBackground (category) {
 		if (!category) {
 			return '';
 		}
@@ -138,7 +138,7 @@ module.exports = function (utils, Benchpress, relative_path) {
 		return style.join('; ') + ';';
 	}
 
-	function generateChildrenCategories(category) {
+	function generateChildrenCategories (category) {
 		let html = '';
 		if (!category || !category.children || !category.children.length) {
 			return html;
@@ -157,13 +157,13 @@ module.exports = function (utils, Benchpress, relative_path) {
 		return html;
 	}
 
-	function generateTopicClass(topic) {
+	function generateTopicClass (topic) {
 		const fields = ['locked', 'pinned', 'deleted', 'unread', 'scheduled'];
 		return fields.filter(field => !!topic[field]).join(' ');
 	}
 
 	// Groups helpers
-	function membershipBtn(groupObj, btnClass = '') {
+	function membershipBtn (groupObj, btnClass = '') {
 		if (groupObj.isMember && groupObj.name !== 'administrators') {
 			return `<button class="btn btn-danger ${btnClass}" data-action="leave" data-group="${groupObj.displayName}" ${(groupObj.disableLeave ? ' disabled' : '')}><i class="fa fa-times"></i> [[groups:membership.leave-group]]</button>`;
 		}
@@ -178,12 +178,12 @@ module.exports = function (utils, Benchpress, relative_path) {
 		return '';
 	}
 
-	function spawnPrivilegeStates(cid, member, privileges, types) {
+	function spawnPrivilegeStates (cid, member, privileges, types) {
 		const states = [];
 		for (const [priv, state] of Object.entries(privileges)) {
 			states.push({
 				name: priv,
-				state: state,
+				state,
 				type: types[priv],
 			});
 		}
@@ -211,19 +211,19 @@ module.exports = function (utils, Benchpress, relative_path) {
 		}).join('');
 	}
 
-	function localeToHTML(locale, fallback) {
+	function localeToHTML (locale, fallback) {
 		locale = locale || fallback || 'en-GB';
 		return locale.replace('_', '-');
 	}
 
-	function renderTopicImage(topicObj) {
+	function renderTopicImage (topicObj) {
 		if (topicObj.thumb) {
 			return '<img src="' + topicObj.thumb + '" class="img-circle user-img" title="' + topicObj.user.displayname + '" />';
 		}
 		return '<img component="user/picture" data-uid="' + topicObj.user.uid + '" src="' + topicObj.user.picture + '" class="user-img" title="' + topicObj.user.displayname + '" />';
 	}
 
-	function renderDigestAvatar(block) {
+	function renderDigestAvatar (block) {
 		if (block.teaser) {
 			if (block.teaser.user.picture) {
 				return '<img style="vertical-align: middle; width: 32px; height: 32px; border-radius: 50%;" src="' + block.teaser.user.picture + '" title="' + block.teaser.user.username + '" />';
@@ -236,7 +236,7 @@ module.exports = function (utils, Benchpress, relative_path) {
 		return '<div style="vertical-align: middle; width: 32px; height: 32px; line-height: 32px; font-size: 16px; background-color: ' + block.user['icon:bgColor'] + '; color: white; text-align: center; display: inline-block; border-radius: 50%;">' + block.user['icon:text'] + '</div>';
 	}
 
-	function userAgentIcons(data) {
+	function userAgentIcons (data) {
 		let icons = '';
 
 		switch (data.platform) {
@@ -288,7 +288,7 @@ module.exports = function (utils, Benchpress, relative_path) {
 		return icons;
 	}
 
-	function buildAvatar(userObj, size, rounded, classNames, component) {
+	function buildAvatar (userObj, size, rounded, classNames, component) {
 		/**
 		 * userObj requires:
 		 *   - uid, picture, icon:bgColor, icon:text (getUserField w/ "picture" should return all 4), username
@@ -323,43 +323,44 @@ module.exports = function (utils, Benchpress, relative_path) {
 		return output;
 	}
 
-	function increment(value, inc) {
+	function increment (value, inc) {
 		return String(value + parseInt(inc, 10));
 	}
 
-	function generateWroteReplied(post, timeagoCutoff) {
+	function generateWroteReplied (post, timeagoCutoff) {
 		if (post.toPid) {
 			return generateRepliedTo(post, timeagoCutoff);
 		}
 		return generateWrote(post, timeagoCutoff);
 	}
 
-	function generateRepliedTo(post, timeagoCutoff) {
+	function generateRepliedTo (post, timeagoCutoff) {
 		const displayname = post.parent && post.parent.displayname ?
-			post.parent.displayname : '[[global:guest]]';
+			post.parent.displayname :
+			'[[global:guest]]';
 		const isBeforeCutoff = post.timestamp < (Date.now() - (timeagoCutoff * oneDayInMs));
 		const langSuffix = isBeforeCutoff ? 'on' : 'ago';
 		return `[[topic:replied-to-user-${langSuffix}, ${post.toPid}, ${relative_path}/post/${encodeURIComponent(post.toPid)}, ${displayname}, ${relative_path}/post/${encodeURIComponent(post.pid)}, ${post.timestampISO}]]`;
 	}
 
-	function generateWrote(post, timeagoCutoff) {
+	function generateWrote (post, timeagoCutoff) {
 		const isBeforeCutoff = post.timestamp < (Date.now() - (timeagoCutoff * oneDayInMs));
 		const langSuffix = isBeforeCutoff ? 'on' : 'ago';
 		return `[[topic:wrote-${langSuffix}, ${relative_path}/post/${encodeURIComponent(post.pid)}, ${post.timestampISO}]]`;
 	}
 
-	function _encodeURIComponent(value) {
+	function _encodeURIComponent (value) {
 		return encodeURIComponent(value);
 	}
 
-	function isoTimeToLocaleString(isoTime, locale = 'en-GB') {
+	function isoTimeToLocaleString (isoTime, locale = 'en-GB') {
 		return new Date(isoTime).toLocaleString([locale], {
 			dateStyle: 'short',
 			timeStyle: 'short',
 		}).replace(/,/g, '&#44;');
 	}
 
-	function shouldHideReplyContainer(post) {
+	function shouldHideReplyContainer (post) {
 		if (post.replies.count <= 0 || post.replies.hasSingleImmediateReply) {
 			return true;
 		}
@@ -367,19 +368,19 @@ module.exports = function (utils, Benchpress, relative_path) {
 		return false;
 	}
 
-	function humanReadableNumber(number, toFixed = 1) {
+	function humanReadableNumber (number, toFixed = 1) {
 		return utils.makeNumberHumanReadable(number, toFixed);
 	}
 
-	function formattedNumber(number) {
+	function formattedNumber (number) {
 		return utils.addCommas(number);
 	}
 
-	function txEscape(text) {
+	function txEscape (text) {
 		return String(text).replace(/%/g, '&#37;').replace(/,/g, '&#44;');
 	}
 
-	function generatePlaceholderWave(items) {
+	function generatePlaceholderWave (items) {
 		const html = items.map((i) => {
 			if (i === 'divider') {
 				return '<li class="dropdown-divider"></li>';
@@ -394,7 +395,7 @@ module.exports = function (utils, Benchpress, relative_path) {
 		return html.join('');
 	}
 
-	function register() {
+	function register () {
 		Object.keys(helpers).forEach(function (helperName) {
 			Benchpress.registerHelper(helperName, helpers[helperName]);
 		});

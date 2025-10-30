@@ -19,6 +19,6 @@ Digest.resend = async (socket, data) => {
 			subscribers: [uid],
 		});
 	} else {
-		await userDigest.execute({ interval: interval });
+		await userDigest.execute({ interval });
 	}
 };

@@ -57,7 +57,7 @@ define('forum/category', [
 		hooks.fire('action:category.loaded', { cid: ajaxify.data.cid });
 	};
 
-	function handleScrollToTopicIndex() {
+	function handleScrollToTopicIndex () {
 		let topicIndex = ajaxify.data.topicIndex;
 		if (topicIndex && utils.isNumber(topicIndex)) {
 			topicIndex = Math.max(0, parseInt(topicIndex, 10));
@@ -67,7 +67,7 @@ define('forum/category', [
 		}
 	}
 
-	function handleIgnoreWatch(cid) {
+	function handleIgnoreWatch (cid) {
 		$('[component="category/watching"], [component="category/tracking"], [component="category/ignoring"], [component="category/notwatching"]').on('click', function () {
 			const $this = $(this);
 			const state = $this.attr('data-state');
@@ -94,7 +94,7 @@ define('forum/category', [
 		});
 	}
 
-	function handleLoadMoreSubcategories() {
+	function handleLoadMoreSubcategories () {
 		$('[component="category/load-more-subcategories"]').on('click', async function () {
 			const btn = $(this);
 			const { categories: data } = await api.get(`/categories/${ajaxify.data.cid}/children?start=${ajaxify.data.nextSubCategoryStart}`);
@@ -115,7 +115,7 @@ define('forum/category', [
 		});
 	}
 
-	function handleDescription() {
+	function handleDescription () {
 		const fadeEl = document.querySelector('.description.clamp-fade-4');
 		if (!fadeEl) {
 			return;
@@ -136,14 +136,14 @@ define('forum/category', [
 		navigator.scrollBottom(count - 1);
 	};
 
-	function loadTopicsAfter(after, direction, callback) {
+	function loadTopicsAfter (after, direction, callback) {
 		callback = callback || function () {};
 
 		hooks.fire('action:topics.loading');
 		const params = utils.params();
 		infinitescroll.loadMore(`/categories/${encodeURIComponent(ajaxify.data.cid)}/topics`, {
-			after: after,
-			direction: direction,
+			after,
+			direction,
 			query: params,
 			categoryTopicSort: params.sort || config.categoryTopicSort,
 		}, function (data, done) {

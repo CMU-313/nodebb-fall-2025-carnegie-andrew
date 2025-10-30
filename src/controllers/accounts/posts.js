@@ -112,7 +112,7 @@ const templateToData = {
 			const sortSet = map[sort];
 			let tids = await db.getSortedSetRevRange(set, 0, -1);
 			const scores = await db.sortedSetScores(sortSet, tids);
-			tids = tids.map((tid, i) => ({ tid: tid, score: scores[i] }))
+			tids = tids.map((tid, i) => ({ tid, score: scores[i] }))
 				.sort((a, b) => b.score - a.score)
 				.slice(start, stop + 1)
 				.map(t => t.tid);
@@ -201,7 +201,7 @@ postsController.getShares = async function (req, res, next) {
 	await getPostsFromUserSet('account/shares', req, res, next);
 };
 
-async function getPostsFromUserSet(template, req, res) {
+async function getPostsFromUserSet (template, req, res) {
 	const data = templateToData[template];
 	const page = Math.max(1, parseInt(req.query.page, 10) || 1);
 
@@ -223,13 +223,13 @@ async function getPostsFromUserSet(template, req, res) {
 	let result;
 	if (plugins.hooks.hasListeners('filter:account.getPostsFromUserSet')) {
 		result = await plugins.hooks.fire('filter:account.getPostsFromUserSet', {
-			req: req,
-			template: template,
+			req,
+			template,
 			userData: { uid, username, userslug },
-			settings: settings,
-			data: data,
-			start: start,
-			stop: stop,
+			settings,
+			data,
+			start,
+			stop,
 			itemCount: 0,
 			itemData: [],
 		});
@@ -273,7 +273,7 @@ async function getPostsFromUserSet(template, req, res) {
 	res.render(template, payload);
 }
 
-async function getItemData(sets, data, req, start, stop) {
+async function getItemData (sets, data, req, start, stop) {
 	if (data.getTopics) {
 		return await data.getTopics(sets, req, start, stop);
 	}
@@ -281,7 +281,7 @@ async function getItemData(sets, data, req, start, stop) {
 	return await method(sets, req.uid, start, stop);
 }
 
-async function getItemCount(sets, data, settings) {
+async function getItemCount (sets, data, settings) {
 	if (!settings.usePagination) {
 		return 0;
 	}

@@ -3,7 +3,6 @@
 const async = require('async');
 const db = require('../../database');
 
-
 module.exports = {
 	name: 'Chat room hashes',
 	timestamp: Date.UTC(2015, 11, 23),

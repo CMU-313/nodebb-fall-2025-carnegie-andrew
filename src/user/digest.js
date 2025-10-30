@@ -34,7 +34,7 @@ Digest.execute = async function (payload) {
 		winston.info(`[user/jobs] Digest (${payload.interval}) scheduling completed (${subscribers.length} subscribers). Sending emails; this may take some time...`);
 		await Digest.send({
 			interval: payload.interval,
-			subscribers: subscribers,
+			subscribers,
 		});
 		winston.info(`[user/jobs] Digest (${payload.interval}) complete.`);
 		return true;
@@ -76,8 +76,8 @@ Digest.getSubscribers = async function (interval) {
 	});
 
 	const results = await plugins.hooks.fire('filter:digest.subscribers', {
-		interval: interval,
-		subscribers: subscribers,
+		interval,
+		subscribers,
 	});
 	return results.subscribers;
 };
@@ -130,7 +130,7 @@ Digest.send = async function (data) {
 				username: userObj.username,
 				userslug: userObj.userslug,
 				notifications: unreadNotifs,
-				publicRooms: publicRooms,
+				publicRooms,
 				recent: topics.recent,
 				topTopics: topics.top,
 				popularTopics: topics.popular,
@@ -179,16 +179,16 @@ Digest.getDeliveryTimes = async (start, stop) => {
 
 	return {
 		users: userData,
-		count: count,
+		count,
 	};
 };
 
-async function getTermTopics(term, uid) {
+async function getTermTopics (term, uid) {
 	const data = await topics.getSortedTopics({
-		uid: uid,
+		uid,
 		start: 0,
 		stop: 199,
-		term: term,
+		term,
 		sort: 'posts',
 		teaserPost: 'first',
 	});
@@ -218,7 +218,8 @@ async function getTermTopics(term, uid) {
 			}
 			// Fix relative paths in topic data
 			const user = topicObj.hasOwnProperty('teaser') && topicObj.teaser && topicObj.teaser.user ?
-				topicObj.teaser.user : topicObj.user;
+				topicObj.teaser.user :
+				topicObj.user;
 			if (user && user.picture && utils.isRelativeUrl(user.picture)) {
 				user.picture = baseUrl + user.picture;
 			}
@@ -227,7 +228,7 @@ async function getTermTopics(term, uid) {
 	return { top, popular, recent };
 }
 
-async function getUnreadPublicRooms(uid) {
+async function getUnreadPublicRooms (uid) {
 	const publicRooms = await messaging.getPublicRooms(uid, uid);
 	return publicRooms.filter(r => r && r.unread);
 }

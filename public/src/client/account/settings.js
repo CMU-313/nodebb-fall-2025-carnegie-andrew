@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/account/settings', [
 	'forum/account/header', 'components', 'api', 'alerts', 'hooks', 'autocomplete',
 ], function (header, components, api, alerts, hooks, autocomplete) {
@@ -49,7 +48,7 @@ define('forum/account/settings', [
 		handleChatAllowDenyList();
 	};
 
-	function loadSettings() {
+	function loadSettings () {
 		const settings = {};
 
 		$('.account').find('input, textarea, select').each(function (id, input) {
@@ -83,7 +82,7 @@ define('forum/account/settings', [
 		return settings;
 	}
 
-	function saveSettings(settings) {
+	function saveSettings (settings) {
 		api.put(`/users/${ajaxify.data.uid}/settings`, { settings }).then((newSettings) => {
 			alerts.success('[[success:settings-saved]]');
 			let languageChanged = false;
@@ -105,7 +104,7 @@ define('forum/account/settings', [
 		});
 	}
 
-	function toggleCustomRoute() {
+	function toggleCustomRoute () {
 		if ($('[data-property="homePageRoute"]').val() === 'custom') {
 			$('#homePageCustomContainer').show();
 		} else {
@@ -114,7 +113,7 @@ define('forum/account/settings', [
 		}
 	}
 
-	function reskin(skinName) {
+	function reskin (skinName) {
 		const clientEl = Array.prototype.filter.call(document.querySelectorAll('link[rel="stylesheet"]'), function (el) {
 			return el.href.indexOf(config.relative_path + '/assets/client') !== -1;
 		})[0] || null;
@@ -171,7 +170,7 @@ define('forum/account/settings', [
 		reskin(skin);
 	};
 
-	function handleChatAllowDenyList() {
+	function handleChatAllowDenyList () {
 		autocomplete.user($('#chatAllowListAdd'), async function (ev, selected) {
 			const { user } = selected.item;
 			if (!user || String(user.uid) === String(app.user.uid)) {
@@ -216,7 +215,7 @@ define('forum/account/settings', [
 			toggleNoUsersElement();
 		});
 
-		function toggleNoUsersElement() {
+		function toggleNoUsersElement () {
 			$('[component="chat/allow/list/no-users"]').toggleClass('hidden', !!$('[component="chat/allow/list/user"]').length);
 			$('[component="chat/deny/list/no-users"]').toggleClass('hidden', !!$('[component="chat/deny/list/user"]').length);
 		}

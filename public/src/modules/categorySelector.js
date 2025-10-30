@@ -14,12 +14,12 @@ define('categorySelector', [
 
 		options.states = options.states || ['watching', 'tracking', 'notwatching', 'ignoring'];
 		options.template = options.template || 'partials/category/selector-dropdown-left';
-		hooks.fire('action:category.selector.options', { el: el, options: options });
+		hooks.fire('action:category.selector.options', { el, options });
 
 		categorySearch.init(el, options);
 
 		const selector = {
-			el: el,
+			el,
 			selectedCategory: null,
 		};
 
@@ -40,7 +40,7 @@ define('categorySelector', [
 		selector.selectCategory = function (cid) {
 			const categoryEl = selector.el.find('[data-cid="' + cid + '"]');
 			selector.selectedCategory = {
-				cid: cid,
+				cid,
 				name: categoryEl.attr('data-name'),
 			};
 
@@ -89,7 +89,7 @@ define('categorySelector', [
 			});
 
 			const selector = categorySelector.init(modal.find('[component="category-selector"]'), options);
-			function submit(ev) {
+			function submit (ev) {
 				ev.preventDefault();
 				if (selector.selectedCategory) {
 					options.onSubmit(selector.selectedCategory);

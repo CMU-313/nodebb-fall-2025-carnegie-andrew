@@ -80,8 +80,8 @@ module.exports = function (middleware) {
 
 	middleware.autoLocale = helpers.try(async (req, res, next) => {
 		await plugins.hooks.fire('filter:middleware.autoLocale', {
-			req: req,
-			res: res,
+			req,
+			res,
 		});
 		if (req.query.lang) {
 			const langs = await listCodes();
@@ -103,7 +103,7 @@ module.exports = function (middleware) {
 		next();
 	});
 
-	async function listCodes() {
+	async function listCodes () {
 		const defaultLang = meta.config.defaultLang || 'en-GB';
 		try {
 			const codes = await languages.listCodes();

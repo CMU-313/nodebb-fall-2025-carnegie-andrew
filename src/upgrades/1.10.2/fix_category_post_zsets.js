@@ -25,7 +25,7 @@ module.exports = {
 			progress.incr(postData.length);
 		}, {
 			batch: 500,
-			progress: progress,
+			progress,
 			withScores: true,
 		});
 	},

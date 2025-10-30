@@ -1,4 +1,3 @@
-
 'use strict';
 
 const winston = require('winston');
@@ -41,7 +40,7 @@ module.exports = function (Categories) {
 		if (numRecentReplies > 0) {
 			await db.sortedSetAdd(`cid:${cid}:recent_tids`, Date.now(), tid);
 		}
-		await plugins.hooks.fire('action:categories.updateRecentTid', { cid: cid, tid: tid });
+		await plugins.hooks.fire('action:categories.updateRecentTid', { cid, tid });
 	};
 
 	Categories.updateRecentTidForCid = async function (cid) {
@@ -76,8 +75,8 @@ module.exports = function (Categories) {
 		if (plugins.hooks.hasListeners('filter:categories.getRecentTopicReplies')) {
 			const result = await plugins.hooks.fire('filter:categories.getRecentTopicReplies', {
 				categories: categoriesToLoad,
-				uid: uid,
-				query: query,
+				uid,
+				query,
 				keys: [],
 			});
 			keys = result.keys;
@@ -95,7 +94,7 @@ module.exports = function (Categories) {
 		bubbleUpChildrenPosts(categoryData);
 	};
 
-	async function getTopics(tids, uid) {
+	async function getTopics (tids, uid) {
 		const topicData = await topics.getTopicsFields(
 			tids,
 			['tid', 'mainPid', 'slug', 'title', 'teaserPid', 'cid', 'postcount']
@@ -129,7 +128,7 @@ module.exports = function (Categories) {
 		return teasers.filter(Boolean);
 	}
 
-	function assignTopicsToCategories(categories, topics) {
+	function assignTopicsToCategories (categories, topics) {
 		categories.forEach((category) => {
 			if (category) {
 				category.posts = topics.filter(
@@ -143,7 +142,7 @@ module.exports = function (Categories) {
 		topics.forEach((t) => { t.parentCids = undefined; });
 	}
 
-	function bubbleUpChildrenPosts(categoryData) {
+	function bubbleUpChildrenPosts (categoryData) {
 		categoryData.forEach((category) => {
 			if (category) {
 				if (category.posts.length) {
@@ -160,7 +159,7 @@ module.exports = function (Categories) {
 		});
 	}
 
-	function getPostsRecursive(category, posts) {
+	function getPostsRecursive (category, posts) {
 		if (Array.isArray(category.posts)) {
 			category.posts.forEach(p => posts.push(p));
 		}

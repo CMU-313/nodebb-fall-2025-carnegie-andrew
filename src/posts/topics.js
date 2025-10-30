@@ -1,4 +1,3 @@
-
 'use strict';
 
 const topics = require('../topics');

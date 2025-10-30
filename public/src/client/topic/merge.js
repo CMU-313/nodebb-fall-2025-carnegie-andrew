@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/topic/merge', ['search', 'alerts', 'api'], function (search, alerts, api) {
 	const Merge = {};
 	let modal;
@@ -81,7 +80,7 @@ define('forum/topic/merge', ['search', 'alerts', 'api'], function (search, alert
 		showTopicsSelected();
 	};
 
-	function onTopicClicked(ev) {
+	function onTopicClicked (ev) {
 		if (!modal) {
 			return;
 		}
@@ -99,7 +98,7 @@ define('forum/topic/merge', ['search', 'alerts', 'api'], function (search, alert
 		return false;
 	}
 
-	function mergeTopics(btn) {
+	function mergeTopics (btn) {
 		btn.attr('disabled', true);
 		const tids = Object.keys(selectedTids);
 		const options = {};
@@ -109,7 +108,7 @@ define('forum/topic/merge', ['search', 'alerts', 'api'], function (search, alert
 			options.newTopicTitle = modal.find('.merge-new-title-input').val();
 		}
 
-		socket.emit('topics.merge', { tids: tids, options: options }, function (err, tid) {
+		socket.emit('topics.merge', { tids, options }, function (err, tid) {
 			btn.removeAttr('disabled');
 			if (err) {
 				return alerts.error(err);
@@ -119,7 +118,7 @@ define('forum/topic/merge', ['search', 'alerts', 'api'], function (search, alert
 		});
 	}
 
-	function showTopicsSelected() {
+	function showTopicsSelected () {
 		if (!modal) {
 			return;
 		}
@@ -129,13 +128,13 @@ define('forum/topic/merge', ['search', 'alerts', 'api'], function (search, alert
 		});
 
 		const topics = tids.map(function (tid) {
-			return { tid: tid, title: selectedTids[tid] };
+			return { tid, title: selectedTids[tid] };
 		});
 
 		if (tids.length) {
 			app.parseAndTranslate('modals/merge-topic', {
-				config: config,
-				topics: topics,
+				config,
+				topics,
 			}, function (html) {
 				modal.find('.topics-section').html(html.find('.topics-section').html());
 				modal.find('.merge-main-topic-select').html(
@@ -148,7 +147,7 @@ define('forum/topic/merge', ['search', 'alerts', 'api'], function (search, alert
 		}
 	}
 
-	function checkButtonEnable() {
+	function checkButtonEnable () {
 		if (Object.keys(selectedTids).length) {
 			mergeBtn.removeAttr('disabled');
 		} else {
@@ -156,7 +155,7 @@ define('forum/topic/merge', ['search', 'alerts', 'api'], function (search, alert
 		}
 	}
 
-	function closeModal() {
+	function closeModal () {
 		if (modal) {
 			modal.remove();
 			modal = null;

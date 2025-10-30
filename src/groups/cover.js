@@ -36,7 +36,7 @@ module.exports = function (Groups) {
 			const filename = `groupCover-${data.groupName}${path.extname(tempPath)}`;
 			const uploadData = await image.uploadImage(filename, 'files', {
 				path: tempPath,
-				uid: uid,
+				uid,
 				name: 'groupCover',
 			});
 			const { url } = uploadData;
@@ -48,7 +48,7 @@ module.exports = function (Groups) {
 			});
 			const thumbUploadData = await image.uploadImage(`groupCoverThumb-${data.groupName}${path.extname(tempPath)}`, 'files', {
 				path: tempPath,
-				uid: uid,
+				uid,
 				name: 'groupCover',
 			});
 			await Groups.setGroupField(data.groupName, 'cover:thumb:url', thumbUploadData.url);
@@ -57,7 +57,7 @@ module.exports = function (Groups) {
 				await Groups.updateCoverPosition(data.groupName, data.position);
 			}
 
-			return { url: url };
+			return { url };
 		} finally {
 			file.delete(tempPath);
 		}

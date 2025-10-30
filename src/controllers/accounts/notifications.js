@@ -36,8 +36,8 @@ notificationsController.get = async function (req, res, next) {
 
 	const [filters, isPrivileged] = await Promise.all([
 		plugins.hooks.fire('filter:notifications.addFilters', {
-			regularFilters: regularFilters,
-			moderatorFilters: moderatorFilters,
+			regularFilters,
+			moderatorFilters,
 			uid: req.uid,
 		}),
 		user.isPrivileged(req.uid),
@@ -71,12 +71,12 @@ notificationsController.get = async function (req, res, next) {
 	notifications = notifications.slice(start, stop + 1);
 
 	res.render('notifications', {
-		notifications: notifications,
+		notifications,
 		pagination: pagination.create(page, pageCount, req.query),
 		filters: allFilters,
-		regularFilters: regularFilters,
-		moderatorFilters: moderatorFilters,
-		selectedFilter: selectedFilter,
+		regularFilters,
+		moderatorFilters,
+		selectedFilter,
 		title: '[[pages:notifications]]',
 		breadcrumbs: helpers.buildBreadcrumbs([{ text: '[[pages:notifications]]' }]),
 	});

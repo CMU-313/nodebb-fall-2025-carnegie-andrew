@@ -53,7 +53,7 @@ module.exports = {
 				}
 			}));
 		}, {
-			progress: progress,
+			progress,
 			batch: 500,
 		});
 

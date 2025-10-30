@@ -56,9 +56,9 @@ Controllers.reset = async function (req, res) {
 
 	const renderReset = function (code, valid) {
 		res.render('reset_code', {
-			valid: valid,
+			valid,
 			displayExpiryNotice: req.session.passwordExpired,
-			code: code,
+			code,
 			minimumPasswordLength: meta.config.minimumPasswordLength,
 			minimumPasswordStrength: meta.config.minimumPasswordStrength,
 			breadcrumbs: helpers.buildBreadcrumbs([
@@ -224,7 +224,7 @@ Controllers.registerInterstitial = async function (req, res, next) {
 };
 
 Controllers.confirmEmail = async (req, res) => {
-	function renderPage(opts = {}) {
+	function renderPage (opts = {}) {
 		res.render('confirm', {
 			title: '[[pages:confirm]]',
 			...opts,
@@ -317,7 +317,6 @@ Controllers.manifest = async function (req, res) {
 		});
 	}
 
-
 	if (meta.config['brand:maskableIcon']) {
 		manifest.icons.push({
 			src: `${nconf.get('relative_path')}/assets/uploads/system/maskableicon-orig.png`,
@@ -335,9 +334,9 @@ Controllers.manifest = async function (req, res) {
 	}
 
 	const data = await plugins.hooks.fire('filter:manifest.build', {
-		req: req,
-		res: res,
-		manifest: manifest,
+		req,
+		res,
+		manifest,
 	});
 	res.status(200).json(data.manifest);
 };

@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('flags', ['hooks', 'components', 'api', 'alerts'], function (hooks, components, api, alerts) {
 	const Flag = {};
 	let flagModal;
@@ -45,7 +44,6 @@ define('flags', ['hooks', 'components', 'api', 'alerts'], function (hooks, compo
 				flagReason.focus();
 			});
 
-
 			flagModal.modal('show');
 			hooks.fire('action:flag.showModal', {
 				modalEl: flagModal,
@@ -63,30 +61,29 @@ define('flags', ['hooks', 'components', 'api', 'alerts'], function (hooks, compo
 			state: 'resolved',
 		}).then(() => {
 			alerts.success('[[flags:resolved]]');
-			hooks.fire('action:flag.resolved', { flagId: flagId });
+			hooks.fire('action:flag.resolved', { flagId });
 		}).catch(alerts.error);
 	};
-
 
 	Flag.rescind = function (flagId) {
 		api.del(`/flags/${flagId}/report`).then(() => {
 			alerts.success('[[flags:report-rescinded]]');
-			hooks.fire('action:flag.rescinded', { flagId: flagId });
+			hooks.fire('action:flag.rescinded', { flagId });
 		}).catch(alerts.error);
 	};
 
 	Flag.purge = function (flagId) {
 		api.del(`/flags/${flagId}`).then(() => {
 			alerts.success('[[flags:purged]]');
-			hooks.fire('action:flag.purged', { flagId: flagId });
+			hooks.fire('action:flag.purged', { flagId });
 		}).catch(alerts.error);
 	};
 
-	function createFlag(type, id, reason, notifyRemote = false) {
+	function createFlag (type, id, reason, notifyRemote = false) {
 		if (!type || !id || !reason) {
 			return;
 		}
-		const data = { type: type, id: id, reason: reason, notifyRemote: notifyRemote };
+		const data = { type, id, reason, notifyRemote };
 		api.post('/flags', data, function (err, flagId) {
 			if (err) {
 				return alerts.error(err);
@@ -99,11 +96,11 @@ define('flags', ['hooks', 'components', 'api', 'alerts'], function (hooks, compo
 				postEl.find('[component="post/flag"]').addClass('hidden').parent().attr('hidden', '');
 				postEl.find('[component="post/already-flagged"]').removeClass('hidden').parent().attr('hidden', null);
 			}
-			hooks.fire('action:flag.create', { flagId: flagId, data: data });
+			hooks.fire('action:flag.create', { flagId, data });
 		});
 	}
 
-	function checkFlagButtonEnable() {
+	function checkFlagButtonEnable () {
 		if (flagModal.find('#flag-reason-custom').val()) {
 			flagCommit.removeAttr('disabled');
 		} else {

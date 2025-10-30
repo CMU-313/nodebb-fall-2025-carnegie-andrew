@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/topic/threadTools', [
 	'components',
 	'translator',
@@ -158,7 +157,7 @@ define('forum/topic/threadTools', [
 			changeWatching('ignore');
 		});
 
-		function changeWatching(type, state = 1) {
+		function changeWatching (type, state = 1) {
 			const method = state ? 'put' : 'del';
 			api[method](`/topics/${tid}/${type}`, {}, () => {
 				let message = '';
@@ -177,12 +176,12 @@ define('forum/topic/threadTools', [
 
 				alerts.alert({
 					alert_id: 'follow_thread',
-					message: message,
+					message,
 					type: 'success',
 					timeout: 5000,
 				});
 
-				hooks.fire('action:topics.changeWatching', { tid: tid, type: type });
+				hooks.fire('action:topics.changeWatching', { tid, type });
 			}, () => {
 				alerts.alert({
 					type: 'danger',
@@ -212,7 +211,7 @@ define('forum/topic/threadTools', [
 		});
 	};
 
-	function renderMenu(container) {
+	function renderMenu (container) {
 		if (!container) {
 			return;
 		}
@@ -234,7 +233,7 @@ define('forum/topic/threadTools', [
 		});
 	}
 
-	function topicCommand(method, path, command, onComplete) {
+	function topicCommand (method, path, command, onComplete) {
 		if (!onComplete) {
 			onComplete = function () {};
 		}
@@ -365,7 +364,6 @@ define('forum/topic/threadTools', [
 		posts.addTopicEvents(data.events);
 	};
 
-
 	ThreadTools.setPinnedState = function (data) {
 		const threadEl = components.get('topic');
 		if (String(data.tid) !== threadEl.attr('data-tid')) {
@@ -388,7 +386,7 @@ define('forum/topic/threadTools', [
 		posts.addTopicEvents(data.events);
 	};
 
-	function setFollowState(state) {
+	function setFollowState (state) {
 		const titles = {
 			follow: '[[topic:watching]]',
 			unfollow: '[[topic:not-watching]]',
@@ -414,7 +412,6 @@ define('forum/topic/threadTools', [
 		menu.toggleClass('hidden', state !== 'ignore');
 		components.get('topic/ignoring/check').toggleClass('fa-check', state === 'ignore');
 	}
-
 
 	return ThreadTools;
 });

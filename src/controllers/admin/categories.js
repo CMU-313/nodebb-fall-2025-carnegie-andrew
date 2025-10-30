@@ -30,9 +30,9 @@ categoriesController.get = async function (req, res, next) {
 	category.parent = parent[0];
 
 	const data = await plugins.hooks.fire('filter:admin.category.get', {
-		req: req,
-		res: res,
-		category: category,
+		req,
+		res,
+		category,
 		customClasses: [],
 	});
 	data.category.name = translator.escape(String(data.category.name));
@@ -48,7 +48,7 @@ categoriesController.get = async function (req, res, next) {
 
 categoriesController.getAll = async function (req, res) {
 	const rootCid = parseInt(req.query.cid, 10) || 0;
-	async function getRootAndChildren() {
+	async function getRootAndChildren () {
 		const rootChildren = await categories.getAllCidsFromSet(`cid:${rootCid}:children`);
 		const childCids = _.flatten(await Promise.all(rootChildren.map(cid => categories.getChildrenCids(cid))));
 		return [rootCid].concat(rootChildren.concat(childCids));
@@ -68,7 +68,7 @@ categoriesController.getAll = async function (req, res) {
 		'subCategoriesPerPage', 'description',
 	];
 	const categoriesData = await categories.getCategoriesFields(cids, fields);
-	const result = await plugins.hooks.fire('filter:admin.categories.get', { categories: categoriesData, fields: fields });
+	const result = await plugins.hooks.fire('filter:admin.categories.get', { categories: categoriesData, fields });
 	let tree = categories.getTree(result.categories, rootParent);
 	const cidsCount = rootCid && tree[0] ? tree[0].children.length : tree.length;
 
@@ -77,7 +77,7 @@ categoriesController.getAll = async function (req, res) {
 	const start = Math.max(0, (page - 1) * meta.config.categoriesPerPage);
 	const stop = start + meta.config.categoriesPerPage;
 
-	function trim(c) {
+	function trim (c) {
 		if (c.children) {
 			c.subCategoriesLeft = Math.max(0, c.children.length - c.subCategoriesPerPage);
 			c.hasMoreSubCategories = c.children.length > c.subCategoriesPerPage;
@@ -101,7 +101,7 @@ categoriesController.getAll = async function (req, res) {
 	const crumbs = await buildBreadcrumbs(selectedCategory, '/admin/manage/categories');
 	res.render('admin/manage/categories', {
 		categoriesTree: tree,
-		selectedCategory: selectedCategory,
+		selectedCategory,
 		breadcrumbs: crumbs,
 		pagination: pagination.create(page, pageCount, req.query),
 		categoriesPerPage: meta.config.categoriesPerPage,
@@ -109,7 +109,7 @@ categoriesController.getAll = async function (req, res) {
 	});
 };
 
-async function buildBreadcrumbs(categoryData, url) {
+async function buildBreadcrumbs (categoryData, url) {
 	if (!categoryData) {
 		return;
 	}
@@ -128,7 +128,7 @@ async function buildBreadcrumbs(categoryData, url) {
 	});
 	crumbs.unshift({
 		text: '[[admin/manage/categories:top-level]]',
-		url: url,
+		url,
 	});
 
 	return crumbs.concat(breadcrumbs);
@@ -143,7 +143,7 @@ categoriesController.getAnalytics = async function (req, res) {
 		helpers.getSelectedCategory(req.params.category_id),
 	]);
 	res.render('admin/manage/category-analytics', {
-		name: name,
+		name,
 		analytics: analyticsData,
 		selectedCategory: selectedData.selectedCategory,
 	});
@@ -168,7 +168,7 @@ categoriesController.getFederation = async function (req, res) {
 	followers = await user.getUsersFields(followers, ['userslug', 'picture']);
 
 	res.render('admin/manage/category-federation', {
-		cid: cid,
+		cid,
 		enabled: meta.config.activitypubEnabled,
 		name,
 		selectedCategory,

@@ -24,9 +24,9 @@ module.exports = function (Categories) {
 		let cids = await findCids(query, data.hardCap);
 
 		const result = await plugins.hooks.fire('filter:categories.search', {
-			data: data,
-			cids: cids,
-			uid: uid,
+			data,
+			cids,
+			uid,
 		});
 		cids = await privileges.categories.filterCids('find', result.cids, uid);
 
@@ -68,7 +68,7 @@ module.exports = function (Categories) {
 		return searchResult;
 	};
 
-	async function findCids(query, hardCap) {
+	async function findCids (query, hardCap) {
 		if (!query || String(query).length < 2) {
 			return [];
 		}
@@ -85,7 +85,7 @@ module.exports = function (Categories) {
 		});
 	}
 
-	async function getChildrenCids(cids, uid) {
+	async function getChildrenCids (cids, uid) {
 		const childrenCids = await Promise.all(cids.map(cid => Categories.getChildrenCids(cid)));
 		return await privileges.categories.filterCids('find', _.flatten(childrenCids), uid);
 	}

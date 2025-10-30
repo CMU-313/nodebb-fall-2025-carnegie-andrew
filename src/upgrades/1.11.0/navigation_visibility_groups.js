@@ -26,7 +26,7 @@ module.exports = {
 };
 // use navigation.get/save as it was in 1.11.0 so upgrade script doesn't crash on latest nbb
 // see https://github.com/NodeBB/NodeBB/pull/11013
-async function navigationAdminGet() {
+async function navigationAdminGet () {
 	const db = require('../../database');
 	const data = await db.getSortedSetRange('navigation:enabled', 0, -1);
 	return data.filter(Boolean).map((item) => {
@@ -39,7 +39,7 @@ async function navigationAdminGet() {
 	});
 }
 
-async function navigationAdminSave(data) {
+async function navigationAdminSave (data) {
 	const db = require('../../database');
 	const translator = require('../../translator');
 	const order = Object.keys(data);

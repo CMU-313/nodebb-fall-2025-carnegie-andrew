@@ -3,7 +3,7 @@
 module.exports = function (utils, load, warn) {
 	const assign = Object.assign || jQuery.extend;
 
-	function escapeHTML(str) {
+	function escapeHTML (str) {
 		return utils.escapeHTML(utils.decodeHTMLEntities(
 			String(str)
 				.replace(/[\s\xa0]+/g, ' ')
@@ -17,7 +17,7 @@ module.exports = function (utils, load, warn) {
 		 * @param {string} language - Language code for this translator instance
 		 * @exports translator.Translator
 		 */
-		function Translator(language) {
+		function Translator (language) {
 			const self = this;
 
 			if (!language) {
@@ -46,7 +46,7 @@ module.exports = function (utils, load, warn) {
 		 * @param {string} str - Source string
 		 * @returns {Promise<string>}
 		 */
-		Translator.prototype.translate = function translate(str) {
+		Translator.prototype.translate = function translate (str) {
 			// regex for valid text in namespace / key
 			const validText = 'a-zA-Z0-9\\-_.\\/';
 			const validTextRegex = new RegExp('[' + validText + ']');
@@ -67,7 +67,7 @@ module.exports = function (utils, load, warn) {
 
 			// split a translator string into an array of tokens
 			// but don't split by commas inside other translator strings
-			function split(text) {
+			function split (text) {
 				const len = text.length;
 				const arr = [];
 				let i = 0;
@@ -130,20 +130,20 @@ module.exports = function (utils, load, warn) {
 					if (!textBeforeColonFound && validTextRegex.test(char0)) {
 						textBeforeColonFound = true;
 						cursor += 1;
-					// found a colon, so this is probably a translation string
+						// found a colon, so this is probably a translation string
 					} else if (textBeforeColonFound && !colonFound && char0 === ':') {
 						colonFound = true;
 						cursor += 1;
-					// found some text after the colon,
-					// so this is probably a translation string
+						// found some text after the colon,
+						// so this is probably a translation string
 					} else if (colonFound && !textAfterColonFound && validTextRegex.test(char0)) {
 						textAfterColonFound = true;
 						cursor += 1;
 					} else if (textAfterColonFound && !commaAfterNameFound && char0 === ',') {
 						commaAfterNameFound = true;
 						cursor += 1;
-					// a space or comma was found before the name
-					// this isn't a translation string, so back out
+						// a space or comma was found before the name
+						// this isn't a translation string, so back out
 					} else if (!(textBeforeColonFound && colonFound && textAfterColonFound && commaAfterNameFound) &&
 							invalidTextRegex.test(char0)) {
 						cursor += 1;
@@ -155,12 +155,12 @@ module.exports = function (utils, load, warn) {
 						} else {
 							break;
 						}
-					// if we're at the beginning of another translation string,
-					// we're nested, so add to our level
+						// if we're at the beginning of another translation string,
+						// we're nested, so add to our level
 					} else if (char0 === '[' && char1 === '[') {
 						level += 1;
 						cursor += 2;
-					// if we're at the end of a translation string
+						// if we're at the end of a translation string
 					} else if (char0 === ']' && char1 === ']') {
 						// if we're at the base level, then this is the end
 						if (level === 0) {
@@ -225,7 +225,7 @@ module.exports = function (utils, load, warn) {
 		 * @param {string|Promise<string>} backup - Text to use in case the key can't be found
 		 * @returns {Promise<string>}
 		 */
-		Translator.prototype.translateKey = function translateKey(name, args, backup) {
+		Translator.prototype.translateKey = function translateKey (name, args, backup) {
 			const self = this;
 
 			const result = name.split(':', 2);
@@ -277,7 +277,7 @@ module.exports = function (utils, load, warn) {
 		 * @param {string} [key] - The key of the specific translation to getJSON
 		 * @returns {Promise<{ [key: string]: string } | string>}
 		 */
-		Translator.prototype.getTranslation = function getTranslation(namespace, key) {
+		Translator.prototype.getTranslation = function getTranslation (namespace, key) {
 			let translation;
 			if (!namespace) {
 				warn('[translator] Parameter `namespace` is ' + namespace + (namespace === '' ? '(empty string)' : ''));
@@ -321,10 +321,10 @@ module.exports = function (utils, load, warn) {
 		 * @param {Node} node
 		 * @returns {Node[]}
 		 */
-		function descendantTextNodes(node) {
+		function descendantTextNodes (node) {
 			const textNodes = [];
 
-			function helper(node) {
+			function helper (node) {
 				if (node.nodeType === 3) {
 					textNodes.push(node);
 				} else {
@@ -344,7 +344,7 @@ module.exports = function (utils, load, warn) {
 		 * @param {string[]} [attributes] - Array of node attributes to translate
 		 * @returns {Promise<void>}
 		 */
-		Translator.prototype.translateInPlace = function translateInPlace(element, attributes) {
+		Translator.prototype.translateInPlace = function translateInPlace (element, attributes) {
 			attributes = attributes || ['placeholder', 'title'];
 
 			const nodes = descendantTextNodes(element);
@@ -385,7 +385,7 @@ module.exports = function (utils, load, warn) {
 		 * Get the language of the current environment, falling back to defaults
 		 * @returns {string}
 		 */
-		Translator.getLanguage = function getLanguage() {
+		Translator.getLanguage = function getLanguage () {
 			return utils.getLanguage();
 		};
 
@@ -394,7 +394,7 @@ module.exports = function (utils, load, warn) {
 		 * @param {string} [language] - ('en-GB') Language string
 		 * @returns {Translator}
 		 */
-		Translator.create = function create(language) {
+		Translator.create = function create (language) {
 			if (!language) {
 				language = Translator.getLanguage();
 			}
@@ -411,7 +411,7 @@ module.exports = function (utils, load, warn) {
 		 * @param {string} namespace - Namespace to handle translation for
 		 * @param {Function} factory - Function to return the translation function for this namespace
 		 */
-		Translator.registerModule = function registerModule(namespace, factory) {
+		Translator.registerModule = function registerModule (namespace, factory) {
 			Translator.moduleFactories[namespace] = factory;
 
 			Object.keys(Translator.cache).forEach(function (key) {
@@ -427,7 +427,7 @@ module.exports = function (utils, load, warn) {
 		 * @param {string} text
 		 * @returns {string}
 		 */
-		Translator.removePatterns = function removePatterns(text) {
+		Translator.removePatterns = function removePatterns (text) {
 			const len = text.length;
 			let cursor = 0;
 			let lastBreak = 0;
@@ -462,7 +462,7 @@ module.exports = function (utils, load, warn) {
 		 * @param {string} text
 		 * @returns {string}
 		 */
-		Translator.escape = function escape(text) {
+		Translator.escape = function escape (text) {
 			return typeof text === 'string' ?
 				text.replace(/\[\[/g, '&lsqb;&lsqb;').replace(/\]\]/g, '&rsqb;&rsqb;') :
 				text;
@@ -473,7 +473,7 @@ module.exports = function (utils, load, warn) {
 		 * @param {string} text
 		 * @returns {string}
 		 */
-		Translator.unescape = function unescape(text) {
+		Translator.unescape = function unescape (text) {
 			return typeof text === 'string' ?
 				text.replace(/&rsqb;&rsqb;/g, ']]').replace(/&lsqb;&lsqb;/g, '[[') :
 				text;
@@ -484,7 +484,7 @@ module.exports = function (utils, load, warn) {
 		 * @param {string} name - Translation name
 		 * @param {...string} arg - Optional argument for the pattern
 		 */
-		Translator.compile = function compile() {
+		Translator.compile = function compile () {
 			const args = Array.prototype.slice.call(arguments, 0).map(function (text) {
 				// escape commas and percent signs in arguments
 				return String(text).replace(/%/g, '&#37;').replace(/,/g, '&#44;');
@@ -503,7 +503,7 @@ module.exports = function (utils, load, warn) {
 		/**
 		 * The Translator class
 		 */
-		Translator: Translator,
+		Translator,
 
 		compile: Translator.compile,
 		escape: Translator.escape,
@@ -527,11 +527,10 @@ module.exports = function (utils, load, warn) {
 			});
 		},
 
-
 		/**
 		 * Legacy translator function for backwards compatibility
 		 */
-		translate: function translate(text, language, callback) {
+		translate: function translate (text, language, callback) {
 			// TODO: deprecate?
 
 			let cb = callback;
@@ -574,7 +573,7 @@ module.exports = function (utils, load, warn) {
 		/**
 		 * Add translations to the cache
 		 */
-		addTranslation: function addTranslation(language, namespace, translation) {
+		addTranslation: function addTranslation (language, namespace, translation) {
 			Translator.create(language).getTranslation(namespace).then(function (translations) {
 				assign(translations, translation);
 			});
@@ -583,7 +582,7 @@ module.exports = function (utils, load, warn) {
 		/**
 		 * Get the translations object
 		 */
-		getTranslations: function getTranslations(language, namespace, callback) {
+		getTranslations: function getTranslations (language, namespace, callback) {
 			callback = callback || function () {};
 			Translator.create(language).getTranslation(namespace).then(callback);
 		},
@@ -591,13 +590,13 @@ module.exports = function (utils, load, warn) {
 		/**
 		 * Alias of getTranslations
 		 */
-		load: function load(language, namespace, callback) {
+		load: function load (language, namespace, callback) {
 			adaptor.getTranslations(language, namespace, callback);
 		},
 
-		toggleTimeagoShorthand: function toggleTimeagoShorthand(callback) {
+		toggleTimeagoShorthand: function toggleTimeagoShorthand (callback) {
 			/* eslint "prefer-object-spread": "off" */
-			function toggle() {
+			function toggle () {
 				const tmp = assign({}, jQuery.timeago.settings.strings);
 				jQuery.timeago.settings.strings = assign({}, adaptor.timeagoShort);
 				adaptor.timeagoShort = assign({}, tmp);
@@ -623,7 +622,7 @@ module.exports = function (utils, load, warn) {
 			}
 		},
 
-		switchTimeagoLanguage: function switchTimeagoLanguage(langCode, callback) {
+		switchTimeagoLanguage: function switchTimeagoLanguage (langCode, callback) {
 			// Delete the cached shorthand strings if present
 			delete adaptor.timeagoShort;
 			import(/* webpackChunkName: "timeago/[request]" */ 'timeago/locales/jquery.timeago.' + langCode).then(callback);

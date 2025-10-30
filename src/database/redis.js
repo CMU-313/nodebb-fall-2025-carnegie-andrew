@@ -32,7 +32,6 @@ redisModule.questions = [
 	},
 ];
 
-
 redisModule.init = async function (opts) {
 	redisModule.client = await connection.connect(opts || nconf.get('redis'));
 };
@@ -42,7 +41,7 @@ redisModule.createSessionStore = async function (options) {
 	const { RedisStore } = require('connect-redis');
 	const client = await connection.connect(options);
 	const store = new RedisStore({
-		client: client,
+		client,
 		ttl: meta.getSessionTTLSeconds(),
 	});
 	return store;

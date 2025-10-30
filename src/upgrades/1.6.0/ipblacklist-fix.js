@@ -8,6 +8,6 @@ module.exports = {
 	method: async function () {
 		const rules = await db.get('ip-blacklist-rules');
 		await db.delete('ip-blacklist-rules');
-		await db.setObject('ip-blacklist-rules', { rules: rules });
+		await db.setObject('ip-blacklist-rules', { rules });
 	},
 };

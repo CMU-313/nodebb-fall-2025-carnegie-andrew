@@ -1,6 +1,5 @@
 'use strict';
 
-
 const db = require('../../database');
 const batch = require('../../batch');
 
@@ -31,7 +30,7 @@ module.exports = {
 			await db.setObjectBulk(bulkSet);
 		}, {
 			batch: 500,
-			progress: progress,
+			progress,
 		});
 	},
 };

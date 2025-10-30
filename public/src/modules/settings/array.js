@@ -9,7 +9,7 @@ define('settings/array', function () {
 	 @param elements The elements to remove on click.
 	 @returns JQuery The created remove-button.
 	 */
-	function createRemoveButton(elements) {
+	function createRemoveButton (elements) {
 		const rm = $(helper.createElement('button', {
 			class: 'btn btn-sm btn-primary remove',
 			title: 'Remove Item',
@@ -38,7 +38,7 @@ define('settings/array', function () {
 	 @param separator The separator to use.
 	 @param insertCb The callback to insert the elements.
 	 */
-	function addArrayChildElement(field, key, attributes, value, separator, insertCb) {
+	function addArrayChildElement (field, key, attributes, value, separator, insertCb) {
 		attributes = helper.deepClone(attributes);
 		const type = attributes['data-type'] || attributes.type || 'text';
 		const element = $(helper.createElementOfType(type, attributes.tagName, attributes));
@@ -69,7 +69,7 @@ define('settings/array', function () {
 	 @param attributes The attributes to forward to {@link addArrayChildElement}.
 	 @param separator The separator to forward to {@link addArrayChildElement}.
 	 */
-	function addAddButton(element, key, attributes, separator) {
+	function addAddButton (element, key, attributes, separator) {
 		const addSpace = $(document.createTextNode(' '));
 		const newValue = element.data('new') || '';
 		const add = $(helper.createElement('button', {
@@ -85,7 +85,6 @@ define('settings/array', function () {
 		element.append(addSpace);
 		element.append(add);
 	}
-
 
 	const SettingsArray = {
 		types: ['array', 'div'],

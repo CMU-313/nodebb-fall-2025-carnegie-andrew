@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('admin/modules/selectable', [
 	'jquery-ui/widgets/selectable',
 ], function () {

@@ -33,7 +33,7 @@ module.exports = function (Topics) {
 			await Topics.setTopicField(tid, 'mainPid', 0);
 			await Topics.delete(tid, uid);
 			await Topics.setTopicFields(tid, {
-				mergeIntoTid: mergeIntoTid,
+				mergeIntoTid,
 				mergerUid: uid,
 				mergedTimestamp: Date.now(),
 			});
@@ -45,30 +45,30 @@ module.exports = function (Topics) {
 		]);
 
 		plugins.hooks.fire('action:topic.merge', {
-			uid: uid,
-			tids: tids,
-			mergeIntoTid: mergeIntoTid,
-			otherTids: otherTids,
+			uid,
+			tids,
+			mergeIntoTid,
+			otherTids,
 		});
 		return mergeIntoTid;
 	};
 
-	async function createNewTopic(title, oldestTid) {
+	async function createNewTopic (title, oldestTid) {
 		const topicData = await Topics.getTopicFields(oldestTid, ['uid', 'cid']);
 		const params = {
 			uid: topicData.uid,
 			cid: topicData.cid,
-			title: title,
+			title,
 		};
 		const result = await plugins.hooks.fire('filter:topic.mergeCreateNewTopic', {
-			oldestTid: oldestTid,
-			params: params,
+			oldestTid,
+			params,
 		});
 		const tid = await Topics.create(result.params);
 		return tid;
 	}
 
-	async function updateViewCount(mergeIntoTid, tids) {
+	async function updateViewCount (mergeIntoTid, tids) {
 		const topicData = await Topics.getTopicsFields(tids, ['viewcount']);
 		const totalViewCount = topicData.reduce(
 			(count, topic) => count + parseInt(topic.viewcount, 10), 0
@@ -76,7 +76,7 @@ module.exports = function (Topics) {
 		await Topics.setTopicField(mergeIntoTid, 'viewcount', totalViewCount);
 	}
 
-	function findOldestTopic(tids) {
+	function findOldestTopic (tids) {
 		return Math.min.apply(null, tids);
 	}
 };

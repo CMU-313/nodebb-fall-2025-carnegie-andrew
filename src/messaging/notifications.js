@@ -44,8 +44,8 @@ module.exports = function (Messaging) {
 		const isPublic = parseInt(await db.getObjectField(`chat:room:${roomId}`, 'public'), 10) === 1;
 
 		let data = {
-			roomId: roomId,
-			fromUid: fromUid,
+			roomId,
+			fromUid,
 			message: messageObj,
 			public: isPublic,
 		};
@@ -83,14 +83,15 @@ module.exports = function (Messaging) {
 			await Promise.all([
 				sendNotification(fromUid, roomId, messageObj),
 				!isPublic && utils.isNumber(fromUid) ?
-					api.activitypub.create.privateNote({ uid: fromUid }, { messageObj }) : null,
+					api.activitypub.create.privateNote({ uid: fromUid }, { messageObj }) :
+					null,
 			]);
 		} catch (err) {
 			winston.error(`[messaging/notifications] Unabled to send notification\n${err.stack}`);
 		}
 	};
 
-	async function sendNotification(fromUid, roomId, messageObj) {
+	async function sendNotification (fromUid, roomId, messageObj) {
 		const [settings, roomData, realtimeUids] = await Promise.all([
 			db.getObject(`chat:room:${roomId}:notification:settings`),
 			Messaging.getRoomData(roomId),

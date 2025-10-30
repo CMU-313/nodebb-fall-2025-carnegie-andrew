@@ -47,7 +47,7 @@ questions.optional = [
 	},
 ];
 
-function checkSetupFlagEnv() {
+function checkSetupFlagEnv () {
 	let setupVal = install.values;
 
 	const envConfMap = {
@@ -122,7 +122,7 @@ function checkSetupFlagEnv() {
 	}
 }
 
-function checkCIFlag() {
+function checkCIFlag () {
 	let ciVals;
 	try {
 		ciVals = JSON.parse(nconf.get('ci'));
@@ -150,7 +150,7 @@ function checkCIFlag() {
 	}
 }
 
-async function setupConfig() {
+async function setupConfig () {
 	const configureDatabases = require('../install/databases');
 
 	// prompt prepends "prompt: " to questions, let's clear that.
@@ -189,7 +189,7 @@ async function setupConfig() {
 	await completeConfigSetup(config);
 }
 
-async function completeConfigSetup(config) {
+async function completeConfigSetup (config) {
 	// Add CI object
 	if (install.ciVals) {
 		config.test_database = { ...install.ciVals };
@@ -240,7 +240,7 @@ async function completeConfigSetup(config) {
 	await install.save(config);
 }
 
-async function setupDefaultConfigs() {
+async function setupDefaultConfigs () {
 	console.log('Populating database with default configs, if not already set...');
 	const meta = require('./meta');
 	const defaults = require(path.join(__dirname, '../', 'install/data/defaults.json'));
@@ -249,7 +249,7 @@ async function setupDefaultConfigs() {
 	await meta.configs.init();
 }
 
-async function enableDefaultTheme() {
+async function enableDefaultTheme () {
 	const meta = require('./meta');
 
 	const id = await meta.configs.get('theme:id');
@@ -266,11 +266,11 @@ async function enableDefaultTheme() {
 	});
 }
 
-async function createDefaultUserGroups() {
+async function createDefaultUserGroups () {
 	const groups = require('./groups');
-	async function createGroup(name) {
+	async function createGroup (name) {
 		await groups.create({
-			name: name,
+			name,
 			hidden: 1,
 			private: 1,
 			system: 1,
@@ -295,7 +295,7 @@ async function createDefaultUserGroups() {
 	}
 }
 
-async function createAdministrator() {
+async function createAdministrator () {
 	const Groups = require('./groups');
 	const memberCount = await Groups.getMemberCount('administrators');
 	if (memberCount > 0) {
@@ -305,7 +305,7 @@ async function createAdministrator() {
 	return await createAdmin();
 }
 
-async function createAdmin() {
+async function createAdmin () {
 	const User = require('./user');
 	const Groups = require('./groups');
 	let password;
@@ -337,7 +337,7 @@ async function createAdmin() {
 		type: 'string',
 	}];
 
-	async function success(results) {
+	async function success (results) {
 		if (!results) {
 			throw new Error('aborted');
 		}
@@ -374,7 +374,7 @@ async function createAdmin() {
 		return password ? results : undefined;
 	}
 
-	async function retryPassword(originalResults) {
+	async function retryPassword (originalResults) {
 		const results = await prompt.get(passwordQuestions);
 
 		originalResults.password = results.password;
@@ -405,7 +405,7 @@ async function createAdmin() {
 	return await success(results);
 }
 
-async function createGlobalModeratorsGroup() {
+async function createGlobalModeratorsGroup () {
 	const groups = require('./groups');
 	const exists = await groups.exists('Global Moderators');
 	if (exists) {
@@ -423,7 +423,7 @@ async function createGlobalModeratorsGroup() {
 	await groups.show('Global Moderators');
 }
 
-async function giveGlobalPrivileges() {
+async function giveGlobalPrivileges () {
 	const privileges = require('./privileges');
 	const defaultPrivileges = [
 		'groups:chat', 'groups:upload:post:image', 'groups:signature', 'groups:search:content',
@@ -439,7 +439,7 @@ async function giveGlobalPrivileges() {
 	await privileges.global.give(['groups:view:users'], 'fediverse');
 }
 
-async function giveWorldPrivileges() {
+async function giveWorldPrivileges () {
 	// should match privilege assignment logic in src/categories/create.js EXCEPT commented one liner below
 	const privileges = require('./privileges');
 	const defaultPrivileges = [
@@ -469,7 +469,7 @@ async function giveWorldPrivileges() {
 	await privileges.categories.give(guestPrivileges, -1, ['guests', 'spiders']);
 }
 
-async function createCategories() {
+async function createCategories () {
 	const Categories = require('./categories');
 	const db = require('./database');
 	const cids = await db.getSortedSetRange('categories:cid', 0, -1);
@@ -489,7 +489,7 @@ async function createCategories() {
 	}
 }
 
-async function createMenuItems() {
+async function createMenuItems () {
 	const db = require('./database');
 
 	const exists = await db.exists('navigation:enabled');
@@ -501,7 +501,7 @@ async function createMenuItems() {
 	await navigation.save(data);
 }
 
-async function createWelcomePost() {
+async function createWelcomePost () {
 	const db = require('./database');
 	const Topics = require('./topics');
 
@@ -516,12 +516,12 @@ async function createWelcomePost() {
 			uid: 1,
 			cid: 2,
 			title: 'Welcome to your NodeBB!',
-			content: content,
+			content,
 		});
 	}
 }
 
-async function enableDefaultPlugins() {
+async function enableDefaultPlugins () {
 	console.log('Enabling default plugins');
 
 	let defaultEnabled = [
@@ -557,7 +557,7 @@ async function enableDefaultPlugins() {
 	await db.sortedSetAdd('plugins:active', order, defaultEnabled);
 }
 
-async function setCopyrightWidget() {
+async function setCopyrightWidget () {
 	const db = require('./database');
 	const [footerJSON, footer] = await Promise.all([
 		fs.promises.readFile(path.join(__dirname, '../', 'install/data/footer.json'), 'utf8'),
@@ -569,7 +569,7 @@ async function setCopyrightWidget() {
 	}
 }
 
-async function copyFavicon() {
+async function copyFavicon () {
 	const file = require('./file');
 	const pathToIco = path.join(nconf.get('upload_path'), 'system', 'favicon.ico');
 	const defaultIco = path.join(nconf.get('base_dir'), 'public', 'favicon.ico');
@@ -585,7 +585,7 @@ async function copyFavicon() {
 	}
 }
 
-async function checkUpgrade() {
+async function checkUpgrade () {
 	const upgrade = require('./upgrade');
 	try {
 		await upgrade.check();
@@ -598,7 +598,7 @@ async function checkUpgrade() {
 	}
 }
 
-async function installPlugins() {
+async function installPlugins () {
 	const pluginInstall = require('./plugins');
 	const nbbVersion = require(paths.currentPackage).version;
 	await Promise.all((await pluginInstall.getActive()).map(async (id) => {

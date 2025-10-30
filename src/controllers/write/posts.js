@@ -107,7 +107,7 @@ Posts.move = async (req, res) => {
 	helpers.formatApiResponse(200, res);
 };
 
-async function mock(req) {
+async function mock (req) {
 	const tid = await posts.getPostField(req.params.pid, 'tid');
 	return { pid: req.params.pid, room_id: `topic_${tid}` };
 }

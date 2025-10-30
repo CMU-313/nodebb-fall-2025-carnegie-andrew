@@ -1,4 +1,3 @@
-
 'use strict';
 
 const _ = require('lodash');
@@ -80,11 +79,11 @@ module.exports = function (Topics) {
 			return tidToPost[topic.tid];
 		});
 
-		const result = await plugins.hooks.fire('filter:teasers.get', { teasers: teasers, uid: uid });
+		const result = await plugins.hooks.fire('filter:teasers.get', { teasers, uid });
 		return result.teasers;
 	};
 
-	function calcTeaserIndex(teaserPost, postCountInTopic, sortNewToOld) {
+	function calcTeaserIndex (teaserPost, postCountInTopic, sortNewToOld) {
 		if (teaserPost === 'first') {
 			return 1;
 		}
@@ -95,7 +94,7 @@ module.exports = function (Topics) {
 		return postCountInTopic;
 	}
 
-	async function handleBlocks(uid, teasers) {
+	async function handleBlocks (uid, teasers) {
 		const blockedUids = await user.blocks.list(uid);
 		if (!blockedUids.length) {
 			return teasers;
@@ -109,7 +108,7 @@ module.exports = function (Topics) {
 		}));
 	}
 
-	async function getPreviousNonBlockedPost(postData, blockedUids) {
+	async function getPreviousNonBlockedPost (postData, blockedUids) {
 		let isBlocked = false;
 		let prevPost = postData;
 		const postsPerIteration = 5;
@@ -117,7 +116,7 @@ module.exports = function (Topics) {
 		let stop = start + postsPerIteration - 1;
 		let checkedAllReplies = false;
 
-		function checkBlocked(post) {
+		function checkBlocked (post) {
 			const isPostBlocked = blockedUids.includes(parseInt(post.uid, 10));
 			prevPost = !isPostBlocked ? post : prevPost;
 			return isPostBlocked;

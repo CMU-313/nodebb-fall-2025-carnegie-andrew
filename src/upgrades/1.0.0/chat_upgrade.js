@@ -1,6 +1,5 @@
 'use strict';
 
-
 const async = require('async');
 const winston = require('winston');
 const db = require('../../database');
@@ -31,7 +30,7 @@ module.exports = {
 					const pairID = [parseInt(message.fromuid, 10), parseInt(message.touid, 10)].sort().join(':');
 					const msgTime = parseInt(message.timestamp, 10);
 
-					function addMessageToUids(roomId, callback) {
+					function addMessageToUids (roomId, callback) {
 						async.parallel([
 							function (next) {
 								db.sortedSetAdd(`uid:${message.fromuid}:chat:room:${roomId}:mids`, msgTime, currentMid, next);

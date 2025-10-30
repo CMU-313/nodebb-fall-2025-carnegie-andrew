@@ -18,12 +18,12 @@ const utils = require('../utils');
 const activitypub = module.parent.exports;
 const Notes = module.exports;
 
-async function lock(value) {
+async function lock (value) {
 	const count = await db.incrObjectField('locks', value);
 	return count <= 1;
 }
 
-async function unlock(value) {
+async function unlock (value) {
 	await db.deleteObjectField('locks', value);
 }
 
@@ -218,10 +218,12 @@ Notes.assert = async (uid, input, options = { skipChecks: false }) => {
 		// These must come after topic is posted
 		await Promise.all([
 			Notes.updateLocalRecipients(mainPid, { to, cc }),
-			mainPost._activitypub.image ? topics.thumbs.associate({
-				id: tid,
-				path: mainPost._activitypub.image,
-			}) : null,
+			mainPost._activitypub.image ?
+				topics.thumbs.associate({
+					id: tid,
+					path: mainPost._activitypub.image,
+				}) :
+				null,
 			posts.attachments.update(mainPid, attachment),
 		]);
 
@@ -343,8 +345,8 @@ Notes.assertPrivate = async (object) => {
 	const message = await messaging.sendMessage({
 		...payload,
 		timestamp: Date.now(),
-		roomId: roomId,
-		toMid: toMid,
+		roomId,
+		toMid,
 	});
 	messaging.notifyUsersInRoom(payload.uid, roomId, message);
 
@@ -354,7 +356,7 @@ Notes.assertPrivate = async (object) => {
 	return { roomId };
 };
 
-async function assertRelation(post) {
+async function assertRelation (post) {
 	/**
 	 * Given a mocked post object, ensures that it is related to some other object in database
 	 * This check ensures that random content isn't added to the database just because it is received.
@@ -490,7 +492,7 @@ Notes.syncUserInboxes = async function (tid, uid) {
 
 	const removeKeys = (await db.getSetMembers(`tid:${tid}:recipients`))
 		.filter(uid => !uids.has(parseInt(uid, 10)))
-		.map((uid => `uid:${uid}:inbox`));
+		.map(uid => `uid:${uid}:inbox`);
 
 	activitypub.helpers.log(`[activitypub/syncUserInboxes] Syncing tid ${tid} with ${uids.size} inboxes`);
 	await Promise.all([

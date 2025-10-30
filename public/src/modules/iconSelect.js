@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('iconSelect', ['benchpress', 'bootbox'], function (Benchpress, bootbox) {
 	const fontawesome_license = config.fontawesome.pro ? 'pro' : 'free';
 	const iconSelect = {};
@@ -307,7 +306,7 @@ define('iconSelect', ['benchpress', 'bootbox'], function (Benchpress, bootbox) {
 				const submitEl = modalEl.find('button.btn-primary');
 				let lastSearch = '';
 
-				function changeSelection(newSelection) {
+				function changeSelection (newSelection) {
 					modalEl.find('i.selected').removeClass('selected');
 					if (newSelection) {
 						newSelection.addClass('selected');
@@ -385,7 +384,7 @@ define('iconSelect', ['benchpress', 'bootbox'], function (Benchpress, bootbox) {
 
 	const styleRegex = /fa-(solid|regular|brands|light|thin|duotone|sharp)/;
 	// turns 'fa fa-2x fa-solid fa-heart' into 'fa-heart'
-	function cleanFAClass(classList) {
+	function cleanFAClass (classList) {
 		const styles = [];
 		let icon;
 		for (const className of classList) {

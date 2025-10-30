@@ -9,7 +9,7 @@ module.exports = {
 	method: async function () {
 		const { progress } = this;
 
-		await batch.processSortedSet(`notifications`, async (nids) => {
+		await batch.processSortedSet('notifications', async (nids) => {
 			const notifData = await db.getObjects(nids.map(nid => `notifications:${nid}`));
 			notifData.forEach((n) => {
 				if (n && n.bodyShort) {
@@ -24,7 +24,7 @@ module.exports = {
 			await db.setObjectBulk(bulkSet);
 		}, {
 			batch: 500,
-			progress: progress,
+			progress,
 		});
 	},
 };

@@ -1,4 +1,3 @@
-
 'use strict';
 
 const db = require('../../database');
@@ -23,7 +22,7 @@ module.exports = {
 				if (event && event.type) {
 					const id = eids[idx];
 					bulkSet.push(
-						[`topicEvent:${id}`, { id: id }]
+						[`topicEvent:${id}`, { id }]
 					);
 				}
 			});

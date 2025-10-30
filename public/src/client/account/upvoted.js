@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/account/upvoted', ['forum/account/header', 'forum/account/posts'], function (header, posts) {
 	const Upvoted = {};
 

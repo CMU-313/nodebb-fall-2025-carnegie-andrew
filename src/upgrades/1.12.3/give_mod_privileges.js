@@ -52,7 +52,7 @@ module.exports = {
 		}
 		await privileges.global.give(globalModPrivs, 'Global Moderators');
 
-		async function givePrivsToModerators(cid, groupPrefix) {
+		async function givePrivsToModerators (cid, groupPrefix) {
 			const privGroups = modPrivileges.map(priv => `cid:${cid}:privileges:${groupPrefix}${priv}`);
 			const members = await db.getSortedSetRevRange(`group:cid:${cid}:privileges:${groupPrefix}moderate:members`, 0, -1);
 			for (const member of members) {

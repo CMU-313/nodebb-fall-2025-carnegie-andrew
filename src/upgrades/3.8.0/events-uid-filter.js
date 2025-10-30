@@ -9,7 +9,7 @@ module.exports = {
 	method: async function () {
 		const { progress } = this;
 
-		await batch.processSortedSet(`events:time`, async (eids) => {
+		await batch.processSortedSet('events:time', async (eids) => {
 			const eventData = await db.getObjects(eids.map(eid => `event:${eid}`));
 			const bulkAdd = [];
 			eventData.forEach((event) => {

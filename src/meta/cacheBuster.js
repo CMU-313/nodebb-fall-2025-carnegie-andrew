@@ -10,7 +10,7 @@ const filePath = path.join(__dirname, '../../build/cache-buster');
 let cached;
 
 // cache buster is an 11-character, lowercase, alphanumeric string
-function generate() {
+function generate () {
 	const crypto = require('crypto');
 	const length = 11;
 	const generated = crypto.randomBytes(Math.ceil(length / 2))
@@ -18,12 +18,12 @@ function generate() {
 	return generated;
 }
 
-exports.write = async function write() {
+exports.write = async function write () {
 	await mkdirp(path.dirname(filePath));
 	await fs.promises.writeFile(filePath, generate());
 };
 
-exports.read = async function read() {
+exports.read = async function read () {
 	if (cached) {
 		return cached;
 	}

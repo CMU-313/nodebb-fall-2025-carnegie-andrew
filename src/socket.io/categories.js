@@ -109,7 +109,7 @@ SocketCategories.ignore = async function (socket, data) {
 	return await ignoreOrWatch(user.ignoreCategory, socket, data);
 };
 
-async function ignoreOrWatch(fn, socket, data) {
+async function ignoreOrWatch (fn, socket, data) {
 	let targetUid = socket.uid;
 	const cids = Array.isArray(data.cid) ? data.cid.map(cid => parseInt(cid, 10)) : [parseInt(data.cid, 10)];
 	if (data.hasOwnProperty('uid')) {
@@ -140,7 +140,7 @@ SocketCategories.isModerator = async function (socket, cid) {
 };
 
 SocketCategories.loadMoreSubCategories = async function (socket, data) {
-	sockets.warnDeprecated(socket, `GET /api/v3/categories/:cid/children`);
+	sockets.warnDeprecated(socket, 'GET /api/v3/categories/:cid/children');
 
 	if (!data || !data.cid || !(parseInt(data.start, 10) >= 0)) {
 		throw new Error('[[error:invalid-data]]');

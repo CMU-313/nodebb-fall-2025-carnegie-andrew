@@ -90,7 +90,7 @@ define('admin/manage/categories', [
 					'[[admin/manage/categories:expand-all]]');
 		});
 
-		function toggleAll(expand) {
+		function toggleAll (expand) {
 			const el = $('.categories .toggle');
 			el.find('i').toggleClass('fa-chevron-down', expand).toggleClass('fa-chevron-right', !expand);
 			el.closest('[data-cid]').find('> ul[data-cid]').toggleClass('hidden', !expand);
@@ -122,7 +122,7 @@ define('admin/manage/categories', [
 			};
 			const parentSelector = categorySelector.init(modal.find('#parentCidGroup [component="category-selector"]'), options);
 			const cloneFromSelector = categorySelector.init(modal.find('#cloneFromCidGroup [component="category-selector"]'), options);
-			function submit() {
+			function submit () {
 				const formData = modal.find('form').serializeObject();
 				formData.description = '';
 				formData.icon = 'fa-comments';
@@ -196,11 +196,11 @@ define('admin/manage/categories', [
 		}).catch(alerts.error)));
 	};
 
-	function itemDidAdd(e) {
+	function itemDidAdd (e) {
 		newCategoryId = e.to.dataset.cid;
 	}
 
-	function itemDragDidEnd(e) {
+	function itemDragDidEnd (e) {
 		const isCategoryUpdate = parseInt(newCategoryId, 10) !== -1;
 
 		// Update needed?
@@ -251,7 +251,7 @@ define('admin/manage/categories', [
 	 * @param container {object} parent jquery element for the list
 	 * @param parentId {number} parent category identifier
 	 */
-	function renderList(categories, container, parentCategory) {
+	function renderList (categories, container, parentCategory) {
 		// Translate category names if needed
 		let count = 0;
 		const parentId = parentCategory.cid;
@@ -272,11 +272,11 @@ define('admin/manage/categories', [
 			continueRender();
 		}
 
-		function continueRender() {
+		function continueRender () {
 			app.parseAndTranslate('admin/partials/categories/category-rows', {
 				cid: parentCategory.cid,
-				categories: categories,
-				parentCategory: parentCategory,
+				categories,
+				parentCategory,
 			}, function (html) {
 				if (container.find('.category-row').length) {
 					container.find('.category-row').after(html);

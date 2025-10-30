@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('coverPhoto', [
 	'alerts',
 	'vendor/jquery/draggable-background/backgroundDraggable',
@@ -52,7 +51,7 @@ define('coverPhoto', [
 		}
 	};
 
-	function enableDragging(coverEl) {
+	function enableDragging (coverEl) {
 		coverEl.toggleClass('active', 1)
 			.backgroundDraggable({
 				axis: 'y',

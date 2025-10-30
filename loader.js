@@ -96,7 +96,7 @@ Loader.start = function () {
 	}
 };
 
-function forkWorker(index, isPrimary) {
+function forkWorker (index, isPrimary) {
 	const ports = getPorts();
 	const args = [];
 	const execArgv = [];
@@ -114,9 +114,9 @@ function forkWorker(index, isPrimary) {
 	process.env.isCluster = nconf.get('isCluster') || ports.length > 1;
 	process.env.port = ports[index];
 	const worker = fork(appPath, args, {
-		silent: silent,
+		silent,
 		env: process.env,
-		execArgv: execArgv,
+		execArgv,
 	});
 
 	worker.index = index;
@@ -133,7 +133,7 @@ function forkWorker(index, isPrimary) {
 	}
 }
 
-function getPorts() {
+function getPorts () {
 	const _url = nconf.get('url');
 	if (!_url) {
 		console.log('[cluster] url is undefined, please check your config.json');
@@ -181,7 +181,7 @@ Loader.stop = function () {
 	}
 };
 
-function killWorkers() {
+function killWorkers () {
 	workers.forEach((worker) => {
 		worker.suicide = true;
 		worker.kill();

@@ -12,7 +12,7 @@ module.exports = {
 		const { progress } = this;
 
 		await batch.processSortedSet('users:joindate', async (uids) => {
-			async function updateHistory(uid, set, fieldName) {
+			async function updateHistory (uid, set, fieldName) {
 				const count = await db.sortedSetCard(set);
 				if (count <= 0) {
 					// User has not changed their username/email before, record original username

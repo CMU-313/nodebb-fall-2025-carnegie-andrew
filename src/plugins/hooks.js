@@ -59,7 +59,7 @@ Hooks.register = function (id, data) {
 	if (Array.isArray(data.method) && data.method.every(method => typeof method === 'function' || typeof method === 'string')) {
 		// Go go gadget recursion!
 		data.method.forEach((method) => {
-			const singularData = { ...data, method: method };
+			const singularData = { ...data, method };
 			Hooks.register(id, singularData);
 		});
 	} else if (typeof data.method === 'string' && data.method.length > 0) {
@@ -106,7 +106,7 @@ Hooks.fire = async function (hook, params) {
 	const result = await hookTypeToMethod[hookType](hook, hookList, params);
 
 	if (hook !== 'action:plugins.firehook' && hook !== 'filter:plugins.firehook') {
-		const payload = await Hooks.fire('filter:plugins.firehook', { hook: hook, params: result || params });
+		const payload = await Hooks.fire('filter:plugins.firehook', { hook, params: result || params });
 		Hooks.fire('action:plugins.firehook', payload);
 	}
 	if (result !== undefined) {
@@ -121,10 +121,10 @@ Hooks.hasListeners = function (hook) {
 	return !!(plugins.loadedHooks[hook] && plugins.loadedHooks[hook].length > 0);
 };
 
-function hookHandlerPromise(hook, hookObj, params) {
+function hookHandlerPromise (hook, hookObj, params) {
 	return new Promise((resolve, reject) => {
 		let resolved = false;
-		function _resolve(result) {
+		function _resolve (result) {
 			if (resolved) {
 				winston.warn(`[plugins] ${hook} already resolved in plugin ${hookObj.id}`);
 				return;
@@ -153,12 +153,12 @@ function hookHandlerPromise(hook, hookObj, params) {
 	});
 }
 
-async function fireFilterHook(hook, hookList, params) {
+async function fireFilterHook (hook, hookList, params) {
 	if (!Array.isArray(hookList) || !hookList.length) {
 		return params;
 	}
 
-	async function fireMethod(hookObj, params) {
+	async function fireMethod (hookObj, params) {
 		if (typeof hookObj.method !== 'function') {
 			if (global.env === 'development') {
 				winston.warn(`[plugins] Expected method for hook '${hook}' in plugin '${hookObj.id}' not found, skipping.`);
@@ -179,7 +179,7 @@ async function fireFilterHook(hook, hookList, params) {
 	return params;
 }
 
-async function fireActionHook(hook, hookList, params) {
+async function fireActionHook (hook, hookList, params) {
 	if (!Array.isArray(hookList) || !hookList.length) {
 		return;
 	}
@@ -210,14 +210,14 @@ const timeout = (prom, time, error) => {
 	]).finally(() => clearTimeout(timer));
 };
 
-async function fireStaticHook(hook, hookList, params) {
+async function fireStaticHook (hook, hookList, params) {
 	if (!Array.isArray(hookList) || !hookList.length) {
 		return;
 	}
 	// don't bubble errors from these hooks, so bad plugins don't stop startup
 	const noErrorHooks = ['static:app.load', 'static:assets.prepare', 'static:app.preload'];
 
-	async function fireMethod(hookObj, params) {
+	async function fireMethod (hookObj, params) {
 		if (typeof hookObj.method !== 'function') {
 			if (global.env === 'development') {
 				winston.warn(`[plugins] Expected method for hook '${hook}' in plugin '${hookObj.id}' not found, skipping.`);
@@ -250,7 +250,7 @@ async function fireStaticHook(hook, hookList, params) {
 	}
 }
 
-async function fireResponseHook(hook, hookList, params) {
+async function fireResponseHook (hook, hookList, params) {
 	if (!Array.isArray(hookList) || !hookList.length) {
 		return;
 	}

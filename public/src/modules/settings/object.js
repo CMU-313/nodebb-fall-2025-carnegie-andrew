@@ -13,7 +13,7 @@ define('settings/object', function () {
 	 @param separator The separator to use.
 	 @param insertCb The callback to insert the elements.
 	 */
-	function addObjectPropertyElement(field, key, attributes, prop, value, separator, insertCb) {
+	function addObjectPropertyElement (field, key, attributes, prop, value, separator, insertCb) {
 		const prepend = attributes['data-prepend'];
 		const append = attributes['data-append'];
 		delete attributes['data-prepend'];

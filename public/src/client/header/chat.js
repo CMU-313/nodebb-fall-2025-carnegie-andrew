@@ -56,19 +56,19 @@ define('forum/header/chat', [
 		});
 	};
 
-	function onChatMessageReceived(data) {
+	function onChatMessageReceived (data) {
 		requireAndCall('onChatMessageReceived', data);
 	}
 
-	function onUserTyping(data) {
+	function onUserTyping (data) {
 		requireAndCall('onUserTyping', data);
 	}
 
-	function onRoomRename(data) {
+	function onRoomRename (data) {
 		requireAndCall('onRoomRename', data);
 	}
 
-	async function requireAndCall(method, param) {
+	async function requireAndCall (method, param) {
 		const chat = await app.require('chat');
 		chat[method](param);
 	}

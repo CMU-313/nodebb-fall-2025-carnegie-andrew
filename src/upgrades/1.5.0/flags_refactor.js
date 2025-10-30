@@ -34,7 +34,7 @@ module.exports = {
 							await flags.update(flagObj.flagId, 1, {
 								state: post['flag:state'],
 								assignee: post['flag:assignee'],
-								datetime: datetime,
+								datetime,
 							});
 						}
 						if (post.hasOwnProperty('flag:notes') && post['flag:notes'].length) {

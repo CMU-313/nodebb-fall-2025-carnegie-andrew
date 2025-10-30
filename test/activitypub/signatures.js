@@ -55,7 +55,7 @@ describe('http signature signing and verification', () => {
 			const endpoint = `${nconf.get('url')}/uid/${uid}/inbox`;
 			const keyData = await activitypub.getPrivateKey('uid', 0);
 			await activitypub.sign(keyData, endpoint);
-			const { publicKey, privateKey } = await db.getObject(`uid:0:keys`);
+			const { publicKey, privateKey } = await db.getObject('uid:0:keys');
 
 			assert(publicKey);
 			assert(privateKey);

@@ -1,6 +1,5 @@
 'use strict';
 
-
 const categories = require('../../categories');
 
 const Categories = module.exports;
@@ -18,7 +17,7 @@ Categories.copyPrivilegesToChildren = async function (socket, data) {
 	}
 };
 
-async function copyPrivilegesToChildrenRecursive(parentCid, category, group, filter) {
+async function copyPrivilegesToChildrenRecursive (parentCid, category, group, filter) {
 	await categories.copyPrivilegesFrom(parentCid, category.cid, group, filter);
 	for (const child of category.children) {
 		// eslint-disable-next-line no-await-in-loop

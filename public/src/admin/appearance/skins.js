@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('admin/appearance/skins', [
 	'translator', 'alerts', 'settings', 'hooks', 'slugify',
 ], function (translator, alerts, settings, hooks, slugify) {
@@ -31,7 +30,6 @@ define('admin/appearance/skins', [
 			});
 			return false;
 		});
-
 
 		$('#skins').on('click', function (e) {
 			let target = $(e.target);
@@ -94,7 +92,7 @@ define('admin/appearance/skins', [
 		});
 	};
 
-	function highlightSelectedTheme(themeId) {
+	function highlightSelectedTheme (themeId) {
 		translator.translate('[[admin/appearance/skins:select-skin]]  ||  [[admin/appearance/skins:current-skin]]', function (text) {
 			text = text.split('  ||  ');
 			const select = text[0];

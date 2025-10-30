@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('uploader', ['jquery-form'], function () {
 	const module = {};
 
@@ -8,7 +7,7 @@ define('uploader', ['jquery-form'], function () {
 		const fileSize = data.hasOwnProperty('fileSize') && data.fileSize !== undefined ? parseInt(data.fileSize, 10) : false;
 		app.parseAndTranslate('modals/upload-file', {
 			showHelp: data.hasOwnProperty('showHelp') && data.showHelp !== undefined ? data.showHelp : true,
-			fileSize: fileSize,
+			fileSize,
 			title: data.title || '[[global:upload-file]]',
 			description: data.description || '',
 			button: data.button || '[[global:upload]]',
@@ -39,7 +38,7 @@ define('uploader', ['jquery-form'], function () {
 		$(modal).find('#alert-status, #alert-success, #alert-error, #upload-progress-box').addClass('hide');
 	};
 
-	function onSubmit(uploadModal, fileSize, callback) {
+	function onSubmit (uploadModal, fileSize, callback) {
 		showAlert(uploadModal, 'status', '[[uploads:uploading-file]]');
 
 		uploadModal.find('#upload-progress-bar').css('width', '0%');
@@ -56,7 +55,7 @@ define('uploader', ['jquery-form'], function () {
 		module.ajaxSubmit(uploadModal, callback);
 	}
 
-	function showAlert(uploadModal, type, message) {
+	function showAlert (uploadModal, type, message) {
 		module.hideAlerts(uploadModal);
 		if (type === 'error') {
 			uploadModal.find('#fileUploadSubmitBtn').removeClass('disabled');
@@ -103,7 +102,7 @@ define('uploader', ['jquery-form'], function () {
 		});
 	};
 
-	function maybeParse(response) {
+	function maybeParse (response) {
 		if (typeof response === 'string') {
 			try {
 				return JSON.parse(response);
@@ -115,7 +114,7 @@ define('uploader', ['jquery-form'], function () {
 		return response;
 	}
 
-	function hasValidFileSize(fileElement, maxSize) {
+	function hasValidFileSize (fileElement, maxSize) {
 		if (window.FileReader && maxSize) {
 			return fileElement.files[0].size <= maxSize * 1000;
 		}

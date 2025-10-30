@@ -11,7 +11,7 @@ app.onDomReady();
 (function () {
 	let logoutTimer = 0;
 	let logoutMessage;
-	function startLogoutTimer() {
+	function startLogoutTimer () {
 		if (app.config.adminReloginDuration <= 0) {
 			return;
 		}
@@ -69,7 +69,7 @@ app.onDomReady();
 		});
 	});
 
-	function showCorrectNavTab() {
+	function showCorrectNavTab () {
 		const accordionEl = $('[component="acp/accordion"]');
 		let pathname = window.location.pathname;
 		if (pathname === '/admin') {
@@ -100,7 +100,7 @@ app.onDomReady();
 		fixAccordionIds();
 	});
 
-	function fixAccordionIds() {
+	function fixAccordionIds () {
 		// fix mobile accordion, so it doesn't have same ids as desktop
 		// the same accordion partial is used in both places
 		const offcanvasAccordion = $('#offcanvas #accordionACP');
@@ -116,7 +116,7 @@ app.onDomReady();
 		});
 	}
 
-	function setupNProgress() {
+	function setupNProgress () {
 		require(['nprogress', 'hooks'], function (NProgress, hooks) {
 			$(window).on('action:ajaxify.start', function () {
 				NProgress.set(0.7);
@@ -128,7 +128,7 @@ app.onDomReady();
 		});
 	}
 
-	function updatePageTitle(url) {
+	function updatePageTitle (url) {
 		require(['translator'], function (translator) {
 			url = url
 				.replace(/\/\d+$/, '')
@@ -176,7 +176,7 @@ app.onDomReady();
 		});
 	}
 
-	function setupRestartLinks() {
+	function setupRestartLinks () {
 		require(['benchpress', 'bootbox', 'admin/modules/instance'], function (benchpress, bootbox, instance) {
 			// need to preload the compiled alert template
 			// otherwise it can be unloaded when rebuild & restart is run

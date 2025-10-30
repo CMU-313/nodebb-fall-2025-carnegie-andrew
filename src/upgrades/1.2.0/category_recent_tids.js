@@ -3,7 +3,6 @@
 const async = require('async');
 const db = require('../../database');
 
-
 module.exports = {
 	name: 'Category recent tids',
 	timestamp: Date.UTC(2016, 8, 22),

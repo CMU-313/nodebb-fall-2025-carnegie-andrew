@@ -39,13 +39,13 @@ controller.list = async function (req, res) {
 	const cidQuery = {
 		uid: req.uid,
 		cid: '-1',
-		start: start,
-		stop: stop,
-		sort: sort,
+		start,
+		stop,
+		sort,
 		settings: userSettings,
 		query: req.query,
 		tag: req.query.tag,
-		targetUid: targetUid,
+		targetUid,
 	};
 	const data = await categories.getCategoryById(cidQuery);
 	delete data.children;
@@ -79,7 +79,7 @@ controller.list = async function (req, res) {
 	data.selectedTag = tagData.selectedTag;
 	data.selectedTags = tagData.selectedTags;
 
-	data.breadcrumbs = helpers.buildBreadcrumbs([{ text: `[[pages:world]]` }]);
+	data.breadcrumbs = helpers.buildBreadcrumbs([{ text: '[[pages:world]]' }]);
 	data['feeds:disableRSS'] = meta.config['feeds:disableRSS'] || 0;
 	data['reputation:disabled'] = meta.config['reputation:disabled'];
 	if (!meta.config['feeds:disableRSS']) {
@@ -95,7 +95,7 @@ controller.list = async function (req, res) {
 		url: 'world',
 		res: req.res,
 		tags: data.pagination.rel,
-		page: page,
+		page,
 	});
 
 	res.render('world', data);

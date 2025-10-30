@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/topic', [
 	'forum/infinitescroll',
 	'forum/topic/threadTools',
@@ -75,12 +74,12 @@ define('forum/topic', [
 		handleTopicSearch();
 
 		hooks.fire('action:topic.loaded', ajaxify.data);
-		
+
 		// Initialize user pin functionality
 		Topic.initUserPin();
 	};
 
-	function handleTopicSearch() {
+	function handleTopicSearch () {
 		require(['mousetrap'], (mousetrap) => {
 			if (config.topicSearchEnabled) {
 				require(['search'], function (search) {
@@ -142,7 +141,7 @@ define('forum/topic', [
 		});
 	};
 
-	function handleBookmark(tid) {
+	function handleBookmark (tid) {
 		if (window.location.hash) {
 			const el = $(utils.escapeHTML(window.location.hash));
 			if (el.length) {
@@ -174,7 +173,7 @@ define('forum/topic', [
 		}
 	}
 
-	function handleThumbs() {
+	function handleThumbs () {
 		const listEl = document.querySelector('[component="topic/thumb/list"]');
 		if (!listEl) {
 			return;
@@ -192,7 +191,7 @@ define('forum/topic', [
 				});
 				const html = await app.parseAndTranslate('modals/topic-thumbs-view', {
 					src: clickedThumb.href,
-					thumbs: thumbs,
+					thumbs,
 				});
 
 				const modal = bootbox.dialog({
@@ -211,7 +210,7 @@ define('forum/topic', [
 		});
 	}
 
-	function addBlockQuoteHandler() {
+	function addBlockQuoteHandler () {
 		components.get('topic').on('click', 'blockquote .toggle', function () {
 			const blockQuote = $(this).parent('blockquote');
 			const toggle = $(this);
@@ -221,7 +220,7 @@ define('forum/topic', [
 		});
 	}
 
-	function addCodeBlockHandler() {
+	function addCodeBlockHandler () {
 		new clipboard('[component="copy/code/btn"]', {
 			text: function (trigger) {
 				const btn = $(trigger);
@@ -236,11 +235,11 @@ define('forum/topic', [
 			},
 		});
 
-		function addCopyCodeButton() {
-			function scrollbarVisible(element) {
+		function addCopyCodeButton () {
+			function scrollbarVisible (element) {
 				return element.scrollHeight > element.clientHeight;
 			}
-			function offsetCodeBtn(codeEl) {
+			function offsetCodeBtn (codeEl) {
 				if (!codeEl.length) { return; }
 				if (!codeEl[0].scrollHeight) {
 					return setTimeout(offsetCodeBtn, 100, codeEl);
@@ -266,8 +265,8 @@ define('forum/topic', [
 		hooks.registerPage('action:posts.edited', addCopyCodeButton);
 	}
 
-	function addParentHandler() {
-		function gotoPost(event, toPid) {
+	function addParentHandler () {
+		function gotoPost (event, toPid) {
 			const toPost = $('[component="topic"]>[component="post"][data-pid="' + toPid + '"]');
 			if (toPost.length) {
 				event.preventDefault();
@@ -297,7 +296,7 @@ define('forum/topic', [
 		});
 	}
 
-	function addRepliesHandler() {
+	function addRepliesHandler () {
 		$('[component="topic"]').on('click', '[component="post/reply-count"]', function () {
 			const btn = $(this);
 			require(['forum/topic/replies'], function (replies) {
@@ -306,7 +305,7 @@ define('forum/topic', [
 		});
 	}
 
-	function addPostsPreviewHandler() {
+	function addPostsPreviewHandler () {
 		if (!ajaxify.data.showPostPreviewsOnHover || utils.isMobile()) {
 			return;
 		}
@@ -315,14 +314,14 @@ define('forum/topic', [
 		let link = null;
 
 		const postCache = {};
-		function destroyTooltip() {
+		function destroyTooltip () {
 			clearTimeout(renderTimeout);
 			renderTimeout = 0;
 			$('#post-tooltip').remove();
 			destroyed = true;
 		}
 
-		function onClickOutside(ev) {
+		function onClickOutside (ev) {
 			// If the click is outside the tooltip, destroy it
 			if (!$(ev.target).closest('#post-tooltip').length) {
 				destroyTooltip();
@@ -347,7 +346,7 @@ define('forum/topic', [
 			destroyed = false;
 
 			renderTimeout = setTimeout(async () => {
-				async function renderPost(pid) {
+				async function renderPost (pid) {
 					const postData = postCache[pid] || await api.get(`/posts/${encodeURIComponent(pid)}/summary`);
 					$('#post-tooltip').remove();
 					if (postData && ajaxify.data.template.topic) {
@@ -399,13 +398,13 @@ define('forum/topic', [
 		});
 	}
 
-	function setupQuickReply() {
+	function setupQuickReply () {
 		if (config.enableQuickReply || (config.theme && config.theme.enableQuickReply)) {
 			quickreply.init();
 		}
 	}
 
-	function updateTopicTitle() {
+	function updateTopicTitle () {
 		const span = components.get('navbar/title').find('span');
 		if ($(window).scrollTop() > 50 && span.hasClass('hidden')) {
 			span.html(ajaxify.data.title).removeClass('hidden');
@@ -445,7 +444,7 @@ define('forum/topic', [
 		}
 	};
 
-	function updateUserBookmark(index) {
+	function updateUserBookmark (index) {
 		const bookmarkKey = 'topic:' + ajaxify.data.tid + ':bookmark';
 		const currentBookmark = ajaxify.data.bookmark || storage.getItem(bookmarkKey);
 		if (config.topicPostSort === 'newest_to_oldest') {
@@ -490,22 +489,22 @@ define('forum/topic', [
 			const postElement = button.closest('[component="post"]');
 			postElement.attr('data-pinned', 'true');
 		});
-		
+
 		// Handle pin/unpin clicks on posts
 		$(document).off('click', '[component="post/user-pin"]').on('click', '[component="post/user-pin"]', function (e) {
 			e.preventDefault();
 			e.stopPropagation();
-			
+
 			const button = $(this);
 			const postElement = button.closest('[component="post"]');
 			const pid = postElement.attr('data-pid');
-			
+
 			if (!pid) {
 				return;
 			}
-			
+
 			const isPinned = button.hasClass('active');
-			
+
 			if (isPinned) {
 				Topic.unpinPost(pid, button, postElement);
 			} else {
@@ -523,15 +522,15 @@ define('forum/topic', [
 				button.find('i').removeClass('text-secondary').addClass('text-primary');
 				button.attr('title', '[[post:user-pinned]]');
 				button.attr('aria-label', '[[post:user-pinned]]');
-				
+
 				// Move post to top of topic
 				Topic.movePostToTop(postElement);
-				
+
 				// Show success message
 				alerts.success('[[post:pin-success]]');
-				
+
 				// Fire hook for other modules
-				hooks.fire('action:post.userPinned', { pid: pid });
+				hooks.fire('action:post.userPinned', { pid });
 			})
 			.catch((err) => {
 				alerts.error(err);
@@ -547,15 +546,15 @@ define('forum/topic', [
 				button.find('i').removeClass('text-primary').addClass('text-secondary');
 				button.attr('title', '[[post:pin-to-top]]');
 				button.attr('aria-label', '[[post:pin-to-top]]');
-				
+
 				// Move post back to original position
 				Topic.movePostToOriginalPosition(postElement);
-				
+
 				// Show success message
 				alerts.success('[[post:unpin-success]]');
-				
+
 				// Fire hook for other modules
-				hooks.fire('action:post.userUnpinned', { pid: pid });
+				hooks.fire('action:post.userUnpinned', { pid });
 			})
 			.catch((err) => {
 				alerts.error(err);
@@ -565,19 +564,19 @@ define('forum/topic', [
 	Topic.movePostToTop = function (postElement) {
 		// Add pinned badge immediately
 		Topic.addPinnedBadge(postElement);
-		
+
 		// Mark as pinned for future reference
 		postElement.attr('data-pinned', 'true');
-		
+
 		// Find the topic posts container
 		const postsContainer = $('[component="topic"]');
 		if (postsContainer.length) {
 			// Find all currently pinned posts
 			// const pinnedPosts = postsContainer.find('[component="post"][data-pinned="true"]');
-			
+
 			// Remove this post from the container temporarily
 			postElement.detach();
-			
+
 			// Insert this post at the beginning (top of pinned posts)
 			postsContainer.prepend(postElement);
 		}
@@ -586,21 +585,21 @@ define('forum/topic', [
 	Topic.movePostToOriginalPosition = function (postElement) {
 		// Remove pinned badge immediately
 		Topic.removePinnedBadge(postElement);
-		
+
 		// Remove pinned marker
 		postElement.removeAttr('data-pinned');
-		
+
 		// Find the topic posts container
 		const postsContainer = $('[component="topic"]');
 		const allPosts = postsContainer.find('[component="post"]').toArray();
-		
+
 		// Sort all posts by their data-index attribute (original order)
 		allPosts.sort((a, b) => {
 			const indexA = parseInt($(a).find('[component="post/anchor"]').attr('data-index') || '999999', 10);
 			const indexB = parseInt($(b).find('[component="post/anchor"]').attr('data-index') || '999999', 10);
 			return indexA - indexB;
 		});
-		
+
 		// Separate pinned and unpinned posts
 		const pinnedPosts = allPosts.filter(post => {
 			const $post = $(post);
@@ -611,7 +610,7 @@ define('forum/topic', [
 			const $post = $(post);
 			return $post.attr('data-pinned') !== 'true' && !$post.find('[component="post/user-pin"]').hasClass('active');
 		});
-		
+
 		// Re-append all posts: pinned first (in original order), then unpinned (in original order)
 		postsContainer.empty();
 		pinnedPosts.forEach(post => postsContainer.append(post));
@@ -622,7 +621,7 @@ define('forum/topic', [
 		// Check if badge already exists
 		const existingBadge = postElement.find('.pinned-badge');
 		if (existingBadge.length) return;
-		
+
 		// Find the location to insert the badge (after banned badge or at the end of user badges)
 		const badgeContainer = postElement.find('.d-flex.gap-1.flex-wrap.align-items-center.text-truncate').first();
 		if (badgeContainer.length) {

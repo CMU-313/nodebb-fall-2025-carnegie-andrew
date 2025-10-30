@@ -328,7 +328,7 @@ ActivityPub.get = async (type, id, uri, options) => {
 				winston.verbose(`[activitypub/get] Error received: ${body.error}`);
 			}
 
-			const e = new Error(`[[error:activitypub.get-failed]]`);
+			const e = new Error('[[error:activitypub.get-failed]]');
 			e.code = `ap_get_${response.statusCode}`;
 			throw e;
 		}
@@ -342,7 +342,7 @@ ActivityPub.get = async (type, id, uri, options) => {
 
 		// Handle things like non-json body, etc.
 		const { cause } = e;
-		throw new Error(`[[error:activitypub.get-failed]]`, { cause });
+		throw new Error('[[error:activitypub.get-failed]]', { cause });
 	}
 };
 
@@ -358,13 +358,13 @@ ActivityPub.retryQueue = lru({
 });
 
 // handle clearing retry queue from another member of the cluster
-pubsub.on(`activitypub-retry-queue:lruCache:del`, (keys) => {
+pubsub.on('activitypub-retry-queue:lruCache:del', (keys) => {
 	if (Array.isArray(keys)) {
 		keys.forEach(key => clearTimeout(ActivityPub.retryQueue.get(key)));
 	}
 });
 
-async function sendMessage(uri, id, type, payload, attempts = 1) {
+async function sendMessage (uri, id, type, payload, attempts = 1) {
 	const keyData = await ActivityPub.getPrivateKey(type, id);
 	const headers = await ActivityPub.sign(keyData, uri, payload);
 
@@ -434,7 +434,7 @@ ActivityPub.send = async (type, id, targets, payload) => {
 		{
 			batch: 50,
 			interval: 100,
-		},
+		}
 	);
 };
 
@@ -443,7 +443,7 @@ ActivityPub.record = async ({ id, type, actor }) => {
 	const { hostname } = new URL(actor);
 
 	await Promise.all([
-		db.sortedSetAdd(`activities:datetime`, now, id),
+		db.sortedSetAdd('activities:datetime', now, id),
 		db.sortedSetAdd('domains:lastSeen', now, hostname),
 		analytics.increment(['activities', `activities:byType:${type}`, `activities:byHost:${hostname}`]),
 	]);
@@ -577,7 +577,7 @@ ActivityPub.probe = async ({ uid, url }) => {
 	}
 
 	// Opportunistic HEAD
-	async function checkHeader(timeout) {
+	async function checkHeader (timeout) {
 		const { response } = await request.head(url, {
 			timeout,
 		});

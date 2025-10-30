@@ -101,7 +101,7 @@ usersAPI.update = async function (caller, data) {
 };
 
 usersAPI.delete = async function (caller, { uid, password }) {
-	await processDeletion({ uid: uid, method: 'delete', password, caller });
+	await processDeletion({ uid, method: 'delete', password, caller });
 };
 
 usersAPI.deleteContent = async function (caller, { uid, password }) {
@@ -495,7 +495,7 @@ usersAPI.confirmEmail = async (caller, { uid, email, sessionId }) => {
 	return false;
 };
 
-async function isPrivilegedOrSelfAndPasswordMatch(caller, data) {
+async function isPrivilegedOrSelfAndPasswordMatch (caller, data) {
 	const { uid } = caller;
 	const isSelf = parseInt(uid, 10) === parseInt(data.uid, 10);
 	const canEdit = await privileges.users.canEdit(uid, data.uid);
@@ -513,7 +513,7 @@ async function isPrivilegedOrSelfAndPasswordMatch(caller, data) {
 	}
 }
 
-async function processDeletion({ uid, method, password, caller }) {
+async function processDeletion ({ uid, method, password, caller }) {
 	const isTargetAdmin = await user.isAdministrator(uid);
 	const isSelf = String(uid) === String(caller.uid);
 	const hasAdminPrivilege = await privileges.admin.can('admin:users', caller.uid);
@@ -553,7 +553,7 @@ async function processDeletion({ uid, method, password, caller }) {
 
 	plugins.hooks.fire('action:user.delete', {
 		callerUid: caller.uid,
-		uid: uid,
+		uid,
 		ip: caller.ip,
 		user: userData,
 	});
@@ -568,7 +568,7 @@ async function processDeletion({ uid, method, password, caller }) {
 	});
 }
 
-async function canDeleteUids(uids) {
+async function canDeleteUids (uids) {
 	if (!Array.isArray(uids)) {
 		throw new Error('[[error:invalid-data]]');
 	}
@@ -606,7 +606,7 @@ usersAPI.search = async function (caller, data) {
 		searchBy: data.searchBy || 'username',
 		page: data.page || 1,
 		sortBy: data.sortBy || 'lastonline',
-		filters: filters,
+		filters,
 	});
 };
 
@@ -633,7 +633,7 @@ usersAPI.changePicture = async (caller, data) => {
 	} else {
 		const returnData = await plugins.hooks.fire('filter:user.getPicture', {
 			uid: caller.uid,
-			type: type,
+			type,
 			picture: undefined,
 		});
 		picture = returnData && returnData.picture;
@@ -646,7 +646,7 @@ usersAPI.changePicture = async (caller, data) => {
 
 	await user.updateProfile(caller.uid, {
 		uid: data.uid,
-		picture: picture,
+		picture,
 		'icon:bgColor': data.bgColor,
 	}, ['picture', 'icon:bgColor']);
 };

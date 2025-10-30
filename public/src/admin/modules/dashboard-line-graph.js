@@ -15,7 +15,6 @@ import * as translator from '../../modules/translator';
 import * as api from '../../modules/api';
 import * as hooks from '../../modules/hooks';
 
-
 Chart.register(
 	LineController,
 	CategoryScale,
@@ -26,11 +25,10 @@ Chart.register(
 	Filler
 );
 
-
 let _current = null;
 let isMobile = false;
 
-export function init({ set, dataset }) {
+export function init ({ set, dataset }) {
 	const canvas = document.getElementById('analytics-traffic');
 	const canvasCtx = canvas.getContext('2d');
 	const trafficLabels = utils.getHoursArray();
@@ -69,7 +67,7 @@ export function init({ set, dataset }) {
 
 			_current = new Chart(canvasCtx, {
 				type: 'line',
-				data: data,
+				data,
 				options: {
 					responsive: true,
 					scales: {
@@ -99,7 +97,7 @@ export function init({ set, dataset }) {
 	});
 }
 
-function handleUpdateControls({ set }) {
+function handleUpdateControls ({ set }) {
 	$('[data-action="updateGraph"]:not([data-units="custom"])').on('click', function () {
 		let until = new Date();
 		const amount = $(this).attr('data-amount');
@@ -140,7 +138,7 @@ function handleUpdateControls({ set }) {
 				modal.find('#endRange').val(targetEl.attr('data-endRange') || today);
 			});
 
-			function submit() {
+			function submit () {
 				// NEED TO ADD VALIDATION HERE FOR YYYY-MM-DD
 				const formData = modal.find('form').serializeObject();
 				const validRegexp = /\d{4}-\d{2}-\d{2}/;
@@ -172,7 +170,7 @@ function handleUpdateControls({ set }) {
 	});
 }
 
-function update(
+function update (
 	set,
 	units = ajaxify.data.query.units || 'hours',
 	until = ajaxify.data.query.until,
@@ -198,7 +196,7 @@ function update(
 			const apiEl = $('#view-as-json');
 			const newHref = $.param({
 				units: units || 'hours',
-				until: until,
+				until,
 				count: amount,
 			});
 			apiEl.attr('href', `${config.relative_path}/api/v3/admin/analytics/${ajaxify.data.set}?${newHref}`);
@@ -211,4 +209,3 @@ function update(
 		});
 	});
 }
-

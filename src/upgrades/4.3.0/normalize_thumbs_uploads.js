@@ -4,7 +4,6 @@ const db = require('../../database');
 const batch = require('../../batch');
 const crypto = require('crypto');
 
-
 module.exports = {
 	name: 'Normalize topic thumbnails, post & user uploads to same format',
 	timestamp: Date.UTC(2025, 3, 4),
@@ -14,7 +13,7 @@ module.exports = {
 		const [topicCount, postCount, userCount] = await db.sortedSetsCard(['topics:tid', 'posts:pid', 'users:joindate']);
 		progress.total = topicCount + postCount + userCount;
 
-		function normalizePath(path) {
+		function normalizePath (path) {
 			if (path.startsWith('http')) {
 				return path;
 			}
@@ -106,7 +105,6 @@ module.exports = {
 							promises.push(db.delete(`upload:${md5(userUpload.value)}`));
 						}
 					});
-
 				}
 			});
 

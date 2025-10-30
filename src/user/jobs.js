@@ -29,11 +29,11 @@ module.exports = function (User) {
 		jobs['reset.clean'] = new cronJob('0 0 * * *', User.reset.clean, null, true);
 		winston.verbose('[user/jobs] Starting job (reset.clean)');
 
-		winston.verbose(`[user/jobs] jobs started`);
+		winston.verbose('[user/jobs] jobs started');
 	};
 
-	function startDigestJob(name, cronString, term) {
-		jobs[name] = new cronJob(cronString, (async () => {
+	function startDigestJob (name, cronString, term) {
+		jobs[name] = new cronJob(cronString, async () => {
 			winston.verbose(`[user/jobs] Digest job (${name}) started.`);
 			try {
 				if (name === 'digest.weekly') {
@@ -46,7 +46,7 @@ module.exports = function (User) {
 			} catch (err) {
 				winston.error(err.stack);
 			}
-		}), null, true);
+		}, null, true);
 		winston.verbose(`[user/jobs] Starting job (${name})`);
 	}
 

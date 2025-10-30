@@ -31,19 +31,19 @@ const runJobs = nconf.get('runJobs');
 Analytics.pause = false;
 
 Analytics.init = async function () {
-	new cronJob('*/10 * * * * *', (async () => {
+	new cronJob('*/10 * * * * *', async () => {
 		if (Analytics.pause) return;
 		publishLocalAnalytics();
 		if (runJobs) {
 			await sleep(2000);
 			await Analytics.writeData();
 		}
-	}), null, true);
+	}, null, true);
 
 	if (runJobs) {
-		new cronJob('*/30 * * * *', (async () => {
+		new cronJob('*/30 * * * *', async () => {
 			await db.sortedSetsRemoveRangeByScore(['ip:recent'], '-inf', Date.now() - 172800000);
-		}), null, true);
+		}, null, true);
 	}
 
 	if (runJobs) {
@@ -53,14 +53,14 @@ Analytics.init = async function () {
 	}
 };
 
-function publishLocalAnalytics() {
+function publishLocalAnalytics () {
 	pubsub.publish('analytics:publish', {
-		local: local,
+		local,
 	});
 	local = _.cloneDeep(empty);
 }
 
-function incrementProperties(obj1, obj2) {
+function incrementProperties (obj1, obj2) {
 	for (const [key, value] of Object.entries(obj2)) {
 		if (typeof value === 'object') {
 			incrementProperties(obj1[key], value);
@@ -74,7 +74,7 @@ function incrementProperties(obj1, obj2) {
 Analytics.increment = function (keys, callback) {
 	keys = Array.isArray(keys) ? keys : [keys];
 
-	plugins.hooks.fire('action:analytics.increment', { keys: keys });
+	plugins.hooks.fire('action:analytics.increment', { keys });
 
 	keys.forEach((key) => {
 		local.counters[key] = local.counters[key] || 0;
@@ -230,7 +230,7 @@ Analytics.getDailyStatsForSet = async function (set, day, numDays) {
 	day.setDate(day.getDate() + 1);
 	day.setHours(0, 0, 0, 0);
 
-	async function getHourlyStats(hour) {
+	async function getHourlyStats (hour) {
 		const dayData = await Analytics.getHourlyStatsForSet(
 			set,
 			hour,

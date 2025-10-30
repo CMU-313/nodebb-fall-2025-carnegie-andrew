@@ -81,7 +81,7 @@ module.exports = function (opts) {
 	};
 	cache.clear = cache.reset;
 
-	function localReset() {
+	function localReset () {
 		ttlCache.clear();
 		cache.hits = 0;
 		cache.misses = 0;

@@ -88,9 +88,9 @@ module.exports = function (SocketPosts) {
 			uid: socket.uid,
 			ip: socket.ip,
 			targetUid: data.toUid,
-			pid: pid,
+			pid,
 			originalUid: uid,
-			cid: cid,
+			cid,
 		})));
 
 		await Promise.all(logs);
@@ -115,7 +115,7 @@ module.exports = function (SocketPosts) {
 		await db.setAdd(`pid:${data.pid}:editors`, data.uids);
 	};
 
-	async function checkEditorPrivilege(uid, pid) {
+	async function checkEditorPrivilege (uid, pid) {
 		const cid = await posts.getCidByPid(pid);
 		const [isAdminOrMod, owner] = await Promise.all([
 			privileges.categories.isAdminOrMod(cid, uid),

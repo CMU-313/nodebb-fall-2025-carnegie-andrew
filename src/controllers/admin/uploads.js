@@ -62,7 +62,7 @@ uploadsController.get = async function (req, res, next) {
 		res.render('admin/manage/uploads', {
 			currentFolder: currentFolder.replace(nconf.get('upload_path'), ''),
 			showPids: files.length && files[0].hasOwnProperty('inPids'),
-			files: files,
+			files,
 			breadcrumbs: buildBreadcrumbs(currentFolder),
 			pagination: pagination.create(page, Math.ceil(itemCount / itemsPerPage), req.query),
 		});
@@ -71,7 +71,7 @@ uploadsController.get = async function (req, res, next) {
 	}
 };
 
-async function checkSymLinks(folder) {
+async function checkSymLinks (folder) {
 	let dir = path.normalize(folder || '');
 	while (dir.length && dir !== '.') {
 		const nextPath = path.join(nconf.get('upload_path'), dir);
@@ -88,7 +88,7 @@ async function checkSymLinks(folder) {
 	}
 }
 
-async function getFilesInFolder(folder) {
+async function getFilesInFolder (folder) {
 	const dirents = await fs.promises.readdir(folder, { withFileTypes: true });
 	const files = [];
 	for await (const dirent of dirents) {
@@ -99,7 +99,7 @@ async function getFilesInFolder(folder) {
 	return files;
 }
 
-function buildBreadcrumbs(currentFolder) {
+function buildBreadcrumbs (currentFolder) {
 	const crumbs = [];
 	const parts = currentFolder.replace(nconf.get('upload_path'), '').split(path.sep);
 	let currentPath = '';
@@ -120,11 +120,11 @@ function buildBreadcrumbs(currentFolder) {
 	return crumbs;
 }
 
-async function filesToData(currentDir, files) {
+async function filesToData (currentDir, files) {
 	return await Promise.all(files.map(file => getFileData(currentDir, file)));
 }
 
-async function getFileData(currentDir, file) {
+async function getFileData (currentDir, file) {
 	const pathToFile = path.join(currentDir, file);
 	const stat = await fs.promises.stat(pathToFile);
 	let filesInDir = [];
@@ -135,7 +135,7 @@ async function getFileData(currentDir, file) {
 	return {
 		name: file,
 		path: pathToFile.replace(path.join(nconf.get('upload_path'), '/'), ''),
-		url: url,
+		url,
 		fileCount: filesInDir.length,
 		size: stat.size,
 		sizeHumanReadable: `${(stat.size / 1024).toFixed(1)}KiB`,
@@ -202,7 +202,6 @@ uploadsController.uploadTouchIcon = async function (req, res, next) {
 	}
 };
 
-
 uploadsController.uploadMaskableIcon = async function (req, res, next) {
 	const uploadedFile = req.files.files[0];
 	const allowedTypes = ['image/png'];
@@ -253,7 +252,7 @@ uploadsController.uploadOgImage = async function (req, res, next) {
 	await upload('og:image', req, res, next);
 };
 
-async function upload(name, req, res, next) {
+async function upload (name, req, res, next) {
 	const uploadedFile = req.files.files[0];
 
 	await validateUpload(uploadedFile, allowedImageTypes);
@@ -261,18 +260,18 @@ async function upload(name, req, res, next) {
 	await uploadImage(filename, 'system', uploadedFile, req, res, next);
 }
 
-async function validateUpload(uploadedFile, allowedTypes) {
+async function validateUpload (uploadedFile, allowedTypes) {
 	if (!allowedTypes.includes(uploadedFile.type)) {
 		file.delete(uploadedFile.path);
 		throw new Error(`[[error:invalid-image-type, ${allowedTypes.join('&#44; ')}]]`);
 	}
 }
 
-async function uploadImage(filename, folder, uploadedFile, req, res, next) {
+async function uploadImage (filename, folder, uploadedFile, req, res, next) {
 	let imageData;
 	try {
 		if (plugins.hooks.hasListeners('filter:uploadImage')) {
-			imageData = await plugins.hooks.fire('filter:uploadImage', { image: uploadedFile, uid: req.uid, folder: folder });
+			imageData = await plugins.hooks.fire('filter:uploadImage', { image: uploadedFile, uid: req.uid, folder });
 		} else {
 			imageData = await file.saveFileToLocal(filename, folder, uploadedFile.path);
 		}

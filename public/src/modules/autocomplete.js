@@ -88,7 +88,7 @@ define('autocomplete', [
 							return group && {
 								label: group.name,
 								value: group.name,
-								group: group,
+								group,
 							};
 						});
 						response(names);
@@ -121,7 +121,7 @@ define('autocomplete', [
 		});
 	};
 
-	function handleOnSelect(input, onselect, event, ui) {
+	function handleOnSelect (input, onselect, event, ui) {
 		onselect = onselect || function () { };
 		const e = jQuery.Event('keypress');
 		e.which = 13;
@@ -138,7 +138,7 @@ define('autocomplete', [
 		if (!targetEl) {
 			return;
 		}
-		var editor;
+		let editor;
 		if (targetEl.nodeName === 'TEXTAREA' || targetEl.nodeName === 'INPUT') {
 			editor = new TextareaEditor(targetEl);
 		} else if (targetEl.nodeName === 'DIV' && targetEl.getAttribute('contenteditable') === 'true') {
@@ -150,7 +150,7 @@ define('autocomplete', [
 		// yuku-t/textcomplete inherits directionality from target element itself
 		targetEl.setAttribute('dir', document.querySelector('html').getAttribute('data-dir'));
 
-		var textcomplete = new Textcomplete(editor, strategies, {
+		const textcomplete = new Textcomplete(editor, strategies, {
 			dropdown: options,
 		});
 		textcomplete.on('rendered', function () {
@@ -162,7 +162,6 @@ define('autocomplete', [
 
 		return textcomplete;
 	};
-
 
 	return autocomplete;
 });

@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/chats/message-search', [
 	'components', 'alerts', 'forum/chats/messages',
 ], function (components, alerts, messages) {
@@ -47,7 +46,7 @@ define('forum/chats/message-search', [
 		});
 	};
 
-	function clearInputAndResults() {
+	function clearInputAndResults () {
 		searchInputEl.val('');
 		removeResults();
 		resultListEl.addClass('hidden');
@@ -57,7 +56,7 @@ define('forum/chats/message-search', [
 		toggleEl.removeClass('hidden');
 	}
 
-	async function doSearch() {
+	async function doSearch () {
 		const query = searchInputEl.val();
 		if (!query || query.length <= 2) {
 			return;
@@ -65,16 +64,16 @@ define('forum/chats/message-search', [
 		clearEl.removeClass('hidden');
 		socket.emit('modules.chats.searchMessages', {
 			content: query,
-			roomId: roomId,
+			roomId,
 		}).then(displayResults)
 			.catch(alerts.error);
 	}
 
-	function removeResults() {
+	function removeResults () {
 		resultListEl.children('[data-mid]').remove();
 	}
 
-	async function displayResults(data) {
+	async function displayResults (data) {
 		removeResults();
 
 		if (!data.messages.length) {

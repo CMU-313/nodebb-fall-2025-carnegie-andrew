@@ -48,7 +48,6 @@ module.exports = {
 			progress: this.progress,
 		});
 
-
 		const bannedCount = await db.sortedSetCard('group:banned-users:members');
 		const registeredCount = await db.sortedSetCard('group:registered-users:members');
 		const verifiedCount = await db.sortedSetCard('group:verified-users:members');

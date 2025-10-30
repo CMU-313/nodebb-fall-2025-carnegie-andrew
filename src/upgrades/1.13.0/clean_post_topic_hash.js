@@ -13,7 +13,7 @@ module.exports = {
 	},
 };
 
-async function cleanPost(progress) {
+async function cleanPost (progress) {
 	await batch.processSortedSet('posts:pid', async (pids) => {
 		progress.incr(pids.length);
 
@@ -51,11 +51,11 @@ async function cleanPost(progress) {
 		}));
 	}, {
 		batch: 500,
-		progress: progress,
+		progress,
 	});
 }
 
-async function cleanTopic(progress) {
+async function cleanTopic (progress) {
 	await batch.processSortedSet('topics:tid', async (tids) => {
 		progress.incr(tids.length);
 		const topicData = await db.getObjects(tids.map(tid => `topic:${tid}`));
@@ -90,6 +90,6 @@ async function cleanTopic(progress) {
 		}));
 	}, {
 		batch: 500,
-		progress: progress,
+		progress,
 	});
 }

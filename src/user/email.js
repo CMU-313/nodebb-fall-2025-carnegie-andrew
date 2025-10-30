@@ -1,4 +1,3 @@
-
 'use strict';
 
 const nconf = require('nconf');
@@ -157,7 +156,7 @@ UserEmail.sendValidationEmail = async function (uid, options) {
 
 	await db.setObject(`confirm:${confirm_code}`, {
 		email: options.email.toLowerCase(),
-		uid: uid,
+		uid,
 		expires: Date.now() + (emailConfirmExpiry * 60 * 60 * 1000),
 	});
 
@@ -170,7 +169,7 @@ UserEmail.sendValidationEmail = async function (uid, options) {
 	});
 
 	if (plugins.hooks.hasListeners('action:user.verify')) {
-		plugins.hooks.fire('action:user.verify', { uid: uid, data: data });
+		plugins.hooks.fire('action:user.verify', { uid, data });
 	} else {
 		await emailer.send(data.template, uid, data);
 	}
@@ -231,12 +230,12 @@ UserEmail.confirmByUid = async function (uid, callerUid = 0) {
 		throw new Error('[[error:email-taken]]');
 	}
 
-	const confirmedEmails = await db.getSortedSetRangeByScore(`email:uid`, 0, -1, uid, uid);
+	const confirmedEmails = await db.getSortedSetRangeByScore('email:uid', 0, -1, uid, uid);
 	if (confirmedEmails.length) {
 		// remove old email of user by uid
-		await db.sortedSetsRemoveRangeByScore([`email:uid`], uid, uid);
+		await db.sortedSetsRemoveRangeByScore(['email:uid'], uid, uid);
 		await db.sortedSetRemoveBulk(
-			confirmedEmails.map(email => [`email:sorted`, `${email.toLowerCase()}:${uid}`])
+			confirmedEmails.map(email => ['email:sorted', `${email.toLowerCase()}:${uid}`])
 		);
 	}
 	await Promise.all([
@@ -251,5 +250,5 @@ UserEmail.confirmByUid = async function (uid, callerUid = 0) {
 		user.email.expireValidation(uid),
 		user.reset.cleanByUid(uid),
 	]);
-	await plugins.hooks.fire('action:user.email.confirmed', { uid: uid, email: currentEmail });
+	await plugins.hooks.fire('action:user.email.confirmed', { uid, email: currentEmail });
 };

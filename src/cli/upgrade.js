@@ -45,7 +45,7 @@ const steps = {
 	},
 };
 
-async function runSteps(tasks, options) {
+async function runSteps (tasks, options) {
 	try {
 		for (let i = 0; i < tasks.length; i++) {
 			const step = steps[tasks[i]];
@@ -70,7 +70,7 @@ async function runSteps(tasks, options) {
 	}
 }
 
-async function runUpgrade(upgrades, options) {
+async function runUpgrade (upgrades, options) {
 	const winston = require('winston');
 	const path = require('path');
 	winston.configure({

@@ -2,7 +2,6 @@
 
 const db = require('../../database');
 
-
 module.exports = {
 	name: 'Adding theme to active plugins sorted set',
 	timestamp: Date.UTC(2015, 11, 23),

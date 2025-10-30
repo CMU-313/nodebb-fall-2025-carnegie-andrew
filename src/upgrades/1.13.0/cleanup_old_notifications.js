@@ -45,7 +45,7 @@ module.exports = {
 			}));
 		}, {
 			batch: 500,
-			progress: progress,
+			progress,
 		});
 	},
 };

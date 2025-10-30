@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('admin/advanced/logs', ['alerts'], function (alerts) {
 	const Logs = {};
 
@@ -31,7 +30,7 @@ define('admin/advanced/logs', ['alerts'], function (alerts) {
 		});
 	};
 
-	function loadLogs() {
+	function loadLogs () {
 		const logsEl = $('.logs pre');
 		socket.emit('admin.logs.get', function (err, logs) {
 			if (!err) {

@@ -27,7 +27,7 @@ sitemapController.getTopicPage = function (req, res, next) {
 	sendSitemap(async () => await sitemap.getTopicPage(parseInt(req.params[0], 10)), res, next);
 };
 
-async function sendSitemap(method, res, callback) {
+async function sendSitemap (method, res, callback) {
 	if (meta.config['feeds:disableSitemap']) {
 		return setImmediate(callback);
 	}

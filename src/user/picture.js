@@ -154,21 +154,21 @@ module.exports = function (User) {
 		}
 	};
 
-	async function deleteCurrentPicture(uid, field) {
+	async function deleteCurrentPicture (uid, field) {
 		if (meta.config['profile:keepAllUserImages']) {
 			return;
 		}
 		await deletePicture(uid, field);
 	}
 
-	async function deletePicture(uid, field) {
+	async function deletePicture (uid, field) {
 		const uploadPath = await getPicturePath(uid, field);
 		if (uploadPath) {
 			await file.delete(uploadPath);
 		}
 	}
 
-	function validateUpload(data, maxSize, allowedTypes) {
+	function validateUpload (data, maxSize, allowedTypes) {
 		if (!data.imageData) {
 			throw new Error('[[error:invalid-data]]');
 		}
@@ -183,7 +183,7 @@ module.exports = function (User) {
 		}
 	}
 
-	async function convertToPNG(path) {
+	async function convertToPNG (path) {
 		const convertToPNG = meta.config['profile:convertProfileImageToPNG'] === 1;
 		if (!convertToPNG) {
 			return path;
@@ -193,7 +193,7 @@ module.exports = function (User) {
 		return newPath;
 	}
 
-	function generateProfileImageFilename(uid, extension) {
+	function generateProfileImageFilename (uid, extension) {
 		const convertToPNG = meta.config['profile:convertProfileImageToPNG'] === 1;
 		return `${uid}-profileavatar-${Date.now()}${convertToPNG ? '.png' : extension}`;
 	}
@@ -222,7 +222,7 @@ module.exports = function (User) {
 		return getPicturePath(uid, 'uploadedpicture');
 	};
 
-	async function getPicturePath(uid, field) {
+	async function getPicturePath (uid, field) {
 		const value = await User.getUserField(uid, field);
 		if (!value || !value.startsWith(`${nconf.get('relative_path')}/assets/uploads/profile/uid-${uid}`)) {
 			return false;

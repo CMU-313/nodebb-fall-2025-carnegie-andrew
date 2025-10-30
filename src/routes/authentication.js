@@ -28,7 +28,7 @@ Auth.initialize = function (app, middleware) {
 	Auth.middleware = middleware;
 };
 
-Auth.setAuthVars = function setAuthVars(req) {
+Auth.setAuthVars = function setAuthVars (req) {
 	const isSpider = req.isSpider();
 	req.loggedIn = !isSpider && !!req.user;
 	if (req.user) {
@@ -51,7 +51,7 @@ Auth.verifyToken = async function (token, done) {
 	if (uid !== undefined) {
 		if (parseInt(uid, 10) > 0) {
 			done(null, {
-				uid: uid,
+				uid,
 			});
 		} else {
 			done(null, {
@@ -171,6 +171,6 @@ passport.serializeUser((user, done) => {
 
 passport.deserializeUser((uid, done) => {
 	done(null, {
-		uid: uid,
+		uid,
 	});
 });

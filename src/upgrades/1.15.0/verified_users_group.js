@@ -77,7 +77,7 @@ module.exports = {
 	},
 };
 
-async function updatePrivilges() {
+async function updatePrivilges () {
 	// if email confirmation is required
 	//   give chat, posting privs to "verified-users" group
 	//   remove chat, posting privs from "registered-users" group

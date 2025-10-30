@@ -10,7 +10,7 @@ module.exports = {
 	method: async function () {
 		const { progress } = this;
 
-		const slugsToNames = await db.getObject(`groupslug:groupname`);
+		const slugsToNames = await db.getObject('groupslug:groupname');
 		const privilegeGroups = [];
 		for (const [slug, name] of Object.entries(slugsToNames)) {
 			if (groups.isPrivilegeGroup(name)) {
@@ -21,7 +21,7 @@ module.exports = {
 		progress.total = privilegeGroups.length;
 		await batch.processArray(privilegeGroups, async (slugs) => {
 			progress.incr(slugs.length);
-			await db.deleteObjectFields(`groupslug:groupname`, slugs);
+			await db.deleteObjectFields('groupslug:groupname', slugs);
 		}, {
 			batch: 500,
 		});

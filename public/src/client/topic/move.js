@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/topic/move', [
 	'categorySelector', 'alerts', 'hooks',
 ], function (categorySelector, alerts, hooks) {
@@ -20,7 +19,7 @@ define('forum/topic/move', [
 		showModal();
 	};
 
-	function showModal() {
+	function showModal () {
 		app.parseAndTranslate('modals/move-topic', {}, function (html) {
 			modal = html;
 			$('body').append(modal);
@@ -41,12 +40,12 @@ define('forum/topic/move', [
 		});
 	}
 
-	function onCategorySelected(category) {
+	function onCategorySelected (category) {
 		selectedCategory = category;
 		modal.find('#move_thread_commit').prop('disabled', false);
 	}
 
-	function onCommitClicked() {
+	function onCommitClicked () {
 		const commitEl = modal.find('#move_thread_commit');
 
 		if (!commitEl.prop('disabled') && selectedCategory && selectedCategory.cid) {
@@ -68,7 +67,7 @@ define('forum/topic/move', [
 				return alerts.alert({
 					alert_id: 'tids_move_' + (Move.tids ? Move.tids.join('-') : 'all'),
 					title: '[[topic:thread-tools.move]]',
-					message: message,
+					message,
 					type: 'success',
 					timeout: config.undoTimeout,
 					timeoutfn: function () {
@@ -85,7 +84,7 @@ define('forum/topic/move', [
 		}
 	}
 
-	function moveTopics(data) {
+	function moveTopics (data) {
 		hooks.fire('action:topic.move', data);
 
 		socket.emit(!data.tids ? 'topics.moveAll' : 'topics.move', data, function (err) {
@@ -99,7 +98,7 @@ define('forum/topic/move', [
 		});
 	}
 
-	function closeMoveModal() {
+	function closeMoveModal () {
 		if (modal) {
 			modal.remove();
 			modal = null;

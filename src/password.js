@@ -25,7 +25,7 @@ exports.compare = async function (password, hash, shaWrapped) {
 };
 
 let fakeHashCache;
-async function getFakeHash() {
+async function getFakeHash () {
 	if (fakeHashCache) {
 		return fakeHashCache;
 	}

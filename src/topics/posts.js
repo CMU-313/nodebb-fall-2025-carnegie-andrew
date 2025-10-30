@@ -1,4 +1,3 @@
-
 'use strict';
 
 const _ = require('lodash');
@@ -71,13 +70,13 @@ module.exports = function (Topics) {
 
 		const result = await plugins.hooks.fire('filter:topic.getPosts', {
 			topic: topicData,
-			uid: uid,
+			uid,
 			posts: await Topics.addPostData(postData, uid),
 		});
 		return result.posts;
 	};
 
-	async function addEventStartEnd(postData, set, reverse, topicData) {
+	async function addEventStartEnd (postData, set, reverse, topicData) {
 		if (!postData.length) {
 			return;
 		}
@@ -111,7 +110,7 @@ module.exports = function (Topics) {
 		}
 		const pids = postData.map(post => post && post.pid);
 
-		async function getPostUserData(field, method) {
+		async function getPostUserData (field, method) {
 			const uids = _.uniq(postData
 				.filter(p => p && (activitypub.helpers.isUri(p[field]) || parseInt(p[field], 10) >= 0))
 				.map(p => p[field]));
@@ -154,7 +153,7 @@ module.exports = function (Topics) {
 
 		const result = await plugins.hooks.fire('filter:topics.addPostData', {
 			posts: postData,
-			uid: uid,
+			uid,
 		});
 		return result.posts;
 	};
@@ -201,7 +200,7 @@ module.exports = function (Topics) {
 		await Promise.all(parentPosts.map(async (parentPost) => {
 			const postPrivs = pidToPrivs[parentPost.pid];
 			if (parentPost.deleted && String(parentPost.uid) !== String(callerUid, 10) && !postPrivs['posts:view_deleted']) {
-				parentPost.content = `<p>[[topic:post-is-deleted]]</p>`;
+				parentPost.content = '<p>[[topic:post-is-deleted]]</p>';
 				return;
 			}
 			const foundPost = postData.find(p => String(p.pid) === String(parentPost.pid));
@@ -333,7 +332,7 @@ module.exports = function (Topics) {
 		}
 	};
 
-	async function incrementFieldAndUpdateSortedSet(tid, field, by, set) {
+	async function incrementFieldAndUpdateSortedSet (tid, field, by, set) {
 		const value = await db.incrObjectFieldBy(`topic:${tid}`, field, by);
 		await db[Array.isArray(set) ? 'sortedSetsAdd' : 'sortedSetAdd'](set, value, tid);
 	}
@@ -356,7 +355,7 @@ module.exports = function (Topics) {
 		return await db.getObjectField(`topic:${tid}`, 'postcount');
 	};
 
-	async function getPostReplies(postData, callerUid) {
+	async function getPostReplies (postData, callerUid) {
 		const pids = postData.map(p => p && p.pid);
 		const keys = pids.map(pid => `pid:${pid}:replies`);
 		const [arrayOfReplyPids, userSettings] = await Promise.all([
@@ -420,7 +419,7 @@ module.exports = function (Topics) {
 					const tid = await posts.getPostField(replyPid, 'tid');
 					replyPost = {
 						index: await posts.getPidIndex(replyPid, tid, userSettings.topicPostSort),
-						tid: tid,
+						tid,
 					};
 				}
 				currentData.hasSingleImmediateReply =
@@ -438,7 +437,6 @@ module.exports = function (Topics) {
 		if (!postData) {
 			throw new Error('[[error:invalid-data]]');
 		}
-
 
 		let { content } = postData;
 		// ignore lines that start with `>`

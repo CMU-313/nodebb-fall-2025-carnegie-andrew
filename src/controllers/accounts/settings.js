@@ -34,7 +34,7 @@ settingsController.get = async function (req, res, next) {
 	}
 
 	const data = await plugins.hooks.fire('filter:user.customSettings', {
-		settings: settings,
+		settings,
 		customSettings: [],
 		uid: req.uid,
 	});
@@ -80,7 +80,7 @@ settingsController.get = async function (req, res, next) {
 	];
 
 	userData.upvoteNotifFreq = notifFreqOptions.map(
-		name => ({ name: name, selected: name === userData.settings.upvoteNotifFreq })
+		name => ({ name, selected: name === userData.settings.upvoteNotifFreq })
 	);
 
 	userData.categoryWatchState = { [userData.settings.categoryWatchState]: true };
@@ -165,7 +165,7 @@ settingsController.unsubscribePost = async function (req, res) {
 	}
 };
 
-async function getNotificationSettings(userData) {
+async function getNotificationSettings (userData) {
 	const privilegedTypes = [];
 
 	const privileges = await user.getPrivileges(userData.uid);
@@ -180,10 +180,10 @@ async function getNotificationSettings(userData) {
 	}
 	const results = await plugins.hooks.fire('filter:user.notificationTypes', {
 		types: notifications.baseTypes.slice(),
-		privilegedTypes: privilegedTypes,
+		privilegedTypes,
 	});
 
-	function modifyType(type) {
+	function modifyType (type) {
 		const setting = userData.settings[type];
 		return {
 			name: type,
@@ -202,7 +202,7 @@ async function getNotificationSettings(userData) {
 	return results.types.map(modifyType).concat(results.privilegedTypes.map(modifyType));
 }
 
-async function getHomePageRoutes(userData) {
+async function getHomePageRoutes (userData) {
 	let routes = await helpers.getHomePageRoutes(userData.uid);
 
 	// Set selected for each route
@@ -230,7 +230,7 @@ async function getHomePageRoutes(userData) {
 	return routes;
 }
 
-async function getSkinOptions(userData) {
+async function getSkinOptions (userData) {
 	const defaultSkin = _.capitalize(meta.config.bootswatchSkin) || '[[user:no-skin]]';
 	const bootswatchSkinOptions = [
 		{ name: '[[user:no-skin]]', value: 'noskin' },
@@ -256,7 +256,7 @@ async function getSkinOptions(userData) {
 	return bootswatchSkinOptions;
 }
 
-async function getChatAllowDenyList(userData) {
+async function getChatAllowDenyList (userData) {
 	const [chatAllowListUsers, chatDenyListUsers] = await Promise.all([
 		user.getUsersFields(userData.settings.chatAllowList, ['uid', 'username', 'picture']),
 		user.getUsersFields(userData.settings.chatDenyList, ['uid', 'username', 'picture']),

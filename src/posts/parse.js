@@ -74,7 +74,7 @@ module.exports = function (Posts) {
 
 	Posts.parseSignature = async function (userData, uid) {
 		userData.signature = sanitizeSignature(userData.signature || '');
-		return await plugins.hooks.fire('filter:parse.signature', { userData: userData, uid: uid });
+		return await plugins.hooks.fire('filter:parse.signature', { userData, uid });
 	};
 
 	Posts.relativeToAbsolute = function (content, regex) {
@@ -166,7 +166,7 @@ module.exports = function (Posts) {
 		});
 	};
 
-	function sanitizeSignature(signature) {
+	function sanitizeSignature (signature) {
 		signature = translator.escape(signature);
 		const tagsToStrip = [];
 

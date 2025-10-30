@@ -14,7 +14,7 @@ module.exports.handle = function (req, res, next) {
 	}
 };
 
-function generateXML() {
+function generateXML () {
 	return xml([{
 		OpenSearchDescription: [
 			{
@@ -52,6 +52,6 @@ function generateXML() {
 	}], { declaration: true, indent: '\t' });
 }
 
-function trimToLength(string, length) {
+function trimToLength (string, length) {
 	return string.trim().substring(0, length).trim();
 }

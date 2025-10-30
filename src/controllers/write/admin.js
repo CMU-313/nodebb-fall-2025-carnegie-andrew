@@ -72,7 +72,7 @@ Admin.chats.deleteRoom = async (req, res) => {
 	events.log({
 		type: 'chat-room-deleted',
 		roomId: req.params.roomId,
-		roomName: roomData.roomName ? roomData.roomName : `No room name`,
+		roomName: roomData.roomName ? roomData.roomName : 'No room name',
 		uid: req.uid,
 		ip: req.ip,
 	});

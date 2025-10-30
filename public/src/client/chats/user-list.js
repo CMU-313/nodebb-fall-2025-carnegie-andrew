@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/chats/user-list', ['api'], function (api) {
 	const userList = {};
 
@@ -30,7 +29,7 @@ define('forum/chats/user-list', ['api'], function (api) {
 		});
 	};
 
-	function startUpdating(roomId, userListEl) {
+	function startUpdating (roomId, userListEl) {
 		if (updateInterval) {
 			clearInterval(updateInterval);
 		}
@@ -39,14 +38,14 @@ define('forum/chats/user-list', ['api'], function (api) {
 		}, 5000);
 	}
 
-	function stopUpdating() {
+	function stopUpdating () {
 		if (updateInterval) {
 			clearInterval(updateInterval);
 			updateInterval = 0;
 		}
 	}
 
-	async function updateUserList(roomId, userListEl) {
+	async function updateUserList (roomId, userListEl) {
 		if (ajaxify.data.template.chats && app.isFocused && userListEl.scrollTop() === 0 && !userListEl.hasClass('hidden')) {
 			const data = await api.get(`/chats/${roomId}/users`, { start: 0 });
 			userListEl.find('[data-bs-toggle="tooltip"]').tooltip('dispose');

@@ -49,7 +49,7 @@ module.exports = {
 				topicData.map(t => t.tid)
 			);
 		}, {
-			progress: progress,
+			progress,
 			batchSize: 500,
 		});
 	},

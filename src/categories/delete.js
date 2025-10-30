@@ -25,10 +25,10 @@ module.exports = function (Categories) {
 		});
 		const categoryData = await Categories.getCategoryData(cid);
 		await purgeCategory(cid, categoryData);
-		plugins.hooks.fire('action:category.delete', { cid: cid, uid: uid, category: categoryData });
+		plugins.hooks.fire('action:category.delete', { cid, uid, category: categoryData });
 	};
 
-	async function purgeCategory(cid, categoryData) {
+	async function purgeCategory (cid, categoryData) {
 		const bulkRemove = [['categories:cid', cid]];
 		if (categoryData && categoryData.name) {
 			bulkRemove.push(['categories:name', `${categoryData.name.slice(0, 200).toLowerCase()}:${cid}`]);
@@ -60,7 +60,7 @@ module.exports = function (Categories) {
 		await groups.destroy(privilegeList.map(privilege => `cid:${cid}:privileges:${privilege}`));
 	}
 
-	async function removeFromParent(cid) {
+	async function removeFromParent (cid) {
 		const [parentCid, children] = await Promise.all([
 			Categories.getCategoryField(cid, 'parentCid'),
 			db.getSortedSetRange(`cid:${cid}:children`, 0, -1),
@@ -89,7 +89,7 @@ module.exports = function (Categories) {
 		]);
 	}
 
-	async function deleteTags(cid) {
+	async function deleteTags (cid) {
 		const tags = await db.getSortedSetMembers(`cid:${cid}:tags`);
 		await db.deleteAll(tags.map(tag => `cid:${cid}:tag:${tag}:topics`));
 		await db.delete(`cid:${cid}:tags`);

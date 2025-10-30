@@ -1,9 +1,7 @@
 'use strict';
 
-
 const db = require('../../database');
 const batch = require('../../batch');
-
 
 module.exports = {
 	name: 'Create chat:room:<room_id>uids:online zset',

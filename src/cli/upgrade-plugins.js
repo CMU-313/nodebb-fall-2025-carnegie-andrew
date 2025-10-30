@@ -7,7 +7,6 @@ const fs = require('fs');
 const path = require('path');
 const chalk = require('chalk');
 
-
 const { paths, pluginNamePattern } = require('../constants');
 const pkgInstall = require('./package-install');
 
@@ -19,7 +18,7 @@ if (process.platform === 'win32') {
 	packageManagerExecutable += '.cmd';
 }
 
-async function getModuleVersions(modules) {
+async function getModuleVersions (modules) {
 	const versionHash = {};
 	const batch = require('../batch');
 	await batch.processArray(modules, async (moduleNames) => {
@@ -37,7 +36,7 @@ async function getModuleVersions(modules) {
 	return versionHash;
 }
 
-async function getInstalledPlugins() {
+async function getInstalledPlugins () {
 	let [deps, bundled] = await Promise.all([
 		fs.promises.readFile(paths.currentPackage, { encoding: 'utf-8' }),
 		fs.promises.readFile(paths.installPackage, { encoding: 'utf-8' }),
@@ -47,7 +46,6 @@ async function getInstalledPlugins() {
 		.filter(pkgName => pluginNamePattern.test(pkgName));
 	bundled = Object.keys(JSON.parse(bundled).dependencies)
 		.filter(pkgName => pluginNamePattern.test(pkgName));
-
 
 	// Whittle down deps to send back only extraneously installed plugins/themes/etc
 	const checklist = deps.filter((pkgName) => {
@@ -67,13 +65,13 @@ async function getInstalledPlugins() {
 	return await getModuleVersions(checklist);
 }
 
-async function getCurrentVersion() {
+async function getCurrentVersion () {
 	let pkg = await fs.promises.readFile(paths.installPackage, { encoding: 'utf-8' });
 	pkg = JSON.parse(pkg);
 	return pkg.version;
 }
 
-async function getSuggestedModules(nbbVersion, toCheck) {
+async function getSuggestedModules (nbbVersion, toCheck) {
 	const request = require('../request');
 	let { response, body } = await request.get(`https://packages.nodebb.org/api/v1/suggest?version=${nbbVersion}&package[]=${toCheck.join('&package[]=')}`);
 	if (!response.ok) {
@@ -86,7 +84,7 @@ async function getSuggestedModules(nbbVersion, toCheck) {
 	return body;
 }
 
-async function checkPlugins() {
+async function checkPlugins () {
 	process.stdout.write('Checking installed plugins and themes for updates... ');
 	const [plugins, nbbVersion] = await Promise.all([
 		getInstalledPlugins(),
@@ -110,8 +108,8 @@ async function checkPlugins() {
 		if (suggestObj.code === 'match-found' && semver.valid(current) && semver.valid(suggested) && semver.gt(suggested, current)) {
 			return {
 				name: suggestObj.package,
-				current: current,
-				suggested: suggested,
+				current,
+				suggested,
 			};
 		}
 		return null;
@@ -120,7 +118,7 @@ async function checkPlugins() {
 	return upgradable;
 }
 
-async function upgradePlugins(unattended = false) {
+async function upgradePlugins (unattended = false) {
 	try {
 		const found = await checkPlugins();
 		if (found && found.length) {

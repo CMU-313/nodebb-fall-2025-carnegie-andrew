@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('forum/account/header', [
 	'coverPhoto',
 	'pictureCropper',
@@ -61,7 +60,7 @@ define('forum/account/header', [
 		components.get('account/unblock').on('click', () => toggleBlockAccount('unblock'));
 	};
 
-	function selectActivePill() {
+	function selectActivePill () {
 		$('.account-sub-links li a').removeClass('active').each(function () {
 			const href = $(this).attr('href');
 
@@ -72,21 +71,21 @@ define('forum/account/header', [
 		});
 	}
 
-	function handleImageChange() {
+	function handleImageChange () {
 		$('[component="profile/change/picture"]').on('click', function () {
 			AccountsPicture.openChangeModal();
 			return false;
 		});
 	}
 
-	function setupCoverPhoto() {
+	function setupCoverPhoto () {
 		coverPhoto.init(
 			components.get('account/cover'),
 			function (imageData, position, callback) {
 				socket.emit('user.updateCover', {
 					uid: ajaxify.data.uid,
-					imageData: imageData,
-					position: position,
+					imageData,
+					position,
 				}, callback);
 			},
 			function () {
@@ -108,7 +107,7 @@ define('forum/account/header', [
 		);
 	}
 
-	function toggleFollow(type) {
+	function toggleFollow (type) {
 		const target = isFinite(ajaxify.data.uid) ? ajaxify.data.uid : encodeURIComponent(ajaxify.data.userslug);
 		api[type === 'follow' ? 'put' : 'del']('/users/' + target + '/follow', undefined, function (err) {
 			if (err) {
@@ -122,7 +121,7 @@ define('forum/account/header', [
 		return false;
 	}
 
-	function flagAccount() {
+	function flagAccount () {
 		require(['flags'], function (flags) {
 			flags.showFlagModal({
 				type: 'user',
@@ -131,7 +130,7 @@ define('forum/account/header', [
 		});
 	}
 
-	function rescindAccountFlag() {
+	function rescindAccountFlag () {
 		const flagId = $(this).data('flag-id');
 		require(['flags'], function (flags) {
 			bootbox.confirm('[[flags:modal-confirm-rescind]]', function (confirm) {
@@ -143,7 +142,7 @@ define('forum/account/header', [
 		});
 	}
 
-	function toggleBlockAccount(action) {
+	function toggleBlockAccount (action) {
 		socket.emit('user.toggleBlock', {
 			blockeeUid: ajaxify.data.uid,
 			blockerUid: app.user.uid,
@@ -160,7 +159,7 @@ define('forum/account/header', [
 		return false;
 	}
 
-	function removeCover() {
+	function removeCover () {
 		translator.translate('[[user:remove-cover-picture-confirm]]', function (translated) {
 			bootbox.confirm(translated, function (confirm) {
 				if (!confirm) {

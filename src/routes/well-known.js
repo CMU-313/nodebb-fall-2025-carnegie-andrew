@@ -29,7 +29,7 @@ module.exports = function (app, middleware, controllers) {
 	app.get('/nodeinfo/2.0(.json)?', helpers.tryRoute(async (req, res) => {
 		const getDaysInMonth = (year, month) => new Date(year, month, 0).getDate();
 
-		function addMonths(input, months) {
+		function addMonths (input, months) {
 			const date = new Date(input);
 			date.setDate(1);
 			date.setMonth(date.getMonth() + months);
@@ -50,7 +50,7 @@ module.exports = function (app, middleware, controllers) {
 			version: '2.0',
 			software: {
 				name: 'NodeBB',
-				version: version,
+				version,
 			},
 			protocols: [
 				'activitypub',
@@ -62,8 +62,8 @@ module.exports = function (app, middleware, controllers) {
 			usage: {
 				users: {
 					total: userCount,
-					activeMonth: activeMonth,
-					activeHalfyear: activeHalfyear,
+					activeMonth,
+					activeHalfyear,
 				},
 				localPosts: topicCount,
 				localComments: postCount - topicCount,

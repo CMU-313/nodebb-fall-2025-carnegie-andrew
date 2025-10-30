@@ -56,7 +56,7 @@ module.exports = function (SocketTopics) {
 		return await searchTags(socket.uid, topics.searchAndLoadTags, data);
 	};
 
-	async function searchTags(uid, method, data) {
+	async function searchTags (uid, method, data) {
 		const allowed = await privileges.global.can('search:tags', uid);
 		if (!allowed) {
 			throw new Error('[[error:no-privileges]]');
@@ -91,7 +91,7 @@ module.exports = function (SocketTopics) {
 			tags = await topics.searchTags({
 				query: data.query,
 				cid: cids.length === 1 ? cids[0] : null,
-				cids: cids,
+				cids,
 			});
 			topics.getTagData(tags);
 		} else {

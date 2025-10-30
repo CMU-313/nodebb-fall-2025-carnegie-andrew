@@ -1,6 +1,4 @@
-
 'use strict';
-
 
 define('forum/category/tools', [
 	'topicSelect',
@@ -139,7 +137,7 @@ define('forum/category/tools', [
 		socket.on('event:topic_moved', onTopicMoved);
 	};
 
-	function categoryCommand(method, path, command, onComplete) {
+	function categoryCommand (method, path, command, onComplete) {
 		if (!onComplete) {
 			onComplete = function () {};
 		}
@@ -185,27 +183,27 @@ define('forum/category/tools', [
 		socket.removeListener('event:topic_moved', onTopicMoved);
 	};
 
-	function closeDropDown() {
+	function closeDropDown () {
 		$('.thread-tools .show').removeClass('show');
 	}
 
-	function onCommandComplete() {
+	function onCommandComplete () {
 		closeDropDown();
 		topicSelect.unselectAll();
 	}
 
-	function onDeleteRestoreComplete() {
+	function onDeleteRestoreComplete () {
 		closeDropDown();
 		updateDropdownOptions();
 	}
 
-	function onPurgeComplete() {
+	function onPurgeComplete () {
 		closeDropDown();
 		topicSelect.unselectAll();
 		updateDropdownOptions();
 	}
 
-	function updateDropdownOptions() {
+	function updateDropdownOptions () {
 		const tids = topicSelect.getSelectedTids();
 		const isAnyDeleted = isAny(isTopicDeleted, tids);
 		const areAllDeleted = areAll(isTopicDeleted, tids);
@@ -227,7 +225,7 @@ define('forum/category/tools', [
 		components.get('topic/merge').toggleClass('hidden', isAnyScheduled);
 	}
 
-	function isAny(method, tids) {
+	function isAny (method, tids) {
 		for (let i = 0; i < tids.length; i += 1) {
 			if (method(tids[i])) {
 				return true;
@@ -236,7 +234,7 @@ define('forum/category/tools', [
 		return false;
 	}
 
-	function areAll(method, tids) {
+	function areAll (method, tids) {
 		for (let i = 0; i < tids.length; i += 1) {
 			if (!method(tids[i])) {
 				return false;
@@ -245,54 +243,54 @@ define('forum/category/tools', [
 		return true;
 	}
 
-	function isTopicDeleted(tid) {
+	function isTopicDeleted (tid) {
 		return getTopicEl(tid).hasClass('deleted');
 	}
 
-	function isTopicLocked(tid) {
+	function isTopicLocked (tid) {
 		return getTopicEl(tid).hasClass('locked');
 	}
 
-	function isTopicPinned(tid) {
+	function isTopicPinned (tid) {
 		return getTopicEl(tid).hasClass('pinned');
 	}
 
-	function isTopicScheduled(tid) {
+	function isTopicScheduled (tid) {
 		return getTopicEl(tid).hasClass('scheduled');
 	}
 
-	function getTopicEl(tid) {
+	function getTopicEl (tid) {
 		return components.get('category/topic', 'tid', tid);
 	}
 
-	function setDeleteState(data) {
+	function setDeleteState (data) {
 		const topic = getTopicEl(data.tid);
 		topic.toggleClass('deleted', data.isDeleted);
 		topic.find('[component="topic/locked"]').toggleClass('hidden', !data.isDeleted);
 	}
 
-	function setPinnedState(data) {
+	function setPinnedState (data) {
 		const topic = getTopicEl(data.tid);
 		topic.toggleClass('pinned', data.isPinned);
 		topic.find('[component="topic/pinned"]').toggleClass('hidden', !data.isPinned);
 		ajaxify.refresh();
 	}
 
-	function setLockedState(data) {
+	function setLockedState (data) {
 		const topic = getTopicEl(data.tid);
 		topic.toggleClass('locked', data.isLocked);
 		topic.find('[component="topic/locked"]').toggleClass('hidden', !data.isLocked);
 	}
 
-	function onTopicMoved(data) {
+	function onTopicMoved (data) {
 		getTopicEl(data.tid).remove();
 	}
 
-	function onTopicPurged(data) {
+	function onTopicPurged (data) {
 		getTopicEl(data.tid).remove();
 	}
 
-	function handlePinnedTopicSort() {
+	function handlePinnedTopicSort () {
 		if (!ajaxify.data.topics || !ajaxify.data.template.category) {
 			return;
 		}
@@ -325,7 +323,7 @@ define('forum/category/tools', [
 					});
 
 					socket.emit('topics.orderPinnedTopics', {
-						tid: tid,
+						tid,
 						order: baseIndex + newIndex,
 					}, function (err) {
 						if (err) {

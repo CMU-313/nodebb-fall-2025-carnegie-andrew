@@ -1,6 +1,5 @@
 'use strict';
 
-
 define('admin/extend/plugins', [
 	'translator',
 	'benchpress',
@@ -29,7 +28,7 @@ define('admin/extend/plugins', [
 				return;
 			}
 
-			function toggleActivate() {
+			function toggleActivate () {
 				socket.emit('admin.plugins.toggleActive', pluginID, function (err, status) {
 					if (err) {
 						return alerts.error(err);
@@ -258,7 +257,7 @@ define('admin/extend/plugins', [
 		});
 	};
 
-	async function searchAllPlugins(term) {
+	async function searchAllPlugins (term) {
 		const { download, incompatible } = ajaxify.data;
 		const all = term ? download.concat(incompatible) : download;
 		const found = all.filter(p => p && p.name.includes(term)).slice(0, 100);
@@ -266,17 +265,17 @@ define('admin/extend/plugins', [
 		$('#download ul').html(html);
 	}
 
-	function confirmInstall(pluginID, callback) {
+	function confirmInstall (pluginID, callback) {
 		bootbox.confirm(translator.compile('admin/extend/plugins:alert.possibly-incompatible', pluginID), function (confirm) {
 			callback(confirm);
 		});
 	}
 
-	function upgrade(pluginID, btn, version) {
+	function upgrade (pluginID, btn, version) {
 		btn.attr('disabled', true).find('i').attr('class', 'fa fa-refresh fa-spin');
 		socket.emit('admin.plugins.upgrade', {
 			id: pluginID,
-			version: version,
+			version,
 		}, function (err, isActive) {
 			if (err) {
 				return alerts.error(err);
@@ -308,13 +307,13 @@ define('admin/extend/plugins', [
 
 		socket.emit('admin.plugins.toggleInstall', {
 			id: pluginID,
-			version: version,
+			version,
 		}, function (err, pluginData) {
 			if (err) {
 				btn.removeAttr('disabled');
 				return alerts.error(err);
 			}
-			function removeAndUpdateBadge(section) {
+			function removeAndUpdateBadge (section) {
 				$(`${section} [data-plugin-id="${pluginID}"]`).remove();
 				const count = $(`${section} [data-plugin-id]`).length;
 				$(`[data-bs-target="${section}"] .badge`).text(count);

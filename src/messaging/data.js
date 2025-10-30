@@ -116,17 +116,17 @@ module.exports = function (Messaging) {
 		await addParentMessages(messages, uid, roomId);
 
 		const data = await plugins.hooks.fire('filter:messaging.getMessages', {
-			messages: messages,
-			uid: uid,
-			roomId: roomId,
-			isNew: isNew,
-			mids: mids,
+			messages,
+			uid,
+			roomId,
+			isNew,
+			mids,
 		});
 
 		return data && data.messages;
 	};
 
-	async function addParentMessages(messages, uid, roomId) {
+	async function addParentMessages (messages, uid, roomId) {
 		let parentMids = messages.map(msg => (msg && msg.hasOwnProperty('toMid') ? parseInt(msg.toMid, 10) : null)).filter(Boolean);
 
 		if (!parentMids.length) {
@@ -147,7 +147,7 @@ module.exports = function (Messaging) {
 
 		await Promise.all(parentMessages.map(async (parentMsg) => {
 			if (parentMsg.deleted && parentMsg.fromuid !== parseInt(uid, 10)) {
-				parentMsg.content = `<p>[[modules:chat.message-deleted]]</p>`;
+				parentMsg.content = '<p>[[modules:chat.message-deleted]]</p>';
 				return;
 			}
 			const foundMsg = messages.find(msg => parseInt(msg.mid, 10) === parseInt(parentMsg.mid, 10));
@@ -174,16 +174,16 @@ module.exports = function (Messaging) {
 		});
 	}
 
-	async function parseMessages(messages, uid, roomId, isNew) {
+	async function parseMessages (messages, uid, roomId, isNew) {
 		await Promise.all(messages.map(async (msg) => {
 			if (msg.deleted && !msg.isOwner) {
-				msg.content = `<p>[[modules:chat.message-deleted]]</p>`;
+				msg.content = '<p>[[modules:chat.message-deleted]]</p>';
 				return;
 			}
 			msg.content = await parseMessage(msg, uid, roomId, isNew);
 		}));
 	}
-	async function parseMessage(message, uid, roomId, isNew) {
+	async function parseMessage (message, uid, roomId, isNew) {
 		if (message.system) {
 			return validator.escape(String(message.content));
 		} else if (!utils.isNumber(message.mid)) {
@@ -194,7 +194,7 @@ module.exports = function (Messaging) {
 	}
 };
 
-async function modifyMessage(message, fields, mid) {
+async function modifyMessage (message, fields, mid) {
 	if (message) {
 		db.parseIntFields(message, intFields, fields);
 		if (message.hasOwnProperty('timestamp')) {
@@ -206,9 +206,9 @@ async function modifyMessage(message, fields, mid) {
 	}
 
 	const payload = await plugins.hooks.fire('filter:messaging.getFields', {
-		mid: mid,
-		message: message,
-		fields: fields,
+		mid,
+		message,
+		fields,
 	});
 
 	return payload.message;

@@ -27,14 +27,14 @@ const controllersHelpers = require('../controllers/helpers');
 const relative_path = nconf.get('relative_path');
 
 module.exports = function (middleware) {
-	middleware.processRender = function processRender(req, res, next) {
+	middleware.processRender = function processRender (req, res, next) {
 		// res.render post-processing, modified from here: https://gist.github.com/mrlannigan/5051687
 		const { render } = res;
 
-		res.render = async function renderOverride(template, options, fn) {
+		res.render = async function renderOverride (template, options, fn) {
 			const self = this;
 			const { req } = this;
-			async function renderMethod(template, options, fn) {
+			async function renderMethod (template, options, fn) {
 				options = options || {};
 				if (typeof options === 'function') {
 					fn = options;
@@ -53,8 +53,8 @@ module.exports = function (middleware) {
 				}
 
 				const buildResult = await plugins.hooks.fire(`filter:${template}.build`, {
-					req: req,
-					res: res,
+					req,
+					res,
 					templateData: options,
 				});
 				if (res.headersSent) {
@@ -63,8 +63,8 @@ module.exports = function (middleware) {
 				const templateToRender = buildResult.templateData.templateToRender || template;
 
 				const renderResult = await plugins.hooks.fire('filter:middleware.render', {
-					req: req,
-					res: res,
+					req,
+					res,
 					templateData: buildResult.templateData,
 				});
 				if (res.headersSent) {
@@ -78,8 +78,8 @@ module.exports = function (middleware) {
 					template: `${template}.tpl`,
 					url: options.url,
 					templateData: options,
-					req: req,
-					res: res,
+					req,
+					res,
 				});
 				res.locals.template = template;
 				options._locals = undefined;
@@ -125,7 +125,7 @@ module.exports = function (middleware) {
 		next();
 	};
 
-	async function getLoggedInUser(req) {
+	async function getLoggedInUser (req) {
 		if (req.user) {
 			return await user.getUserData(req.uid);
 		}
@@ -138,7 +138,7 @@ module.exports = function (middleware) {
 		};
 	}
 
-	async function loadHeaderFooterData(req, res, options) {
+	async function loadHeaderFooterData (req, res, options) {
 		if (res.locals.renderHeader) {
 			return await loadClientHeaderFooterData(req, res, options);
 		} else if (res.locals.renderAdminHeader) {
@@ -147,7 +147,7 @@ module.exports = function (middleware) {
 		return null;
 	}
 
-	async function loadClientHeaderFooterData(req, res, options) {
+	async function loadClientHeaderFooterData (req, res, options) {
 		const registrationType = meta.config.registrationType || 'normal';
 		res.locals.config = res.locals.config || {};
 		const userLang = res.locals.config.userLang || meta.config.userLang || 'en-GB';
@@ -252,7 +252,7 @@ module.exports = function (middleware) {
 		return templateValues;
 	}
 
-	async function loadAdminHeaderFooterData(req, res, options) {
+	async function loadAdminHeaderFooterData (req, res, options) {
 		const custom_header = {
 			plugins: [],
 			authentication: [],
@@ -301,7 +301,7 @@ module.exports = function (middleware) {
 			env: !!process.env.NODE_ENV,
 			title: `${acpPath || 'Dashboard'} | NodeBB Admin Control Panel`,
 			bodyClass: options.bodyClass,
-			version: version,
+			version,
 			latestVersion: results.latestVersion,
 			upgradeAvailable: results.latestVersion && semver.gt(results.latestVersion, version),
 			showManageMenu: results.privileges.superadmin || ['categories', 'privileges', 'users', 'admins-mods', 'groups', 'tags', 'settings'].some(priv => results.privileges[`admin:${priv}`]),
@@ -315,7 +315,7 @@ module.exports = function (middleware) {
 		return templateValues;
 	}
 
-	function renderContent(render, tpl, req, res, options) {
+	function renderContent (render, tpl, req, res, options) {
 		return new Promise((resolve, reject) => {
 			render.call(res, tpl, options, async (err, str) => {
 				if (err) reject(err);
@@ -324,10 +324,10 @@ module.exports = function (middleware) {
 		});
 	}
 
-	async function renderHeader(req, res, options, headerFooterData) {
+	async function renderHeader (req, res, options, headerFooterData) {
 		const hookReturn = await plugins.hooks.fire('filter:middleware.renderHeader', {
-			req: req,
-			res: res,
+			req,
+			res,
 			templateValues: headerFooterData, // TODO: deprecate
 			templateData: headerFooterData,
 			data: options,
@@ -336,7 +336,7 @@ module.exports = function (middleware) {
 		return await req.app.renderAsync('header', hookReturn.templateData);
 	}
 
-	async function renderFooter(req, res, options, headerFooterData) {
+	async function renderFooter (req, res, options, headerFooterData) {
 		const hookReturn = await plugins.hooks.fire('filter:middleware.renderFooter', {
 			req,
 			res,
@@ -356,7 +356,7 @@ module.exports = function (middleware) {
 		return await req.app.renderAsync('footer', hookReturn.templateData);
 	}
 
-	async function renderAdminHeader(req, res, options, headerFooterData) {
+	async function renderAdminHeader (req, res, options, headerFooterData) {
 		const hookReturn = await plugins.hooks.fire('filter:middleware.renderAdminHeader', {
 			req,
 			res,
@@ -368,7 +368,7 @@ module.exports = function (middleware) {
 		return await req.app.renderAsync('admin/header', hookReturn.templateData);
 	}
 
-	async function renderAdminFooter(req, res, options, headerFooterData) {
+	async function renderAdminFooter (req, res, options, headerFooterData) {
 		const hookReturn = await plugins.hooks.fire('filter:middleware.renderAdminFooter', {
 			req,
 			res,
@@ -380,7 +380,7 @@ module.exports = function (middleware) {
 		return await req.app.renderAsync('admin/footer', hookReturn.templateData);
 	}
 
-	async function renderHeaderFooter(method, req, res, options, headerFooterData) {
+	async function renderHeaderFooter (method, req, res, options, headerFooterData) {
 		let str = '';
 		if (res.locals.renderHeader) {
 			if (method === 'renderHeader') {
@@ -398,7 +398,7 @@ module.exports = function (middleware) {
 		return await translate(str, getLang(req, res));
 	}
 
-	function getLang(req, res) {
+	function getLang (req, res) {
 		let language = (res.locals.config && res.locals.config.userLang) || 'en-GB';
 		if (res.locals.renderAdminHeader) {
 			language = (res.locals.config && res.locals.config.acpLang) || 'en-GB';
@@ -406,15 +406,15 @@ module.exports = function (middleware) {
 		return req.query.lang ? validator.escape(String(req.query.lang)) : language;
 	}
 
-	async function translate(str, language) {
+	async function translate (str, language) {
 		const translated = await translator.translate(str, language);
 		return translator.unescape(translated);
 	}
 
-	async function appendUnreadCounts({ uid, navigation, unreadData, query }) {
+	async function appendUnreadCounts ({ uid, navigation, unreadData, query }) {
 		const originalRoutes = navigation.map(nav => nav.originalRoute);
 		const calls = {
-			unreadData: topics.getUnreadData({ uid: uid, query: query }),
+			unreadData: topics.getUnreadData({ uid, query }),
 			unreadChatCount: messaging.getUnreadCount(uid),
 			unreadNotificationCount: user.notifications.getUnreadCount(uid),
 			unreadFlagCount: (async function () {
@@ -454,7 +454,7 @@ module.exports = function (middleware) {
 
 		const { tidsByFilter } = results.unreadData;
 		navigation = navigation.map((item) => {
-			function modifyNavItem(item, route, filter, content) {
+			function modifyNavItem (item, route, filter, content) {
 				if (item && item.originalRoute === route) {
 					unreadData[filter] = _.zipObject(tidsByFilter[filter], tidsByFilter[filter].map(() => true));
 					item.content = content;
@@ -483,8 +483,7 @@ module.exports = function (middleware) {
 		return { navigation, unreadCount };
 	}
 
-
-	function modifyTitle(obj) {
+	function modifyTitle (obj) {
 		const title = controllersHelpers.buildTitle(meta.config.homePageTitle || '[[pages:home]]');
 		obj.browserTitle = title;
 
@@ -499,12 +498,12 @@ module.exports = function (middleware) {
 		return title;
 	}
 
-	async function getAdminScripts() {
+	async function getAdminScripts () {
 		const scripts = await plugins.hooks.fire('filter:admin.scripts.get', []);
 		return scripts.map(script => ({ src: script }));
 	}
 
-	async function getLatestVersion() {
+	async function getLatestVersion () {
 		try {
 			return await versions.getLatestVersion();
 		} catch (err) {

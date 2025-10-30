@@ -39,7 +39,7 @@ module.exports = {
 				await Promise.all(methods.map(async method => method()));
 			}));
 		}, {
-			progress: progress,
+			progress,
 			batch: 500,
 		});
 	},

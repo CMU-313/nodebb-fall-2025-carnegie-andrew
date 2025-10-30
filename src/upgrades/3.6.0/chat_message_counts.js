@@ -9,7 +9,7 @@ module.exports = {
 	timestamp: Date.UTC(2023, 6, 27),
 	method: async function () {
 		const { progress } = this;
-		const allRoomIds = await db.getSortedSetRange(`chat:rooms`, 0, -1);
+		const allRoomIds = await db.getSortedSetRange('chat:rooms', 0, -1);
 		progress.total = allRoomIds.length;
 		for (const roomId of allRoomIds) {
 			const count = await db.sortedSetCard(`chat:room:${roomId}:mids`);

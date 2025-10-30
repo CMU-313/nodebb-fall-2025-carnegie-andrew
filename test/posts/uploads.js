@@ -76,7 +76,7 @@ describe('upload methods', () => {
 
 		it('should remove an image if it is edited out of the post', async () => {
 			await posts.edit({
-				pid: pid,
+				pid,
 				uid,
 				content: 'here is an image [alt text](/assets/uploads/files/abracadabra.png)... AND NO MORE!',
 			});

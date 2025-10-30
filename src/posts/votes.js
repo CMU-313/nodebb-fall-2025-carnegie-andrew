@@ -99,16 +99,16 @@ module.exports = function (Posts) {
 		return await db.getSetsMembers(pids.map(pid => `pid:${pid}:upvote`));
 	};
 
-	function voteInProgress(pid, uid) {
+	function voteInProgress (pid, uid) {
 		return Array.isArray(votesInProgress[uid]) && votesInProgress[uid].includes(String(pid));
 	}
 
-	function putVoteInProgress(pid, uid) {
+	function putVoteInProgress (pid, uid) {
 		votesInProgress[uid] = votesInProgress[uid] || [];
 		votesInProgress[uid].push(String(pid));
 	}
 
-	function clearVoteProgress(pid, uid) {
+	function clearVoteProgress (pid, uid) {
 		if (Array.isArray(votesInProgress[uid])) {
 			const index = votesInProgress[uid].indexOf(String(pid));
 			if (index !== -1) {
@@ -117,13 +117,13 @@ module.exports = function (Posts) {
 		}
 	}
 
-	async function toggleVote(type, pid, uid) {
+	async function toggleVote (type, pid, uid) {
 		const voteStatus = await Posts.hasVoted(pid, uid);
 		await unvote(pid, uid, type, voteStatus);
 		return await vote(type, false, pid, uid, voteStatus);
 	}
 
-	async function unvote(pid, uid, type, voteStatus) {
+	async function unvote (pid, uid, type, voteStatus) {
 		const owner = await Posts.getPostField(pid, 'uid');
 		if (parseInt(uid, 10) === parseInt(owner, 10)) {
 			throw new Error('[[error:self-vote]]');
@@ -140,7 +140,7 @@ module.exports = function (Posts) {
 		return await vote(voteStatus.upvoted ? 'downvote' : 'upvote', true, pid, uid, voteStatus);
 	}
 
-	async function checkVoteLimitation(pid, uid, type) {
+	async function checkVoteLimitation (pid, uid, type) {
 		// type = 'upvote' or 'downvote'
 		const oneDay = 86400000;
 		const [reputation, isPrivileged, targetUid, votedPidsToday] = await Promise.all([
@@ -171,7 +171,7 @@ module.exports = function (Posts) {
 		}
 	}
 
-	async function vote(type, unvote, pid, uid, voteStatus) {
+	async function vote (type, unvote, pid, uid, voteStatus) {
 		if (utils.isNumber(uid) && parseInt(uid, 10) <= 0) {
 			throw new Error('[[error:not-logged-in]]');
 		}
@@ -207,7 +207,7 @@ module.exports = function (Posts) {
 		};
 	}
 
-	async function fireVoteHook(postData, uid, type, unvote, voteStatus) {
+	async function fireVoteHook (postData, uid, type, unvote, voteStatus) {
 		let hook = type;
 		let current = voteStatus.upvoted ? 'upvote' : 'downvote';
 		if (unvote) { // e.g. unvoting, removing a upvote or downvote
@@ -220,13 +220,13 @@ module.exports = function (Posts) {
 		// action:post.unvote
 		plugins.hooks.fire(`action:post.${hook}`, {
 			pid: postData.pid,
-			uid: uid,
+			uid,
 			owner: postData.uid,
-			current: current,
+			current,
 		});
 	}
 
-	async function adjustPostVotes(postData, uid, type, unvote) {
+	async function adjustPostVotes (postData, uid, type, unvote) {
 		const notType = (type === 'upvote' ? 'downvote' : 'upvote');
 		if (unvote) {
 			await db.setRemove(`pid:${postData.pid}:${type}`, uid);
@@ -267,7 +267,7 @@ module.exports = function (Posts) {
 		plugins.hooks.fire('action:post.updatePostVoteCount', { post: postData });
 	};
 
-	async function updateTopicVoteCount(postData) {
+	async function updateTopicVoteCount (postData) {
 		const topicData = await topics.getTopicFields(postData.tid, ['mainPid', 'cid', 'pinned']);
 
 		if (postData.uid) {

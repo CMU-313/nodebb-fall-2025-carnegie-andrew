@@ -87,7 +87,7 @@ topicsAPI.create = async function (caller, data) {
 	} else {
 		result = await topics.post(payload);
 	}
-	
+
 	await topics.thumbs.migrate(data.uuid, result.topicData.tid);
 
 	socketHelpers.emitToUids('event:new_post', { posts: [result.postData] }, [caller.uid]);
@@ -259,12 +259,12 @@ topicsAPI.migrateThumbs = async (caller, { from, to }) => {
 };
 
 topicsAPI.deleteThumb = async (caller, { tid, path }) => {
-	await topicsAPI._checkThumbPrivileges({ tid: tid, uid: caller.uid });
+	await topicsAPI._checkThumbPrivileges({ tid, uid: caller.uid });
 	await topics.thumbs.delete(tid, path);
 };
 
 topicsAPI.reorderThumbs = async (caller, { tid, path, order }) => {
-	await topicsAPI._checkThumbPrivileges({ tid: tid, uid: caller.uid });
+	await topicsAPI._checkThumbPrivileges({ tid, uid: caller.uid });
 
 	const exists = await topics.thumbs.exists(tid, path);
 	if (!exists) {
@@ -273,7 +273,7 @@ topicsAPI.reorderThumbs = async (caller, { tid, path, order }) => {
 
 	await topics.thumbs.associate({
 		id: tid,
-		path: path,
+		path,
 		score: order,
 	});
 };
@@ -359,10 +359,10 @@ topicsAPI.move = async (caller, { tid, cid }) => {
 			}
 
 			await events.log({
-				type: `topic-move`,
+				type: 'topic-move',
 				uid: caller.uid,
 				ip: caller.ip,
-				tid: tid,
+				tid,
 				fromCid: topicData.cid,
 				toCid: cid,
 			});
@@ -376,7 +376,7 @@ topicsAPI.userPin = async function (caller, data) {
 	if (!caller.uid) {
 		throw new Error('[[error:not-logged-in]]');
 	}
-	
+
 	if (!data || !data.pid) {
 		throw new Error('[[error:invalid-data]]');
 	}
@@ -404,7 +404,7 @@ topicsAPI.userUnpin = async function (caller, data) {
 	if (!caller.uid) {
 		throw new Error('[[error:not-logged-in]]');
 	}
-	
+
 	if (!data || !data.pid) {
 		throw new Error('[[error:invalid-data]]');
 	}

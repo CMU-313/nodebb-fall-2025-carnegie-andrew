@@ -37,7 +37,7 @@ primaryDB.initSessionStore = async function () {
 	primaryDB.sessionStore = await sessionStoreDB.createSessionStore(sessionStoreConfig);
 };
 
-function promisifySessionStoreMethod(method, sid) {
+function promisifySessionStoreMethod (method, sid) {
 	return new Promise((resolve, reject) => {
 		if (!primaryDB.sessionStore) {
 			resolve(method === 'get' ? null : undefined);

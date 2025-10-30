@@ -16,7 +16,7 @@ module.exports = {
 				db.deleteObjectField(`user:${uid}`, 'rss_token', next);
 			}, next);
 		}, {
-			progress: progress,
+			progress,
 		}, callback);
 	},
 };
