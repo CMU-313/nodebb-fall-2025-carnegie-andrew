@@ -35,7 +35,6 @@ jobs:
           --health-timeout 5s
           --health-retries 5
         ports:
-          # Maps port 6379 on service container to the host
           - 6379:6379
 
     steps:
@@ -90,3 +89,25 @@ jobs:
 
       - name: Test coverage
         uses: coverallsapp/github-action@v2
+
+      # start NodeBB, run Artillery, stop NodeBB
+      - name: Start NodeBB (background)
+        run: |
+          npm start &
+          echo $! > nodebb.pid
+
+      - name: Wait for NodeBB
+        run: |
+          npx wait-on http://127.0.0.1:4567 --timeout 30000
+
+      - name: Run Artillery load test
+        run: npm run load:test
+
+      - name: Stop NodeBB
+        if: always()
+        run: |
+          if [ -f nodebb.pid ]; then
+            kill "$(cat nodebb.pid)" || true
+          else
+            pkill -f "node loader.js" || true
+          fi

@@ -1,0 +1,14 @@
+config:
+  target: "http://localhost:4567"
+  phases:
+    - duration: 30     # seconds
+      arrivalRate: 10  # 10 new users per second
+  ensure:              # fail CI if bad
+    maxErrorRate: 1
+    p95: 500
+
+scenarios:
+  - name: get home
+    flow:
+      - get:
+          url: "/"
