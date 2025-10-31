@@ -1,6 +1,5 @@
 'use strict';
 
-
 const async = require('async');
 
 const privileges = require('../../privileges');
@@ -14,9 +13,18 @@ module.exports = {
 			if (err) {
 				return callback(err);
 			}
-			async.eachSeries(cids, (cid, next) => {
-				privileges.categories.give(['groups:posts:upvote', 'groups:posts:downvote'], cid, 'registered-users', next);
-			}, callback);
+			async.eachSeries(
+				cids,
+				(cid, next) => {
+					privileges.categories.give(
+						['groups:posts:upvote', 'groups:posts:downvote'],
+						cid,
+						'registered-users',
+						next,
+					);
+				},
+				callback,
+			);
 		});
 	},
 };

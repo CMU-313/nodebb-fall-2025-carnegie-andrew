@@ -1,9 +1,9 @@
 {
-	"notifications": "Varsler",
-	"chat-messages": "Chatmeldinger",
-	"play-sound": "Spill av",
-	"incoming-message": "Innkommende melding",
-	"outgoing-message": "Utgående melding",
-	"upload-new-sound": "Last opp ny lyd",
-	"saved": "Innstillinger lagret"
+  "notifications": "Varsler",
+  "chat-messages": "Chatmeldinger",
+  "play-sound": "Spill av",
+  "incoming-message": "Innkommende melding",
+  "outgoing-message": "Utgående melding",
+  "upload-new-sound": "Last opp ny lyd",
+  "saved": "Innstillinger lagret"
 }

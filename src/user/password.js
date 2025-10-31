@@ -1,6 +1,5 @@
 'use strict';
 
-
 const nconf = require('nconf');
 
 const db = require('../database');
@@ -17,10 +16,10 @@ module.exports = function (User) {
 
 	User.isPasswordCorrect = async function (uid, password, ip) {
 		password = password || '';
-		let {
-			password: hashedPassword,
-			'password:shaWrapped': shaWrapped,
-		} = await db.getObjectFields(`user:${uid}`, ['password', 'password:shaWrapped']);
+		let { password: hashedPassword, 'password:shaWrapped': shaWrapped } = await db.getObjectFields(
+			`user:${uid}`,
+			['password', 'password:shaWrapped'],
+		);
 		if (!hashedPassword) {
 			// Non-existant user, submit fake hash for comparison
 			hashedPassword = '';

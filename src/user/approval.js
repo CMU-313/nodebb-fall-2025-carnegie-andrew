@@ -14,13 +14,18 @@ const slugify = require('../slugify');
 const plugins = require('../plugins');
 
 module.exports = function (User) {
-	new cronJob('0 * * * *', (async () => {
-		try {
-			await User.autoApprove();
-		} catch (err) {
-			winston.error(err.stack);
-		}
-	}), null, true);
+	new cronJob(
+		'0 * * * *',
+		async () => {
+			try {
+				await User.autoApprove();
+			} catch (err) {
+				winston.error(err.stack);
+			}
+		},
+		null,
+		true,
+	);
 
 	User.addToApprovalQueue = async function (userData) {
 		userData.username = userData.username.trim();
@@ -33,7 +38,10 @@ module.exports = function (User) {
 			ip: userData.ip,
 			hashedPassword: hashedPassword,
 		};
-		const results = await plugins.hooks.fire('filter:user.addToApprovalQueue', { data: data, userData: userData });
+		const results = await plugins.hooks.fire('filter:user.addToApprovalQueue', {
+			data: data,
+			userData: userData,
+		});
 		await db.setObject(`registration:queue:name:${userData.username}`, results.data);
 		await db.sortedSetAdd('registration:queue', Date.now(), userData.username);
 		await sendNotificationToAdmins(userData.username);
@@ -78,13 +86,19 @@ module.exports = function (User) {
 		await removeFromQueue(username);
 		await markNotificationRead(username);
 		await plugins.hooks.fire('filter:register.complete', { uid: uid });
-		await emailer.send('registration_accepted', uid, {
-			username: username,
-			subject: `[[email:welcome-to, ${meta.config.title || meta.config.browserTitle || 'NodeBB'}]]`,
-			template: 'registration_accepted',
-			uid: uid,
-		}).catch(err => winston.error(`[emailer.send] ${err.stack}`));
-		const total = await db.incrObjectFieldBy('registration:queue:approval:times', 'totalTime', Math.floor((Date.now() - creation_time) / 60000));
+		await emailer
+			.send('registration_accepted', uid, {
+				username: username,
+				subject: `[[email:welcome-to, ${meta.config.title || meta.config.browserTitle || 'NodeBB'}]]`,
+				template: 'registration_accepted',
+				uid: uid,
+			})
+			.catch(err => winston.error(`[emailer.send] ${err.stack}`));
+		const total = await db.incrObjectFieldBy(
+			'registration:queue:approval:times',
+			'totalTime',
+			Math.floor((Date.now() - creation_time) / 60000),
+		);
 		const counter = await db.incrObjectField('registration:queue:approval:times', 'counter');
 		await db.setObjectField('registration:queue:approval:times', 'average', total / counter);
 		return uid;
@@ -131,13 +145,14 @@ module.exports = function (User) {
 			delete user.hashedPassword;
 			return user;
 		});
-		await Promise.all(users.map(async (user) => {
-			// temporary: see http://www.stopforumspam.com/forum/viewtopic.php?id=6392
-			// need to keep this for getIPMatchedUsers
-			user.ip = user.ip.replace('::ffff:', '');
-			await getIPMatchedUsers(user);
-			user.customActions = user.customActions || [];
-			/*
+		await Promise.all(
+			users.map(async user => {
+				// temporary: see http://www.stopforumspam.com/forum/viewtopic.php?id=6392
+				// need to keep this for getIPMatchedUsers
+				user.ip = user.ip.replace('::ffff:', '');
+				await getIPMatchedUsers(user);
+				user.customActions = user.customActions || [];
+				/*
 				// then spam prevention plugins, using the "filter:user.getRegistrationQueue" hook can be like:
 				user.customActions.push({
 					title: '[[spam-be-gone:report-user]]',
@@ -146,7 +161,8 @@ module.exports = function (User) {
 					icon: 'fa-flag'
 				});
 			 */
-		}));
+			}),
+		);
 
 		const results = await plugins.hooks.fire('filter:user.getRegistrationQueue', { users: users });
 		return results.users;
@@ -163,7 +179,9 @@ module.exports = function (User) {
 		}
 		const users = await db.getSortedSetRevRangeWithScores('registration:queue', 0, -1);
 		const now = Date.now();
-		for (const user of users.filter(user => now - user.score >= meta.config.autoApproveTime * 3600000)) {
+		for (const user of users.filter(
+			user => now - user.score >= meta.config.autoApproveTime * 3600000,
+		)) {
 			try {
 				// eslint-disable-next-line no-await-in-loop
 				await User.acceptRegistration(user.value);

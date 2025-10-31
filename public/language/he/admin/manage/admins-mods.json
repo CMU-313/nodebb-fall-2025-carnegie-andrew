@@ -1,13 +1,13 @@
 {
-    "manage-admins-and-mods": "ניהול מנהלים & מנחים",
-    "administrators": "מנהלים",
-    "global-moderators": "מנחים גלובליים",
-    "moderators": "מנחים",
-    "no-global-moderators": "אין מנחים גלובליים",
-    "no-sub-categories": "אין תתי קטגוריות",
-    "view-children": "הצג ילדים (%1)",
-    "no-moderators": "אין מנחים",
-    "add-administrator": "הוסף מנהל",
-    "add-global-moderator": "הוסף מנחה גלובלי",
-    "add-moderator": "הוסף מנחה"
+  "manage-admins-and-mods": "ניהול מנהלים & מנחים",
+  "administrators": "מנהלים",
+  "global-moderators": "מנחים גלובליים",
+  "moderators": "מנחים",
+  "no-global-moderators": "אין מנחים גלובליים",
+  "no-sub-categories": "אין תתי קטגוריות",
+  "view-children": "הצג ילדים (%1)",
+  "no-moderators": "אין מנחים",
+  "add-administrator": "הוסף מנהל",
+  "add-global-moderator": "הוסף מנחה גלובלי",
+  "add-moderator": "הוסף מנחה"
 }

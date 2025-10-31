@@ -28,22 +28,27 @@ define('forum/account/edit', [
 		handleGroupControls();
 
 		if (!ajaxify.data.isSelf && ajaxify.data.canEdit) {
-			$(`a[href="${config.relative_path}/user/${ajaxify.data.userslug}/edit/email"]`).on('click', () => {
-				changeEmail.init({
-					uid: ajaxify.data.uid,
-					email: ajaxify.data.email,
-					onSuccess: function () {
-						alerts.success('[[user:email-updated]]');
-					},
-				});
-				return false;
-			});
+			$(`a[href="${config.relative_path}/user/${ajaxify.data.userslug}/edit/email"]`).on(
+				'click',
+				() => {
+					changeEmail.init({
+						uid: ajaxify.data.uid,
+						email: ajaxify.data.email,
+						onSuccess: function () {
+							alerts.success('[[user:email-updated]]');
+						},
+					});
+					return false;
+				},
+			);
 		}
 	};
 
 	function updateProfile() {
 		function getGroupSelection() {
-			const els = $('[component="group/badge/list"] [component="group/badge/item"][data-selected="true"]');
+			const els = $(
+				'[component="group/badge/list"] [component="group/badge/item"][data-selected="true"]',
+			);
 			return els.map((i, el) => $(el).attr('data-value')).get();
 		}
 		const editForm = $('form[component="profile/edit/form"]');
@@ -64,53 +69,62 @@ define('forum/account/edit', [
 
 		hooks.fire('action:profile.update', userData);
 
-		api.put('/users/' + userData.uid, userData).then((res) => {
-			alerts.success('[[user:profile-update-success]]');
+		api
+			.put('/users/' + userData.uid, userData)
+			.then(res => {
+				alerts.success('[[user:profile-update-success]]');
 
-			if (res.picture) {
-				$('#user-current-picture').attr('src', res.picture);
-			}
+				if (res.picture) {
+					$('#user-current-picture').attr('src', res.picture);
+				}
 
-			picture.updateHeader(res.picture);
-		}).catch(alerts.error);
+				picture.updateHeader(res.picture);
+			})
+			.catch(alerts.error);
 
 		return false;
 	}
 
-
-
 	function handleAccountDelete() {
 		$('#deleteAccountBtn').on('click', function () {
 			translator.translate('[[user:delete-account-confirm]]', function (translated) {
-				const modal = bootbox.confirm(translated + '<p><input type="password" class="form-control" id="confirm-password" /></p>', function (confirm) {
-					if (!confirm) {
-						return;
-					}
-
-					const confirmBtn = modal.find('.btn-primary');
-					confirmBtn.html('<i class="fa fa-spinner fa-spin"></i>');
-					confirmBtn.prop('disabled', true);
-					api.del(`/users/${ajaxify.data.uid}/account`, {
-						password: $('#confirm-password').val(),
-					}, function (err) {
-						function restoreButton() {
-							translator.translate('[[modules:bootbox.confirm]]', function (confirmText) {
-								confirmBtn.text(confirmText);
-								confirmBtn.prop('disabled', false);
-							});
+				const modal = bootbox.confirm(
+					translated +
+						'<p><input type="password" class="form-control" id="confirm-password" /></p>',
+					function (confirm) {
+						if (!confirm) {
+							return;
 						}
 
-						if (err) {
-							restoreButton();
-							return alerts.error(err);
-						}
+						const confirmBtn = modal.find('.btn-primary');
+						confirmBtn.html('<i class="fa fa-spinner fa-spin"></i>');
+						confirmBtn.prop('disabled', true);
+						api.del(
+							`/users/${ajaxify.data.uid}/account`,
+							{
+								password: $('#confirm-password').val(),
+							},
+							function (err) {
+								function restoreButton() {
+									translator.translate('[[modules:bootbox.confirm]]', function (confirmText) {
+										confirmBtn.text(confirmText);
+										confirmBtn.prop('disabled', false);
+									});
+								}
 
-						confirmBtn.html('<i class="fa fa-check"></i>');
-						window.location.href = `${config.relative_path}/`;
-					});
+								if (err) {
+									restoreButton();
+									return alerts.error(err);
+								}
 
-					return false;
-				});
+								confirmBtn.html('<i class="fa fa-check"></i>');
+								window.location.href = `${config.relative_path}/`;
+							},
+						);
+
+						return false;
+					},
+				);
 
 				modal.on('shown.bs.modal', function () {
 					modal.find('input').focus();
@@ -168,7 +182,10 @@ define('forum/account/edit', [
 			if (!allowMultipleBadges) {
 				$('[component="group/badge/list"] [component="group/toggle/show"]').removeClass('hidden');
 				$('[component="group/badge/list"] [component="group/toggle/hide"]').addClass('hidden');
-				$('[component="group/badge/list"] [component="group/badge/item"]').attr('data-selected', 'false');
+				$('[component="group/badge/list"] [component="group/badge/item"]').attr(
+					'data-selected',
+					'false',
+				);
 			}
 			const groupEl = $(this).parents('[component="group/badge/item"]');
 			groupEl.attr('data-selected', 'true');

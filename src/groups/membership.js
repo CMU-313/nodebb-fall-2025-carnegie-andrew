@@ -72,7 +72,9 @@ module.exports = function (Groups) {
 		if (!nonCachedGroups.length) {
 			return groups.map(groupName => cachedData[`${uid}:${groupName}`]);
 		}
-		const nonCachedGroupsMemberSets = nonCachedGroups.map(groupName => `group:${groupName}:members`);
+		const nonCachedGroupsMemberSets = nonCachedGroups.map(
+			groupName => `group:${groupName}:members`,
+		);
 		const isMembers = await db.isMemberOfSortedSets(nonCachedGroupsMemberSets, uid);
 		nonCachedGroups.forEach((groupName, index) => {
 			cachedData[`${uid}:${groupName}`] = isMembers[index];
@@ -83,8 +85,10 @@ module.exports = function (Groups) {
 	};
 
 	function isMemberOfEphemeralGroup(uid, groupName) {
-		return (groupName === 'guests' && parseInt(uid, 10) === 0) ||
-			(groupName === 'spiders' && parseInt(uid, 10) === -1);
+		return (
+			(groupName === 'guests' && parseInt(uid, 10) === 0) ||
+			(groupName === 'spiders' && parseInt(uid, 10) === -1)
+		);
 	}
 
 	function filterNonCached(cachedData, uid, groupName) {
@@ -142,7 +146,7 @@ module.exports = function (Groups) {
 		}
 		const isGroupMembers = await Promise.all(groupNames.map(name => Groups.isMembers(uids, name)));
 
-		isGroupMembers.forEach((isMembers) => {
+		isGroupMembers.forEach(isMembers => {
 			results.forEach((isMember, index) => {
 				if (!isMember && isMembers[index]) {
 					results[index] = true;
@@ -157,7 +161,7 @@ module.exports = function (Groups) {
 		keys = isArray ? keys : [keys];
 
 		const cachedData = {};
-		const nonCachedKeys = keys.filter((groupName) => {
+		const nonCachedKeys = keys.filter(groupName => {
 			const groupMembers = cache.get(`group:${groupName}:members`);
 			const isInCache = groupMembers !== undefined;
 			if (isInCache) {
@@ -169,7 +173,9 @@ module.exports = function (Groups) {
 		if (!nonCachedKeys.length) {
 			return isArray ? keys.map(groupName => cachedData[groupName]) : cachedData[keys[0]];
 		}
-		const groupMembers = await db.getSortedSetsMembers(nonCachedKeys.map(name => `group:${name}:members`));
+		const groupMembers = await db.getSortedSetsMembers(
+			nonCachedKeys.map(name => `group:${name}:members`),
+		);
 
 		nonCachedKeys.forEach((groupName, index) => {
 			cachedData[groupName] = groupMembers[index];

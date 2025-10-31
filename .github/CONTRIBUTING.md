@@ -12,7 +12,6 @@ Thank you for considering contributing to NodeBB. **Before you are able to submi
 
 If you are writing contributions as part of employment from another company / individual, then your employer will need to sign a separate agreement. Please [contact us](mailto:accounts@nodebb.org) so that we can send this additional agreement to your employer.
 
-
 # Having problems installing NodeBB?
 
 Chances are somebody has run into this problem before. After consulting our [documentation](https://docs.nodebb.org/installing/os/), please head over to our [community support forum](https://community.nodebb.org) for advice.
@@ -37,7 +36,7 @@ There is a chance that the issue you are experiencing may have already been fixe
 
 You can find the NodeBB version number in the Admin Control Panel (ACP), as well as the first line output to the shell when running NodeBB
 
-``` plaintext
+```plaintext
 3/4 12:38:57 [10752] - info: NodeBB v1.4.5 Copyright (C) 2013-2017 NodeBB Inc.
 3/4 12:38:57 [10752] - info: This program comes with ABSOLUTELY NO WARRANTY.
 3/4 12:38:57 [10752] - info: This is free software, and you are welcome to redistribute it under certain conditions.
@@ -45,7 +44,7 @@ You can find the NodeBB version number in the Admin Control Panel (ACP), as well
 
 If you are running NodeBB via git, it is also helpful to let the maintainers know what commit hash you are on. To find the commit hash, execute the following command:
 
-``` bash
+```bash
 $ cd /path/to/my/nodebb
 $ git rev-parse HEAD
 ```
@@ -53,9 +52,10 @@ $ git rev-parse HEAD
 If you have downloaded the `.zip` or `.tar.gz` packages from GitHub (or elsewhere), please let us know.
 
 ## Provide theme versions if issue is related to the theme/display
+
 Use `npm ls` to list the versions of the theme you're using. In this example, we're running the Persona theme, which depends on the Vanilla theme.
 
-``` bash
+```bash
 $ npm ls nodebb-theme-vanilla nodebb-theme-persona
 nodebb@1.4.3 /path/to/nodebb
 +-- nodebb-theme-persona@4.2.4

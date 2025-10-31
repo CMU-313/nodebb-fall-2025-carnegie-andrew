@@ -1,4 +1,3 @@
-
 'use strict';
 
 const winston = require('winston');
@@ -24,7 +23,12 @@ UserNotifications.get = async function (uid) {
 	unread = unread.filter(Boolean);
 	let read = [];
 	if (unread.length < 50) {
-		read = await getNotificationsFromSet(`uid:${uid}:notifications:read`, uid, 0, 49 - unread.length);
+		read = await getNotificationsFromSet(
+			`uid:${uid}:notifications:read`,
+			uid,
+			0,
+			49 - unread.length,
+		);
 	}
 
 	return await plugins.hooks.fire('filter:user.notifications.get', {
@@ -53,7 +57,7 @@ UserNotifications.getAllWithCounts = async function (uid, filter) {
 	const keys = nids.map(nid => `notifications:${nid}`);
 	let notifications = await db.getObjectsFields(keys, ['nid', 'type']);
 	const counts = {};
-	notifications.forEach((n) => {
+	notifications.forEach(n => {
 		if (n && n.type) {
 			counts[n.type] = counts[n.type] || 0;
 			counts[n.type] += 1;
@@ -66,10 +70,11 @@ UserNotifications.getAllWithCounts = async function (uid, filter) {
 };
 
 async function getAllNids(uid) {
-	let nids = await db.getSortedSetRevRange([
-		`uid:${uid}:notifications:unread`,
-		`uid:${uid}:notifications:read`,
-	], 0, -1);
+	let nids = await db.getSortedSetRevRange(
+		[`uid:${uid}:notifications:unread`, `uid:${uid}:notifications:read`],
+		0,
+		-1,
+	);
 	nids = _.uniq(nids);
 	const exists = await db.isSortedSetMembers('notifications', nids);
 	const deleteNids = [];
@@ -85,10 +90,10 @@ async function getAllNids(uid) {
 }
 
 async function deleteUserNids(nids, uid) {
-	await db.sortedSetRemove([
-		`uid:${uid}:notifications:read`,
-		`uid:${uid}:notifications:unread`,
-	], nids);
+	await db.sortedSetRemove(
+		[`uid:${uid}:notifications:read`, `uid:${uid}:notifications:unread`],
+		nids,
+	);
 }
 
 async function getNotificationsFromSet(set, uid, start, stop) {
@@ -122,11 +127,13 @@ UserNotifications.getNotifications = async function (nids, uid) {
 
 	await deleteUserNids(deletedNids, uid);
 	notificationData = await notifications.merge(notificationData);
-	await Promise.all(notificationData.map(async (n) => {
-		if (n && n.bodyShort) {
-			n.bodyShort = await translator.translate(n.bodyShort, userSettings.userLang);
-		}
-	}));
+	await Promise.all(
+		notificationData.map(async n => {
+			if (n && n.bodyShort) {
+				n.bodyShort = await translator.translate(n.bodyShort, userSettings.userLang);
+			}
+		}),
+	);
 
 	const result = await plugins.hooks.fire('filter:user.notifications.getNotifications', {
 		uid: uid,
@@ -146,7 +153,13 @@ UserNotifications.getUnreadInterval = async function (uid, interval) {
 		return [];
 	}
 	const min = Date.now() - times[interval];
-	const nids = await db.getSortedSetRevRangeByScore(`uid:${uid}:notifications:unread`, 0, 20, '+inf', min);
+	const nids = await db.getSortedSetRevRangeByScore(
+		`uid:${uid}:notifications:unread`,
+		0,
+		20,
+		'+inf',
+		min,
+	);
 	return await UserNotifications.getNotifications(nids, uid);
 };
 
@@ -174,7 +187,10 @@ UserNotifications.getUnreadCount = async function (uid) {
 		return count;
 	}, 0);
 
-	({ count } = await plugins.hooks.fire('filter:user.notifications.getCount', { uid, count }));
+	({ count } = await plugins.hooks.fire('filter:user.notifications.getCount', {
+		uid,
+		count,
+	}));
 	return count;
 };
 
@@ -193,10 +209,7 @@ UserNotifications.deleteAll = async function (uid) {
 	if (parseInt(uid, 10) <= 0) {
 		return;
 	}
-	await db.deleteAll([
-		`uid:${uid}:notifications:unread`,
-		`uid:${uid}:notifications:read`,
-	]);
+	await db.deleteAll([`uid:${uid}:notifications:unread`, `uid:${uid}:notifications:read`]);
 };
 
 UserNotifications.sendTopicNotificationToFollowers = async function (uid, topicData, postData) {
@@ -212,7 +225,11 @@ UserNotifications.sendTopicNotificationToFollowers = async function (uid, topicD
 
 		const notifObj = await notifications.create({
 			type: 'new-topic',
-			bodyShort: translator.compile('notifications:user-posted-topic', postData.user.displayname, title),
+			bodyShort: translator.compile(
+				'notifications:user-posted-topic',
+				postData.user.displayname,
+				title,
+			),
 			bodyLong: postData.content,
 			pid: postData.pid,
 			path: `/post/${postData.pid}`,

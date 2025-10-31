@@ -67,11 +67,13 @@ chatsController.get = async function (req, res, next) {
 
 	room.title = room.roomName || room.usernames || '[[pages:chats]]';
 	room.bodyClasses = ['chat-loaded'];
-	const [canViewInfo, canUploadImage, canUploadFile] = await privileges.global.can([
-		'view:users:info', 'upload:post:image', 'upload:post:file',
-	], uid);
+	const [canViewInfo, canUploadImage, canUploadFile] = await privileges.global.can(
+		['view:users:info', 'upload:post:image', 'upload:post:file'],
+		uid,
+	);
 	room.canViewInfo = canViewInfo;
-	room.canUpload = (canUploadImage || canUploadFile) && (meta.config.maximumFileSize > 0 || room.isAdmin);
+	room.canUpload =
+		(canUploadImage || canUploadFile) && (meta.config.maximumFileSize > 0 || room.isAdmin);
 	res.render('chats', {
 		...payload,
 		...room,
@@ -88,7 +90,10 @@ chatsController.redirectToChat = async function (req, res, next) {
 	}
 	const roomid = parseInt(req.params.roomid, 10);
 	const index = parseInt(req.params.index, 10);
-	helpers.redirect(res, `/user/${userslug}/chats${roomid ? `/${roomid}` : ''}${index ? `/${index}` : ''}`);
+	helpers.redirect(
+		res,
+		`/user/${userslug}/chats${roomid ? `/${roomid}` : ''}${index ? `/${index}` : ''}`,
+	);
 };
 
 chatsController.redirectToMessage = async function (req, res, next) {

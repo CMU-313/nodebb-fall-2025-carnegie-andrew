@@ -22,8 +22,8 @@ get:
         type: string
       example: 1
   responses:
-    "200":
-      description: ""
+    '200':
+      description: ''
       content:
         application/json:
           schema:
@@ -101,7 +101,8 @@ get:
                               description: This is either username or fullname depending on forum and user settings
                             userslug:
                               type: string
-                              description: An URL-safe variant of the username (i.e. lower-cased, spaces
+                              description:
+                                An URL-safe variant of the username (i.e. lower-cased, spaces
                                 removed, etc.)
                             picture:
                               type: string
@@ -112,16 +113,18 @@ get:
                               type: boolean
                             icon:text:
                               type: string
-                              description: A single-letter representation of a username. This is used in the
+                              description:
+                                A single-letter representation of a username. This is used in the
                                 auto-generated icon given to users without
                                 an avatar
                             icon:bgColor:
                               type: string
-                              description: A six-character hexadecimal colour code assigned to the user. This
+                              description:
+                                A six-character hexadecimal colour code assigned to the user. This
                                 value is used in conjunction with
                                 `icon:text` for the user's auto-generated
                                 icon
-                              example: "#f44336"
+                              example: '#f44336'
                             banned_until_readable:
                               type: string
                             deleted:
@@ -162,15 +165,17 @@ get:
                           type: boolean
                         icon:text:
                           type: string
-                          description: A single-letter representation of a username. This is used in the
+                          description:
+                            A single-letter representation of a username. This is used in the
                             auto-generated icon given to users without an
                             avatar
                         icon:bgColor:
                           type: string
-                          description: A six-character hexadecimal colour code assigned to the user. This
+                          description:
+                            A six-character hexadecimal colour code assigned to the user. This
                             value is used in conjunction with `icon:text`
                             for the user's auto-generated icon
-                          example: "#f44336"
+                          example: '#f44336'
                         isOwner:
                           type: boolean
                         index:
@@ -232,7 +237,8 @@ get:
                                 description: This is either username or fullname depending on forum and user settings
                               userslug:
                                 type: string
-                                description: An URL-safe variant of the username (i.e. lower-cased, spaces
+                                description:
+                                  An URL-safe variant of the username (i.e. lower-cased, spaces
                                   removed, etc.)
                               picture:
                                 nullable: true
@@ -243,16 +249,18 @@ get:
                                 type: number
                               icon:text:
                                 type: string
-                                description: A single-letter representation of a username. This is used in the
+                                description:
+                                  A single-letter representation of a username. This is used in the
                                   auto-generated icon given to users without
                                   an avatar
                               icon:bgColor:
                                 type: string
-                                description: A six-character hexadecimal colour code assigned to the user. This
+                                description:
+                                  A six-character hexadecimal colour code assigned to the user. This
                                   value is used in conjunction with
                                   `icon:text` for the user's auto-generated
                                   icon
-                                example: "#f44336"
+                                example: '#f44336'
                               lastonlineISO:
                                 type: string
                         groupChat:
@@ -290,7 +298,8 @@ get:
                                   description: This is either username or fullname depending on forum and user settings
                                 userslug:
                                   type: string
-                                  description: An URL-safe variant of the username (i.e. lower-cased, spaces
+                                  description:
+                                    An URL-safe variant of the username (i.e. lower-cased, spaces
                                     removed, etc.)
                                 picture:
                                   nullable: true
@@ -301,16 +310,18 @@ get:
                                   type: number
                                 icon:text:
                                   type: string
-                                  description: A single-letter representation of a username. This is used in the
+                                  description:
+                                    A single-letter representation of a username. This is used in the
                                     auto-generated icon given to users
                                     without an avatar
                                 icon:bgColor:
                                   type: string
-                                  description: A six-character hexadecimal colour code assigned to the user. This
+                                  description:
+                                    A six-character hexadecimal colour code assigned to the user. This
                                     value is used in conjunction with
                                     `icon:text` for the user's
                                     auto-generated icon
-                                  example: "#f44336"
+                                  example: '#f44336'
                                 lastonlineISO:
                                   type: string
                           nullable: true
@@ -331,7 +342,8 @@ get:
                               description: This is either username or fullname depending on forum and user settings
                             userslug:
                               type: string
-                              description: An URL-safe variant of the username (i.e. lower-cased, spaces
+                              description:
+                                An URL-safe variant of the username (i.e. lower-cased, spaces
                                 removed, etc.)
                             picture:
                               nullable: true
@@ -342,16 +354,18 @@ get:
                               type: number
                             icon:text:
                               type: string
-                              description: A single-letter representation of a username. This is used in the
+                              description:
+                                A single-letter representation of a username. This is used in the
                                 auto-generated icon given to users without
                                 an avatar
                             icon:bgColor:
                               type: string
-                              description: A six-character hexadecimal colour code assigned to the user. This
+                              description:
+                                A six-character hexadecimal colour code assigned to the user. This
                                 value is used in conjunction with
                                 `icon:text` for the user's auto-generated
                                 icon
-                              example: "#f44336"
+                              example: '#f44336'
                             lastonlineISO:
                               type: string
                         usernames:
@@ -394,7 +408,8 @@ get:
                                 description: This is either username or fullname depending on forum and user settings
                               userslug:
                                 type: string
-                                description: An URL-safe variant of the username (i.e. lower-cased, spaces
+                                description:
+                                  An URL-safe variant of the username (i.e. lower-cased, spaces
                                   removed, etc.)
                               picture:
                                 nullable: true
@@ -405,16 +420,18 @@ get:
                                 type: number
                               icon:text:
                                 type: string
-                                description: A single-letter representation of a username. This is used in the
+                                description:
+                                  A single-letter representation of a username. This is used in the
                                   auto-generated icon given to users without
                                   an avatar
                               icon:bgColor:
                                 type: string
-                                description: A six-character hexadecimal colour code assigned to the user. This
+                                description:
+                                  A six-character hexadecimal colour code assigned to the user. This
                                   value is used in conjunction with
                                   `icon:text` for the user's auto-generated
                                   icon
-                                example: "#f44336"
+                                example: '#f44336'
                               lastonlineISO:
                                 type: string
                         groupChat:
@@ -450,7 +467,8 @@ get:
                                   description: This is either username or fullname depending on forum and user settings
                                 userslug:
                                   type: string
-                                  description: An URL-safe variant of the username (i.e. lower-cased, spaces
+                                  description:
+                                    An URL-safe variant of the username (i.e. lower-cased, spaces
                                     removed, etc.)
                                 picture:
                                   nullable: true
@@ -461,16 +479,18 @@ get:
                                   type: number
                                 icon:text:
                                   type: string
-                                  description: A single-letter representation of a username. This is used in the
+                                  description:
+                                    A single-letter representation of a username. This is used in the
                                     auto-generated icon given to users
                                     without an avatar
                                 icon:bgColor:
                                   type: string
-                                  description: A six-character hexadecimal colour code assigned to the user. This
+                                  description:
+                                    A six-character hexadecimal colour code assigned to the user. This
                                     value is used in conjunction with
                                     `icon:text` for the user's
                                     auto-generated icon
-                                  example: "#f44336"
+                                  example: '#f44336'
                                 lastonlineISO:
                                   type: string
                           nullable: true
@@ -491,7 +511,8 @@ get:
                               description: This is either username or fullname depending on forum and user settings
                             userslug:
                               type: string
-                              description: An URL-safe variant of the username (i.e. lower-cased, spaces
+                              description:
+                                An URL-safe variant of the username (i.e. lower-cased, spaces
                                 removed, etc.)
                             picture:
                               nullable: true
@@ -502,16 +523,18 @@ get:
                               type: number
                             icon:text:
                               type: string
-                              description: A single-letter representation of a username. This is used in the
+                              description:
+                                A single-letter representation of a username. This is used in the
                                 auto-generated icon given to users without
                                 an avatar
                             icon:bgColor:
                               type: string
-                              description: A six-character hexadecimal colour code assigned to the user. This
+                              description:
+                                A six-character hexadecimal colour code assigned to the user. This
                                 value is used in conjunction with
                                 `icon:text` for the user's auto-generated
                                 icon
-                              example: "#f44336"
+                              example: '#f44336'
                             lastonlineISO:
                               type: string
                         usernames:

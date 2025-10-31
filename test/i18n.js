@@ -14,7 +14,10 @@ describe.skip('i18n', () => {
 	let folders;
 
 	before(async function () {
-		if ((process.env.GITHUB_REF && process.env.GITHUB_REF !== 'refs/heads/develop') || process.env.GITHUB_EVENT_NAME === 'pull_request') {
+		if (
+			(process.env.GITHUB_REF && process.env.GITHUB_REF !== 'refs/heads/develop') ||
+			process.env.GITHUB_EVENT_NAME === 'pull_request'
+		) {
 			this.skip();
 		}
 
@@ -25,7 +28,7 @@ describe.skip('i18n', () => {
 	it('should contain folders named after the language code', async () => {
 		const valid = /(?:README.md|^[a-z]{2}(?:-[A-Z]{2})?$|^[a-z]{2}(?:-x-[a-z]+)?$)/; // good luck
 
-		folders.forEach((folder) => {
+		folders.forEach(folder => {
 			assert(valid.test(folder));
 		});
 	});
@@ -42,7 +45,7 @@ describe.skip('i18n', () => {
 
 			it('should only contain valid JSON files', async () => {
 				try {
-					fullPaths.forEach((fullPath) => {
+					fullPaths.forEach(fullPath => {
 						if (fullPath.endsWith('_DO_NOT_EDIT_FILES_HERE.md')) {
 							return;
 						}
@@ -58,12 +61,21 @@ describe.skip('i18n', () => {
 			describe('should only contain lowercase or numeric language keys separated by either dashes or periods', async () => {
 				describe('(regexp validation)', () => {
 					const valid = [
-						'foo.bar', 'foo.bar-baz', 'foo.bar.baz-quux-lorem-ipsum-dolor-sit-amet', 'foo.barBazQuux', // human generated
-						'example-name.isValid', 'kebab-case.isGood', 'camelcase.isFine', 'camelcase.with-dashes.isAlsoFine', 'single-character.is-ok', 'abc.def', // chatgpt generated
+						'foo.bar',
+						'foo.bar-baz',
+						'foo.bar.baz-quux-lorem-ipsum-dolor-sit-amet',
+						'foo.barBazQuux', // human generated
+						'example-name.isValid',
+						'kebab-case.isGood',
+						'camelcase.isFine',
+						'camelcase.with-dashes.isAlsoFine',
+						'single-character.is-ok',
+						'abc.def', // chatgpt generated
 					];
 					const invalid = [
 						// human generated
-						'foo.PascalCase', 'foo.snake_case',
+						'foo.PascalCase',
+						'foo.snake_case',
 						'badger.badger_badger_badger',
 						'foo.BarBazQuux',
 
@@ -75,19 +87,19 @@ describe.skip('i18n', () => {
 						'camelCase.With-Dashes.isAlsoInvalid', // PascalCase "With" is not allowed
 					];
 
-					valid.forEach((key) => {
+					valid.forEach(key => {
 						it(key, () => {
 							assert(test.test(key));
 						});
 					});
-					invalid.forEach((key) => {
+					invalid.forEach(key => {
 						it(key, () => {
 							assert(!test.test(key));
 						});
 					});
 				});
 
-				fullPaths.forEach((fullPath) => {
+				fullPaths.forEach(fullPath => {
 					if (fullPath.endsWith('_DO_NOT_EDIT_FILES_HERE.md')) {
 						return;
 					}
@@ -95,7 +107,7 @@ describe.skip('i18n', () => {
 					const hash = require(fullPath);
 					const keys = Object.keys(hash);
 
-					keys.forEach((key) => {
+					keys.forEach(key => {
 						it(key, () => {
 							assert(test.test(key), `${key} contains invalid characters`);
 						});
@@ -104,7 +116,7 @@ describe.skip('i18n', () => {
 			});
 		});
 
-		folders.forEach((language) => {
+		folders.forEach(language => {
 			describe(`"${language}" file structure`, () => {
 				let files;
 
@@ -114,14 +126,20 @@ describe.skip('i18n', () => {
 				});
 
 				it('translations should contain every language file contained in the source language directory', () => {
-					sourceFiles.forEach((relativePath) => {
-						assert(files.includes(relativePath), `${relativePath.slice(1)} was found in source files but was not found in language "${language}" (likely not internationalized)`);
+					sourceFiles.forEach(relativePath => {
+						assert(
+							files.includes(relativePath),
+							`${relativePath.slice(1)} was found in source files but was not found in language "${language}" (likely not internationalized)`,
+						);
 					});
 				});
 
 				it('should not contain any extraneous files not included in the source language directory', () => {
-					files.forEach((relativePath) => {
-						assert(sourceFiles.includes(relativePath), `${relativePath.slice(1)} was found in language "${language}" but there is no source file for it (likely removed from en-GB)`);
+					files.forEach(relativePath => {
+						assert(
+							sourceFiles.includes(relativePath),
+							`${relativePath.slice(1)} was found in language "${language}" but there is no source file for it (likely removed from en-GB)`,
+						);
 					});
 				});
 			});
@@ -137,7 +155,7 @@ describe.skip('i18n', () => {
 
 				it('should contain only valid JSON files', () => {
 					try {
-						fullPaths.forEach((fullPath) => {
+						fullPaths.forEach(fullPath => {
 							if (fullPath.endsWith('_DO_NOT_EDIT_FILES_HERE.md')) {
 								return;
 							}
@@ -152,18 +170,21 @@ describe.skip('i18n', () => {
 
 				it('should contain every translation key contained in its source counterpart', () => {
 					const sourceArr = Array.from(sourceStrings.keys());
-					sourceArr.forEach((namespace) => {
+					sourceArr.forEach(namespace => {
 						const sourceKeys = Object.keys(sourceStrings.get(namespace));
 						const translationKeys = Object.keys(strings.get(namespace));
 
 						assert(sourceKeys && translationKeys);
-						sourceKeys.forEach((key) => {
-							assert(translationKeys.includes(key), `${namespace.slice(1, -5)}:${key} missing in ${language}`);
+						sourceKeys.forEach(key => {
+							assert(
+								translationKeys.includes(key),
+								`${namespace.slice(1, -5)}:${key} missing in ${language}`,
+							);
 						});
 						assert.strictEqual(
 							sourceKeys.length,
 							translationKeys.length,
-							`Extra keys found in namespace ${namespace.slice(1, -5)} for language "${language}"`
+							`Extra keys found in namespace ${namespace.slice(1, -5)} for language "${language}"`,
 						);
 					});
 				});

@@ -53,37 +53,53 @@ settingsController.get = async function (req, res, next) {
 	userData.disableEmailSubscriptions = meta.config.disableEmailSubscriptions;
 
 	userData.dailyDigestFreqOptions = [
-		{ value: 'off', name: '[[user:digest-off]]', selected: userData.settings.dailyDigestFreq === 'off' },
-		{ value: 'day', name: '[[user:digest-daily]]', selected: userData.settings.dailyDigestFreq === 'day' },
-		{ value: 'week', name: '[[user:digest-weekly]]', selected: userData.settings.dailyDigestFreq === 'week' },
-		{ value: 'biweek', name: '[[user:digest-biweekly]]', selected: userData.settings.dailyDigestFreq === 'biweek' },
-		{ value: 'month', name: '[[user:digest-monthly]]', selected: userData.settings.dailyDigestFreq === 'month' },
+		{
+			value: 'off',
+			name: '[[user:digest-off]]',
+			selected: userData.settings.dailyDigestFreq === 'off',
+		},
+		{
+			value: 'day',
+			name: '[[user:digest-daily]]',
+			selected: userData.settings.dailyDigestFreq === 'day',
+		},
+		{
+			value: 'week',
+			name: '[[user:digest-weekly]]',
+			selected: userData.settings.dailyDigestFreq === 'week',
+		},
+		{
+			value: 'biweek',
+			name: '[[user:digest-biweekly]]',
+			selected: userData.settings.dailyDigestFreq === 'biweek',
+		},
+		{
+			value: 'month',
+			name: '[[user:digest-monthly]]',
+			selected: userData.settings.dailyDigestFreq === 'month',
+		},
 	];
 
-	userData.languages.forEach((language) => {
+	userData.languages.forEach(language => {
 		language.selected = language.code === userData.settings.userLang;
 	});
 
 	if (userData.isAdmin && userData.isSelf) {
-		userData.acpLanguages.forEach((language) => {
+		userData.acpLanguages.forEach(language => {
 			language.selected = language.code === userData.settings.acpLang;
 		});
 	}
 
-	const notifFreqOptions = [
-		'all',
-		'first',
-		'everyTen',
-		'threshold',
-		'logarithmic',
-		'disabled',
-	];
+	const notifFreqOptions = ['all', 'first', 'everyTen', 'threshold', 'logarithmic', 'disabled'];
 
-	userData.upvoteNotifFreq = notifFreqOptions.map(
-		name => ({ name: name, selected: name === userData.settings.upvoteNotifFreq })
-	);
+	userData.upvoteNotifFreq = notifFreqOptions.map(name => ({
+		name: name,
+		selected: name === userData.settings.upvoteNotifFreq,
+	}));
 
-	userData.categoryWatchState = { [userData.settings.categoryWatchState]: true };
+	userData.categoryWatchState = {
+		[userData.settings.categoryWatchState]: true,
+	};
 
 	userData.disableCustomUserSkins = meta.config.disableCustomUserSkins || 0;
 
@@ -98,7 +114,10 @@ settingsController.get = async function (req, res, next) {
 	userData.maxPostsPerPage = meta.config.maxPostsPerPage;
 
 	userData.title = '[[pages:account/settings]]';
-	userData.breadcrumbs = helpers.buildBreadcrumbs([{ text: userData.username, url: `/user/${userData.userslug}` }, { text: '[[user:settings]]' }]);
+	userData.breadcrumbs = helpers.buildBreadcrumbs([
+		{ text: userData.username, url: `/user/${userData.userslug}` },
+		{ text: '[[user:settings]]' },
+	]);
 
 	res.render('account/settings', userData);
 };
@@ -107,7 +126,7 @@ const unsubscribable = ['digest', 'notification'];
 const jwtVerifyAsync = util.promisify((token, callback) => {
 	jwt.verify(token, nconf.get('secret'), (err, payload) => callback(err, payload));
 });
-const doUnsubscribe = async (payload) => {
+const doUnsubscribe = async payload => {
 	if (payload.template === 'digest') {
 		await Promise.all([
 			user.setSetting(payload.uid, 'dailyDigestFreq', 'off'),
@@ -118,9 +137,16 @@ const doUnsubscribe = async (payload) => {
 			notificationemail: 'notification',
 			email: 'none',
 		};
-		const current = await db.getObjectField(`user:${payload.uid}:settings`, `notificationType_${payload.type}`);
+		const current = await db.getObjectField(
+			`user:${payload.uid}:settings`,
+			`notificationType_${payload.type}`,
+		);
 		if (currentToNewSetting.hasOwnProperty(current)) {
-			await user.setSetting(payload.uid, `notificationType_${payload.type}`, currentToNewSetting[current]);
+			await user.setSetting(
+				payload.uid,
+				`notificationType_${payload.type}`,
+				currentToNewSetting[current],
+			);
 		}
 	}
 	return true;
@@ -238,7 +264,7 @@ async function getSkinOptions(userData) {
 	];
 	const customSkins = await meta.settings.get('custom-skins');
 	if (customSkins && Array.isArray(customSkins['custom-skin-list'])) {
-		customSkins['custom-skin-list'].forEach((customSkin) => {
+		customSkins['custom-skin-list'].forEach(customSkin => {
 			bootswatchSkinOptions.push({
 				name: customSkin['custom-skin-name'],
 				value: slugify(customSkin['custom-skin-name']),
@@ -247,10 +273,13 @@ async function getSkinOptions(userData) {
 	}
 
 	bootswatchSkinOptions.push(
-		...meta.css.supportedSkins.map(skin => ({ name: _.capitalize(skin), value: skin }))
+		...meta.css.supportedSkins.map(skin => ({
+			name: _.capitalize(skin),
+			value: skin,
+		})),
 	);
 
-	bootswatchSkinOptions.forEach((skin) => {
+	bootswatchSkinOptions.forEach(skin => {
 		skin.selected = skin.value === userData.settings.bootswatchSkin;
 	});
 	return bootswatchSkinOptions;
@@ -264,4 +293,4 @@ async function getChatAllowDenyList(userData) {
 
 	userData.settings.chatAllowListUsers = chatAllowListUsers;
 	userData.settings.chatDenyListUsers = chatDenyListUsers;
-};
+}

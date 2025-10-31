@@ -39,11 +39,19 @@ describe('Controllers', () => {
 		});
 		cid = category.cid;
 
-		fooUid = await user.create({ username: 'foo', password: 'barbar', gdpr_consent: true });
+		fooUid = await user.create({
+			username: 'foo',
+			password: 'barbar',
+			gdpr_consent: true,
+		});
 		await user.setUserField(fooUid, 'email', 'foo@test.com');
 		await user.email.confirmByUid(fooUid);
 
-		adminUid = await user.create({ username: 'admin', password: 'barbar', gdpr_consent: true });
+		adminUid = await user.create({
+			username: 'admin',
+			password: 'barbar',
+			gdpr_consent: true,
+		});
 		await groups.join('administrators', adminUid);
 
 		const navigation = require('../src/navigation/admin');
@@ -51,7 +59,12 @@ describe('Controllers', () => {
 
 		await navigation.save(data);
 
-		const result = await topics.post({ uid: fooUid, title: 'test topic title', content: 'test topic content', cid: cid });
+		const result = await topics.post({
+			uid: fooUid,
+			title: 'test topic title',
+			content: 'test topic content',
+			cid: cid,
+		});
 		tid = result.topicData.tid;
 
 		pid = result.postData.pid;
@@ -186,10 +199,25 @@ describe('Controllers', () => {
 			{ it: 'should load /register', url: '/register' },
 			{ it: 'should load /robots.txt', url: '/robots.txt' },
 			{ it: 'should load /manifest.webmanifest', url: '/manifest.webmanifest' },
-			{ it: 'should load /outgoing?url=<url>', url: '/outgoing?url=http://youtube.com' },
-			{ it: 'should 404 on /outgoing with no url', url: '/outgoing', status: 404 },
-			{ it: 'should 404 on /outgoing with javascript: protocol', url: '/outgoing?url=javascript:alert(1);', status: 404 },
-			{ it: 'should 404 on /outgoing with invalid url', url: '/outgoing?url=derp', status: 404 },
+			{
+				it: 'should load /outgoing?url=<url>',
+				url: '/outgoing?url=http://youtube.com',
+			},
+			{
+				it: 'should 404 on /outgoing with no url',
+				url: '/outgoing',
+				status: 404,
+			},
+			{
+				it: 'should 404 on /outgoing with javascript: protocol',
+				url: '/outgoing?url=javascript:alert(1);',
+				status: 404,
+			},
+			{
+				it: 'should 404 on /outgoing with invalid url',
+				url: '/outgoing?url=derp',
+				status: 404,
+			},
 			{ it: 'should load /sping', url: '/sping', body: 'healthy' },
 			{ it: 'should load /ping', url: '/ping', body: '200' },
 			{ it: 'should handle 404', url: '/arouteinthevoid', status: 404 },
@@ -201,16 +229,25 @@ describe('Controllers', () => {
 			{ it: 'should load popular rss feed', url: `/popular.rss` },
 			{ it: 'should load popular rss feed with term', url: `/popular/day.rss` },
 			{ it: 'should load recent posts rss feed', url: `/recentposts.rss` },
-			{ it: 'should load category recent posts rss feed', url: `/category/1/recentposts.rss` },
+			{
+				it: 'should load category recent posts rss feed',
+				url: `/category/1/recentposts.rss`,
+			},
 			{ it: 'should load user topics rss feed', url: `/user/foo/topics.rss` },
 			{ it: 'should load tag rss feed', url: `/tags/nodebb.rss` },
 			{ it: 'should load client.css', url: `/assets/client.css` },
 			{ it: 'should load admin.css', url: `/assets/admin.css` },
 			{ it: 'should load sitemap.xml', url: `/sitemap.xml` },
 			{ it: 'should load sitemap/pages.xml', url: `/sitemap/pages.xml` },
-			{ it: 'should load sitemap/categories.xml', url: `/sitemap/categories.xml` },
+			{
+				it: 'should load sitemap/categories.xml',
+				url: `/sitemap/categories.xml`,
+			},
 			{ it: 'should load sitemap/topics.1.xml', url: `/sitemap/topics.1.xml` },
-			{ it: 'should load theme screenshot', url: `/css/previews/nodebb-theme-harmony` },
+			{
+				it: 'should load theme screenshot',
+				url: `/css/previews/nodebb-theme-harmony`,
+			},
 			{ it: 'should load users page', url: `/users` },
 			{ it: 'should load users page section', url: `/users?section=online` },
 			{ it: 'should load groups page', url: `/groups` },
@@ -221,7 +258,7 @@ describe('Controllers', () => {
 			{ it: 'should return osd data', url: `/osd.xml` },
 			{ it: 'should load service worker', url: '/service-worker.js' },
 		];
-		testRoutes.forEach((route) => {
+		testRoutes.forEach(route => {
 			it(route.it, async () => {
 				const { response, body } = await request.get(`${baseUrl}/${route.url}`);
 				assert.equal(response.statusCode, route.status || 200);
@@ -252,10 +289,13 @@ describe('Controllers', () => {
 		assert.equal(response.statusCode, 200);
 		assert.strictEqual(body.next, `${nconf.get('relative_path')}/register/complete`);
 
-		const { response: res2, body: body2 } = await request.get(`${nconf.get('url')}/api/register/complete`, {
-			jar: jar,
-			json: true,
-		});
+		const { response: res2, body: body2 } = await request.get(
+			`${nconf.get('url')}/api/register/complete`,
+			{
+				jar: jar,
+				json: true,
+			},
+		);
 		assert.equal(res2.statusCode, 200);
 		assert(body2.sections);
 		assert(body2.errors);
@@ -266,7 +306,7 @@ describe('Controllers', () => {
 		describe('email update', () => {
 			let jar;
 			let token;
-			const dummyEmailerHook = async (data) => {};
+			const dummyEmailerHook = async data => {};
 
 			before(async () => {
 				// Attach an emailer hook so related requests do not error
@@ -275,10 +315,12 @@ describe('Controllers', () => {
 					method: dummyEmailerHook,
 				});
 
-				jar = (await helpers.registerUser({
-					username: utils.generateUUID().slice(0, 10),
-					password: utils.generateUUID(),
-				})).jar;
+				jar = (
+					await helpers.registerUser({
+						username: utils.generateUUID().slice(0, 10),
+						password: utils.generateUUID(),
+					})
+				).jar;
 				token = await helpers.getCsrfToken(jar);
 
 				meta.config.requireEmailAddress = 1;
@@ -342,22 +384,36 @@ describe('Controllers', () => {
 					interstitials: [],
 				});
 				assert.strictEqual(result.interstitials[0].template, 'partials/email_update');
-				await assert.rejects(result.interstitials[0].callback({ uid }, {
-					email: 'invalidEmail',
-				}), { message: '[[error:invalid-email]]' });
+				await assert.rejects(
+					result.interstitials[0].callback(
+						{ uid },
+						{
+							email: 'invalidEmail',
+						},
+					),
+					{ message: '[[error:invalid-email]]' },
+				);
 			});
 
 			it('should reject an email that comprises only whitespace', async () => {
-				const uid = await user.create({ username: utils.generateUUID().slice(0, 10) });
+				const uid = await user.create({
+					username: utils.generateUUID().slice(0, 10),
+				});
 				const result = await user.interstitials.email({
 					userData: { uid: uid, updateEmail: true },
 					req: { uid: uid },
 					interstitials: [],
 				});
 				assert.strictEqual(result.interstitials[0].template, 'partials/email_update');
-				await assert.rejects(result.interstitials[0].callback({ uid }, {
-					email: '    ',
-				}), { message: '[[error:invalid-email]]' });
+				await assert.rejects(
+					result.interstitials[0].callback(
+						{ uid },
+						{
+							email: '    ',
+						},
+					),
+					{ message: '[[error:invalid-email]]' },
+				);
 			});
 
 			it('should set req.session.emailChanged to 1', async () => {
@@ -368,9 +424,12 @@ describe('Controllers', () => {
 					interstitials: [],
 				});
 
-				await result.interstitials[0].callback({ uid: uid }, {
-					email: 'interstiuser2@nodebb.org',
-				});
+				await result.interstitials[0].callback(
+					{ uid: uid },
+					{
+						email: 'interstiuser2@nodebb.org',
+					},
+				);
 				assert.strictEqual(result.req.session.emailChanged, 1);
 			});
 
@@ -383,9 +442,12 @@ describe('Controllers', () => {
 						interstitials: [],
 					});
 
-					await result.interstitials[0].callback({ uid: uid }, {
-						email: 'derp@derp.com',
-					});
+					await result.interstitials[0].callback(
+						{ uid: uid },
+						{
+							email: 'derp@derp.com',
+						},
+					);
 					assert(false);
 				} catch (err) {
 					assert.strictEqual(err.message, '[[error:no-privileges]]');
@@ -405,9 +467,12 @@ describe('Controllers', () => {
 					interstitials: [],
 				});
 
-				await result.interstitials[0].callback({ uid: uid }, {
-					email: '',
-				});
+				await result.interstitials[0].callback(
+					{ uid: uid },
+					{
+						email: '',
+					},
+				);
 				const userData = await user.getUserData(uid);
 				assert.strictEqual(userData.email, '');
 				assert.strictEqual(userData['email:confirmed'], 0);
@@ -428,9 +493,12 @@ describe('Controllers', () => {
 						interstitials: [],
 					});
 
-					await result.interstitials[0].callback({ uid: uid }, {
-						email: `${username}@nodebb.com`,
-					});
+					await result.interstitials[0].callback(
+						{ uid: uid },
+						{
+							email: `${username}@nodebb.com`,
+						},
+					);
 				} catch (err) {
 					assert.strictEqual(err.message, '[[error:invalid-password]]');
 				}
@@ -451,9 +519,12 @@ describe('Controllers', () => {
 						interstitials: [],
 					});
 
-					await result.interstitials[0].callback({ uid: uid }, {
-						email: '',
-					});
+					await result.interstitials[0].callback(
+						{ uid: uid },
+						{
+							email: '',
+						},
+					);
 				} catch (err) {
 					assert.strictEqual(err.message, '[[error:invalid-password]]');
 				}
@@ -473,10 +544,13 @@ describe('Controllers', () => {
 					interstitials: [],
 				});
 
-				await result.interstitials[0].callback({ uid }, {
-					email: `${username}@nodebb.com`,
-					password,
-				});
+				await result.interstitials[0].callback(
+					{ uid },
+					{
+						email: `${username}@nodebb.com`,
+						password,
+					},
+				);
 
 				const pending = await user.email.isValidationPending(uid, `${username}@nodebb.com`);
 				assert.strictEqual(pending, true);
@@ -493,10 +567,12 @@ describe('Controllers', () => {
 				const username = utils.generateUUID().slice(0, 10);
 
 				before(async () => {
-					jar = (await helpers.registerUser({
-						username,
-						password: utils.generateUUID(),
-					})).jar;
+					jar = (
+						await helpers.registerUser({
+							username,
+							password: utils.generateUUID(),
+						})
+					).jar;
 					token = await helpers.getCsrfToken(jar);
 				});
 
@@ -526,7 +602,6 @@ describe('Controllers', () => {
 						},
 					});
 
-
 					assert.strictEqual(response.headers.location, `${nconf.get('relative_path')}/`);
 					meta.config.requireEmailAddress = 1;
 				});
@@ -545,14 +620,20 @@ describe('Controllers', () => {
 					const { cid } = await categories.create({ name });
 					await privileges.categories.rescind(['groups:read'], cid, ['registered-users']);
 					await privileges.categories.give(['groups:read'], cid, ['verified-users']);
-					const { response } = await request.get(`${nconf.get('url')}/category/${cid}/${slugify(name)}`, {
-						jar,
-						maxRedirect: 0,
-						redirect: 'manual',
-					});
+					const { response } = await request.get(
+						`${nconf.get('url')}/category/${cid}/${slugify(name)}`,
+						{
+							jar,
+							maxRedirect: 0,
+							redirect: 'manual',
+						},
+					);
 
 					assert.strictEqual(response.statusCode, 307);
-					assert.strictEqual(response.headers.location, `${nconf.get('relative_path')}/register/complete`);
+					assert.strictEqual(
+						response.headers.location,
+						`${nconf.get('relative_path')}/register/complete`,
+					);
 					await abortInterstitial();
 				});
 
@@ -561,24 +642,38 @@ describe('Controllers', () => {
 					const { cid } = await categories.create({ name });
 					await privileges.categories.rescind(['groups:topics:read'], cid, 'registered-users');
 					await privileges.categories.give(['groups:topics:read'], cid, 'verified-users');
-					const { response } = await request.get(`${nconf.get('url')}/category/${cid}/${slugify(name)}`, {
-						jar,
-						maxRedirect: 0,
-						redirect: 'manual',
-					});
+					const { response } = await request.get(
+						`${nconf.get('url')}/category/${cid}/${slugify(name)}`,
+						{
+							jar,
+							maxRedirect: 0,
+							redirect: 'manual',
+						},
+					);
 
 					assert.strictEqual(response.statusCode, 200);
 
 					const title = utils.generateUUID();
 					const uid = await user.getUidByUsername(username);
-					const { topicData } = await topics.post({ uid, cid, title, content: utils.generateUUID() });
-					const { response: res2 } = await request.get(`${nconf.get('url')}/topic/${topicData.tid}/${slugify(title)}`, {
-						jar,
-						maxRedirect: 0,
-						redirect: 'manual',
+					const { topicData } = await topics.post({
+						uid,
+						cid,
+						title,
+						content: utils.generateUUID(),
 					});
+					const { response: res2 } = await request.get(
+						`${nconf.get('url')}/topic/${topicData.tid}/${slugify(title)}`,
+						{
+							jar,
+							maxRedirect: 0,
+							redirect: 'manual',
+						},
+					);
 					assert.strictEqual(res2.statusCode, 307);
-					assert.strictEqual(res2.headers.location, `${nconf.get('relative_path')}/register/complete`);
+					assert.strictEqual(
+						res2.headers.location,
+						`${nconf.get('relative_path')}/register/complete`,
+					);
 					await abortInterstitial();
 					await topics.purge(topicData.tid, uid);
 				});
@@ -590,10 +685,12 @@ describe('Controllers', () => {
 			let token;
 
 			before(async () => {
-				jar = (await helpers.registerUser({
-					username: utils.generateUUID().slice(0, 10),
-					password: utils.generateUUID(),
-				})).jar;
+				jar = (
+					await helpers.registerUser({
+						username: utils.generateUUID().slice(0, 10),
+						password: utils.generateUUID(),
+					})
+				).jar;
 				token = await helpers.getCsrfToken(jar);
 			});
 
@@ -621,10 +718,12 @@ describe('Controllers', () => {
 			let token;
 
 			beforeEach(async () => {
-				jar = (await helpers.registerUser({
-					username: utils.generateUUID().slice(0, 10),
-					password: utils.generateUUID(),
-				})).jar;
+				jar = (
+					await helpers.registerUser({
+						username: utils.generateUUID().slice(0, 10),
+						password: utils.generateUUID(),
+					})
+				).jar;
 				token = await helpers.getCsrfToken(jar);
 			});
 
@@ -639,7 +738,10 @@ describe('Controllers', () => {
 				});
 
 				assert.strictEqual(response.statusCode, 302);
-				assert.strictEqual(response.headers['set-cookie'], `express.sid=; Path=${nconf.get('relative_path') || '/'}; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`);
+				assert.strictEqual(
+					response.headers['set-cookie'],
+					`express.sid=; Path=${nconf.get('relative_path') || '/'}; Expires=Thu, 01 Jan 1970 00:00:00 GMT; SameSite=Lax`,
+				);
 				assert.strictEqual(response.headers.location, `${nconf.get('relative_path')}/`);
 			});
 
@@ -676,14 +778,12 @@ describe('Controllers', () => {
 		});
 	});
 
-
 	it('should load /tos', async () => {
 		meta.config.termsOfUse = 'please accept our tos';
 		const { response, body } = await request.get(`${nconf.get('url')}/tos`);
 		assert.equal(response.statusCode, 200);
 		assert(body);
 	});
-
 
 	it('should return 404 if meta.config.termsOfUse is empty', async () => {
 		meta.config.termsOfUse = '';
@@ -692,9 +792,10 @@ describe('Controllers', () => {
 		assert(body);
 	});
 
-
 	it('should error if guests do not have search privilege', async () => {
-		const { response, body } = await request.get(`${nconf.get('url')}/api/users?query=bar&section=sort-posts`);
+		const { response, body } = await request.get(
+			`${nconf.get('url')}/api/users?query=bar&section=sort-posts`,
+		);
 		assert.equal(response.statusCode, 500);
 		assert(body);
 		assert.equal(body.error, '[[error:no-privileges]]');
@@ -702,7 +803,9 @@ describe('Controllers', () => {
 
 	it('should load users search page', async () => {
 		await privileges.global.give(['groups:search:users'], 'guests');
-		const { response, body } = await request.get(`${nconf.get('url')}/users?query=bar&section=sort-posts`);
+		const { response, body } = await request.get(
+			`${nconf.get('url')}/users?query=bar&section=sort-posts`,
+		);
 		assert.equal(response.statusCode, 200);
 		assert(body);
 		await privileges.global.rescind(['groups:search:users'], 'guests');
@@ -730,7 +833,9 @@ describe('Controllers', () => {
 	});
 
 	it('should load group members page', async () => {
-		const { response, body } = await request.get(`${nconf.get('url')}/groups/group-details/members`);
+		const { response, body } = await request.get(
+			`${nconf.get('url')}/groups/group-details/members`,
+		);
 		assert.equal(response.statusCode, 200);
 		assert(body);
 	});
@@ -745,8 +850,6 @@ describe('Controllers', () => {
 		const { response } = await request.get(`${nconf.get('url')}/groups/hidden-group/members`);
 		assert.equal(response.statusCode, 404);
 	});
-
-
 
 	describe('revoke session', () => {
 		let uid;
@@ -770,13 +873,16 @@ describe('Controllers', () => {
 			assert.equal(response.statusCode, 404);
 		});
 
-		it('should fail if user doesn\'t exist', async () => {
-			const { response, body } = await request.del(`${nconf.get('url')}/api/v3/users/doesnotexist/sessions/1112233`, {
-				jar: jar,
-				headers: {
-					'x-csrf-token': csrf_token,
+		it("should fail if user doesn't exist", async () => {
+			const { response, body } = await request.del(
+				`${nconf.get('url')}/api/v3/users/doesnotexist/sessions/1112233`,
+				{
+					jar: jar,
+					headers: {
+						'x-csrf-token': csrf_token,
+					},
 				},
-			});
+			);
 
 			assert.strictEqual(response.statusCode, 404);
 			// const parsedResponse = JSON.parse(body);
@@ -792,12 +898,15 @@ describe('Controllers', () => {
 			const sid = sids[0];
 			const sessionObj = await db.sessionStoreGet(sid);
 
-			const { response, body } = await request.del(`${nconf.get('url')}/api/v3/users/${uid}/sessions/${sessionObj.meta.uuid}`, {
-				jar: jar,
-				headers: {
-					'x-csrf-token': csrf_token,
+			const { response, body } = await request.del(
+				`${nconf.get('url')}/api/v3/users/${uid}/sessions/${sessionObj.meta.uuid}`,
+				{
+					jar: jar,
+					headers: {
+						'x-csrf-token': csrf_token,
+					},
 				},
-			});
+			);
 
 			assert.strictEqual(response.statusCode, 200);
 			assert.deepStrictEqual(body, {
@@ -893,13 +1002,12 @@ describe('Controllers', () => {
 		});
 	});
 
-
 	describe('maintenance mode', () => {
-		before((done) => {
+		before(done => {
 			meta.config.maintenanceMode = 1;
 			done();
 		});
-		after((done) => {
+		after(done => {
 			meta.config.maintenanceMode = 0;
 			done();
 		});
@@ -959,7 +1067,9 @@ describe('Controllers', () => {
 		});
 
 		it('should redirect to userslug and keep query params', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/uid/${fooUid}/topics?foo=bar`);
+			const { response, body } = await request.get(
+				`${nconf.get('url')}/api/uid/${fooUid}/topics?foo=bar`,
+			);
 			assert.equal(response.statusCode, 200);
 			assert.equal(response.headers['x-redirect'], encodeURIComponent('/user/foo/topics?foo=bar'));
 			assert.equal(body, '/user/foo/topics?foo=bar');
@@ -972,21 +1082,27 @@ describe('Controllers', () => {
 
 		describe('/me/*', () => {
 			it('should redirect to user profile', async () => {
-				const { response, body } = await request.get(`${nconf.get('url')}/me`, { jar });
+				const { response, body } = await request.get(`${nconf.get('url')}/me`, {
+					jar,
+				});
 				assert.equal(response.statusCode, 200);
 				assert(body.includes('"template":{"name":"account/profile","account/profile":true}'));
 				assert(body.includes('"username":"foo"'));
 			});
 
 			it('api should redirect to /user/[userslug]/bookmarks', async () => {
-				const { response, body } = await request.get(`${nconf.get('url')}/api/me/bookmarks`, { jar });
+				const { response, body } = await request.get(`${nconf.get('url')}/api/me/bookmarks`, {
+					jar,
+				});
 				assert.equal(response.statusCode, 200);
 				assert.equal(response.headers['x-redirect'], encodeURIComponent('/user/foo/bookmarks'));
 				assert.equal(body, '/user/foo/bookmarks');
 			});
 
 			it('api should redirect to /user/[userslug]/edit/username', async () => {
-				const { response, body } = await request.get(`${nconf.get('url')}/api/me/edit/username`, { jar });
+				const { response, body } = await request.get(`${nconf.get('url')}/api/me/edit/username`, {
+					jar,
+				});
 				assert.equal(response.statusCode, 200);
 				assert.equal(response.headers['x-redirect'], encodeURIComponent('/user/foo/edit/username'));
 				assert.equal(body, '/user/foo/edit/username');
@@ -1005,12 +1121,16 @@ describe('Controllers', () => {
 		});
 
 		it('should 403 if user is not admin', async () => {
-			const { response } = await request.get(`${nconf.get('url')}/api/admin`, { jar });
+			const { response } = await request.get(`${nconf.get('url')}/api/admin`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 403);
 		});
 
 		it('should load /user/foo/posts', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/posts`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/posts`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 			assert(body);
 		});
@@ -1022,85 +1142,114 @@ describe('Controllers', () => {
 		});
 
 		it('should load /user/foo/bookmarks', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/bookmarks`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/bookmarks`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 			assert(body);
 		});
 
 		it('should load /user/foo/upvoted', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/upvoted`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/upvoted`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 			assert(body);
 		});
 
 		it('should load /user/foo/downvoted', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/downvoted`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/downvoted`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 			assert(body);
 		});
 
 		it('should load /user/foo/best', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/best`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/best`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 			assert(body);
 		});
 
 		it('should load /user/foo/controversial', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/controversial`, { jar });
+			const { response, body } = await request.get(
+				`${nconf.get('url')}/api/user/foo/controversial`,
+				{ jar },
+			);
 			assert.equal(response.statusCode, 200);
 			assert(body);
 		});
 
 		it('should load /user/foo/watched', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/watched`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/watched`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 			assert(body);
 		});
 
 		it('should load /user/foo/ignored', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/ignored`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/ignored`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 			assert(body);
 		});
 
 		it('should load /user/foo/topics', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/topics`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/topics`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 			assert(body);
 		});
 
 		it('should load /user/foo/blocks', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/blocks`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/blocks`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 			assert(body);
 		});
 
 		it('should load /user/foo/consent', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/consent`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/consent`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 			assert(body);
 		});
 
 		it('should load /user/foo/sessions', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/sessions`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/sessions`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 			assert(body);
 		});
 
 		it('should load /user/foo/categories', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/categories`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/categories`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 			assert(body);
 		});
 
 		it('should load /user/foo/tags', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/tags`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/tags`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 			assert(body);
 		});
 
 		it('should load /user/foo/uploads', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/uploads`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/uploads`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 			assert(body);
 		});
@@ -1108,26 +1257,37 @@ describe('Controllers', () => {
 		describe('user data export routes', () => {
 			before(async () => {
 				const types = ['profile', 'uploads', 'posts'];
-				await Promise.all(types.map(async (type) => {
-					await api.users.generateExport({ uid: fooUid, ip: '127.0.0.1' }, { uid: fooUid, type });
-				}));
+				await Promise.all(
+					types.map(async type => {
+						await api.users.generateExport({ uid: fooUid, ip: '127.0.0.1' }, { uid: fooUid, type });
+					}),
+				);
 				await sleep(10000);
 			});
 
 			it('should export users posts', async () => {
-				const { response, body } = await request.get(`${nconf.get('url')}/api/v3/users/${fooUid}/exports/posts`, { jar: jar });
+				const { response, body } = await request.get(
+					`${nconf.get('url')}/api/v3/users/${fooUid}/exports/posts`,
+					{ jar: jar },
+				);
 				assert.equal(response.statusCode, 200);
 				assert(body);
 			});
 
 			it('should export users uploads', async () => {
-				const { response, body } = await request.get(`${nconf.get('url')}/api/v3/users/${fooUid}/exports/uploads`, { jar: jar });
+				const { response, body } = await request.get(
+					`${nconf.get('url')}/api/v3/users/${fooUid}/exports/uploads`,
+					{ jar: jar },
+				);
 				assert.equal(response.statusCode, 200);
 				assert(body);
 			});
 
 			it('should export users profile', async () => {
-				const { response, body } = await request.get(`${nconf.get('url')}/api/v3/users/${fooUid}/exports/profile`, { jar: jar });
+				const { response, body } = await request.get(
+					`${nconf.get('url')}/api/v3/users/${fooUid}/exports/profile`,
+					{ jar: jar },
+				);
 				assert.equal(response.statusCode, 200);
 				assert(body);
 			});
@@ -1155,7 +1315,10 @@ describe('Controllers', () => {
 			assert.equal(response.statusCode, 200);
 			assert(body);
 			const notif = body.notifications[0];
-			assert.equal(notif.bodyShort, '<strong>test1</strong> has posted a reply to: <strong>test2</strong>');
+			assert.equal(
+				notif.bodyShort,
+				'<strong>test1</strong> has posted a reply to: <strong>test2</strong>',
+			);
 			assert.equal(notif.bodyLong, notifData.bodyLong);
 			assert.equal(notif.pid, notifData.pid);
 			assert.equal(notif.path, nconf.get('relative_path') + notifData.path);
@@ -1163,7 +1326,9 @@ describe('Controllers', () => {
 		});
 
 		it('should 404 if user does not exist', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/email/doesnotexist`);
+			const { response, body } = await request.get(
+				`${nconf.get('url')}/api/user/email/doesnotexist`,
+			);
 			assert.equal(response.statusCode, 404);
 			assert(body);
 		});
@@ -1188,7 +1353,9 @@ describe('Controllers', () => {
 
 		it('should load user by email if user has elected to show their email', async () => {
 			await user.setSetting(fooUid, 'showemail', 1);
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/email/foo@test.com`);
+			const { response, body } = await request.get(
+				`${nconf.get('url')}/api/user/email/foo@test.com`,
+			);
 			assert.strictEqual(response.statusCode, 200);
 			assert(body);
 			await user.setSetting(fooUid, 'showemail', 0);
@@ -1230,7 +1397,9 @@ describe('Controllers', () => {
 		});
 
 		it('should 404 if user does not exist', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/doesnotexist`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/doesnotexist`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 404);
 		});
 
@@ -1262,7 +1431,10 @@ describe('Controllers', () => {
 		});
 
 		it('should parse about me', async () => {
-			await user.setUserFields(fooUid, { picture: '/path/to/picture', aboutme: 'hi i am a bot' });
+			await user.setUserFields(fooUid, {
+				picture: '/path/to/picture',
+				aboutme: 'hi i am a bot',
+			});
 			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo`);
 			assert.equal(response.statusCode, 200);
 			assert.equal(body.aboutme, 'hi i am a bot');
@@ -1278,9 +1450,22 @@ describe('Controllers', () => {
 		});
 
 		it('should only return posts that are not deleted', async () => {
-			const { topicData } = await topics.post({ uid: fooUid, title: 'visible', content: 'some content', cid: cid });
-			const { pid: pidToDelete } = await topics.reply({ uid: fooUid, content: '1st reply', tid: topicData.tid });
-			await topics.reply({ uid: fooUid, content: '2nd reply', tid: topicData.tid });
+			const { topicData } = await topics.post({
+				uid: fooUid,
+				title: 'visible',
+				content: 'some content',
+				cid: cid,
+			});
+			const { pid: pidToDelete } = await topics.reply({
+				uid: fooUid,
+				content: '1st reply',
+				tid: topicData.tid,
+			});
+			await topics.reply({
+				uid: fooUid,
+				content: '2nd reply',
+				tid: topicData.tid,
+			});
 			await posts.delete(pidToDelete, fooUid);
 
 			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo`);
@@ -1305,18 +1490,24 @@ describe('Controllers', () => {
 		it('should 404 if user does not exist', async () => {
 			await groups.join('administrators', fooUid);
 
-			const { response } = await request.get(`${nconf.get('url')}/api/user/doesnotexist/edit`, { jar });
+			const { response } = await request.get(`${nconf.get('url')}/api/user/doesnotexist/edit`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 404);
 			await groups.leave('administrators', fooUid);
 		});
 
 		it('should render edit/password', async () => {
-			const { response } = await request.get(`${nconf.get('url')}/api/user/foo/edit/password`, { jar });
+			const { response } = await request.get(`${nconf.get('url')}/api/user/foo/edit/password`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 		});
 
 		it('should render edit/email', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/edit/email`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/user/foo/edit/email`, {
+				jar,
+			});
 
 			assert.strictEqual(response.statusCode, 200);
 			assert.strictEqual(body, '/register/complete');
@@ -1330,7 +1521,9 @@ describe('Controllers', () => {
 		});
 
 		it('should render edit/username', async () => {
-			const { response } = await request.get(`${nconf.get('url')}/api/user/foo/edit/username`, { jar });
+			const { response } = await request.get(`${nconf.get('url')}/api/user/foo/edit/username`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 		});
 	});
@@ -1353,7 +1546,9 @@ describe('Controllers', () => {
 		});
 
 		it('should get following page', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/user/follower/following`);
+			const { response, body } = await request.get(
+				`${nconf.get('url')}/api/user/follower/following`,
+			);
 			assert.equal(response.statusCode, 200);
 			assert.equal(body.users[0].username, 'foo');
 		});
@@ -1403,7 +1598,7 @@ describe('Controllers', () => {
 		});
 
 		it('response should be parseable when entries have apostrophes', async () => {
-			await meta.configs.set('cookieConsentMessage', 'Julian\'s Message');
+			await meta.configs.set('cookieConsentMessage', "Julian's Message");
 			const { response, body } = await request.get(`${nconf.get('url')}/api/config`);
 			assert.equal(response.statusCode, 200);
 			assert.equal('Julian&#x27;s Message', body.cookies.message);
@@ -1412,7 +1607,7 @@ describe('Controllers', () => {
 
 	describe('handle errors', () => {
 		const plugins = require('../src/plugins');
-		after((done) => {
+		after(done => {
 			plugins.loadedHooks['filter:router.page'] = undefined;
 			done();
 		});
@@ -1442,7 +1637,8 @@ describe('Controllers', () => {
 		});
 
 		it('should handle CSRF error', async () => {
-			plugins.loadedHooks['response:router.page'] = plugins.loadedHooks['response:router.page'] || [];
+			plugins.loadedHooks['response:router.page'] =
+				plugins.loadedHooks['response:router.page'] || [];
 			plugins.loadedHooks['response:router.page'].push({
 				method: function () {
 					const err = new Error('csrf-error');
@@ -1457,7 +1653,8 @@ describe('Controllers', () => {
 		});
 
 		it('should handle black-list error', async () => {
-			plugins.loadedHooks['response:router.page'] = plugins.loadedHooks['response:router.page'] || [];
+			plugins.loadedHooks['response:router.page'] =
+				plugins.loadedHooks['response:router.page'] || [];
 			plugins.loadedHooks['response:router.page'].push({
 				method: function () {
 					const err = new Error('blacklist error message');
@@ -1472,7 +1669,8 @@ describe('Controllers', () => {
 		});
 
 		it('should handle page redirect through error', async () => {
-			plugins.loadedHooks['response:router.page'] = plugins.loadedHooks['response:router.page'] || [];
+			plugins.loadedHooks['response:router.page'] =
+				plugins.loadedHooks['response:router.page'] || [];
 			plugins.loadedHooks['response:router.page'].push({
 				method: function () {
 					const err = new Error('redirect');
@@ -1488,7 +1686,8 @@ describe('Controllers', () => {
 		});
 
 		it('should handle api page redirect through error', async () => {
-			plugins.loadedHooks['response:router.page'] = plugins.loadedHooks['response:router.page'] || [];
+			plugins.loadedHooks['response:router.page'] =
+				plugins.loadedHooks['response:router.page'] || [];
 			plugins.loadedHooks['response:router.page'].push({
 				method: function () {
 					const err = new Error('redirect');
@@ -1505,7 +1704,8 @@ describe('Controllers', () => {
 		});
 
 		it('should handle error page', async () => {
-			plugins.loadedHooks['response:router.page'] = plugins.loadedHooks['response:router.page'] || [];
+			plugins.loadedHooks['response:router.page'] =
+				plugins.loadedHooks['response:router.page'] || [];
 			plugins.loadedHooks['response:router.page'].push({
 				method: function () {
 					const err = new Error('regular error');
@@ -1531,7 +1731,9 @@ describe('Controllers', () => {
 		});
 
 		it('should return 404 if topic index is not a number', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/category/${category.slug}/invalidtopicindex`);
+			const { response, body } = await request.get(
+				`${nconf.get('url')}/api/category/${category.slug}/invalidtopicindex`,
+			);
 			assert.equal(response.statusCode, 404);
 		});
 
@@ -1556,30 +1758,55 @@ describe('Controllers', () => {
 		});
 
 		it('should redirect if topic index is negative', async () => {
-			const { response } = await request.get(`${nconf.get('url')}/api/category/${category.slug}/-10`);
+			const { response } = await request.get(
+				`${nconf.get('url')}/api/category/${category.slug}/-10`,
+			);
 			assert.equal(response.statusCode, 200);
 			assert.ok(response.headers['x-redirect']);
 		});
 
 		it('should 404 if page is not found', async () => {
 			await user.setSetting(fooUid, 'usePagination', 1);
-			const { response } = await request.get(`${nconf.get('url')}/api/category/${category.slug}?page=100`, { jar });
+			const { response } = await request.get(
+				`${nconf.get('url')}/api/category/${category.slug}?page=100`,
+				{ jar },
+			);
 			assert.equal(response.statusCode, 404);
 		});
 
 		it('should load page 1 if req.query.page is not sent', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/category/${category.slug}`, { jar });
+			const { response, body } = await request.get(
+				`${nconf.get('url')}/api/category/${category.slug}`,
+				{ jar },
+			);
 			assert.equal(response.statusCode, 200);
 			assert.equal(body.pagination.currentPage, 1);
 		});
 
 		it('should sort topics by most posts', async () => {
 			const category = await categories.create({ name: 'most-posts-category' });
-			await topics.post({ uid: fooUid, cid: category.cid, title: 'topic 1', content: 'topic 1 OP' });
-			const t2 = await topics.post({ uid: fooUid, cid: category.cid, title: 'topic 2', content: 'topic 2 OP' });
-			await topics.reply({ uid: fooUid, content: 'topic 2 reply', tid: t2.topicData.tid });
+			await topics.post({
+				uid: fooUid,
+				cid: category.cid,
+				title: 'topic 1',
+				content: 'topic 1 OP',
+			});
+			const t2 = await topics.post({
+				uid: fooUid,
+				cid: category.cid,
+				title: 'topic 2',
+				content: 'topic 2 OP',
+			});
+			await topics.reply({
+				uid: fooUid,
+				content: 'topic 2 reply',
+				tid: t2.topicData.tid,
+			});
 
-			const { response, body } = await request.get(`${nconf.get('url')}/api/category/${category.slug}?sort=most_posts`, { jar });
+			const { response, body } = await request.get(
+				`${nconf.get('url')}/api/category/${category.slug}?sort=most_posts`,
+				{ jar },
+			);
 			assert.equal(response.statusCode, 200);
 			assert.equal(body.topics[0].title, 'topic 2');
 			assert.equal(body.topics[0].postcount, 2);
@@ -1588,20 +1815,47 @@ describe('Controllers', () => {
 
 		it('should load a specific users topics from a category with tags', async () => {
 			const category = await categories.create({ name: 'filtered-category' });
-			await topics.post({ uid: fooUid, cid: category.cid, title: 'topic 1', content: 'topic 1 OP', tags: ['java', 'cpp'] });
-			await topics.post({ uid: fooUid, cid: category.cid, title: 'topic 2', content: 'topic 2 OP', tags: ['node', 'javascript'] });
-			await topics.post({ uid: fooUid, cid: category.cid, title: 'topic 3', content: 'topic 3 OP', tags: ['java', 'cpp', 'best'] });
+			await topics.post({
+				uid: fooUid,
+				cid: category.cid,
+				title: 'topic 1',
+				content: 'topic 1 OP',
+				tags: ['java', 'cpp'],
+			});
+			await topics.post({
+				uid: fooUid,
+				cid: category.cid,
+				title: 'topic 2',
+				content: 'topic 2 OP',
+				tags: ['node', 'javascript'],
+			});
+			await topics.post({
+				uid: fooUid,
+				cid: category.cid,
+				title: 'topic 3',
+				content: 'topic 3 OP',
+				tags: ['java', 'cpp', 'best'],
+			});
 
-			let { body } = await request.get(`${nconf.get('url')}/api/category/${category.slug}?tag=node&author=foo`, { jar });
+			let { body } = await request.get(
+				`${nconf.get('url')}/api/category/${category.slug}?tag=node&author=foo`,
+				{ jar },
+			);
 			assert.equal(body.topics[0].title, 'topic 2');
 
-			({ body } = await request.get(`${nconf.get('url')}/api/category/${category.slug}?tag[]=java&tag[]=cpp`, { jar }));
+			({ body } = await request.get(
+				`${nconf.get('url')}/api/category/${category.slug}?tag[]=java&tag[]=cpp`,
+				{ jar },
+			));
 			assert.equal(body.topics[0].title, 'topic 3');
 			assert.equal(body.topics[1].title, 'topic 1');
 		});
 
 		it('should redirect if category is a link', async () => {
-			const category = await categories.create({ name: 'redirect', link: 'https://nodebb.org' });
+			const category = await categories.create({
+				name: 'redirect',
+				link: 'https://nodebb.org',
+			});
 			const { cid } = category;
 
 			let result = await request.get(`${nconf.get('url')}/api/category/${category.slug}`, { jar });
@@ -1615,24 +1869,50 @@ describe('Controllers', () => {
 		});
 
 		it('should get recent topic replies from children categories', async () => {
-			const parentCategory = await categories.create({ name: 'parent category', backgroundImage: 'path/to/some/image' });
-			const childCategory1 = await categories.create({ name: 'child category 1', parentCid: category.cid });
-			const childCategory2 = await categories.create({ name: 'child category 2', parentCid: parentCategory.cid });
-			await topics.post({ uid: fooUid, cid: childCategory2.cid, title: 'topic 1', content: 'topic 1 OP' });
+			const parentCategory = await categories.create({
+				name: 'parent category',
+				backgroundImage: 'path/to/some/image',
+			});
+			const childCategory1 = await categories.create({
+				name: 'child category 1',
+				parentCid: category.cid,
+			});
+			const childCategory2 = await categories.create({
+				name: 'child category 2',
+				parentCid: parentCategory.cid,
+			});
+			await topics.post({
+				uid: fooUid,
+				cid: childCategory2.cid,
+				title: 'topic 1',
+				content: 'topic 1 OP',
+			});
 
-			const { body } = await request.get(`${nconf.get('url')}/api/category/${parentCategory.slug}`, { jar });
+			const { body } = await request.get(
+				`${nconf.get('url')}/api/category/${parentCategory.slug}`,
+				{ jar },
+			);
 			assert.equal(body.children[0].posts[0].content, 'topic 1 OP');
 		});
 
 		it('should create 2 pages of topics', async () => {
-			const category = await categories.create({ name: 'category with 2 pages' });
+			const category = await categories.create({
+				name: 'category with 2 pages',
+			});
 			for (let i = 0; i < 30; i++) {
 				// eslint-disable-next-line no-await-in-loop
-				await topics.post({ uid: fooUid, cid: category.cid, title: `topic title ${i}`, content: 'does not really matter' });
+				await topics.post({
+					uid: fooUid,
+					cid: category.cid,
+					title: `topic title ${i}`,
+					content: 'does not really matter',
+				});
 			}
 			const userSettings = await user.getSettings(fooUid);
 
-			const { body } = await request.get(`${nconf.get('url')}/api/category/${category.slug}`, { jar });
+			const { body } = await request.get(`${nconf.get('url')}/api/category/${category.slug}`, {
+				jar,
+			});
 			assert.equal(body.topics.length, userSettings.topicsPerPage);
 			assert.equal(body.pagination.pageCount, 2);
 		});
@@ -1647,14 +1927,24 @@ describe('Controllers', () => {
 
 		it('should load categories by states', async () => {
 			const helpers = require('../src/controllers/helpers');
-			const data = await helpers.getCategoriesByStates(1, 1, Object.values(categories.watchStates), 'topics:read');
+			const data = await helpers.getCategoriesByStates(
+				1,
+				1,
+				Object.values(categories.watchStates),
+				'topics:read',
+			);
 			assert.deepStrictEqual(data.selectedCategory.cid, 1);
 			assert.deepStrictEqual(data.selectedCids, [1]);
 		});
 
 		it('should load categories by states', async () => {
 			const helpers = require('../src/controllers/helpers');
-			const data = await helpers.getCategoriesByStates(1, 0, [categories.watchStates.ignoring], 'topics:read');
+			const data = await helpers.getCategoriesByStates(
+				1,
+				0,
+				[categories.watchStates.ignoring],
+				'topics:read',
+			);
 			assert(data.categories.length === 0);
 			assert.deepStrictEqual(data.selectedCategory, null);
 			assert.deepStrictEqual(data.selectedCids, []);
@@ -1668,23 +1958,32 @@ describe('Controllers', () => {
 		});
 
 		it('should load unread page', async () => {
-			const { response } = await request.get(`${nconf.get('url')}/api/unread`, { jar });
+			const { response } = await request.get(`${nconf.get('url')}/api/unread`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 		});
 
 		it('should 404 if filter is invalid', async () => {
-			const { response } = await request.get(`${nconf.get('url')}/api/unread/doesnotexist`, { jar });
+			const { response } = await request.get(`${nconf.get('url')}/api/unread/doesnotexist`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 404);
 		});
 
 		it('should return total unread count', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/unread/total?filter=new`, { jar });
+			const { response, body } = await request.get(
+				`${nconf.get('url')}/api/unread/total?filter=new`,
+				{ jar },
+			);
 			assert.equal(response.statusCode, 200);
 			assert.equal(body, 0);
 		});
 
 		it('should redirect if page is out of bounds', async () => {
-			const { response, body } = await request.get(`${nconf.get('url')}/api/unread?page=-1`, { jar });
+			const { response, body } = await request.get(`${nconf.get('url')}/api/unread?page=-1`, {
+				jar,
+			});
 			assert.equal(response.statusCode, 200);
 			assert.equal(response.headers['x-redirect'], encodeURIComponent('/unread?page=1'));
 			assert.equal(body, '/unread?page=1');
@@ -1805,7 +2104,11 @@ describe('Controllers', () => {
 			const jar = request.jar();
 			const csrf_token = await helpers.getCsrfToken(jar);
 
-			await privileges.categories.give(['groups:topics:create', 'groups:topics:reply'], cid, 'guests');
+			await privileges.categories.give(
+				['groups:topics:create', 'groups:topics:reply'],
+				cid,
+				'guests',
+			);
 
 			const result = await helpers.request('post', `/compose`, {
 				body: {
@@ -1837,7 +2140,11 @@ describe('Controllers', () => {
 				},
 			});
 			assert.equal(replyResult.response.statusCode, 302);
-			await privileges.categories.rescind(['groups:topics:post', 'groups:topics:reply'], cid, 'guests');
+			await privileges.categories.rescind(
+				['groups:topics:post', 'groups:topics:reply'],
+				cid,
+				'guests',
+			);
 		});
 
 		it('should not load a topic data that is in private category', async () => {
@@ -1846,10 +2153,17 @@ describe('Controllers', () => {
 				description: 'private',
 			});
 
-			const result = await topics.post({ uid: fooUid, title: 'hidden title', content: 'hidden content', cid: cid });
+			const result = await topics.post({
+				uid: fooUid,
+				title: 'hidden title',
+				content: 'hidden content',
+				cid: cid,
+			});
 
 			await privileges.categories.rescind(['groups:topics:read'], category.cid, 'guests');
-			let { response, body } = await request.get(`${nconf.get('url')}/api/compose?tid=${result.topicData.tid}`);
+			let { response, body } = await request.get(
+				`${nconf.get('url')}/api/compose?tid=${result.topicData.tid}`,
+			);
 			assert.equal(response.statusCode, 401);
 			assert(!body.title);
 
@@ -1857,7 +2171,9 @@ describe('Controllers', () => {
 			assert.equal(response.statusCode, 401);
 			assert(!body.title);
 
-			({ response, body } = await request.get(`${nconf.get('url')}/api/compose?pid=${result.postData.pid}`));
+			({ response, body } = await request.get(
+				`${nconf.get('url')}/api/compose?pid=${result.postData.pid}`,
+			));
 			assert.equal(response.statusCode, 401);
 			assert(!body.title);
 
@@ -1909,26 +2225,34 @@ describe('Controllers', () => {
 			});
 
 			it('should error if resource parameter is malformed', async () => {
-				const { response } = await request.get(`${nconf.get('url')}/.well-known/webfinger?resource=foobar`);
+				const { response } = await request.get(
+					`${nconf.get('url')}/.well-known/webfinger?resource=foobar`,
+				);
 				assert.strictEqual(response.statusCode, 400);
 			});
 
 			it('should deny access if view:users privilege is not enabled for guests', async () => {
 				await privileges.global.rescind(['groups:view:users'], 'fediverse');
 
-				const { response } = await request.get(`${nconf.get('url')}/.well-known/webfinger?resource=acct:${username}@${nconf.get('url_parsed').host}`);
+				const { response } = await request.get(
+					`${nconf.get('url')}/.well-known/webfinger?resource=acct:${username}@${nconf.get('url_parsed').host}`,
+				);
 				assert.strictEqual(response.statusCode, 404);
 
 				await privileges.global.give(['groups:view:users'], 'fediverse');
 			});
 
 			it('should respond appropriately if the user requested does not exist locally', async () => {
-				const { response } = await request.get(`${nconf.get('url')}/.well-known/webfinger?resource=acct:foobar@${nconf.get('url_parsed').host}`);
+				const { response } = await request.get(
+					`${nconf.get('url')}/.well-known/webfinger?resource=acct:foobar@${nconf.get('url_parsed').host}`,
+				);
 				assert.strictEqual(response.statusCode, 404);
 			});
 
 			it('should return a valid webfinger response if the user exists', async () => {
-				const { response, body } = await request.get(`${nconf.get('url')}/.well-known/webfinger?resource=acct:${username}@${nconf.get('url_parsed').host}`);
+				const { response, body } = await request.get(
+					`${nconf.get('url')}/.well-known/webfinger?resource=acct:${username}@${nconf.get('url_parsed').host}`,
+				);
 				assert.strictEqual(response.statusCode, 200);
 				assert(['subject', 'aliases', 'links'].every(prop => body.hasOwnProperty(prop)));
 				assert(body.subject, `acct:${username}@${nconf.get('url_parsed').host}`);
@@ -1936,7 +2260,7 @@ describe('Controllers', () => {
 		});
 	});
 
-	after((done) => {
+	after(done => {
 		const analytics = require('../src/analytics');
 		analytics.writeData(done);
 	});

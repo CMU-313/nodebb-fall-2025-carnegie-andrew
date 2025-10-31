@@ -1,4 +1,3 @@
-
 'use strict';
 
 const _ = require('lodash');
@@ -54,7 +53,8 @@ privsCategories.getType = function (privilege) {
 };
 
 privsCategories.getUserPrivilegeList = () => Array.from(_privilegeMap.keys());
-privsCategories.getGroupPrivilegeList = () => Array.from(_privilegeMap.keys()).map(privilege => `groups:${privilege}`);
+privsCategories.getGroupPrivilegeList = () =>
+	Array.from(_privilegeMap.keys()).map(privilege => `groups:${privilege}`);
 
 privsCategories.getPrivilegeList = async () => {
 	const [user, group] = await Promise.all([
@@ -92,8 +92,12 @@ privsCategories.list = async function (cid) {
 
 privsCategories.get = async function (cid, uid) {
 	const privs = [
-		'topics:create', 'topics:read', 'topics:schedule',
-		'topics:tag', 'read', 'posts:view_deleted',
+		'topics:create',
+		'topics:read',
+		'topics:schedule',
+		'topics:tag',
+		'read',
+		'posts:view_deleted',
 	];
 
 	const [userPrivileges, isAdministrator, isModerator] = await Promise.all([
@@ -167,7 +171,7 @@ privsCategories.filterCids = async function (privilege, cids, uid) {
 		user.isAdministrator(uid),
 	]);
 	return cids.filter(
-		(cid, index) => !!cid && !categoryData[index].disabled && (allowedTo[index] || isAdmin)
+		(cid, index) => !!cid && !categoryData[index].disabled && (allowedTo[index] || isAdmin),
 	);
 };
 

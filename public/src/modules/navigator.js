@@ -1,7 +1,12 @@
 'use strict';
 
 define('navigator', [
-	'forum/pagination', 'components', 'hooks', 'alerts', 'translator', 'storage',
+	'forum/pagination',
+	'components',
+	'hooks',
+	'alerts',
+	'translator',
+	'storage',
 ], function (pagination, components, hooks, alerts, translator, storage) {
 	const navigator = {};
 	let index = 0;
@@ -47,22 +52,30 @@ define('navigator', [
 
 		$(window).off('scroll', navigator.delayedUpdate).on('scroll', navigator.delayedUpdate);
 
-		paginationBlockEl.find('.dropdown-menu').off('click').on('click', function (e) {
-			e.stopPropagation();
-		});
+		paginationBlockEl
+			.find('.dropdown-menu')
+			.off('click')
+			.on('click', function (e) {
+				e.stopPropagation();
+			});
 
-		paginationBlockEl.off('shown.bs.dropdown', '.wrapper').on('shown.bs.dropdown', '.wrapper', function () {
-			const el = $(this);
-			setTimeout(async function () {
-				if (['lg', 'xl', 'xxl'].includes(utils.findBootstrapEnvironment())) {
-					el.find('input').trigger('focus');
-				}
-				const postCountInTopic = await socket.emit('topics.getPostCountInTopic', ajaxify.data.tid);
-				if (postCountInTopic > 0) {
-					paginationBlockEl.find('#myNextPostBtn').removeAttr('disabled');
-				}
-			}, 100);
-		});
+		paginationBlockEl
+			.off('shown.bs.dropdown', '.wrapper')
+			.on('shown.bs.dropdown', '.wrapper', function () {
+				const el = $(this);
+				setTimeout(async function () {
+					if (['lg', 'xl', 'xxl'].includes(utils.findBootstrapEnvironment())) {
+						el.find('input').trigger('focus');
+					}
+					const postCountInTopic = await socket.emit(
+						'topics.getPostCountInTopic',
+						ajaxify.data.tid,
+					);
+					if (postCountInTopic > 0) {
+						paginationBlockEl.find('#myNextPostBtn').removeAttr('disabled');
+					}
+				}, 100);
+			});
 		paginationBlockEl.find('.pageup').off('click').on('click', navigator.scrollUp);
 		paginationBlockEl.find('.pagedown').off('click').on('click', navigator.scrollDown);
 		paginationBlockEl.find('.pagetop').off('click').on('click', navigator.toTop);
@@ -110,7 +123,8 @@ define('navigator', [
 		}
 		if (ajaxify.data.template.topic) {
 			let nextIndex = await getNext(index);
-			if (lastNextIndex === nextIndex) { // handles last post in pagination
+			if (lastNextIndex === nextIndex) {
+				// handles last post in pagination
 				nextIndex = await getNext(nextIndex);
 			}
 			if (nextIndex && index !== nextIndex + 1) {
@@ -161,7 +175,7 @@ define('navigator', [
 			const thumbIcon = thumb.find('.scroller-thumb-icon');
 			const thumbIconHeight = thumbIcon.height();
 			const gap = (parent.height() - thumbIconHeight) / (ajaxify.data.postcount - 1);
-			const newTop = clampTop(thumb, parentOffset.top + ((index - 1) * gap));
+			const newTop = clampTop(thumb, parentOffset.top + (index - 1) * gap);
 			const offset = { top: newTop, left: thumb.offset().left };
 			thumb.offset(offset);
 			updateThumbTextToIndex(thumb, index);
@@ -176,7 +190,9 @@ define('navigator', [
 		if (bsEnv === 'xs' || bsEnv === 'sm' || bsEnv === 'md') {
 			thumb.find('.thumb-text').text(`${index}/${ajaxify.data.postcount}`);
 		} else {
-			thumb.find('.thumb-text').translateText(`[[topic:navigator.index, ${index}, ${ajaxify.data.postcount}]]`);
+			thumb
+				.find('.thumb-text')
+				.translateText(`[[topic:navigator.index, ${index}, ${ajaxify.data.postcount}]]`);
 		}
 	}
 
@@ -184,7 +200,7 @@ define('navigator', [
 		const el = thumb.find('.thumb-timestamp');
 		if (el.length) {
 			const postAtIndex = ajaxify.data.posts.find(
-				p => parseInt(p.index, 10) === Math.max(0, parseInt(index, 10) - 1)
+				p => parseInt(p.index, 10) === Math.max(0, parseInt(index, 10) - 1),
 			);
 			const timestamp = postAtIndex ? postAtIndex.timestamp : await getPostTimestampByIndex(index);
 			el.attr('title', utils.toISOString(timestamp)).timeago();
@@ -203,7 +219,6 @@ define('navigator', [
 			index: index - 1,
 		});
 	}
-
 
 	function handleScrollNav() {
 		if (!thumbs.length) {
@@ -224,7 +239,7 @@ define('navigator', [
 			const parent = thumb.parent();
 			const thumbIcon = thumb.find('.scroller-thumb-icon');
 			const thumbIconHeight = thumbIcon.height();
-			const newTop = clampTop(thumb, y - (thumbIconHeight / 2));
+			const newTop = clampTop(thumb, y - thumbIconHeight / 2);
 			const parentOffset = parent.offset();
 			const percent = (newTop - parentOffset.top) / (parent.height() - thumbIconHeight);
 			index = Math.max(1, Math.ceil(ajaxify.data.postcount * percent));
@@ -235,7 +250,9 @@ define('navigator', [
 		hooks.on('action:ajaxify.end', function () {
 			renderPostIndex = null;
 		});
-		paginationBlockEl.find('.dropdown-menu').parent()
+		paginationBlockEl
+			.find('.dropdown-menu')
+			.parent()
 			.off('shown.bs.dropdown')
 			.on('shown.bs.dropdown', function () {
 				setThumbToIndex(index);
@@ -250,7 +267,7 @@ define('navigator', [
 			}
 			const thumbIcon = dragThumb.find('.scroller-thumb-icon');
 			const thumbIconHeight = thumbIcon.height();
-			const newTop = clampTop(dragThumb, ev.pageY - (thumbIconHeight / 2));
+			const newTop = clampTop(dragThumb, ev.pageY - thumbIconHeight / 2);
 			dragThumb.offset({ top: newTop, left: dragThumb.offset().left });
 			const index = calculateIndexFromY(dragThumb, ev.pageY);
 			navigator.updateTextAndProgressBar();
@@ -316,7 +333,9 @@ define('navigator', [
 				const windowWidth = $(window).width();
 				const windowHeight = $(window).height();
 				const deltaX = Math.abs(touchX - Math.min(windowWidth, Math.max(0, ev.touches[0].clientX)));
-				const deltaY = Math.abs(touchY - Math.min(windowHeight, Math.max(0, ev.touches[0].clientY)));
+				const deltaY = Math.abs(
+					touchY - Math.min(windowHeight, Math.max(0, ev.touches[0].clientY)),
+				);
 				touchX = Math.min(windowWidth, Math.max(0, ev.touches[0].clientX));
 				touchY = Math.min(windowHeight, Math.max(0, ev.touches[0].clientY));
 
@@ -330,7 +349,7 @@ define('navigator', [
 					ev.stopPropagation();
 					const thumbIcon = thumb.find('.scroller-thumb-icon');
 					const thumbIconHeight = thumbIcon.height();
-					const newTop = clampTop(thumb, touchY + $(window).scrollTop() - (thumbIconHeight / 2));
+					const newTop = clampTop(thumb, touchY + $(window).scrollTop() - thumbIconHeight / 2);
 					thumb.offset({ top: newTop, left: thumb.offset().left });
 					const index = calculateIndexFromY(thumb, touchY + $(window).scrollTop());
 					navigator.updateTextAndProgressBar();
@@ -357,16 +376,21 @@ define('navigator', [
 
 	async function updateUnreadIndicator(index) {
 		const { bookmarkThreshold } = ajaxify.data;
-		if (!paginationBlockUnreadEl.length || ajaxify.data.postcount <= bookmarkThreshold || !bookmarkThreshold) {
+		if (
+			!paginationBlockUnreadEl.length ||
+			ajaxify.data.postcount <= bookmarkThreshold ||
+			!bookmarkThreshold
+		) {
 			return;
 		}
-		const currentBookmark = ajaxify.data.bookmark || storage.getItem('topic:' + ajaxify.data.tid + ':bookmark');
+		const currentBookmark =
+			ajaxify.data.bookmark || storage.getItem('topic:' + ajaxify.data.tid + ':bookmark');
 		index = Math.max(index, Math.min(currentBookmark, ajaxify.data.postcount));
 		const unreadEl = paginationBlockUnreadEl.get(0);
 		const trackEl = unreadEl.parentNode;
 		const trackHeight = trackEl.getBoundingClientRect().height;
 
-		const percentage = 1 - (index / ajaxify.data.postcount);
+		const percentage = 1 - index / ajaxify.data.postcount;
 		unreadEl.style.height = `${trackHeight * percentage}px`;
 
 		const thumbEl = trackEl.querySelector('.scroller-thumb');
@@ -385,7 +409,7 @@ define('navigator', [
 			}
 		}
 
-		if (remaining > 0 && (trackHeight - thumbBottom) >= thumbHeight) {
+		if (remaining > 0 && trackHeight - thumbBottom >= thumbHeight) {
 			const text = await translator.translate(`[[topic:navigator.unread, ${remaining}]]`);
 			anchorEl.href = `${config.relative_path}/topic/${ajaxify.data.slug}/${Math.min(index + 1, ajaxify.data.postcount)}`;
 			toggleAnchor(text);
@@ -403,18 +427,22 @@ define('navigator', [
 	}
 
 	async function renderPost(index) {
-		if (!index || renderPostIndex === index || !paginationBlockEl.find('.post-content').is(':visible')) {
+		if (
+			!index ||
+			renderPostIndex === index ||
+			!paginationBlockEl.find('.post-content').is(':visible')
+		) {
 			return;
 		}
 		renderPostIndex = index;
 
-		const postData = await socket.emit('posts.getPostSummaryByIndex', { tid: ajaxify.data.tid, index: index - 1 });
+		const postData = await socket.emit('posts.getPostSummaryByIndex', {
+			tid: ajaxify.data.tid,
+			index: index - 1,
+		});
 
 		const html = await app.parseAndTranslate('partials/topic/navigation-post', { post: postData });
-		paginationBlockEl
-			.find('.post-content')
-			.html(html)
-			.find('.timeago').timeago();
+		paginationBlockEl.find('.post-content').html(html).find('.timeago').timeago();
 	}
 
 	function handleKeys() {
@@ -428,10 +456,12 @@ define('navigator', [
 			if (ev.shiftKey || ev.ctrlKey || ev.altKey) {
 				return;
 			}
-			if (ev.which === 36 && navigator.toTop) { // home key
+			if (ev.which === 36 && navigator.toTop) {
+				// home key
 				navigator.toTop();
 				return false;
-			} else if (ev.which === 35 && navigator.toBottom) { // end key
+			} else if (ev.which === 35 && navigator.toBottom) {
+				// end key
 				navigator.toBottom();
 				return false;
 			}
@@ -471,7 +501,7 @@ define('navigator', [
 	};
 
 	function toggle(flag) {
-		if (flag && (!ajaxify.data.template.topic && !ajaxify.data.template.category)) {
+		if (flag && !ajaxify.data.template.topic && !ajaxify.data.template.category) {
 			return;
 		}
 		paginationBlockEl.toggleClass('ready', flag);
@@ -497,13 +527,15 @@ define('navigator', [
 		const scrollTop = $(window).scrollTop();
 		const windowHeight = $(window).height();
 		const documentHeight = $(document).height();
-		const middleOfViewport = scrollTop + (windowHeight / 2);
+		const middleOfViewport = scrollTop + windowHeight / 2;
 		let previousDistance = Number.MAX_VALUE;
 		els.each(function () {
 			const $this = $(this);
 			const elIndex = parseInt($this.attr('data-index'), 10);
 			if (elIndex >= 0) {
-				const distanceToMiddle = Math.abs(middleOfViewport - ($this.offset().top + ($this.outerHeight(true) / 2)));
+				const distanceToMiddle = Math.abs(
+					middleOfViewport - ($this.offset().top + $this.outerHeight(true) / 2),
+				);
 				if (distanceToMiddle > previousDistance) {
 					return false;
 				}
@@ -516,7 +548,9 @@ define('navigator', [
 		});
 
 		const atTop = scrollTop === 0 && parseInt(els.first().attr('data-index'), 10) === 0;
-		const nearBottom = scrollTop + windowHeight > documentHeight - 100 && parseInt(els.last().attr('data-index'), 10) === count - 1;
+		const nearBottom =
+			scrollTop + windowHeight > documentHeight - 100 &&
+			parseInt(els.last().attr('data-index'), 10) === count - 1;
 
 		if (atTop) {
 			newIndex = 1;
@@ -540,7 +574,7 @@ define('navigator', [
 
 	navigator.getIndex = () => index;
 
-	navigator.setIndex = (newIndex) => {
+	navigator.setIndex = newIndex => {
 		index = newIndex + 1;
 		if (typeof navigator.callback === 'function') {
 			navigator.callback(index, count);
@@ -555,14 +589,16 @@ define('navigator', [
 		}
 		index = index > count ? count : index;
 		if (config.usePagination) {
-			paginationTextEl.html(`<i class="fa fa-file"></i> ${ajaxify.data.pagination.currentPage} / ${ajaxify.data.pagination.pageCount}`);
+			paginationTextEl.html(
+				`<i class="fa fa-file"></i> ${ajaxify.data.pagination.currentPage} / ${ajaxify.data.pagination.pageCount}`,
+			);
 		} else {
 			paginationTextEl.translateHtml('[[global:pagination.out-of, ' + index + ', ' + count + ']]');
 		}
 
 		const fraction = (index - 1) / (count - 1 || 1);
 		paginationBlockMeterEl.val(fraction);
-		paginationBlockProgressEl.width((fraction * 100) + '%');
+		paginationBlockProgressEl.width(fraction * 100 + '%');
 	};
 
 	navigator.scrollUp = function () {
@@ -665,7 +701,9 @@ define('navigator', [
 	};
 
 	navigator.scrollToPostIndex = function (postIndex, highlight, duration) {
-		const scrollTo = $(`[component="post"][data-index="${postIndex}"]:not([data-navigator-ignore])`);
+		const scrollTo = $(
+			`[component="post"][data-index="${postIndex}"]:not([data-navigator-ignore])`,
+		);
 		navigator.scrollToElement(scrollTo, highlight, duration, postIndex);
 	};
 
@@ -680,7 +718,12 @@ define('navigator', [
 			return;
 		}
 
-		await hooks.fire('filter:navigator.scroll', { scrollTo, highlight, duration, newIndex: newIndex + 1 });
+		await hooks.fire('filter:navigator.scroll', {
+			scrollTo,
+			highlight,
+			duration,
+			newIndex: newIndex + 1,
+		});
 
 		const postHeight = scrollTo.outerHeight(true);
 		const navbarHeight = components.get('navbar').outerHeight(true) || 0;
@@ -697,11 +740,16 @@ define('navigator', [
 		function animateScroll() {
 			function reenableScroll() {
 				// Re-enable onScroll behaviour
-				setTimeout(() => { // fixes race condition from jQuery — onAnimateComplete called too quickly
-					$(window).off('scroll', navigator.delayedUpdate)
-						.on('scroll', navigator.delayedUpdate);
+				setTimeout(() => {
+					// fixes race condition from jQuery — onAnimateComplete called too quickly
+					$(window).off('scroll', navigator.delayedUpdate).on('scroll', navigator.delayedUpdate);
 
-					hooks.fire('action:navigator.scrolled', { scrollTo, highlight, duration, newIndex: newIndex + 1 });
+					hooks.fire('action:navigator.scrolled', {
+						scrollTo,
+						highlight,
+						duration,
+						newIndex: newIndex + 1,
+					});
 				}, 50);
 			}
 			function onAnimateComplete() {
@@ -723,7 +771,7 @@ define('navigator', [
 
 			let scrollTop = 0;
 			if (postHeight < viewportHeight - navbarHeight - topicHeaderHeight) {
-				scrollTop = scrollTo.offset().top - (viewportHeight / 2) + (postHeight / 2);
+				scrollTop = scrollTo.offset().top - viewportHeight / 2 + postHeight / 2;
 			} else {
 				scrollTop = scrollTo.offset().top - navbarHeight - topicHeaderHeight;
 			}
@@ -734,9 +782,13 @@ define('navigator', [
 				reenableScroll();
 				return;
 			}
-			$('html, body').animate({
-				scrollTop: scrollTop + 'px',
-			}, duration, onAnimateComplete);
+			$('html, body').animate(
+				{
+					scrollTop: scrollTop + 'px',
+				},
+				duration,
+				onAnimateComplete,
+			);
 		}
 
 		function highlightPost() {
@@ -754,4 +806,3 @@ define('navigator', [
 
 	return navigator;
 });
-

@@ -21,7 +21,7 @@ searchApi.categories = async (caller, data) => {
 	let matchedCids = [];
 	const privilege = data.privilege || 'topics:read';
 	data.states = (data.states || ['watching', 'tracking', 'notwatching', 'ignoring']).map(
-		state => categories.watchStates[state]
+		state => categories.watchStates[state],
 	);
 	data.parentCid = parseInt(data.parentCid || 0, 10);
 
@@ -35,17 +35,26 @@ searchApi.categories = async (caller, data) => {
 	}
 
 	const visibleCategories = await controllersHelpers.getVisibleCategories({
-		cids, uid: caller.uid, states: data.states, privilege, showLinks: data.showLinks, parentCid: data.parentCid,
+		cids,
+		uid: caller.uid,
+		states: data.states,
+		privilege,
+		showLinks: data.showLinks,
+		parentCid: data.parentCid,
 	});
 
 	if (Array.isArray(data.selectedCids)) {
 		data.selectedCids = data.selectedCids.map(cid => parseInt(cid, 10));
 	}
 
-	let categoriesData = categories.buildForSelectCategories(visibleCategories, ['disabledClass'], data.parentCid);
+	let categoriesData = categories.buildForSelectCategories(
+		visibleCategories,
+		['disabledClass'],
+		data.parentCid,
+	);
 	categoriesData = categoriesData.slice(0, 200);
 
-	categoriesData.forEach((category) => {
+	categoriesData.forEach(category => {
 		category.selected = data.selectedCids ? data.selectedCids.includes(category.cid) : false;
 		if (matchedCids.includes(category.cid)) {
 			category.match = true;
@@ -70,8 +79,9 @@ async function findMatchedCids(uid, data) {
 
 	let matchedCids = result.categories.map(c => c.cid);
 	// no need to filter if all 3 states are used
-	const filterByWatchState = !Object.values(categories.watchStates)
-		.every(state => data.states.includes(state));
+	const filterByWatchState = !Object.values(categories.watchStates).every(state =>
+		data.states.includes(state),
+	);
 
 	if (filterByWatchState) {
 		const states = await categories.getWatchState(matchedCids, uid);
@@ -79,7 +89,9 @@ async function findMatchedCids(uid, data) {
 	}
 
 	const rootCids = _.uniq(_.flatten(await Promise.all(matchedCids.map(categories.getParentCids))));
-	const allChildCids = _.uniq(_.flatten(await Promise.all(matchedCids.map(categories.getChildrenCids))));
+	const allChildCids = _.uniq(
+		_.flatten(await Promise.all(matchedCids.map(categories.getChildrenCids))),
+	);
 
 	return {
 		cids: _.uniq(rootCids.concat(allChildCids).concat(matchedCids)),
@@ -92,14 +104,16 @@ async function loadCids(uid, parentCid) {
 	async function getCidsRecursive(cids) {
 		const categoryData = await categories.getCategoriesFields(cids, ['subCategoriesPerPage']);
 		const cidToData = _.zipObject(cids, categoryData);
-		await Promise.all(cids.map(async (cid) => {
-			const allChildCids = await categories.getAllCidsFromSet(`cid:${cid}:children`);
-			if (allChildCids.length) {
-				const childCids = await privileges.categories.filterCids('find', allChildCids, uid);
-				resultCids.push(...childCids.slice(0, cidToData[cid].subCategoriesPerPage));
-				await getCidsRecursive(childCids);
-			}
-		}));
+		await Promise.all(
+			cids.map(async cid => {
+				const allChildCids = await categories.getAllCidsFromSet(`cid:${cid}:children`);
+				if (allChildCids.length) {
+					const childCids = await privileges.categories.filterCids('find', allChildCids, uid);
+					resultCids.push(...childCids.slice(0, cidToData[cid].subCategoriesPerPage));
+					await getCidsRecursive(childCids);
+				}
+			}),
+		);
 	}
 
 	const allRootCids = await categories.getAllCidsFromSet(`cid:${parentCid}:children`);
@@ -130,18 +144,18 @@ searchApi.roomUsers = async (caller, { query, roomId }) => {
 
 	const { users } = results;
 	const foundUids = users.map(user => user && user.uid);
-	const isUidInRoom = _.zipObject(
-		foundUids,
-		await messaging.isUsersInRoom(foundUids, roomId)
-	);
+	const isUidInRoom = _.zipObject(foundUids, await messaging.isUsersInRoom(foundUids, roomId));
 
 	const roomUsers = users.filter(user => isUidInRoom[user.uid]);
-	const isOwners = await messaging.isRoomOwner(roomUsers.map(u => u.uid), roomId);
+	const isOwners = await messaging.isRoomOwner(
+		roomUsers.map(u => u.uid),
+		roomId,
+	);
 
 	roomUsers.forEach((user, index) => {
 		if (user) {
 			user.isOwner = isOwners[index];
-			user.canKick = isRoomOwner && (parseInt(user.uid, 10) !== parseInt(caller.uid, 10));
+			user.canKick = isRoomOwner && parseInt(user.uid, 10) !== parseInt(caller.uid, 10);
 		}
 	});
 
@@ -183,7 +197,7 @@ searchApi.roomMessages = async (caller, { query, roomId, uid }) => {
 	}
 	let messageData = await messaging.getMessagesData(ids, caller.uid, roomId, false);
 	messageData = messageData
-		.map((msg) => {
+		.map(msg => {
 			if (msg) {
 				msg.newSet = true;
 			}

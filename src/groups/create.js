@@ -27,7 +27,10 @@ module.exports = function (Groups) {
 		}
 
 		const memberCount = data.hasOwnProperty('ownerUid') ? 1 : 0;
-		const isPrivate = data.hasOwnProperty('private') && data.private !== undefined ? parseInt(data.private, 10) === 1 : true;
+		const isPrivate =
+			data.hasOwnProperty('private') && data.private !== undefined
+				? parseInt(data.private, 10) === 1
+				: true;
 		let groupData = {
 			name: data.name,
 			slug: slugify(data.name),
@@ -43,7 +46,10 @@ module.exports = function (Groups) {
 			disableLeave: disableLeave,
 		};
 
-		await plugins.hooks.fire('filter:group.create', { group: groupData, data: data });
+		await plugins.hooks.fire('filter:group.create', {
+			group: groupData,
+			data: data,
+		});
 
 		await db.sortedSetAdd('groups:createtime', groupData.createtime, groupData.name);
 		await db.setObject(`group:${groupData.name}`, groupData);
@@ -71,13 +77,16 @@ module.exports = function (Groups) {
 	};
 
 	function isSystemGroup(data) {
-		return data.system === true || parseInt(data.system, 10) === 1 ||
+		return (
+			data.system === true ||
+			parseInt(data.system, 10) === 1 ||
 			Groups.systemGroups.includes(data.name) ||
-			Groups.isPrivilegeGroup(data.name);
+			Groups.isPrivilegeGroup(data.name)
+		);
 	}
 
 	async function privilegeGroupExists(name) {
-		return Groups.isPrivilegeGroup(name) && await db.isSortedSetMember('groups:createtime', name);
+		return Groups.isPrivilegeGroup(name) && (await db.isSortedSetMember('groups:createtime', name));
 	}
 
 	Groups.validateGroupName = function (name) {

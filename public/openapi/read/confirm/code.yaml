@@ -11,7 +11,7 @@ get:
       description: a valid confirmation code
       example: f8c4a54a-47ae-40f5-a0a5-356d6a35c24e
   responses:
-    "200":
+    '200':
       description: Email address verified, or confirmation code was incorrect
       content:
         application/json:

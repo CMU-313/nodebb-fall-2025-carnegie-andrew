@@ -3,8 +3,8 @@ get:
     - admin
   summary: Get API token settings
   responses:
-    "200":
-      description: "A JSON object containing API tokens and settings"
+    '200':
+      description: 'A JSON object containing API tokens and settings'
       content:
         application/json:
           schema:

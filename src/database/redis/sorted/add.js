@@ -42,8 +42,10 @@ module.exports = function (module) {
 			return;
 		}
 		const isArrayOfScores = Array.isArray(scores);
-		if ((!isArrayOfScores && !utils.isNumber(scores)) ||
-			(isArrayOfScores && scores.map(s => utils.isNumber(s)).includes(false))) {
+		if (
+			(!isArrayOfScores && !utils.isNumber(scores)) ||
+			(isArrayOfScores && scores.map(s => utils.isNumber(s)).includes(false))
+		) {
 			throw new Error(`[[error:invalid-score, ${scores}]]`);
 		}
 
@@ -65,7 +67,7 @@ module.exports = function (module) {
 			return;
 		}
 		const batch = module.client.batch();
-		data.forEach((item) => {
+		data.forEach(item => {
 			if (!utils.isNumber(item[1])) {
 				throw new Error(`[[error:invalid-score, ${item[1]}]]`);
 			}

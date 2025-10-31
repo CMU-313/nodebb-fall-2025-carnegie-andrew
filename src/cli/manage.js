@@ -37,7 +37,9 @@ async function install(plugin, options) {
 			if (!options.force) {
 				throw new Error(suggested.message);
 			}
-			winston.warn(`${suggested.message} Proceeding with installation anyway due to force option being provided`);
+			winston.warn(
+				`${suggested.message} Proceeding with installation anyway due to force option being provided`,
+			);
 			suggested.version = 'latest';
 		}
 		winston.info('Installing Plugin `%s@%s`', plugin, suggested.version);
@@ -76,7 +78,9 @@ async function activate(plugin) {
 			process.exit(0);
 		}
 		if (nconf.get('plugins:active')) {
-			winston.error('Cannot activate plugins while plugin state configuration is set, please change your active configuration (config.json, environmental variables or terminal arguments) instead');
+			winston.error(
+				'Cannot activate plugins while plugin state configuration is set, please change your active configuration (config.json, environmental variables or terminal arguments) instead',
+			);
 			process.exit(1);
 		}
 		const numPlugins = await db.sortedSetCard('plugins:active');
@@ -100,24 +104,26 @@ async function listPlugins() {
 	const installedList = installed.map(plugin => plugin.name);
 	const active = await plugins.getActive();
 	// Merge the two sets, defer to plugins in  `installed` if already present
-	const combined = installed.concat(active.reduce((memo, cur) => {
-		if (!installedList.includes(cur)) {
-			memo.push({
-				id: cur,
-				active: true,
-				installed: false,
-			});
-		}
+	const combined = installed.concat(
+		active.reduce((memo, cur) => {
+			if (!installedList.includes(cur)) {
+				memo.push({
+					id: cur,
+					active: true,
+					installed: false,
+				});
+			}
 
-		return memo;
-	}, []));
+			return memo;
+		}, []),
+	);
 
 	// Alphabetical sort
 	combined.sort((a, b) => (a.id > b.id ? 1 : -1));
 
 	// Pretty output
 	process.stdout.write('Active plugins:\n');
-	combined.forEach((plugin) => {
+	combined.forEach(plugin => {
 		process.stdout.write(`\t* ${plugin.id}${plugin.version ? `@${plugin.version}` : ''} (`);
 		process.stdout.write(plugin.installed ? chalk.green('installed') : chalk.red('not installed'));
 		process.stdout.write(', ');
@@ -136,8 +142,10 @@ async function listEvents(count = 10) {
 		stop: count - 1,
 	});
 	console.log(chalk.bold(`\nDisplaying last ${count} administrative events...`));
-	eventData.forEach((event) => {
-		console.log(`  * ${chalk.green(String(event.timestampISO))} ${chalk.yellow(String(event.type))}${event.text ? ` ${event.text}` : ''} (uid: ${event.uid ? event.uid : 0})`);
+	eventData.forEach(event => {
+		console.log(
+			`  * ${chalk.green(String(event.timestampISO))} ${chalk.yellow(String(event.type))}${event.text ? ` ${event.text}` : ''} (uid: ${event.uid ? event.uid : 0})`,
+		);
 	});
 	process.exit();
 }
@@ -186,7 +194,7 @@ async function info() {
 	const max = Math.max(...analyticsData);
 
 	analyticsData.forEach((point, idx) => {
-		graph.addPoint(idx + 1, Math.round(point / max * 10));
+		graph.addPoint(idx + 1, Math.round((point / max) * 10));
 	});
 
 	console.log('');

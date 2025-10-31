@@ -1,12 +1,12 @@
 {
-    "manage-uploads": "Manage Uploads",
-    "upload-file": "Enviar Arquivo",
-    "filename": "Nome do Arquivo",
-    "usage": "Uso do Post",
-    "orphaned": "Orphaned",
-    "size/filecount": "Tamanho / Quantidade de arquivos",
-    "confirm-delete": "Você tem certeza de que deseja deletar este arquivo?",
-    "filecount": "%1 arquivos",
-    "new-folder": "New Folder",
-    "name-new-folder": "Enter a name for new the folder"
+  "manage-uploads": "Manage Uploads",
+  "upload-file": "Enviar Arquivo",
+  "filename": "Nome do Arquivo",
+  "usage": "Uso do Post",
+  "orphaned": "Orphaned",
+  "size/filecount": "Tamanho / Quantidade de arquivos",
+  "confirm-delete": "Você tem certeza de que deseja deletar este arquivo?",
+  "filecount": "%1 arquivos",
+  "new-folder": "New Folder",
+  "name-new-folder": "Enter a name for new the folder"
 }

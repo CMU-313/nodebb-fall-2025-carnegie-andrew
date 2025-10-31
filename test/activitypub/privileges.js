@@ -47,29 +47,30 @@ describe.skip('Privilege logic for remote users/content (ActivityPub)', () => {
 			});
 
 			describe('incoming requests', () => {
-				it('should not respond to a webfinger request to a category\'s handle', async () => {
-					const response = await activitypub.helpers.query(`${handle}@${nconf.get('url_parsed').hostname}`);
+				it("should not respond to a webfinger request to a category's handle", async () => {
+					const response = await activitypub.helpers.query(
+						`${handle}@${nconf.get('url_parsed').hostname}`,
+					);
 					assert.strictEqual(response, false);
 				});
 
 				it('should not respond to a request for the category actor', async () => {
-					await assert.rejects(
-						activitypub.get('uid', uid, `${nconf.get('url')}/category/${cid}`),
-						{ message: '[[error:activitypub.get-failed]]' }
-					);
+					await assert.rejects(activitypub.get('uid', uid, `${nconf.get('url')}/category/${cid}`), {
+						message: '[[error:activitypub.get-failed]]',
+					});
 				});
 
 				it('should not respond to a request for a topic collection', async () => {
 					await assert.rejects(
 						activitypub.get('uid', uid, `${nconf.get('url')}/topic/${topicData.tid}`),
-						{ message: '[[error:activitypub.get-failed]]' }
+						{ message: '[[error:activitypub.get-failed]]' },
 					);
 				});
 
 				it('should not respond to a request for a post', async () => {
 					await assert.rejects(
 						activitypub.get('uid', uid, `${nconf.get('url')}/post/${topicData.mainPid}`),
-						{ message: '[[error:activitypub.get-failed]]' }
+						{ message: '[[error:activitypub.get-failed]]' },
 					);
 				});
 			});
@@ -163,21 +164,13 @@ describe.skip('Privilege logic for remote users/content (ActivityPub)', () => {
 			});
 
 			describe('outgoing requests', () => {
-				it('should not federate out a new post', async () => {
+				it('should not federate out a new post', async () => {});
 
-				});
+				it('should not federate out a post edit', async () => {});
 
-				it('should not federate out a post edit', async () => {
+				it('should not federate out a post deletion', async () => {});
 
-				});
-
-				it('should not federate out a post deletion', async () => {
-
-				});
-
-				it('should not federate out a post announce', async () => {
-
-				});
+				it('should not federate out a post announce', async () => {});
 			});
 		});
 
@@ -192,8 +185,10 @@ describe.skip('Privilege logic for remote users/content (ActivityPub)', () => {
 			});
 
 			describe('groups:find', () => {
-				it('should return webfinger response to a category\'s handle', async () => {
-					const { response, body } = await request.get(`${nconf.get('url')}/.well-known/webfinger?resource=acct:${handle}@${nconf.get('url_parsed').host}`);
+				it("should return webfinger response to a category's handle", async () => {
+					const { response, body } = await request.get(
+						`${nconf.get('url')}/.well-known/webfinger?resource=acct:${handle}@${nconf.get('url_parsed').host}`,
+					);
 
 					assert(response);
 					assert.strictEqual(response.statusCode, 200);

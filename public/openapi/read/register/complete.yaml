@@ -3,14 +3,14 @@ get:
     - authentication
   summary: Complete a user's registration
   responses:
-    "302":
+    '302':
       description: If there are no additional registration steps to complete, then the user is redirected back to the registration page (`/register`)
       headers:
         Location:
           schema:
             type: string
             example: /register
-    "200":
+    '200':
       description: ''
       content:
         application/json:

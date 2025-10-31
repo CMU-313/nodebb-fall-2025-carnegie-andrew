@@ -37,7 +37,10 @@ SocketModules.chats.getRaw = async function (socket, data) {
 };
 
 SocketModules.chats.isDnD = async function (socket, uid) {
-	sockets.warnDeprecated(socket, 'GET /api/v3/users/:uid/status OR HEAD /api/v3/users/:uid/status/:status');
+	sockets.warnDeprecated(
+		socket,
+		'GET /api/v3/users/:uid/status OR HEAD /api/v3/users/:uid/status/:status',
+	);
 
 	const { status } = await api.users.getStatus(socket, { uid });
 	return status === 'dnd';
@@ -125,19 +128,22 @@ async function joinLeave(socket, roomIds, method, prefix = 'chat_room') {
 			Messaging.getRoomsData(roomIds, ['public', 'groups']),
 		]);
 
-		await Promise.all(roomIds.map(async (roomId, idx) => {
-			const isPublic = roomData[idx] && roomData[idx].public;
-			const roomGroups = roomData[idx] && roomData[idx].groups;
+		await Promise.all(
+			roomIds.map(async (roomId, idx) => {
+				const isPublic = roomData[idx] && roomData[idx].public;
+				const roomGroups = roomData[idx] && roomData[idx].groups;
 
-			if (isAdmin ||
-				(
-					inRooms[idx] &&
-					(!isPublic || !roomGroups.length || await groups.isMemberOfAny(socket.uid, roomGroups))
-				)
-			) {
-				socket[method](`${prefix}_${roomId}`);
-			}
-		}));
+				if (
+					isAdmin ||
+					(inRooms[idx] &&
+						(!isPublic ||
+							!roomGroups.length ||
+							(await groups.isMemberOfAny(socket.uid, roomGroups))))
+				) {
+					socket[method](`${prefix}_${roomId}`);
+				}
+			}),
+		);
 	}
 }
 
@@ -220,6 +226,5 @@ SocketModules.chats.typing = async (socket, data) => {
 
 	await api.chats.toggleTyping(socket, data);
 };
-
 
 require('../promisify')(SocketModules);

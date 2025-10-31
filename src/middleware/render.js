@@ -45,7 +45,7 @@ module.exports = function (middleware) {
 				options.loggedInUser = await getLoggedInUser(req);
 				options.relative_path = relative_path;
 				options.template = { name: template, [template]: true };
-				options.url = (req.baseUrl + req.path.replace(/^\/api/, ''));
+				options.url = req.baseUrl + req.path.replace(/^\/api/, '');
 				options.bodyClass = helpers.buildBodyClass(req, res, options);
 
 				if (req.loggedIn) {
@@ -99,14 +99,11 @@ module.exports = function (middleware) {
 					footer: renderHeaderFooter('renderFooter', req, res, options, headerFooterData),
 				});
 
-				const str = `${results.header +
-					(res.locals.postHeader || '') +
-					results.content
+				const str = `${
+					results.header + (res.locals.postHeader || '') + results.content
 				}<script id="ajaxify-data" type="application/json">${
 					optionsString
-				}</script>${
-					res.locals.preFooter || ''
-				}${results.footer}`;
+				}</script>${res.locals.preFooter || ''}${results.footer}`;
 
 				if (typeof fn !== 'function') {
 					self.send(str);
@@ -163,14 +160,19 @@ module.exports = function (middleware) {
 			allowRegistration: registrationType === 'normal',
 			searchEnabled: plugins.hooks.hasListeners('filter:search.query'),
 			postQueueEnabled: !!meta.config.postQueue,
-			registrationQueueEnabled: meta.config.registrationApprovalType !== 'normal' || (meta.config.registrationType === 'invite-only' || meta.config.registrationType === 'admin-invite-only'),
+			registrationQueueEnabled:
+				meta.config.registrationApprovalType !== 'normal' ||
+				meta.config.registrationType === 'invite-only' ||
+				meta.config.registrationType === 'admin-invite-only',
 			config: res.locals.config,
 			relative_path,
 			bodyClass: options.bodyClass,
 			widgets: options.widgets,
 		};
 
-		templateValues.configJSON = jsesc(JSON.stringify(res.locals.config), { isScriptContext: true });
+		templateValues.configJSON = jsesc(JSON.stringify(res.locals.config), {
+			isScriptContext: true,
+		});
 
 		const title = translator.unescape(utils.stripHTMLTags(options.title || ''));
 		const results = await utils.promiseParallel({
@@ -211,23 +213,28 @@ module.exports = function (middleware) {
 
 		templateValues.bootswatchSkin = res.locals.config.bootswatchSkin || '';
 		templateValues.browserTitle = results.browserTitle;
-		({
-			navigation: templateValues.navigation,
-			unreadCount: templateValues.unreadCount,
-		} = await appendUnreadCounts({
-			uid: req.uid,
-			query: req.query,
-			navigation: results.navigation,
-			unreadData,
-		}));
+		({ navigation: templateValues.navigation, unreadCount: templateValues.unreadCount } =
+			await appendUnreadCounts({
+				uid: req.uid,
+				query: req.query,
+				navigation: results.navigation,
+				unreadData,
+			}));
 		templateValues.isAdmin = results.user.isAdmin;
 		templateValues.isGlobalMod = results.user.isGlobalMod;
-		templateValues.showModMenu = results.user.isAdmin || results.user.isGlobalMod || results.user.isMod;
-		templateValues.canChat = (results.privileges.chat || results.privileges['chat:privileged']) && meta.config.disableChat !== 1;
+		templateValues.showModMenu =
+			results.user.isAdmin || results.user.isGlobalMod || results.user.isMod;
+		templateValues.canChat =
+			(results.privileges.chat || results.privileges['chat:privileged']) &&
+			meta.config.disableChat !== 1;
 		templateValues.user = results.user;
-		templateValues.userJSON = jsesc(JSON.stringify(results.user), { isScriptContext: true });
+		templateValues.userJSON = jsesc(JSON.stringify(results.user), {
+			isScriptContext: true,
+		});
 		templateValues.useCustomCSS = meta.config.useCustomCSS && meta.config.customCSS;
-		templateValues.customCSS = templateValues.useCustomCSS ? (meta.config.renderedCustomCSS || '') : '';
+		templateValues.customCSS = templateValues.useCustomCSS
+			? meta.config.renderedCustomCSS || ''
+			: '';
 		templateValues.useCustomHTML = meta.config.useCustomHTML;
 		templateValues.customHTML = templateValues.useCustomHTML ? meta.config.customHTML : '';
 		templateValues.maintenanceHeader = meta.config.maintenanceMode && !results.isAdmin;
@@ -260,7 +267,13 @@ module.exports = function (middleware) {
 		res.locals.config = res.locals.config || {};
 
 		const results = await utils.promiseParallel({
-			userData: user.getUserFields(req.uid, ['username', 'userslug', 'email', 'picture', 'email:confirmed']),
+			userData: user.getUserFields(req.uid, [
+				'username',
+				'userslug',
+				'email',
+				'picture',
+				'email:confirmed',
+			]),
 			scripts: getAdminScripts(),
 			custom_header: plugins.hooks.fire('filter:admin.header.build', custom_header),
 			configs: meta.configs.list(),
@@ -287,7 +300,9 @@ module.exports = function (middleware) {
 		res.locals.config.isRTL = results.languageDirection === 'rtl';
 		const templateValues = {
 			config: res.locals.config,
-			configJSON: jsesc(JSON.stringify(res.locals.config), { isScriptContext: true }),
+			configJSON: jsesc(JSON.stringify(res.locals.config), {
+				isScriptContext: true,
+			}),
 			relative_path: res.locals.config.relative_path,
 			adminConfigJSON: encodeURIComponent(JSON.stringify(results.configs)),
 			metaTags: results.tags.meta,
@@ -304,7 +319,11 @@ module.exports = function (middleware) {
 			version: version,
 			latestVersion: results.latestVersion,
 			upgradeAvailable: results.latestVersion && semver.gt(results.latestVersion, version),
-			showManageMenu: results.privileges.superadmin || ['categories', 'privileges', 'users', 'admins-mods', 'groups', 'tags', 'settings'].some(priv => results.privileges[`admin:${priv}`]),
+			showManageMenu:
+				results.privileges.superadmin ||
+				['categories', 'privileges', 'users', 'admins-mods', 'groups', 'tags', 'settings'].some(
+					priv => results.privileges[`admin:${priv}`],
+				),
 			defaultLang: meta.config.defaultLang || 'en-GB',
 			acpLang: res.locals.config.acpLang,
 			languageDirection: results.languageDirection,
@@ -347,10 +366,14 @@ module.exports = function (middleware) {
 
 		const scripts = await plugins.hooks.fire('filter:scripts.get', []);
 
-		hookReturn.templateData.scripts = scripts.map(script => ({ src: script }));
+		hookReturn.templateData.scripts = scripts.map(script => ({
+			src: script,
+		}));
 
 		hookReturn.templateData.useCustomJS = meta.config.useCustomJS;
-		hookReturn.templateData.customJS = hookReturn.templateData.useCustomJS ? meta.config.customJS : '';
+		hookReturn.templateData.customJS = hookReturn.templateData.useCustomJS
+			? meta.config.customJS
+			: '';
 		hookReturn.templateData.isSpider = req.uid === -1;
 
 		return await req.app.renderAsync('footer', hookReturn.templateData);
@@ -418,18 +441,18 @@ module.exports = function (middleware) {
 			unreadChatCount: messaging.getUnreadCount(uid),
 			unreadNotificationCount: user.notifications.getUnreadCount(uid),
 			unreadFlagCount: (async function () {
-				if (originalRoutes.includes('/flags') && await user.isPrivileged(uid)) {
+				if (originalRoutes.includes('/flags') && (await user.isPrivileged(uid))) {
 					return flags.getCount({
 						uid,
 						query,
 						filters: {
 							quick: 'unresolved',
-							cid: (await user.isAdminOrGlobalMod(uid)) ? [] : (await user.getModeratedCids(uid)),
+							cid: (await user.isAdminOrGlobalMod(uid)) ? [] : await user.getModeratedCids(uid),
 						},
 					});
 				}
 				return 0;
-			}()),
+			})(),
 		};
 		const results = await utils.promiseParallel(calls);
 
@@ -446,17 +469,20 @@ module.exports = function (middleware) {
 			flags: results.unreadFlagCount || 0,
 		};
 
-		Object.keys(unreadCount).forEach((key) => {
+		Object.keys(unreadCount).forEach(key => {
 			if (unreadCount[key] > 99) {
 				unreadCount[key] = '99+';
 			}
 		});
 
 		const { tidsByFilter } = results.unreadData;
-		navigation = navigation.map((item) => {
+		navigation = navigation.map(item => {
 			function modifyNavItem(item, route, filter, content) {
 				if (item && item.originalRoute === route) {
-					unreadData[filter] = _.zipObject(tidsByFilter[filter], tidsByFilter[filter].map(() => true));
+					unreadData[filter] = _.zipObject(
+						tidsByFilter[filter],
+						tidsByFilter[filter].map(() => true),
+					);
 					item.content = content;
 					unreadCount.mobileUnread = content;
 					unreadCount.unreadUrl = route;
@@ -470,7 +496,7 @@ module.exports = function (middleware) {
 			modifyNavItem(item, '/unread?filter=watched', 'watched', unreadCount.watchedTopic);
 			modifyNavItem(item, '/unread?filter=unreplied', 'unreplied', unreadCount.unrepliedTopic);
 
-			['flags'].forEach((prop) => {
+			['flags'].forEach(prop => {
 				if (item && item.originalRoute === `/${prop}` && unreadCount[prop] > 0) {
 					item.iconClass += ' unread-count';
 					item.content = unreadCount.flags;
@@ -482,7 +508,6 @@ module.exports = function (middleware) {
 
 		return { navigation, unreadCount };
 	}
-
 
 	function modifyTitle(obj) {
 		const title = controllersHelpers.buildTitle(meta.config.homePageTitle || '[[pages:home]]');

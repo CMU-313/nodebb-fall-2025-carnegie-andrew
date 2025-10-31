@@ -6,7 +6,7 @@ get:
     tie breaker, the topic with the most views. Can be filtered by All Time,
     Day, Week, or Month.
   responses:
-    "200":
+    '200':
       description: An array of topic objects sorted by most replies and views.
       content:
         application/json:

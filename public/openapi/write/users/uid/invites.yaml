@@ -4,13 +4,13 @@ post:
   summary: invite users with email by email
   description: This operation sends an invitation email to the given addresses, with an option to join selected groups on acceptance
   parameters:
-  - in: path
-    name: uid
-    schema:
-      type: integer
-    required: true
-    description: uid of the user sending invitations
-    example: 1
+    - in: path
+      name: uid
+      schema:
+        type: integer
+      required: true
+      description: uid of the user sending invitations
+      example: 1
   requestBody:
     required: true
     content:

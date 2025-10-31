@@ -17,9 +17,13 @@ Blacklist.load = async function () {
 	let rules = await Blacklist.get();
 	rules = Blacklist.validate(rules);
 
-	winston.verbose(`[meta/blacklist] Loading ${rules.valid.length} blacklist rule(s)${rules.duplicateCount > 0 ? `, ignored ${rules.duplicateCount} duplicate(s)` : ''}`);
+	winston.verbose(
+		`[meta/blacklist] Loading ${rules.valid.length} blacklist rule(s)${rules.duplicateCount > 0 ? `, ignored ${rules.duplicateCount} duplicate(s)` : ''}`,
+	);
 	if (rules.invalid.length) {
-		winston.warn(`[meta/blacklist] ${rules.invalid.length} invalid blacklist rule(s) were ignored.`);
+		winston.warn(
+			`[meta/blacklist] ${rules.invalid.length} invalid blacklist rule(s) were ignored.`,
+		);
 	}
 
 	Blacklist._rules = {
@@ -75,7 +79,7 @@ Blacklist.test = async function (clientIp) {
 			winston.error(`[meta/blacklist] Error parsing client IP : ${clientIp}`);
 			throw err;
 		}
-		return rules.cidr.some((subnet) => {
+		return rules.cidr.some(subnet => {
 			const cidr = ipaddr.parseCIDR(subnet);
 			if (addr.kind() !== cidr[0].kind()) {
 				return false;
@@ -84,9 +88,7 @@ Blacklist.test = async function (clientIp) {
 		});
 	}
 
-	if (rules.ipv4.includes(clientIp) ||
-		rules.ipv6.includes(clientIp) ||
-		checkCidrRange(clientIp)) {
+	if (rules.ipv4.includes(clientIp) || rules.ipv6.includes(clientIp) || checkCidrRange(clientIp)) {
 		const err = new Error('[[error:blacklisted-ip]]');
 		err.code = 'blacklisted-ip';
 
@@ -116,10 +118,12 @@ Blacklist.validate = function (rules) {
 
 	// Filter out blank lines and lines starting with the hash character (comments)
 	// Also trim inputs and remove inline comments
-	rules = rules.map((rule) => {
-		rule = rule.replace(inlineCommentMatch, '').trim();
-		return rule.length && !rule.startsWith('#') ? rule : null;
-	}).filter(Boolean);
+	rules = rules
+		.map(rule => {
+			rule = rule.replace(inlineCommentMatch, '').trim();
+			return rule.length && !rule.startsWith('#') ? rule : null;
+		})
+		.filter(Boolean);
 
 	// Filter out duplicates
 	const uniqRules = _.uniq(rules);
@@ -127,7 +131,7 @@ Blacklist.validate = function (rules) {
 	rules = uniqRules;
 
 	// Filter out invalid rules
-	rules = rules.filter((rule) => {
+	rules = rules.filter(rule => {
 		let addr;
 		let isRange = false;
 		try {
@@ -174,5 +178,3 @@ Blacklist.validate = function (rules) {
 		duplicateCount: duplicateCount,
 	};
 };
-
-

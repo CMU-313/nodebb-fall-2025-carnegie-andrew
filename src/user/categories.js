@@ -31,14 +31,25 @@ module.exports = function (User) {
 		}
 
 		const apiMethod = state >= categories.watchStates.tracking ? 'follow' : 'unfollow';
-		const follows = cids.filter(cid => !utils.isNumber(cid)).map(cid => api.activitypub[apiMethod]({ uid }, {
-			type: 'uid',
-			id: uid,
-			actor: cid,
-		})); // returns promises
+		const follows = cids
+			.filter(cid => !utils.isNumber(cid))
+			.map(cid =>
+				api.activitypub[apiMethod](
+					{ uid },
+					{
+						type: 'uid',
+						id: uid,
+						actor: cid,
+					},
+				),
+			); // returns promises
 
 		await Promise.all([
-			db.sortedSetsAdd(cids.map(cid => `cid:${cid}:uid:watch:state`), state, uid),
+			db.sortedSetsAdd(
+				cids.map(cid => `cid:${cid}:uid:watch:state`),
+				state,
+				uid,
+			),
 			...follows,
 		]);
 	};

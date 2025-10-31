@@ -20,7 +20,7 @@ const hasAdminPrivilege = async (uid, privilege = 'categories') => {
 	}
 };
 
-categoriesAPI.list = async (caller) => {
+categoriesAPI.list = async caller => {
 	async function getCategories() {
 		const cids = await categories.getCidsByPrivilege('categories:cid', caller.uid, 'find');
 		return await categories.getCategoriesData(cids);
@@ -92,7 +92,8 @@ categoriesAPI.getTopicCount = async (caller, { cid }) => {
 	return { count };
 };
 
-categoriesAPI.getPosts = async (caller, { cid }) => await categories.getRecentReplies(cid, caller.uid, 0, 4);
+categoriesAPI.getPosts = async (caller, { cid }) =>
+	await categories.getRecentReplies(cid, caller.uid, 0, 4);
 
 categoriesAPI.getChildren = async (caller, { cid, start }) => {
 	if (!start || start < 0) {
@@ -128,7 +129,8 @@ categoriesAPI.getTopics = async (caller, data) => {
 	}
 
 	const infScrollTopicsPerPage = 20;
-	const sort = data.sort || data.categoryTopicSort || meta.config.categoryTopicSort || 'recently_replied';
+	const sort =
+		data.sort || data.categoryTopicSort || meta.config.categoryTopicSort || 'recently_replied';
 
 	let start = Math.max(0, parseInt(data.after || 0, 10));
 
@@ -247,5 +249,10 @@ categoriesAPI.setModerator = async (caller, { cid, member, set }) => {
 	await hasAdminPrivilege(caller.uid, 'admins-mods');
 
 	const privilegeList = await privileges.categories.getUserPrivilegeList();
-	await categoriesAPI.setPrivilege(caller, { cid, privilege: privilegeList, member, set });
+	await categoriesAPI.setPrivilege(caller, {
+		cid,
+		privilege: privilegeList,
+		member,
+		set,
+	});
 };

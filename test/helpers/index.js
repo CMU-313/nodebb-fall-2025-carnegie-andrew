@@ -9,7 +9,7 @@ const request = require('../../src/request');
 
 const helpers = module.exports;
 
-helpers.getCsrfToken = async (jar) => {
+helpers.getCsrfToken = async jar => {
 	const { body } = await request.get(`${nconf.get('url')}/api/config`, {
 		jar,
 	});
@@ -81,7 +81,7 @@ helpers.connectSocketIO = function (res, csrf_token) {
 			resolve(socket);
 		});
 
-		socket.on('error', (err) => {
+		socket.on('error', err => {
 			error = err;
 			console.log('socket.io error', err.stack);
 			reject(err);
@@ -144,11 +144,11 @@ helpers.copyFile = function (source, target, callback) {
 	let cbCalled = false;
 
 	const rd = fs.createReadStream(source);
-	rd.on('error', (err) => {
+	rd.on('error', err => {
 		done(err);
 	});
 	const wr = fs.createWriteStream(target);
-	wr.on('error', (err) => {
+	wr.on('error', err => {
 		done(err);
 	});
 	wr.on('close', () => {

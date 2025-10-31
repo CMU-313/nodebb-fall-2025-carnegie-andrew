@@ -29,7 +29,8 @@ $('document').ready(function () {
 				if (res.success) {
 					$('#database-success').removeClass('hidden');
 					if (res.dbfull) {
-						$('#database-full').removeClass('hidden')
+						$('#database-full')
+							.removeClass('hidden')
 							.text('Found existing install in this database!');
 					}
 				} else if (res.error) {
@@ -123,7 +124,10 @@ $('document').ready(function () {
 			} else if (field.length < $('[name="admin:password"]').attr('data-minimum-length')) {
 				parent.addClass('error');
 				help.html('Password is too short.');
-			} else if (zxcvbn(field).score < parseInt($('[name="admin:password"]').attr('data-minimum-strength'), 10)) {
+			} else if (
+				zxcvbn(field).score <
+				parseInt($('[name="admin:password"]').attr('data-minimum-strength'), 10)
+			) {
 				parent.addClass('error');
 				help.html('Password is too weak.');
 			} else {

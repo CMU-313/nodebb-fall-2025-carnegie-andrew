@@ -1,20 +1,20 @@
 {
-	"customise": "Customise",
-	"custom-css": "Custom CSS/SASS",
-	"custom-css.description": "Enter your own CSS/SASS declarations here, which will be applied after all other styles.",
-	"custom-css.enable": "Enable Custom CSS/SASS",
+  "customise": "Customise",
+  "custom-css": "Custom CSS/SASS",
+  "custom-css.description": "Enter your own CSS/SASS declarations here, which will be applied after all other styles.",
+  "custom-css.enable": "Enable Custom CSS/SASS",
 
-	"custom-js": "Uživatelský Javascript",
-	"custom-js.description": "Zadejte zde váš javascriptový kód. Bude spuštěn, jakmile se stránka plně načte.",
-	"custom-js.enable": "Povolit uživatelský Javascript",
+  "custom-js": "Uživatelský Javascript",
+  "custom-js.description": "Zadejte zde váš javascriptový kód. Bude spuštěn, jakmile se stránka plně načte.",
+  "custom-js.enable": "Povolit uživatelský Javascript",
 
-	"custom-header": "Uživatelská hlavička",
-	"custom-header.description": "Zde zadejte vlastní HTML (mimo meta značek, atp.), který bude přidán do části <code>☺&lt;head&gt;</code> vašeho označení fóra. Skriptovací značky jsou povoleny, ale nedoporučujeme to, jelikož je pro to vhodná záložka <a href=\"#custom-js\" data-toggle=\"tab\">Uživatelský Javascript</a>.",
-	"custom-header.enable": "Povolit uživatelskou hlavičku",
+  "custom-header": "Uživatelská hlavička",
+  "custom-header.description": "Zde zadejte vlastní HTML (mimo meta značek, atp.), který bude přidán do části <code>☺&lt;head&gt;</code> vašeho označení fóra. Skriptovací značky jsou povoleny, ale nedoporučujeme to, jelikož je pro to vhodná záložka <a href=\"#custom-js\" data-toggle=\"tab\">Uživatelský Javascript</a>.",
+  "custom-header.enable": "Povolit uživatelskou hlavičku",
 
-	"custom-css.livereload": "Povolit aktuální znovu načtení",
-	"custom-css.livereload.description": "Povolením si vynutíte, aby všechny relace na každém zařízení pod vaším účtem se kdykoliv obnovili při kliknutí na tlačítko „Uložit”.",
-	"bsvariables": "_variables.scss",
-	"bsvariables.description": "Override bootstrap variables here. You can also use a tool like <a href=\"https://bootstrap.build/app\">bootstrap.build</a> and paste the output here.<br/>Changes require a rebuild & restart.",
-	"bsvariables.enable": "Enable _variables.scss"
+  "custom-css.livereload": "Povolit aktuální znovu načtení",
+  "custom-css.livereload.description": "Povolením si vynutíte, aby všechny relace na každém zařízení pod vaším účtem se kdykoliv obnovili při kliknutí na tlačítko „Uložit”.",
+  "bsvariables": "_variables.scss",
+  "bsvariables.description": "Override bootstrap variables here. You can also use a tool like <a href=\"https://bootstrap.build/app\">bootstrap.build</a> and paste the output here.<br/>Changes require a rebuild & restart.",
+  "bsvariables.enable": "Enable _variables.scss"
 }

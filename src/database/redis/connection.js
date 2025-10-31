@@ -43,7 +43,7 @@ connection.connect = async function (options) {
 			throw new Error('[[error:no-database-selected]]');
 		}
 
-		cxn.on('error', (err) => {
+		cxn.on('error', err => {
 			winston.error(err.stack);
 			reject(err);
 		});

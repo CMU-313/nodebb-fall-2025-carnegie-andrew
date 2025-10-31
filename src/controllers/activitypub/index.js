@@ -59,7 +59,10 @@ Controller.fetch = async (req, res, next) => {
 };
 
 Controller.getFollowing = async (req, res) => {
-	const { followingCount, followingRemoteCount } = await user.getUserFields(req.params.uid, ['followingCount', 'followingRemoteCount']);
+	const { followingCount, followingRemoteCount } = await user.getUserFields(req.params.uid, [
+		'followingCount',
+		'followingRemoteCount',
+	]);
 	const totalItems = parseInt(followingCount || 0, 10) + parseInt(followingRemoteCount || 0, 10);
 
 	const count = totalItems;
@@ -85,7 +88,10 @@ Controller.getFollowing = async (req, res) => {
 };
 
 Controller.getFollowers = async (req, res) => {
-	const { followerCount, followerRemoteCount } = await user.getUserFields(req.params.uid, ['followerCount', 'followerRemoteCount']);
+	const { followerCount, followerRemoteCount } = await user.getUserFields(req.params.uid, [
+		'followerCount',
+		'followerRemoteCount',
+	]);
 	const totalItems = parseInt(followerCount || 0, 10) + parseInt(followerRemoteCount || 0, 10);
 
 	const count = totalItems;
@@ -144,7 +150,9 @@ Controller.postInbox = async (req, res) => {
 	// Note: underlying methods are internal use only, hence no exposure via src/api
 	const method = String(req.body.type).toLowerCase();
 	if (!activitypub.inbox.hasOwnProperty(method)) {
-		winston.warn(`[activitypub/inbox] Received Activity of type ${method} but unable to handle. Ignoring.`);
+		winston.warn(
+			`[activitypub/inbox] Received Activity of type ${method} but unable to handle. Ignoring.`,
+		);
 		return res.sendStatus(200);
 	}
 

@@ -38,25 +38,32 @@ sitemap.render = async function () {
 };
 
 async function getSitemapPages() {
-	const urls = [{
-		url: '',
-		changefreq: 'weekly',
-		priority: 0.6,
-	}, {
-		url: `${nconf.get('relative_path')}/recent`,
-		changefreq: 'daily',
-		priority: 0.4,
-	}, {
-		url: `${nconf.get('relative_path')}/users`,
-		changefreq: 'daily',
-		priority: 0.4,
-	}, {
-		url: `${nconf.get('relative_path')}/groups`,
-		changefreq: 'daily',
-		priority: 0.4,
-	}];
+	const urls = [
+		{
+			url: '',
+			changefreq: 'weekly',
+			priority: 0.6,
+		},
+		{
+			url: `${nconf.get('relative_path')}/recent`,
+			changefreq: 'daily',
+			priority: 0.4,
+		},
+		{
+			url: `${nconf.get('relative_path')}/users`,
+			changefreq: 'daily',
+			priority: 0.4,
+		},
+		{
+			url: `${nconf.get('relative_path')}/groups`,
+			changefreq: 'daily',
+			priority: 0.4,
+		},
+	];
 
-	const data = await plugins.hooks.fire('filter:sitemap.getPages', { urls: urls });
+	const data = await plugins.hooks.fire('filter:sitemap.getPages', {
+		urls: urls,
+	});
 	return data.urls;
 }
 
@@ -68,12 +75,12 @@ sitemap.getPages = async function () {
 	const urls = await getSitemapPages();
 	if (!urls.length) {
 		sitemap.maps.pages = '';
-		sitemap.maps.pagesCacheExpireTimestamp = Date.now() + (1000 * 60 * 60 * 24);
+		sitemap.maps.pagesCacheExpireTimestamp = Date.now() + 1000 * 60 * 60 * 24;
 		return sitemap.maps.pages;
 	}
 
 	sitemap.maps.pages = await urlsToSitemap(urls);
-	sitemap.maps.pagesCacheExpireTimestamp = Date.now() + (1000 * 60 * 60 * 24);
+	sitemap.maps.pagesCacheExpireTimestamp = Date.now() + 1000 * 60 * 60 * 24;
 	return sitemap.maps.pages;
 };
 
@@ -93,7 +100,7 @@ sitemap.getCategories = async function () {
 
 	const categoryUrls = [];
 	const categoriesData = await getSitemapCategories();
-	categoriesData.forEach((category) => {
+	categoriesData.forEach(category => {
 		if (category) {
 			categoryUrls.push({
 				url: `${nconf.get('relative_path')}/category/${category.slug}`,
@@ -105,12 +112,12 @@ sitemap.getCategories = async function () {
 
 	if (!categoryUrls.length) {
 		sitemap.maps.categories = '';
-		sitemap.maps.categoriesCacheExpireTimestamp = Date.now() + (1000 * 60 * 60 * 24);
+		sitemap.maps.categoriesCacheExpireTimestamp = Date.now() + 1000 * 60 * 60 * 24;
 		return sitemap.maps.categories;
 	}
 
 	sitemap.maps.categories = await urlsToSitemap(categoryUrls);
-	sitemap.maps.categoriesCacheExpireTimestamp = Date.now() + (1000 * 60 * 60 * 24);
+	sitemap.maps.categoriesCacheExpireTimestamp = Date.now() + 1000 * 60 * 60 * 24;
 	return sitemap.maps.categories;
 };
 
@@ -123,7 +130,10 @@ sitemap.getTopicPage = async function (page) {
 	const start = (parseInt(page, 10) - 1) * numTopics;
 	const stop = start + numTopics - 1;
 
-	if (sitemap.maps.topics[page - 1] && Date.now() < sitemap.maps.topics[page - 1].cacheExpireTimestamp) {
+	if (
+		sitemap.maps.topics[page - 1] &&
+		Date.now() < sitemap.maps.topics[page - 1].cacheExpireTimestamp
+	) {
 		return sitemap.maps.topics[page - 1].sm;
 	}
 
@@ -140,12 +150,12 @@ sitemap.getTopicPage = async function (page) {
 	if (!data.topics.length) {
 		sitemap.maps.topics[page - 1] = {
 			sm: '',
-			cacheExpireTimestamp: Date.now() + (1000 * 60 * 60 * 24),
+			cacheExpireTimestamp: Date.now() + 1000 * 60 * 60 * 24,
 		};
 		return sitemap.maps.topics[page - 1].sm;
 	}
 
-	data.topics.forEach((topic) => {
+	data.topics.forEach(topic => {
 		if (topic) {
 			topicUrls.push({
 				url: `${nconf.get('relative_path')}/topic/${topic.slug}`,
@@ -158,7 +168,7 @@ sitemap.getTopicPage = async function (page) {
 
 	sitemap.maps.topics[page - 1] = {
 		sm: await urlsToSitemap(topicUrls),
-		cacheExpireTimestamp: Date.now() + (1000 * 60 * 60 * 24),
+		cacheExpireTimestamp: Date.now() + 1000 * 60 * 60 * 24,
 	};
 
 	return sitemap.maps.topics[page - 1].sm;
@@ -181,7 +191,7 @@ sitemap.clearCache = function () {
 	if (sitemap.maps.categories) {
 		sitemap.maps.categoriesCacheExpireTimestamp = 0;
 	}
-	sitemap.maps.topics.forEach((topicMap) => {
+	sitemap.maps.topics.forEach(topicMap => {
 		topicMap.cacheExpireTimestamp = 0;
 	});
 };

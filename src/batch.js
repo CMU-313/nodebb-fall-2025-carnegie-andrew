@@ -1,4 +1,3 @@
-
 'use strict';
 
 const util = require('util');
@@ -26,7 +25,11 @@ exports.processSortedSet = async function (setKey, process, options) {
 	options.reverse = options.reverse || false;
 
 	// use the fast path if possible
-	if (db.processSortedSet && typeof options.doneIf !== 'function' && !utils.isNumber(options.alwaysStartAt)) {
+	if (
+		db.processSortedSet &&
+		typeof options.doneIf !== 'function' &&
+		!utils.isNumber(options.alwaysStartAt)
+	) {
 		return await db.processSortedSet(setKey, process, options);
 	}
 
@@ -41,7 +44,8 @@ exports.processSortedSet = async function (setKey, process, options) {
 	}
 
 	const method = options.reverse ? 'getSortedSetRevRange' : 'getSortedSetRange';
-	const isByScore = (options.min && options.min !== '-inf') || (options.max && options.max !== '+inf');
+	const isByScore =
+		(options.min && options.min !== '-inf') || (options.max && options.max !== '+inf');
 	const byScore = isByScore ? 'ByScore' : '';
 	const withScores = options.withScores ? 'WithScores' : '';
 	let iteration = 1;

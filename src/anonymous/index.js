@@ -5,7 +5,7 @@ const meta = require('../meta');
 const topics = require('../topics');
 const Anonymous = module.exports;
 
-// Anonymous user ID  
+// Anonymous user ID
 Anonymous.ANONYMOUS_UID = 0;
 
 //Check if anonymous posting is enabled
@@ -85,11 +85,15 @@ Anonymous.getOriginalUid = async function (pid) {
 
 Anonymous.storeAnonymousMapping = async function (originalUid, postData) {
 	const timestamp = Date.now();
-	await db.sortedSetAdd(`uid:${originalUid}:anonymous:posts`, timestamp, JSON.stringify({
-		uid: postData.uid,
-		handle: postData.handle,
-		timestamp: timestamp,
-	}));
+	await db.sortedSetAdd(
+		`uid:${originalUid}:anonymous:posts`,
+		timestamp,
+		JSON.stringify({
+			uid: postData.uid,
+			handle: postData.handle,
+			timestamp: timestamp,
+		}),
+	);
 };
 
 Anonymous.canPostAnonymously = async function (uid, cid) {
@@ -97,7 +101,7 @@ Anonymous.canPostAnonymously = async function (uid, cid) {
 	if (parseInt(uid, 10) <= 0) {
 		return false;
 	}
-	
+
 	// Simplified privilege check
 	const privileges = require('../privileges');
 	const canPost = await privileges.categories.can('topics:create', cid, uid);
@@ -114,8 +118,8 @@ Anonymous.filterComposerBuild = async function (data) {
 		data.templateData.showAnonymousOption = Anonymous.isEnabled();
 		if (data.req.uid) {
 			data.templateData.canPostAnonymously = await Anonymous.canPostAnonymously(
-				data.req.uid, 
-				data.req.query.cid
+				data.req.uid,
+				data.req.query.cid,
 			);
 		} else {
 			data.templateData.canPostAnonymously = false;
@@ -123,4 +127,3 @@ Anonymous.filterComposerBuild = async function (data) {
 	}
 	return data;
 };
-

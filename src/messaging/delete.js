@@ -11,7 +11,12 @@ module.exports = function (Messaging) {
 	async function doDeleteRestore(mid, state, uid) {
 		const field = state ? 'deleted' : 'restored';
 		const msgData = await Messaging.getMessageFields(mid, [
-			'mid', 'fromuid', 'deleted', 'roomId', 'content', 'system',
+			'mid',
+			'fromuid',
+			'deleted',
+			'roomId',
+			'content',
+			'system',
 		]);
 		if (msgData.deleted === state) {
 			throw new Error(`[[error:chat-${field}-already]]`);

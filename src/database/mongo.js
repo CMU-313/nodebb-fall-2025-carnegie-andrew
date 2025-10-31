@@ -1,6 +1,4 @@
-
 'use strict';
-
 
 const winston = require('winston');
 const nconf = require('nconf');
@@ -21,7 +19,8 @@ function isUriNotSpecified() {
 mongoModule.questions = [
 	{
 		name: 'mongo:uri',
-		description: 'MongoDB connection URI: (leave blank if you wish to specify host, port, username/password and database individually)\nFormat: mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]',
+		description:
+			'MongoDB connection URI: (leave blank if you wish to specify host, port, username/password and database individually)\nFormat: mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]',
 		default: nconf.get('mongo:uri') || nconf.get('defaults:mongo:uri') || '',
 		hideOnWebInstall: true,
 	},
@@ -49,7 +48,10 @@ mongoModule.questions = [
 		default: nconf.get('mongo:password') || nconf.get('defaults:mongo:password') || '',
 		hidden: true,
 		ask: isUriNotSpecified,
-		before: function (value) { value = value || nconf.get('mongo:password') || ''; return value; },
+		before: function (value) {
+			value = value || nconf.get('mongo:password') || '';
+			return value;
+		},
 	},
 	{
 		name: 'mongo:database',
@@ -85,7 +87,10 @@ mongoModule.createIndices = async function () {
 	winston.info('[database] Checking database indices.');
 	const collection = mongoModule.client.collection('objects');
 	await collection.createIndex({ _key: 1, score: -1 }, { background: true });
-	await collection.createIndex({ _key: 1, value: -1 }, { background: true, unique: true, sparse: true });
+	await collection.createIndex(
+		{ _key: 1, value: -1 },
+		{ background: true, unique: true, sparse: true },
+	);
 	await collection.createIndex({ expireAt: 1 }, { expireAfterSeconds: 0, background: true });
 	winston.info('[database] Checking database indices done!');
 };
@@ -97,7 +102,9 @@ mongoModule.checkCompatibility = function (callback) {
 
 mongoModule.checkCompatibilityVersion = function (version, callback) {
 	if (semver.lt(version, '2.0.0')) {
-		return callback(new Error('The `mongodb` package is out-of-date, please run `./nodebb setup` again.'));
+		return callback(
+			new Error('The `mongodb` package is out-of-date, please run `./nodebb setup` again.'),
+		);
 	}
 
 	callback();
@@ -148,7 +155,11 @@ mongoModule.info = async function (db) {
 	stats.mem.resident = (stats.mem.resident / 1024).toFixed(3);
 	stats.mem.virtual = (stats.mem.virtual / 1024).toFixed(3);
 	stats.collectionData = listCollections;
-	stats.network = serverStatus.network || { bytesIn: 0, bytesOut: 0, numRequests: 0 };
+	stats.network = serverStatus.network || {
+		bytesIn: 0,
+		bytesOut: 0,
+		numRequests: 0,
+	};
 	stats.network.bytesIn = (stats.network.bytesIn / scale).toFixed(3);
 	stats.network.bytesOut = (stats.network.bytesOut / scale).toFixed(3);
 	stats.network.numRequests = utils.addCommas(stats.network.numRequests);
@@ -170,11 +181,12 @@ mongoModule.info = async function (db) {
 async function getCollectionStats(db) {
 	const items = await db.listCollections().toArray();
 	const cols = await Promise.all(
-		items.map(
-			collection => db.collection(collection.name).aggregate([
-				{ $collStats: { latencyStats: {}, storageStats: {}, count: {} } },
-			]).toArray()
-		)
+		items.map(collection =>
+			db
+				.collection(collection.name)
+				.aggregate([{ $collStats: { latencyStats: {}, storageStats: {}, count: {} } }])
+				.toArray(),
+		),
 	);
 	return cols.map(col => col[0]);
 }

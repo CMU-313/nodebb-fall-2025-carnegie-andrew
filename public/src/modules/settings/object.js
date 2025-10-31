@@ -67,7 +67,7 @@ define('settings/object', function () {
 					console.error(err);
 					return $(document.createTextNode(separator));
 				}
-			}());
+			})();
 			element.empty();
 			if (typeof value !== 'object') {
 				value = {};
@@ -79,7 +79,8 @@ define('settings/object', function () {
 					if (typeof attr !== 'object') {
 						attributes = {};
 					}
-					const propertyName = attributes['data-prop'] || attributes['data-property'] || propertyIndex;
+					const propertyName =
+						attributes['data-prop'] || attributes['data-property'] || propertyIndex;
 					if (value[propertyName] === undefined && attributes['data-new'] !== undefined) {
 						value[propertyName] = attributes['data-new'];
 					}
@@ -90,7 +91,9 @@ define('settings/object', function () {
 						propertyName,
 						value[propertyName],
 						separator.clone(),
-						function (el) { element.append(el); }
+						function (el) {
+							element.append(el);
+						},
 					);
 				}
 			}

@@ -1,12 +1,12 @@
 {
-    "manage-uploads": "Gérer les téléchargements",
-    "upload-file": "Envoyer un fichier",
-    "filename": "Nom du fichier",
-    "usage": "Utilisé dans le message",
-    "orphaned": "Orphelin",
-    "size/filecount": "Taille / Nombre de fichiers",
-    "confirm-delete": "Voulez-vous vraiment supprimer ce fichier ?",
-    "filecount": "%1 fichiers",
-    "new-folder": "Nouveau Dossier",
-    "name-new-folder": "Entrer un nom pour le nouveau dossier"
+  "manage-uploads": "Gérer les téléchargements",
+  "upload-file": "Envoyer un fichier",
+  "filename": "Nom du fichier",
+  "usage": "Utilisé dans le message",
+  "orphaned": "Orphelin",
+  "size/filecount": "Taille / Nombre de fichiers",
+  "confirm-delete": "Voulez-vous vraiment supprimer ce fichier ?",
+  "filecount": "%1 fichiers",
+  "new-folder": "Nouveau Dossier",
+  "name-new-folder": "Entrer un nom pour le nouveau dossier"
 }

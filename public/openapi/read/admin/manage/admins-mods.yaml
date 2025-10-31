@@ -3,8 +3,8 @@ get:
     - admin
   summary: Get administrators and moderators
   responses:
-    "200":
-      description: "A JSON object containing administrators and moderators globally and per-category"
+    '200':
+      description: 'A JSON object containing administrators and moderators globally and per-category'
       content:
         application/json:
           schema:

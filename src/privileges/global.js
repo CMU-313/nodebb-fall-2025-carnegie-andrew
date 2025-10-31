@@ -1,4 +1,3 @@
-
 'use strict';
 
 const _ = require('lodash');
@@ -18,12 +17,24 @@ const privsGlobal = module.exports;
  */
 const _privilegeMap = new Map([
 	['chat', { label: '[[admin/manage/privileges:chat]]', type: 'posting' }],
-	['chat:privileged', { label: '[[admin/manage/privileges:chat-with-privileged]]', type: 'posting' }],
+	[
+		'chat:privileged',
+		{
+			label: '[[admin/manage/privileges:chat-with-privileged]]',
+			type: 'posting',
+		},
+	],
 	['upload:post:image', { label: '[[admin/manage/privileges:upload-images]]', type: 'posting' }],
 	['upload:post:file', { label: '[[admin/manage/privileges:upload-files]]', type: 'posting' }],
 	['signature', { label: '[[admin/manage/privileges:signature]]', type: 'posting' }],
 	['invite', { label: '[[admin/manage/privileges:invite]]', type: 'posting' }],
-	['group:create', { label: '[[admin/manage/privileges:allow-group-creation]]', type: 'posting' }],
+	[
+		'group:create',
+		{
+			label: '[[admin/manage/privileges:allow-group-creation]]',
+			type: 'posting',
+		},
+	],
 	['search:content', { label: '[[admin/manage/privileges:search-content]]', type: 'viewing' }],
 	['search:users', { label: '[[admin/manage/privileges:search-users]]', type: 'viewing' }],
 	['search:tags', { label: '[[admin/manage/privileges:search-tags]]', type: 'viewing' }],
@@ -33,7 +44,13 @@ const _privilegeMap = new Map([
 	['local:login', { label: '[[admin/manage/privileges:allow-local-login]]', type: 'viewing' }],
 	['ban', { label: '[[admin/manage/privileges:ban]]', type: 'moderation' }],
 	['mute', { label: '[[admin/manage/privileges:mute]]', type: 'moderation' }],
-	['view:users:info', { label: '[[admin/manage/privileges:view-users-info]]', type: 'moderation' }],
+	[
+		'view:users:info',
+		{
+			label: '[[admin/manage/privileges:view-users-info]]',
+			type: 'moderation',
+		},
+	],
 ]);
 
 privsGlobal.init = async () => {
@@ -55,7 +72,8 @@ privsGlobal.getType = function (privilege) {
 };
 
 privsGlobal.getUserPrivilegeList = () => Array.from(_privilegeMap.keys());
-privsGlobal.getGroupPrivilegeList = () => Array.from(_privilegeMap.keys()).map(privilege => `groups:${privilege}`);
+privsGlobal.getGroupPrivilegeList = () =>
+	Array.from(_privilegeMap.keys()).map(privilege => `groups:${privilege}`);
 privsGlobal.getPrivilegeList = async () => {
 	const [user, group] = await Promise.all([
 		privsGlobal.getUserPrivilegeList(),
@@ -102,9 +120,9 @@ privsGlobal.can = async function (privilege, uid) {
 		user.isAdministrator(uid),
 		helpers.isAllowedTo(isArray ? privilege : [privilege], uid, 0),
 	]);
-	return isArray ?
-		isUserAllowedTo.map(allowed => isAdministrator || allowed) :
-		isAdministrator || isUserAllowedTo[0];
+	return isArray
+		? isUserAllowedTo.map(allowed => isAdministrator || allowed)
+		: isAdministrator || isUserAllowedTo[0];
 };
 
 privsGlobal.canGroup = async function (privilege, groupName) {

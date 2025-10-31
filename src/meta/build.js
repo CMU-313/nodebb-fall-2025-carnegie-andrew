@@ -26,22 +26,14 @@ const targetHandlers = {
 	'admin js bundle': async function (parallel) {
 		await meta.js.buildBundle('admin', parallel);
 	},
-	javascript: [
-		'plugin static dirs',
-		'requirejs modules',
-		'client js bundle',
-		'admin js bundle',
-	],
+	javascript: ['plugin static dirs', 'requirejs modules', 'client js bundle', 'admin js bundle'],
 	'client side styles': async function (parallel) {
 		await meta.css.buildBundle('client', parallel);
 	},
 	'admin control panel styles': async function (parallel) {
 		await meta.css.buildBundle('admin', parallel);
 	},
-	styles: [
-		'client side styles',
-		'admin control panel styles',
-	],
+	styles: ['client side styles', 'admin control panel styles'],
 	templates: async function () {
 		await meta.templates.compile();
 	},
@@ -52,7 +44,7 @@ const targetHandlers = {
 
 const aliasMap = Object.keys(aliases).reduce((prev, key) => {
 	const arr = aliases[key];
-	arr.forEach((alias) => {
+	arr.forEach(alias => {
 		prev[alias] = key;
 	});
 	prev[key] = key;
@@ -75,7 +67,9 @@ async function beforeBuild(targets) {
 	}
 }
 
-const allTargets = Object.keys(targetHandlers).filter(name => typeof targetHandlers[name] === 'function');
+const allTargets = Object.keys(targetHandlers).filter(
+	name => typeof targetHandlers[name] === 'function',
+);
 
 async function buildTargets(targets, parallel, options) {
 	const length = Math.max(...targets.map(name => name.length));
@@ -83,9 +77,7 @@ async function buildTargets(targets, parallel, options) {
 	const otherTargets = targets.filter(target => !targetHandlers.javascript.includes(target));
 	async function buildJSTargets() {
 		await Promise.all(
-			jsTargets.map(
-				target => step(target, parallel, `${_.padStart(target, length)} `)
-			)
+			jsTargets.map(target => step(target, parallel, `${_.padStart(target, length)} `)),
 		);
 		// run webpack after jstargets are done, no need to wait for css/templates etc.
 		if (options.webpack || options.watch) {
@@ -95,9 +87,7 @@ async function buildTargets(targets, parallel, options) {
 	if (parallel) {
 		await Promise.all([
 			buildJSTargets(),
-			...otherTargets.map(
-				target => step(target, parallel, `${_.padStart(target, length)} `)
-			),
+			...otherTargets.map(target => step(target, parallel, `${_.padStart(target, length)} `)),
 		]);
 	} else {
 		for (const target of targets) {
@@ -141,12 +131,14 @@ exports.build = async function (targets, options) {
 		winston.verbose('[build] Querying CPU core count for build strategy');
 		const cpus = os.cpus();
 		series = cpus.length < 4;
-		winston.verbose(`[build] System returned ${cpus.length} cores, opting for ${series ? 'series' : 'parallel'} build strategy`);
+		winston.verbose(
+			`[build] System returned ${cpus.length} cores, opting for ${series ? 'series' : 'parallel'} build strategy`,
+		);
 	}
 
 	targets = targets
 		// get full target name
-		.map((target) => {
+		.map(target => {
 			target = target.toLowerCase().replace(/-/g, '');
 			if (!aliasMap[target]) {
 				winston.warn(`[build] Unknown target: ${target}`);
@@ -164,11 +156,11 @@ exports.build = async function (targets, options) {
 		.filter(Boolean);
 
 	// map multitargets to their sets
-	targets = _.uniq(_.flatMap(targets, target => (
-		Array.isArray(targetHandlers[target]) ?
-			targetHandlers[target] :
-			target
-	)));
+	targets = _.uniq(
+		_.flatMap(targets, target =>
+			Array.isArray(targetHandlers[target]) ? targetHandlers[target] : target,
+		),
+	);
 
 	winston.verbose(`[build] building the following targets: ${targets.join(', ')}`);
 
@@ -203,11 +195,13 @@ exports.build = async function (targets, options) {
 };
 
 function getWebpackConfig() {
-	return require(process.env.NODE_ENV !== 'development' ? '../../webpack.prod' : '../../webpack.dev');
+	return require(
+		process.env.NODE_ENV !== 'development' ? '../../webpack.prod' : '../../webpack.dev',
+	);
 }
 
 exports.webpack = async function (options) {
-	winston.info(`[build] ${(options.watch ? 'Watching' : 'Bundling')} with Webpack.`);
+	winston.info(`[build] ${options.watch ? 'Watching' : 'Bundling'} with Webpack.`);
 	const webpack = require('webpack');
 	const fs = require('fs');
 	const util = require('util');
@@ -217,7 +211,10 @@ exports.webpack = async function (options) {
 	if (!activePlugins.includes('nodebb-plugin-composer-default')) {
 		activePlugins.push('nodebb-plugin-composer-default');
 	}
-	await fs.promises.writeFile(path.resolve(__dirname, '../../build/active_plugins.json'), JSON.stringify(activePlugins));
+	await fs.promises.writeFile(
+		path.resolve(__dirname, '../../build/active_plugins.json'),
+		JSON.stringify(activePlugins),
+	);
 
 	const webpackCfg = getWebpackConfig();
 	const compiler = webpack(webpackCfg);
@@ -227,7 +224,7 @@ exports.webpack = async function (options) {
 		let stats;
 		if (options.watch) {
 			stats = await webpackWatch(webpackCfg.watchOptions);
-			compiler.hooks.assetEmitted.tap('nbbWatchPlugin', (file) => {
+			compiler.hooks.assetEmitted.tap('nbbWatchPlugin', file => {
 				console.log(`webpack:assetEmitted > ${webpackCfg.output.publicPath}${file}`);
 			});
 		} else {
@@ -238,7 +235,7 @@ exports.webpack = async function (options) {
 			console.log(stats.toString('minimal'));
 		} else {
 			const statsJson = stats.toJson();
-			winston.info(`[build] ${(options.watch ? 'Watching' : 'Bundling')} took ${statsJson.time} ms`);
+			winston.info(`[build] ${options.watch ? 'Watching' : 'Bundling'} took ${statsJson.time} ms`);
 		}
 	} catch (err) {
 		console.error(err.stack || err);

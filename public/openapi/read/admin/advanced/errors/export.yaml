@@ -3,8 +3,8 @@ get:
     - admin
   summary: Export errors (.csv)
   responses:
-    "200":
-      description: "A CSV file containing server-side errors"
+    '200':
+      description: 'A CSV file containing server-side errors'
       content:
         text/csv:
           schema:

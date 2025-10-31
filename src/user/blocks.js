@@ -18,9 +18,11 @@ module.exports = function (User) {
 		const isArray = Array.isArray(uids);
 		uids = isArray ? uids : [uids];
 		const blocks = await User.blocks.list(uids);
-		const isBlocked = uids.map((uid, index) => blocks[index] && blocks[index].includes(
-			utils.isNumber(targetUid) ? parseInt(targetUid, 10) : targetUid
-		));
+		const isBlocked = uids.map(
+			(uid, index) =>
+				blocks[index] &&
+				blocks[index].includes(utils.isNumber(targetUid) ? parseInt(targetUid, 10) : targetUid),
+		);
 		return isArray ? isBlocked : isBlocked[0];
 	};
 
@@ -52,9 +54,13 @@ module.exports = function (User) {
 		const cachedData = {};
 		const unCachedUids = User.blocks._cache.getUnCachedKeys(uids, cachedData);
 		if (unCachedUids.length) {
-			const unCachedData = await db.getSortedSetsMembers(unCachedUids.map(uid => `uid:${uid}:blocked_uids`));
+			const unCachedData = await db.getSortedSetsMembers(
+				unCachedUids.map(uid => `uid:${uid}:blocked_uids`),
+			);
 			unCachedUids.forEach((uid, index) => {
-				cachedData[uid] = (unCachedData[index] || []).map(uid => (utils.isNumber(uid) ? parseInt(uid, 10) : uid));
+				cachedData[uid] = (unCachedData[index] || []).map(uid =>
+					utils.isNumber(uid) ? parseInt(uid, 10) : uid,
+				);
 				User.blocks._cache.set(String(uid), cachedData[uid]);
 			});
 		}
@@ -67,7 +73,10 @@ module.exports = function (User) {
 		await db.sortedSetAdd(`uid:${uid}:blocked_uids`, Date.now(), targetUid);
 		await User.incrementUserFieldBy(uid, 'blocksCount', 1);
 		User.blocks._cache.del(String(uid));
-		plugins.hooks.fire('action:user.blocks.add', { uid: uid, targetUid: targetUid });
+		plugins.hooks.fire('action:user.blocks.add', {
+			uid: uid,
+			targetUid: targetUid,
+		});
 	};
 
 	User.blocks.remove = async function (targetUid, uid) {
@@ -75,7 +84,10 @@ module.exports = function (User) {
 		await db.sortedSetRemove(`uid:${uid}:blocked_uids`, targetUid);
 		await User.decrementUserFieldBy(uid, 'blocksCount', 1);
 		User.blocks._cache.del(String(uid));
-		plugins.hooks.fire('action:user.blocks.remove', { uid: uid, targetUid: targetUid });
+		plugins.hooks.fire('action:user.blocks.remove', {
+			uid: uid,
+			targetUid: targetUid,
+		});
 	};
 
 	User.blocks.applyChecks = async function (type, targetUid, uid) {
@@ -108,12 +120,17 @@ module.exports = function (User) {
 		const blocked_uids = await User.blocks.list(uid);
 		const blockedSet = new Set(blocked_uids);
 
-		set = set.filter((item) => {
-			let uid = isPlain ? item : (item && item[property]);
+		set = set.filter(item => {
+			let uid = isPlain ? item : item && item[property];
 			uid = utils.isNumber(uid) ? parseInt(uid, 10) : uid;
 			return !blockedSet.has(uid);
 		});
-		const data = await plugins.hooks.fire('filter:user.blocks.filter', { set: set, property: property, uid: uid, blockedSet: blockedSet });
+		const data = await plugins.hooks.fire('filter:user.blocks.filter', {
+			set: set,
+			property: property,
+			uid: uid,
+			blockedSet: blockedSet,
+		});
 
 		return data.set;
 	};

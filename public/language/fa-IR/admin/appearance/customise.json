@@ -1,20 +1,20 @@
 {
-	"customise": "سفارشی‌سازی",
-	"custom-css": "CSS/SASS سفارشی",
-	"custom-css.description": "اعلان‌های CSS/SASS خود را در اینجا وارد کنید، که بعد از همه‌ی استایل‌های دیگر اعمال خواهند شد.",
-	"custom-css.enable": "فعال‌سازی CSS/SASS سفارشی",
+  "customise": "سفارشی‌سازی",
+  "custom-css": "CSS/SASS سفارشی",
+  "custom-css.description": "اعلان‌های CSS/SASS خود را در اینجا وارد کنید، که بعد از همه‌ی استایل‌های دیگر اعمال خواهند شد.",
+  "custom-css.enable": "فعال‌سازی CSS/SASS سفارشی",
 
-	"custom-js": "جائا اسکریپت سفارشی",
-	"custom-js.description": "کد های جاوا اسکریپت خود را در این قسمت وارد کنید که بعد از بارگزاری تمام صفحه اجرا خواهند شد.",
-	"custom-js.enable": "به‌کارگیری جاوا اسکریپت سفارشی ",
+  "custom-js": "جائا اسکریپت سفارشی",
+  "custom-js.description": "کد های جاوا اسکریپت خود را در این قسمت وارد کنید که بعد از بارگزاری تمام صفحه اجرا خواهند شد.",
+  "custom-js.enable": "به‌کارگیری جاوا اسکریپت سفارشی ",
 
-	"custom-header": "هدر سفارشی",
-	"custom-header.description": "HTML سفارشی را در اینجا وارد کنید (مثلاً متا تگ ها و غیره)، که به <code>&lt;head&gt;</code> بخش نشانه گذاری انجمن شما برچسب‌های اسکریپت مجاز هستند، اما از آنجایی که برگه <a href=\"#custom-js\" data-toggle=\"tab\">جاوا اسکریپت سفارشی</a> در دسترس است، توصیه نمی‌شود.",
-	"custom-header.enable": "به‌کارگیری هدر سفارشی",
+  "custom-header": "هدر سفارشی",
+  "custom-header.description": "HTML سفارشی را در اینجا وارد کنید (مثلاً متا تگ ها و غیره)، که به <code>&lt;head&gt;</code> بخش نشانه گذاری انجمن شما برچسب‌های اسکریپت مجاز هستند، اما از آنجایی که برگه <a href=\"#custom-js\" data-toggle=\"tab\">جاوا اسکریپت سفارشی</a> در دسترس است، توصیه نمی‌شود.",
+  "custom-header.enable": "به‌کارگیری هدر سفارشی",
 
-	"custom-css.livereload": "به‌کارگیری بارگزاری مجدد زنده",
-	"custom-css.livereload.description": "این را فعال کنید تا هر زمان که روی ذخیره کلیک می‌کنید، تمام جلسات در هر دستگاهی که در حساب شما قرار دارد مجبور به باز‌آوری شوند",
-	"bsvariables": "_variables.scss",
-	"bsvariables.description": "در اینجا متغیرهای راه‌اندازی را لغو کنید. همچنین می توانید از ابزاری مانند <a href=\"https://bootstrap.build/app\">bootstrap.build</a> استفاده کنید و خروجی را در اینجا بچسبانید.<br/> تغییرات نیاز به بازسازی و راه اندازی مجدد دارند.",
-	"bsvariables.enable": "به‌کارگیری _variables.scss"
+  "custom-css.livereload": "به‌کارگیری بارگزاری مجدد زنده",
+  "custom-css.livereload.description": "این را فعال کنید تا هر زمان که روی ذخیره کلیک می‌کنید، تمام جلسات در هر دستگاهی که در حساب شما قرار دارد مجبور به باز‌آوری شوند",
+  "bsvariables": "_variables.scss",
+  "bsvariables.description": "در اینجا متغیرهای راه‌اندازی را لغو کنید. همچنین می توانید از ابزاری مانند <a href=\"https://bootstrap.build/app\">bootstrap.build</a> استفاده کنید و خروجی را در اینجا بچسبانید.<br/> تغییرات نیاز به بازسازی و راه اندازی مجدد دارند.",
+  "bsvariables.enable": "به‌کارگیری _variables.scss"
 }

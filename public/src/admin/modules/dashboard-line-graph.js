@@ -15,7 +15,6 @@ import * as translator from '../../modules/translator';
 import * as api from '../../modules/api';
 import * as hooks from '../../modules/hooks';
 
-
 Chart.register(
 	LineController,
 	CategoryScale,
@@ -23,9 +22,8 @@ Chart.register(
 	LineElement,
 	PointElement,
 	Tooltip,
-	Filler
+	Filler,
 );
-
 
 let _current = null;
 let isMobile = false;
@@ -35,7 +33,9 @@ export function init({ set, dataset }) {
 	const canvasCtx = canvas.getContext('2d');
 	const trafficLabels = utils.getHoursArray();
 
-	isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+	isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+		navigator.userAgent,
+	);
 	if (isMobile) {
 		Chart.defaults.plugins.tooltip.enabled = false;
 	}
@@ -43,59 +43,63 @@ export function init({ set, dataset }) {
 	handleUpdateControls({ set });
 
 	const t = translator.Translator.create();
-	return new Promise((resolve) => {
-		t.translateKey(`admin/menu:${ajaxify.data.template.name.replace('admin/', '')}`, []).then((key) => {
-			const data = {
-				labels: trafficLabels,
-				datasets: [
-					{
-						label: key,
-						fill: true,
-						tension: 0.25,
-						backgroundColor: 'rgba(151,187,205,0.2)',
-						borderColor: 'rgba(151,187,205,1)',
-						pointBackgroundColor: 'rgba(151,187,205,1)',
-						pointHoverBackgroundColor: 'rgba(151,187,205,1)',
-						pointBorderColor: '#fff',
-						pointHoverBorderColor: 'rgba(151,187,205,1)',
-						data: dataset || [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-					},
-				],
-			};
+	return new Promise(resolve => {
+		t.translateKey(`admin/menu:${ajaxify.data.template.name.replace('admin/', '')}`, []).then(
+			key => {
+				const data = {
+					labels: trafficLabels,
+					datasets: [
+						{
+							label: key,
+							fill: true,
+							tension: 0.25,
+							backgroundColor: 'rgba(151,187,205,0.2)',
+							borderColor: 'rgba(151,187,205,1)',
+							pointBackgroundColor: 'rgba(151,187,205,1)',
+							pointHoverBackgroundColor: 'rgba(151,187,205,1)',
+							pointBorderColor: '#fff',
+							pointHoverBorderColor: 'rgba(151,187,205,1)',
+							data: dataset || [
+								0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+							],
+						},
+					],
+				};
 
-			canvas.width = $(canvas).parent().width();
+				canvas.width = $(canvas).parent().width();
 
-			data.datasets[0].yAxisID = 'left-y-axis';
+				data.datasets[0].yAxisID = 'left-y-axis';
 
-			_current = new Chart(canvasCtx, {
-				type: 'line',
-				data: data,
-				options: {
-					responsive: true,
-					scales: {
-						'left-y-axis': {
-							type: 'linear',
-							position: 'left',
-							beginAtZero: true,
-							title: {
-								display: true,
-								text: key,
+				_current = new Chart(canvasCtx, {
+					type: 'line',
+					data: data,
+					options: {
+						responsive: true,
+						scales: {
+							'left-y-axis': {
+								type: 'linear',
+								position: 'left',
+								beginAtZero: true,
+								title: {
+									display: true,
+									text: key,
+								},
 							},
 						},
+						interaction: {
+							intersect: false,
+							mode: 'index',
+						},
 					},
-					interaction: {
-						intersect: false,
-						mode: 'index',
-					},
-				},
-			});
+				});
 
-			if (!dataset) {
-				update(set).then(resolve);
-			} else {
-				resolve(_current);
-			}
-		});
+				if (!dataset) {
+					update(set).then(resolve);
+				} else {
+					resolve(_current);
+				}
+			},
+		);
 	});
 }
 
@@ -120,25 +124,27 @@ function handleUpdateControls({ set }) {
 		const targetEl = $(this);
 
 		Benchpress.render('admin/partials/pageviews-range-select', {}).then(function (html) {
-			const modal = bootbox.dialog({
-				title: '[[admin/dashboard:page-views-custom]]',
-				message: html,
-				buttons: {
-					submit: {
-						label: '[[global:search]]',
-						className: 'btn-primary',
-						callback: submit,
+			const modal = bootbox
+				.dialog({
+					title: '[[admin/dashboard:page-views-custom]]',
+					message: html,
+					buttons: {
+						submit: {
+							label: '[[global:search]]',
+							className: 'btn-primary',
+							callback: submit,
+						},
 					},
-				},
-			}).on('shown.bs.modal', function () {
-				const date = new Date();
-				const today = date.toISOString().slice(0, 10);
-				date.setDate(date.getDate() - 1);
-				const yesterday = date.toISOString().slice(0, 10);
+				})
+				.on('shown.bs.modal', function () {
+					const date = new Date();
+					const today = date.toISOString().slice(0, 10);
+					date.setDate(date.getDate() - 1);
+					const yesterday = date.toISOString().slice(0, 10);
 
-				modal.find('#startRange').val(targetEl.attr('data-startRange') || yesterday);
-				modal.find('#endRange').val(targetEl.attr('data-endRange') || today);
-			});
+					modal.find('#startRange').val(targetEl.attr('data-startRange') || yesterday);
+					modal.find('#endRange').val(targetEl.attr('data-endRange') || today);
+				});
 
 			function submit() {
 				// NEED TO ADD VALIDATION HERE FOR YYYY-MM-DD
@@ -176,14 +182,14 @@ function update(
 	set,
 	units = ajaxify.data.query.units || 'hours',
 	until = ajaxify.data.query.until,
-	amount = ajaxify.data.query.count
+	amount = ajaxify.data.query.count,
 ) {
 	if (!_current) {
 		return Promise.reject(new Error('[[error:invalid-data]]'));
 	}
 
-	return new Promise((resolve) => {
-		api.get(`/admin/analytics/${set}`, { units, until, amount }).then((dataset) => {
+	return new Promise(resolve => {
+		api.get(`/admin/analytics/${set}`, { units, until, amount }).then(dataset => {
 			if (units === 'days') {
 				_current.data.xLabels = utils.getDaysArray(until, amount);
 			} else {
@@ -201,7 +207,10 @@ function update(
 				until: until,
 				count: amount,
 			});
-			apiEl.attr('href', `${config.relative_path}/api/v3/admin/analytics/${ajaxify.data.set}?${newHref}`);
+			apiEl.attr(
+				'href',
+				`${config.relative_path}/api/v3/admin/analytics/${ajaxify.data.set}?${newHref}`,
+			);
 			const url = ajaxify.removeRelativePath(ajaxify.data.url.slice(1));
 			ajaxify.updateHistory(`${url}?${newHref}`, true);
 			hooks.fire('action:admin.dashboard.updateGraph', {
@@ -211,4 +220,3 @@ function update(
 		});
 	});
 }
-

@@ -10,8 +10,8 @@ get:
         type: string
       example: 1
   responses:
-    "200":
-      description: ""
+    '200':
+      description: ''
       content:
         application/json:
           schema:
@@ -40,7 +40,7 @@ get:
                     type: object
                     properties: {}
                     additionalProperties:
-                      description: "A list of global and admin privileges, and whether the calling user has (or has inherited) them"
+                      description: 'A list of global and admin privileges, and whether the calling user has (or has inherited) them'
                       type: boolean
                   states:
                     type: object

@@ -51,7 +51,10 @@ image.resizeImage = async function (data) {
 		const metadata = await sharpImage.metadata();
 
 		sharpImage.rotate(); // auto-orients based on exif data
-		sharpImage.resize(data.hasOwnProperty('width') ? data.width : null, data.hasOwnProperty('height') ? data.height : null);
+		sharpImage.resize(
+			data.hasOwnProperty('width') ? data.width : null,
+			data.hasOwnProperty('height') ? data.height : null,
+		);
 
 		if (data.quality) {
 			switch (metadata.format) {
@@ -124,7 +127,10 @@ image.stripEXIF = async function (path) {
 image.checkDimensions = async function (path) {
 	const result = await image.size(path);
 
-	if (result.width > meta.config.rejectImageWidth || result.height > meta.config.rejectImageHeight) {
+	if (
+		result.width > meta.config.rejectImageWidth ||
+		result.height > meta.config.rejectImageHeight
+	) {
 		throw new Error('[[error:invalid-image-dimensions]]');
 	}
 

@@ -111,11 +111,15 @@ define('categoryFilter', ['categorySearch', 'api', 'hooks'], function (categoryS
 			renderButton();
 		}
 		function renderButton(category) {
-			app.parseAndTranslate('partials/category/filter-dropdown-content', {
-				selectedCategory: category,
-			}, function (html) {
-				el.find('button').replaceWith($('<div/>').html(html).find('button'));
-			});
+			app.parseAndTranslate(
+				'partials/category/filter-dropdown-content',
+				{
+					selectedCategory: category,
+				},
+				function (html) {
+					el.find('button').replaceWith($('<div/>').html(html).find('button'));
+				},
+			);
 		}
 	}
 

@@ -13,7 +13,11 @@ module.exports = function (User) {
 		}
 		const userData = await db.getObjectFields(`user:${uid}`, ['userslug', 'status', 'lastonline']);
 		const now = Date.now();
-		if (!userData.userslug || userData.status === 'offline' || now - parseInt(userData.lastonline, 10) < 300000) {
+		if (
+			!userData.userslug ||
+			userData.status === 'offline' ||
+			now - parseInt(userData.lastonline, 10) < 300000
+		) {
 			return;
 		}
 		await User.setUserField(uid, 'lastonline', now);
@@ -28,7 +32,7 @@ module.exports = function (User) {
 			db.sortedSetScore('users:online', uid),
 		]);
 		const now = Date.now();
-		if (!exists || (now - parseInt(userOnlineTime, 10) < 300000)) {
+		if (!exists || now - parseInt(userOnlineTime, 10) < 300000) {
 			return;
 		}
 		await User.onUserOnline(uid, now);
@@ -45,7 +49,9 @@ module.exports = function (User) {
 		const isArray = Array.isArray(uid);
 		uid = isArray ? uid : [uid];
 		const lastonline = await db.sortedSetScores('users:online', uid);
-		const isOnline = uid.map((uid, index) => (now - lastonline[index]) < (meta.config.onlineCutoff * 60000));
+		const isOnline = uid.map(
+			(uid, index) => now - lastonline[index] < meta.config.onlineCutoff * 60000,
+		);
 		return isArray ? isOnline : isOnline[0];
 	};
 };

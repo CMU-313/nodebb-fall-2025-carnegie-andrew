@@ -1,6 +1,6 @@
 {
-    "reconnection": "Postavke ponovnog spajanja",
-    "max-attempts": "Max pokušaji spajanja",
-    "default-placeholder": "Zadano: %1",
-    "delay": "Stanka u ponovnom spajanju"
+  "reconnection": "Postavke ponovnog spajanja",
+  "max-attempts": "Max pokušaji spajanja",
+  "default-placeholder": "Zadano: %1",
+  "delay": "Stanka u ponovnom spajanju"
 }

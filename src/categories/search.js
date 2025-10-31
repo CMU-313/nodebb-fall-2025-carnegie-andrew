@@ -48,10 +48,10 @@ module.exports = function (Categories) {
 
 		Categories.getTree(categoryData, 0);
 		await Categories.getRecentTopicReplies(categoryData, uid, data.qs);
-		categoryData.forEach((category) => {
+		categoryData.forEach(category => {
 			if (category && Array.isArray(category.children)) {
 				category.children = category.children.slice(0, category.subCategoriesPerPage);
-				category.children.forEach((child) => {
+				category.children.forEach(child => {
 					child.children = undefined;
 				});
 			}
@@ -77,7 +77,7 @@ module.exports = function (Categories) {
 			match: `*${String(query).toLowerCase()}*`,
 			limit: hardCap || 500,
 		});
-		return data.map((data) => {
+		return data.map(data => {
 			const split = data.split(':');
 			split.shift();
 			const cid = split.join(':');

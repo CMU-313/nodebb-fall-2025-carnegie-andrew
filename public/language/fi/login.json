@@ -1,12 +1,12 @@
 {
-    "username-email": "Käyttäjätunnus/sähköpostiosoite",
-    "username": "Käyttäjätunnus",
-    "remember-me": "Muista minut?",
-    "forgot-password": "Unohditko salasanasi?",
-    "alternative-logins": "Vaihtoehtoiset kirjautumistavat",
-    "failed-login-attempt": "Kirjautuminen epäonnistui",
-    "login-successful": "Olet onnistuneesti kirjautunut sisään!",
-    "dont-have-account": "Ei käyttäjätunnusta?",
-    "logged-out-due-to-inactivity": "Sinut on kirjattu ulos hallintapaneelista liian pitkän toimettomuuden takia.",
-    "caps-lock-enabled": "Caps Lock is enabled"
+  "username-email": "Käyttäjätunnus/sähköpostiosoite",
+  "username": "Käyttäjätunnus",
+  "remember-me": "Muista minut?",
+  "forgot-password": "Unohditko salasanasi?",
+  "alternative-logins": "Vaihtoehtoiset kirjautumistavat",
+  "failed-login-attempt": "Kirjautuminen epäonnistui",
+  "login-successful": "Olet onnistuneesti kirjautunut sisään!",
+  "dont-have-account": "Ei käyttäjätunnusta?",
+  "logged-out-due-to-inactivity": "Sinut on kirjattu ulos hallintapaneelista liian pitkän toimettomuuden takia.",
+  "caps-lock-enabled": "Caps Lock is enabled"
 }

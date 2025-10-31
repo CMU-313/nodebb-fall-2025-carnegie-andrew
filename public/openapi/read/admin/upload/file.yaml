@@ -20,8 +20,8 @@ post:
           required:
             - files
   responses:
-    "200":
-      description: "File uploaded"
+    '200':
+      description: 'File uploaded'
       content:
         application/json:
           schema:

@@ -1,17 +1,17 @@
 {
-	"rewards": "Utmerkingar",
-	"add-reward": "Legg til utmerking",
-	"condition-if-users": "Vilkår: Om brukarar",
-	"condition-is": "er:",
-	"condition-then": "Då",
-	"max-claims": "Maks krav",
-	"zero-infinite": "0 for uendeleg",
-	"select-reward": "Vel utmerking",
-	"delete": "Slett",
-	"enable": "Aktiver",
-	"disable": "Deaktiver",
+  "rewards": "Utmerkingar",
+  "add-reward": "Legg til utmerking",
+  "condition-if-users": "Vilkår: Om brukarar",
+  "condition-is": "er:",
+  "condition-then": "Då",
+  "max-claims": "Maks krav",
+  "zero-infinite": "0 for uendeleg",
+  "select-reward": "Vel utmerking",
+  "delete": "Slett",
+  "enable": "Aktiver",
+  "disable": "Deaktiver",
 
-	"alert.delete-success": "Utmerking sletta med suksess",
-	"alert.no-inputs-found": "Ingen inndata funne",
-	"alert.save-success": "Utmerking lagra med suksess"
+  "alert.delete-success": "Utmerking sletta med suksess",
+  "alert.no-inputs-found": "Ingen inndata funne",
+  "alert.save-success": "Utmerking lagra med suksess"
 }

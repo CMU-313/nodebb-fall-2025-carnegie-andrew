@@ -22,11 +22,9 @@ const { generateToken, csrfSynchronisedProtection } = require('../src/middleware
 const app = express();
 let server;
 
-const formats = [
-	winston.format.colorize(),
-];
+const formats = [winston.format.colorize()];
 
-const timestampFormat = winston.format((info) => {
+const timestampFormat = winston.format(info => {
 	const dateString = `${new Date().toISOString()} [${global.process.pid}]`;
 	info.level = `${dateString} - ${info.level}`;
 	return info;
@@ -57,7 +55,6 @@ let launchUrl;
 let timeStart = 0;
 const totalTime = 1000 * 60 * 3;
 
-
 const viewsDir = path.join(paths.baseDir, 'build/public/templates');
 
 web.install = async function (port) {
@@ -74,24 +71,22 @@ web.install = async function (port) {
 	});
 	app.set('view engine', 'tpl');
 	app.set('views', viewsDir);
-	app.use(bodyParser.urlencoded({
-		extended: true,
-	}));
+	app.use(
+		bodyParser.urlencoded({
+			extended: true,
+		}),
+	);
 
-	app.use(session({
-		secret: utils.generateUUID(),
-		resave: false,
-		saveUninitialized: false,
-	}));
+	app.use(
+		session({
+			secret: utils.generateUUID(),
+			resave: false,
+			saveUninitialized: false,
+		}),
+	);
 
 	try {
-		await Promise.all([
-			compileTemplate(),
-			compileSass(),
-			runWebpack(),
-			copyCSS(),
-			loadDefaults(),
-		]);
+		await Promise.all([compileTemplate(), compileSass(), runWebpack(), copyCSS(), loadDefaults()]);
 		setupRoutes();
 		launchExpress(port);
 	} catch (err) {
@@ -129,7 +124,7 @@ async function testDatabase(req, res) {
 		db = require(`../src/database/${dbName}`);
 
 		const opts = {};
-		keys.forEach((key) => {
+		keys.forEach(key => {
 			opts[key.replace(`${dbName}:`, '')] = req.query[key];
 		});
 
@@ -148,8 +143,10 @@ function ping(req, res) {
 
 function welcome(req, res) {
 	const dbs = ['mongo', 'redis', 'postgres'];
-	const databases = dbs.map((databaseName) => {
-		const questions = require(`../src/database/${databaseName}`).questions.filter(question => question && !question.hideOnWebInstall);
+	const databases = dbs.map(databaseName => {
+		const questions = require(`../src/database/${databaseName}`).questions.filter(
+			question => question && !question.hideOnWebInstall,
+		);
 
 		return {
 			name: databaseName,
@@ -159,7 +156,7 @@ function welcome(req, res) {
 
 	const defaults = require('./data/defaults.json');
 	res.render('install/index', {
-		url: nconf.get('url') || (`${req.protocol}://${req.get('host')}`),
+		url: nconf.get('url') || `${req.protocol}://${req.get('host')}`,
 		launchUrl: launchUrl,
 		skipGeneralSetup: !!nconf.get('url'),
 		databases: databases,
@@ -170,7 +167,7 @@ function welcome(req, res) {
 		minimumPasswordLength: defaults.minimumPasswordLength,
 		minimumPasswordStrength: defaults.minimumPasswordStrength,
 		installing: installing,
-		percentInstalled: installing ? ((Date.now() - timeStart) / totalTime * 100).toFixed(2) : 0,
+		percentInstalled: installing ? (((Date.now() - timeStart) / totalTime) * 100).toFixed(2) : 0,
 		csrf_token: generateToken(req),
 	});
 }
@@ -188,7 +185,7 @@ function install(req, res) {
 		...process.env,
 		CONFIG: nconf.get('config'),
 		NODEBB_CONFIG: nconf.get('config'),
-		NODEBB_URL: nconf.get('url') || req.body.url || (`${req.protocol}://${req.get('host')}`),
+		NODEBB_URL: nconf.get('url') || req.body.url || `${req.protocol}://${req.get('host')}`,
 		NODEBB_PORT: nconf.get('port') || 4567,
 		NODEBB_ADMIN_USERNAME: nconf.get('admin:username') || req.body['admin:username'],
 		NODEBB_ADMIN_PASSWORD: nconf.get('admin:password') || req.body['admin:password'],
@@ -200,7 +197,9 @@ function install(req, res) {
 		NODEBB_DB_PASSWORD: nconf.get(`${database}:password`) || req.body[`${database}:password`],
 		NODEBB_DB_NAME: nconf.get(`${database}:database`) || req.body[`${database}:database`],
 		NODEBB_DB_SSL: nconf.get(`${database}:ssl`) || req.body[`${database}:ssl`],
-		defaultPlugins: JSON.stringify(nconf.get('defaultplugins') || nconf.get('defaultPlugins') || []),
+		defaultPlugins: JSON.stringify(
+			nconf.get('defaultplugins') || nconf.get('defaultPlugins') || [],
+		),
 	};
 
 	winston.info('Starting setup process');
@@ -209,12 +208,12 @@ function install(req, res) {
 	const child = require('child_process').fork('app', ['--setup'], {
 		env: setupEnvVars,
 	});
-	child.on('error', (err) => {
+	child.on('error', err => {
 		error = true;
 		success = false;
 		winston.error(err.stack);
 	});
-	child.on('close', (data) => {
+	child.on('close', data => {
 		success = data === 0;
 		error = data !== 0;
 		launch();
@@ -251,11 +250,7 @@ async function launch() {
 			path.join(__dirname, '../build/public', 'installer.min.js'),
 		];
 		try {
-			await Promise.all(
-				filesToDelete.map(
-					filename => fs.promises.unlink(filename)
-				)
-			);
+			await Promise.all(filesToDelete.map(filename => fs.promises.unlink(filename)));
 		} catch (err) {
 			console.log(err.stack);
 		}
@@ -292,12 +287,13 @@ async function compileSass() {
 		const installSrc = path.join(__dirname, '../public/scss/install.scss');
 		const style = await fs.promises.readFile(installSrc);
 		const scssOutput = sass.compileString(String(style), {
-			loadPaths: [
-				path.join(__dirname, '../public/scss'),
-			],
+			loadPaths: [path.join(__dirname, '../public/scss')],
 		});
 
-		await fs.promises.writeFile(path.join(__dirname, '../public/installer.css'), scssOutput.css.toString());
+		await fs.promises.writeFile(
+			path.join(__dirname, '../public/installer.css'),
+			scssOutput.css.toString(),
+		);
 	} catch (err) {
 		winston.error(`Unable to compile SASS: \n${err.stack}`);
 		throw err;

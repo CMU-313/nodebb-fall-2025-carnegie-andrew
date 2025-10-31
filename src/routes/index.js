@@ -68,7 +68,12 @@ _mounts.post = (app, name, middleware, controllers) => {
 		middleware.registrationComplete,
 		middleware.pluginHooks,
 	];
-	app.get(`/${name}/:pid`, middleware.busyCheck, middlewares, helpers.tryRoute(controllers.posts.redirectToPost));
+	app.get(
+		`/${name}/:pid`,
+		middleware.busyCheck,
+		middlewares,
+		helpers.tryRoute(controllers.posts.redirectToPost),
+	);
 	app.get(`/api/${name}/:pid`, middlewares, helpers.tryRoute(controllers.posts.redirectToPost));
 };
 
@@ -110,7 +115,17 @@ module.exports = async function (app, middleware) {
 	};
 
 	// Allow plugins/themes to mount some routes elsewhere
-	const remountable = ['admin', 'categories', 'category', 'topic', 'post', 'users', 'user', 'groups', 'tags'];
+	const remountable = [
+		'admin',
+		'categories',
+		'category',
+		'topic',
+		'post',
+		'users',
+		'user',
+		'groups',
+		'tags',
+	];
 	const { mounts } = await plugins.hooks.fire('filter:router.add', {
 		mounts: remountable.reduce((memo, mount) => {
 			memo[mount] = mount;
@@ -118,22 +133,32 @@ module.exports = async function (app, middleware) {
 		}, {}),
 	});
 	// Guard against plugins sending back missing/extra mounts
-	Object.keys(mounts).forEach((mount) => {
+	Object.keys(mounts).forEach(mount => {
 		if (!remountable.includes(mount)) {
 			delete mounts[mount];
 		} else if (typeof mount !== 'string') {
 			mounts[mount] = mount;
 		}
 	});
-	remountable.forEach((mount) => {
+	remountable.forEach(mount => {
 		if (!mounts.hasOwnProperty(mount)) {
 			mounts[mount] = mount;
 		}
 	});
 
 	router.all('(/+api|/+api/*?)', middleware.prepareAPI);
-	router.all(`(/+api/admin|/+api/admin/*?${mounts.admin !== 'admin' ? `|/+api/${mounts.admin}|/+api/${mounts.admin}/*?` : ''})`, middleware.authenticateRequest, middleware.ensureLoggedIn, middleware.admin.checkPrivileges);
-	router.all(`(/+admin|/+admin/*?${mounts.admin !== 'admin' ? `|/+${mounts.admin}|/+${mounts.admin}/*?` : ''})`, middleware.ensureLoggedIn, middleware.applyCSRF, middleware.admin.checkPrivileges);
+	router.all(
+		`(/+api/admin|/+api/admin/*?${mounts.admin !== 'admin' ? `|/+api/${mounts.admin}|/+api/${mounts.admin}/*?` : ''})`,
+		middleware.authenticateRequest,
+		middleware.ensureLoggedIn,
+		middleware.admin.checkPrivileges,
+	);
+	router.all(
+		`(/+admin|/+admin/*?${mounts.admin !== 'admin' ? `|/+${mounts.admin}|/+${mounts.admin}/*?` : ''})`,
+		middleware.ensureLoggedIn,
+		middleware.applyCSRF,
+		middleware.admin.checkPrivileges,
+	);
 
 	app.use(middleware.stripLeadingSlashes);
 
@@ -182,11 +207,18 @@ function addCoreRoutes(app, router, middleware, mounts) {
 	};
 
 	if (path.resolve(__dirname, '../../public/uploads') !== nconf.get('upload_path')) {
-		statics.unshift({ route: '/assets/uploads', path: nconf.get('upload_path') });
+		statics.unshift({
+			route: '/assets/uploads',
+			path: nconf.get('upload_path'),
+		});
 	}
 
-	statics.forEach((obj) => {
-		app.use(relativePath + obj.route, middleware.addUploadHeaders, express.static(obj.path, staticOptions));
+	statics.forEach(obj => {
+		app.use(
+			relativePath + obj.route,
+			middleware.addUploadHeaders,
+			express.static(obj.path, staticOptions),
+		);
 	});
 	app.use(`${relativePath}/uploads`, (req, res) => {
 		res.redirect(`${relativePath}/assets/uploads${req.path}?${meta.config['cache-buster']}`);
@@ -204,18 +236,21 @@ function addCoreRoutes(app, router, middleware, mounts) {
 }
 
 function addRemountableRoutes(app, router, middleware, mounts) {
-	Object.keys(mounts).map(async (mount) => {
+	Object.keys(mounts).map(async mount => {
 		const original = mount;
 		mount = mounts[original];
 
-		if (!mount) { // do not mount at all
+		if (!mount) {
+			// do not mount at all
 			winston.warn(`[router] Not mounting /${original}`);
 			return;
 		}
 
 		if (mount !== original) {
 			// Set up redirect for fallback handling (some js/tpls may still refer to the traditional mount point)
-			winston.info(`[router] /${original} prefix re-mounted to /${mount}. Requests to /${original}/* will now redirect to /${mount}`);
+			winston.info(
+				`[router] /${original} prefix re-mounted to /${mount}. Requests to /${original}/* will now redirect to /${mount}`,
+			);
 			router.use(new RegExp(`/(api/)?${original}`), (req, res) => {
 				controllerHelpers.redirect(res, `${nconf.get('relative_path')}/${mount}${req.path}`);
 			});

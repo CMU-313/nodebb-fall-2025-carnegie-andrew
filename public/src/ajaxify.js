@@ -24,7 +24,7 @@ ajaxify.widgets = { render: render };
 		history.scrollRestoration = 'manual';
 	}
 
-	ajaxify.check = (item) => {
+	ajaxify.check = item => {
 		/**
 		 * returns:
 		 *   true  (ajaxify OK)
@@ -56,7 +56,12 @@ ajaxify.widgets = { render: render };
 				return null;
 			}
 
-			if (hrefEmpty(urlObj.href) || urlObj.protocol === 'javascript:' || pathname === '#' || pathname === '') {
+			if (
+				hrefEmpty(urlObj.href) ||
+				urlObj.protocol === 'javascript:' ||
+				pathname === '#' ||
+				pathname === ''
+			) {
 				return null;
 			}
 		}
@@ -68,14 +73,19 @@ ajaxify.widgets = { render: render };
 			}
 
 			// Default behaviour for sitemap
-			if (String(pathname).startsWith(config.relative_path + '/sitemap') && pathname.endsWith('.xml')) {
+			if (
+				String(pathname).startsWith(config.relative_path + '/sitemap') &&
+				pathname.endsWith('.xml')
+			) {
 				return false;
 			}
 
 			// Default behaviour for uploads and direct links to API urls
-			if (['/uploads', '/assets/', '/api/'].some(function (prefix) {
-				return String(pathname).startsWith(config.relative_path + prefix);
-			})) {
+			if (
+				['/uploads', '/assets/', '/api/'].some(function (prefix) {
+					return String(pathname).startsWith(config.relative_path + prefix);
+				})
+			) {
 				return false;
 			}
 		}
@@ -99,7 +109,7 @@ ajaxify.widgets = { render: render };
 		}
 
 		// Abort subsequent requests if clicked multiple times within a short window of time
-		if (ajaxify.requestedPage === url && ajaxifyTimer && (Date.now() - ajaxifyTimer) < 500) {
+		if (ajaxify.requestedPage === url && ajaxifyTimer && Date.now() - ajaxifyTimer < 500) {
 			return true;
 		}
 		ajaxifyTimer = Date.now();
@@ -119,15 +129,19 @@ ajaxify.widgets = { render: render };
 			apiXHR.abort();
 		}
 
-		app.previousUrl = !['reset'].includes(ajaxify.currentPage) ?
-			window.location.pathname.slice(config.relative_path.length) + window.location.search :
-			app.previousUrl;
+		app.previousUrl = !['reset'].includes(ajaxify.currentPage)
+			? window.location.pathname.slice(config.relative_path.length) + window.location.search
+			: app.previousUrl;
 
 		url = ajaxify.start(url);
 
 		// If any listeners alter url and set it to an empty string, abort the ajaxification
 		if (url === null) {
-			hooks.fire('action:ajaxify.end', { url: url, tpl_url: ajaxify.data.template.name, title: ajaxify.data.title });
+			hooks.fire('action:ajaxify.end', {
+				url: url,
+				tpl_url: ajaxify.data.template.name,
+				title: ajaxify.data.title,
+			});
 			return false;
 		}
 
@@ -135,11 +149,13 @@ ajaxify.widgets = { render: render };
 		$('#footer, #content').removeClass('hide').addClass('ajaxifying');
 
 		ajaxify.loadData(url, function (err, data) {
-			if (!err || (
-				err &&
-				err.data &&
-				(parseInt(err.data.status, 10) !== 302 && parseInt(err.data.status, 10) !== 308)
-			)) {
+			if (
+				!err ||
+				(err &&
+					err.data &&
+					parseInt(err.data.status, 10) !== 302 &&
+					parseInt(err.data.status, 10) !== 308)
+			) {
 				ajaxify.updateHistory(url, quiet);
 			}
 
@@ -157,7 +173,9 @@ ajaxify.widgets = { render: render };
 
 	// this function is called just once from footer on page load
 	ajaxify.coldLoad = function () {
-		const url = ajaxify.start(window.location.pathname.slice(1) + window.location.search + window.location.hash);
+		const url = ajaxify.start(
+			window.location.pathname.slice(1) + window.location.search + window.location.hash,
+		);
 		ajaxify.updateHistory(url, true);
 		ajaxify.end(url, ajaxify.data.template.name);
 		hooks.fire('action:ajaxify.coldLoad');
@@ -169,8 +187,12 @@ ajaxify.widgets = { render: render };
 
 	ajaxify.handleRedirects = function (url) {
 		url = ajaxify.removeRelativePath(url.replace(/^\/|\/$/g, '')).toLowerCase();
-		const isClientToAdmin = url.startsWith('admin') && window.location.pathname.indexOf(config.relative_path + '/admin') !== 0;
-		const isAdminToClient = !url.startsWith('admin') && window.location.pathname.indexOf(config.relative_path + '/admin') === 0;
+		const isClientToAdmin =
+			url.startsWith('admin') &&
+			window.location.pathname.indexOf(config.relative_path + '/admin') !== 0;
+		const isAdminToClient =
+			!url.startsWith('admin') &&
+			window.location.pathname.indexOf(config.relative_path + '/admin') === 0;
 
 		if (isClientToAdmin || isAdminToClient) {
 			window.open(config.relative_path + '/' + url, '_top');
@@ -198,9 +220,13 @@ ajaxify.widgets = { render: render };
 		ajaxify.currentPage = url.split(/[?#]/)[0];
 		ajaxify.requestedPage = null;
 		if (window.history && window.history.pushState) {
-			window.history[!quiet ? 'pushState' : 'replaceState']({
-				url: url,
-			}, url, config.relative_path + '/' + url);
+			window.history[!quiet ? 'pushState' : 'replaceState'](
+				{
+					url: url,
+				},
+				url,
+				config.relative_path + '/' + url,
+			);
 		}
 	};
 
@@ -251,7 +277,8 @@ ajaxify.widgets = { render: render };
 
 	function renderTemplate(url, tpl_url, data, callback) {
 		hooks.fire('action:ajaxify.loadingTemplates', {});
-		benchpress.render(tpl_url, data)
+		benchpress
+			.render(tpl_url, data)
 			.then(rendered => translator.translate(rendered))
 			.then(function (translated) {
 				translated = translator.unescape(translated);
@@ -277,9 +304,15 @@ ajaxify.widgets = { render: render };
 			return;
 		}
 
-		title = config.titleLayout.replace(/&#123;/g, '{').replace(/&#125;/g, '}')
-			.replace('{pageTitle}', function () { return title; })
-			.replace('{browserTitle}', function () { return config.browserTitle; });
+		title = config.titleLayout
+			.replace(/&#123;/g, '{')
+			.replace(/&#125;/g, '}')
+			.replace('{pageTitle}', function () {
+				return title;
+			})
+			.replace('{browserTitle}', function () {
+				return config.browserTitle;
+			});
 
 		// Allow translation strings in title on ajaxify (#5927)
 		title = translator.unescape(title);
@@ -292,9 +325,11 @@ ajaxify.widgets = { render: render };
 	ajaxify.updateTitle = updateTitle;
 
 	function updateTags() {
-		const metaWhitelist = ['title', 'description', /og:.+/, /article:.+/, 'robots'].map(function (val) {
-			return new RegExp(val);
-		});
+		const metaWhitelist = ['title', 'description', /og:.+/, /article:.+/, 'robots'].map(
+			function (val) {
+				return new RegExp(val);
+			},
+		);
 		const linkWhitelist = ['canonical', 'alternate', 'up'];
 
 		// Delete the old meta tags
@@ -317,7 +352,8 @@ ajaxify.widgets = { render: render };
 				return metaWhitelist.some(function (exp) {
 					return !!exp.test(name);
 				});
-			}).forEach(async function (tagObj) {
+			})
+			.forEach(async function (tagObj) {
 				if (tagObj.content) {
 					tagObj.content = await translator.translate(tagObj.content);
 				}
@@ -327,7 +363,6 @@ ajaxify.widgets = { render: render };
 				});
 				document.head.appendChild(metaEl);
 			});
-
 
 		// Delete the old link tags
 		Array.prototype.slice
@@ -419,32 +454,34 @@ ajaxify.widgets = { render: render };
 
 		// Hint: useful if you want to load a module on a specific page (append module name to `scripts`)
 		hooks.fire('action:script.load', data);
-		hooks.fire('filter:script.load', data).then((data) => {
+		hooks.fire('filter:script.load', data).then(data => {
 			// Require and parse modules
 			let outstanding = data.scripts.length;
 
-			const scripts = data.scripts.map(function (script) {
-				if (typeof script === 'function') {
-					return function (next) {
-						script();
-						next();
-					};
-				}
-				if (typeof script === 'string') {
-					return async function (next) {
-						const module = await app.require(script);
-						// Hint: useful if you want to override a loaded library (e.g. replace core client-side logic),
-						// or call a method other than .init()
-						hooks.fire('static:script.init', { tpl_url, name: script, module }).then(() => {
-							if (module && module.init) {
-								module.init();
-							}
+			const scripts = data.scripts
+				.map(function (script) {
+					if (typeof script === 'function') {
+						return function (next) {
+							script();
 							next();
-						});
-					};
-				}
-				return null;
-			}).filter(Boolean);
+						};
+					}
+					if (typeof script === 'string') {
+						return async function (next) {
+							const module = await app.require(script);
+							// Hint: useful if you want to override a loaded library (e.g. replace core client-side logic),
+							// or call a method other than .init()
+							hooks.fire('static:script.init', { tpl_url, name: script, module }).then(() => {
+								if (module && module.init) {
+									module.init();
+								}
+								next();
+							});
+						};
+					}
+					return null;
+				})
+				.filter(Boolean);
 
 			if (scripts.length) {
 				scripts.forEach(function (fn) {
@@ -534,12 +571,21 @@ ajaxify.widgets = { render: render };
 	ajaxify.handleTransientElements = () => {
 		// todo: modals?
 
-		const elements = ['[component="notifications"]', '[component="chat/dropdown"]', '[component="sidebar/drafts"]', '[component="header/avatar"]']
-			.map(el => document.querySelector(`${el} .dropdown-menu.show`) || document.querySelector(`${el} + .dropdown-menu.show`))
+		const elements = [
+			'[component="notifications"]',
+			'[component="chat/dropdown"]',
+			'[component="sidebar/drafts"]',
+			'[component="header/avatar"]',
+		]
+			.map(
+				el =>
+					document.querySelector(`${el} .dropdown-menu.show`) ||
+					document.querySelector(`${el} + .dropdown-menu.show`),
+			)
 			.filter(Boolean);
 
 		if (elements.length) {
-			elements.forEach((el) => {
+			elements.forEach(el => {
 				el.classList.remove('show');
 			});
 		}
@@ -552,27 +598,39 @@ ajaxify.widgets = { render: render };
 	benchpress.setGlobal('config', config);
 	benchpress.render('500', {}); // loads and caches 500.tpl
 	benchpress.render('partials/toast'); // loads and caches partials/toast
-}());
+})();
 
 $(document).ready(function () {
-	window.addEventListener('popstate', (ev) => {
+	window.addEventListener('popstate', ev => {
 		if (ev !== null && ev.state) {
 			if (ev.state.url === null && ev.state.returnPath !== undefined) {
-				window.history.replaceState({
-					url: ev.state.returnPath,
-				}, ev.state.returnPath, config.relative_path + '/' + ev.state.returnPath);
+				window.history.replaceState(
+					{
+						url: ev.state.returnPath,
+					},
+					ev.state.returnPath,
+					config.relative_path + '/' + ev.state.returnPath,
+				);
 			} else if (ev.state.url !== undefined) {
 				ajaxify.handleTransientElements();
-				ajaxify.go(ev.state.url, function () {
-					hooks.fire('action:popstate', { url: ev.state.url });
-				}, true);
+				ajaxify.go(
+					ev.state.url,
+					function () {
+						hooks.fire('action:popstate', { url: ev.state.url });
+					},
+					true,
+				);
 			}
 		}
 	});
 
 	function ajaxifyAnchors() {
 		const location = document.location || window.location;
-		const rootUrl = location.protocol + '//' + (location.hostname || location.host) + (location.port ? ':' + location.port : '');
+		const rootUrl =
+			location.protocol +
+			'//' +
+			(location.hostname || location.host) +
+			(location.port ? ':' + location.port : '');
 		const contentEl = document.getElementById('content');
 
 		// Enhancing all anchors to ajaxify...
@@ -602,9 +660,17 @@ $(document).ready(function () {
 							externalTab.location = this.href;
 							e.preventDefault();
 						} else if (config.useOutgoingLinksPage) {
-							const safeUrls = config.outgoingLinksWhitelist.trim().split(/[\s,]+/g).filter(Boolean);
+							const safeUrls = config.outgoingLinksWhitelist
+								.trim()
+								.split(/[\s,]+/g)
+								.filter(Boolean);
 							const href = this.href;
-							if (!safeUrls.length || !safeUrls.some(function (url) { return href.indexOf(url) !== -1; })) {
+							if (
+								!safeUrls.length ||
+								!safeUrls.some(function (url) {
+									return href.indexOf(url) !== -1;
+								})
+							) {
 								ajaxify.go('outgoing?url=' + encodeURIComponent(href));
 								e.preventDefault();
 							}

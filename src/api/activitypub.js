@@ -40,7 +40,11 @@ activitypubApi.follow = enabledCheck(async (caller, { type, id, actor } = {}) =>
 	// Privilege checks should be done upstream
 	const acceptedTypes = ['uid', 'cid'];
 	const assertion = await activitypub.actors.assert(actor);
-	if (!acceptedTypes.includes(type) || !assertion || (Array.isArray(assertion) && assertion.length)) {
+	if (
+		!acceptedTypes.includes(type) ||
+		!assertion ||
+		(Array.isArray(assertion) && assertion.length)
+	) {
 		throw new Error('[[error:activitypub.invalid-id]]');
 	}
 
@@ -53,8 +57,12 @@ activitypubApi.follow = enabledCheck(async (caller, { type, id, actor } = {}) =>
 		actor = uid || cid;
 	}
 
-	const isFollowing = await db.isSortedSetMember(type === 'uid' ? `followingRemote:${id}` : `cid:${id}:following`, actor);
-	if (isFollowing) { // already following
+	const isFollowing = await db.isSortedSetMember(
+		type === 'uid' ? `followingRemote:${id}` : `cid:${id}:following`,
+		actor,
+	);
+	if (isFollowing) {
+		// already following
 		return;
 	}
 
@@ -95,14 +103,18 @@ activitypubApi.unfollow = enabledCheck(async (caller, { type, id, actor }) => {
 		db.isSortedSetMember(`followRequests:${type === 'uid' ? 'uid' : 'cid'}.${id}`, actor),
 	]);
 
-	if (!isFollowing && !isPending) { // already not following/pending
+	if (!isFollowing && !isPending) {
+		// already not following/pending
 		return;
 	}
 
-	const timestamps = await db.sortedSetsScore([
-		`followRequests:${type}.${id}`,
-		type === 'uid' ? `followingRemote:${id}` : `cid:${id}:following`,
-	], actor);
+	const timestamps = await db.sortedSetsScore(
+		[
+			`followRequests:${type}.${id}`,
+			type === 'uid' ? `followingRemote:${id}` : `cid:${id}:following`,
+		],
+		actor,
+	);
 	const timestamp = timestamps[0] || timestamps[1];
 
 	const object = {
@@ -153,7 +165,9 @@ activitypubApi.create.note = enabledCheck(async (caller, { pid, post }) => {
 
 	const allowed = await privileges.posts.can('topics:read', pid, activitypub._constants.uid);
 	if (!allowed) {
-		activitypub.helpers.log(`[activitypub/api] Not federating creation of pid ${pid} to the fediverse due to privileges.`);
+		activitypub.helpers.log(
+			`[activitypub/api] Not federating creation of pid ${pid} to the fediverse due to privileges.`,
+		);
 		return;
 	}
 
@@ -225,13 +239,18 @@ activitypubApi.update.note = enabledCheck(async (caller, { post }) => {
 	}
 
 	const object = await activitypub.mocks.notes.public(post);
-	const { to, cc, targets } = await activitypub.buildRecipients(object, { pid: post.pid, uid: post.user.uid });
+	const { to, cc, targets } = await activitypub.buildRecipients(object, {
+		pid: post.pid,
+		uid: post.user.uid,
+	});
 	object.to = to;
 	object.cc = cc;
 
 	const allowed = await privileges.posts.can('topics:read', post.pid, activitypub._constants.uid);
 	if (!allowed) {
-		activitypub.helpers.log(`[activitypub/api] Not federating update of pid ${post.pid} to the fediverse due to privileges.`);
+		activitypub.helpers.log(
+			`[activitypub/api] Not federating update of pid ${post.pid} to the fediverse due to privileges.`,
+		);
 		return;
 	}
 
@@ -285,11 +304,16 @@ activitypubApi.delete.note = enabledCheck(async (caller, { pid }) => {
 	const id = `${nconf.get('url')}/post/${pid}`;
 	const post = (await posts.getPostSummaryByPids([pid], caller.uid, { stripTags: false })).pop();
 	const object = await activitypub.mocks.notes.public(post);
-	const { to, cc, targets } = await activitypub.buildRecipients(object, { pid, uid: post.user.uid });
+	const { to, cc, targets } = await activitypub.buildRecipients(object, {
+		pid,
+		uid: post.user.uid,
+	});
 
 	const allowed = await privileges.posts.can('topics:read', pid, activitypub._constants.uid);
 	if (!allowed) {
-		activitypub.helpers.log(`[activitypub/api] Not federating update of pid ${pid} to the fediverse due to privileges.`);
+		activitypub.helpers.log(
+			`[activitypub/api] Not federating update of pid ${pid} to the fediverse due to privileges.`,
+		);
 		return;
 	}
 
@@ -319,7 +343,8 @@ activitypubApi.like.note = enabledCheck(async (caller, { pid }) => {
 		object: utils.isNumber(pid) ? `${nconf.get('url')}/post/${pid}` : pid,
 	};
 
-	if (!activitypub.helpers.isUri(pid)) { // only 1b12 announce for local likes
+	if (!activitypub.helpers.isUri(pid)) {
+		// only 1b12 announce for local likes
 		await activitypub.feps.announce(pid, payload);
 		return;
 	}
@@ -348,15 +373,20 @@ activitypubApi.announce.note = enabledCheck(async (caller, { tid }) => {
 	const uid = await posts.getPostField(pid, 'uid'); // author
 	const allowed = await privileges.posts.can('topics:read', pid, activitypub._constants.uid);
 	if (!allowed) {
-		activitypub.helpers.log(`[activitypub/api] Not federating announce of pid ${pid} to the fediverse due to privileges.`);
+		activitypub.helpers.log(
+			`[activitypub/api] Not federating announce of pid ${pid} to the fediverse due to privileges.`,
+		);
 		return;
 	}
 
-	const { to, cc, targets } = await activitypub.buildRecipients({
-		id: pid,
-		to: [activitypub._constants.publicAddress],
-		cc: [`${nconf.get('url')}/uid/${caller.uid}/followers`, uid],
-	}, { uid: caller.uid });
+	const { to, cc, targets } = await activitypub.buildRecipients(
+		{
+			id: pid,
+			to: [activitypub._constants.publicAddress],
+			cc: [`${nconf.get('url')}/uid/${caller.uid}/followers`, uid],
+		},
+		{ uid: caller.uid },
+	);
 
 	await activitypub.send('uid', caller.uid, Array.from(targets), {
 		id: `${nconf.get('url')}/post/${encodeURIComponent(pid)}#activity/announce/${Date.now()}`,
@@ -409,8 +439,10 @@ activitypubApi.flag = enabledCheck(async (caller, flag) => {
 	if (flag.type === 'post' && activitypub.helpers.isUri(flag.targetUid)) {
 		reportedIds.push(flag.targetUid);
 	}
-	const reason = flag.reason ||
-		(flag.reports && flag.reports.filter(report => report.reporter.uid === caller.uid).at(-1).value);
+	const reason =
+		flag.reason ||
+		(flag.reports &&
+			flag.reports.filter(report => report.reporter.uid === caller.uid).at(-1).value);
 	await activitypub.send('uid', caller.uid, reportedIds, {
 		id: `${nconf.get('url')}/${flag.type}/${encodeURIComponent(flag.targetId)}#activity/flag/${caller.uid}`,
 		type: 'Flag',
@@ -457,8 +489,10 @@ activitypubApi.undo.flag = enabledCheck(async (caller, flag) => {
 	if (flag.type === 'post' && activitypub.helpers.isUri(flag.targetUid)) {
 		reportedIds.push(flag.targetUid);
 	}
-	const reason = flag.reason ||
-		(flag.reports && flag.reports.filter(report => report.reporter.uid === caller.uid).at(-1).value);
+	const reason =
+		flag.reason ||
+		(flag.reports &&
+			flag.reports.filter(report => report.reporter.uid === caller.uid).at(-1).value);
 	await activitypub.send('uid', caller.uid, reportedIds, {
 		id: `${nconf.get('url')}/${flag.type}/${encodeURIComponent(flag.targetId)}#activity/undo:flag/${caller.uid}/${Date.now()}`,
 		type: 'Undo',

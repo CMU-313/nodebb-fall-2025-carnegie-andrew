@@ -14,13 +14,14 @@ const sleep = util.promisify(setTimeout);
 
 const Interstitials = module.exports;
 
-Interstitials.get = async (req, userData) => plugins.hooks.fire('filter:register.interstitial', {
-	req,
-	userData,
-	interstitials: [],
-});
+Interstitials.get = async (req, userData) =>
+	plugins.hooks.fire('filter:register.interstitial', {
+		req,
+		userData,
+		interstitials: [],
+	});
 
-Interstitials.email = async (data) => {
+Interstitials.email = async data => {
 	if (!data.userData) {
 		throw new Error('[[error:invalid-data]]');
 	}
@@ -54,7 +55,12 @@ Interstitials.email = async (data) => {
 			// Validate and send email confirmation
 			if (userData.uid) {
 				const isSelf = parseInt(userData.uid, 10) === parseInt(data.req.uid, 10);
-				const [isPasswordCorrect, canEdit, { email: current, 'email:confirmed': confirmed }, { allowed, error }] = await Promise.all([
+				const [
+					isPasswordCorrect,
+					canEdit,
+					{ email: current, 'email:confirmed': confirmed },
+					{ allowed, error },
+				] = await Promise.all([
 					user.isPasswordCorrect(userData.uid, formData.password, data.req.ip),
 					privileges.users.canEdit(data.req.uid, userData.uid),
 					user.getUserFields(userData.uid, ['email', 'email:confirmed']),
@@ -80,8 +86,10 @@ Interstitials.email = async (data) => {
 					if (formData.email === current) {
 						if (confirmed) {
 							throw new Error('[[error:email-nochange]]');
-						} else if (!await user.email.canSendValidation(userData.uid, current)) {
-							throw new Error(`[[error:confirm-email-already-sent, ${meta.config.emailConfirmInterval}]]`);
+						} else if (!(await user.email.canSendValidation(userData.uid, current))) {
+							throw new Error(
+								`[[error:confirm-email-already-sent, ${meta.config.emailConfirmInterval}]]`,
+							);
 						}
 					}
 
@@ -91,12 +99,16 @@ Interstitials.email = async (data) => {
 							throw new Error('[[error:invalid-password]]');
 						}
 
-						await user.email.sendValidationEmail(userData.uid, {
-							email: formData.email,
-							force: true,
-						}).catch((err) => {
-							winston.error(`[user.interstitials.email] Validation email failed to send\n[emailer.send] ${err.stack}`);
-						});
+						await user.email
+							.sendValidationEmail(userData.uid, {
+								email: formData.email,
+								force: true,
+							})
+							.catch(err => {
+								winston.error(
+									`[user.interstitials.email] Validation email failed to send\n[emailer.send] ${err.stack}`,
+								);
+							});
 						if (isSelf) {
 							data.req.session.emailChanged = 1;
 						}
@@ -123,7 +135,10 @@ Interstitials.email = async (data) => {
 					error: '[[error:invalid-email]]',
 				});
 
-				if (!allowed || (meta.config.requireEmailAddress && !(formData.email && formData.email.length))) {
+				if (
+					!allowed ||
+					(meta.config.requireEmailAddress && !(formData.email && formData.email.length))
+				) {
 					throw new Error(error);
 				}
 

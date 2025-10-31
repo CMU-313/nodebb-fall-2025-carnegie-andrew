@@ -1,8 +1,12 @@
 'use strict';
 
-define('search', [
-	'translator', 'storage', 'hooks', 'alerts', 'bootstrap',
-], function (translator, storage, hooks, alerts, bootstrap) {
+define('search', ['translator', 'storage', 'hooks', 'alerts', 'bootstrap'], function (
+	translator,
+	storage,
+	hooks,
+	alerts,
+	bootstrap,
+) {
 	const Search = {
 		current: {},
 	};
@@ -95,7 +99,10 @@ define('search', [
 			return;
 		}
 
-		const searchOptions = Object.assign({ in: config.searchDefaultInQuick || 'titles' }, options.searchOptions);
+		const searchOptions = Object.assign(
+			{ in: config.searchDefaultInQuick || 'titles' },
+			options.searchOptions,
+		);
 		const quickSearchResults = options.searchElements.resultEl;
 		const inputEl = options.searchElements.inputEl;
 		let oldValue = inputEl.val();
@@ -103,10 +110,13 @@ define('search', [
 
 		function updateCategoryFilterName() {
 			if (ajaxify.data.template.category && ajaxify.data.cid) {
-				translator.translate('[[search:search-in-category, ' + ajaxify.data.name + ']]', function (translated) {
-					const name = $('<div></div>').html(translated).text();
-					filterCategoryEl.find('.name').text(name);
-				});
+				translator.translate(
+					'[[search:search-in-category, ' + ajaxify.data.name + ']]',
+					function (translated) {
+						const name = $('<div></div>').html(translated).text();
+						filterCategoryEl.find('.name').text(name);
+					},
+				);
 			}
 			filterCategoryEl.toggleClass('hidden', !(ajaxify.data.template.category && ajaxify.data.cid));
 		}
@@ -135,15 +145,19 @@ define('search', [
 
 				if (options.searchOptions.in === 'categories') {
 					if (!data.categories || (options.hideOnNoMatches && !data.categories.length)) {
-						return quickSearchResults.addClass('hidden').find('.quick-search-results-container').html('');
+						return quickSearchResults
+							.addClass('hidden')
+							.find('.quick-search-results-container')
+							.html('');
 					}
 
 					data.dropdown = { maxWidth: '400px', maxHeight: '500px', ...options.dropdown };
-					app.parseAndTranslate('partials/quick-category-search-results', data, (html) => {
+					app.parseAndTranslate('partials/quick-category-search-results', data, html => {
 						if (html.length) {
 							html.find('.timeago').timeago();
 						}
-						quickSearchResults.toggleClass('hidden', !html.length || !inputEl.is(':focus'))
+						quickSearchResults
+							.toggleClass('hidden', !html.length || !inputEl.is(':focus'))
 							.find('.quick-search-results-container')
 							.html(html.length ? html : '');
 
@@ -154,26 +168,35 @@ define('search', [
 					});
 				} else {
 					if (!data.posts || (options.hideOnNoMatches && !data.posts.length)) {
-						return quickSearchResults.addClass('hidden').find('.quick-search-results-container').html('');
+						return quickSearchResults
+							.addClass('hidden')
+							.find('.quick-search-results-container')
+							.html('');
 					}
 					data.posts.forEach(function (p) {
 						const text = $('<div>' + p.content + '</div>').text();
-						const query = inputEl.val().toLowerCase().replace(/^in:topic-\d+/, '');
+						const query = inputEl
+							.val()
+							.toLowerCase()
+							.replace(/^in:topic-\d+/, '');
 						const start = Math.max(0, text.toLowerCase().indexOf(query) - 40);
-						p.snippet = utils.escapeHTML((start > 0 ? '...' : '') +
-							text.slice(start, start + 80) +
-							(text.length - start > 80 ? '...' : ''));
+						p.snippet = utils.escapeHTML(
+							(start > 0 ? '...' : '') +
+								text.slice(start, start + 80) +
+								(text.length - start > 80 ? '...' : ''),
+						);
 					});
 					data.dropdown = { maxWidth: '400px', maxHeight: '500px', ...options.dropdown };
 					app.parseAndTranslate('partials/quick-search-results', data, function (html) {
 						if (html.length) {
 							html.find('.timeago').timeago();
 						}
-						quickSearchResults.toggleClass('hidden', !html.length || !inputEl.is(':focus'))
+						quickSearchResults
+							.toggleClass('hidden', !html.length || !inputEl.is(':focus'))
 							.find('.quick-search-results-container')
 							.html(html.length ? html : '');
 						const highlightEls = quickSearchResults.find(
-							'.quick-search-results .quick-search-title, .quick-search-results .snippet'
+							'.quick-search-results .quick-search-title, .quick-search-results .snippet',
 						);
 						Search.highlightMatches(options.searchOptions.term, highlightEls);
 						hooks.fire('action:search.quick.complete', {
@@ -190,21 +213,24 @@ define('search', [
 			doSearch();
 		});
 
-		inputEl.off('keyup').on('keyup', utils.debounce(function () {
-			if (inputEl.val().length < 3) {
-				quickSearchResults.addClass('hidden');
+		inputEl.off('keyup').on(
+			'keyup',
+			utils.debounce(function () {
+				if (inputEl.val().length < 3) {
+					quickSearchResults.addClass('hidden');
+					oldValue = inputEl.val();
+					return;
+				}
+				if (inputEl.val() === oldValue) {
+					return;
+				}
 				oldValue = inputEl.val();
-				return;
-			}
-			if (inputEl.val() === oldValue) {
-				return;
-			}
-			oldValue = inputEl.val();
-			if (!inputEl.is(':focus')) {
-				return quickSearchResults.addClass('hidden');
-			}
-			doSearch();
-		}, 500));
+				if (!inputEl.is(':focus')) {
+					return quickSearchResults.addClass('hidden');
+				}
+				doSearch();
+			}, 500),
+		);
 
 		quickSearchResults.on('mousedown', '.quick-search-results > *', function () {
 			$(window).one('mouseup', function () {
@@ -218,7 +244,11 @@ define('search', [
 		resultParent.on('focusout', hideResults);
 		function hideResults() {
 			setTimeout(function () {
-				if (!inputParent.find(':focus').length && !resultParent.find(':focus').length && !quickSearchResults.hasClass('hidden')) {
+				if (
+					!inputParent.find(':focus').length &&
+					!resultParent.find(':focus').length &&
+					!quickSearchResults.hasClass('hidden')
+				) {
 					quickSearchResults.addClass('hidden');
 				}
 			}, 200);
@@ -245,7 +275,7 @@ define('search', [
 				}
 				inputEl[0].setSelectionRange(
 					query.startsWith('in:topic') ? query.indexOf(' ') + 1 : 0,
-					query.length
+					query.length,
 				);
 			}
 		});
@@ -257,13 +287,15 @@ define('search', [
 
 	Search.showAndFocusInput = function (form) {
 		const parentDropdown = form.parents('.dropdown-menu');
-		if (parentDropdown.length) { // handle if form is inside a dropdown aka harmony
+		if (parentDropdown.length) {
+			// handle if form is inside a dropdown aka harmony
 			const toggle = parentDropdown.siblings('[data-bs-toggle]');
 			const dropdownEl = bootstrap.Dropdown.getOrCreateInstance(toggle[0]);
 			if (dropdownEl) {
 				dropdownEl.show();
 			}
-		} else { // persona and others
+		} else {
+			// persona and others
 			form.find('[component="search/fields"]').removeClass('hidden');
 			form.find('[component="search/button"]').addClass('hidden');
 			form.find('[component="search/fields"] input[name="query"]').trigger('focus');
@@ -319,9 +351,12 @@ define('search', [
 			return;
 		}
 		searchQuery = utils.escapeHTML(searchQuery.replace(/^"/, '').replace(/"$/, '').trim());
-		const regexStr = searchQuery.split(' ')
+		const regexStr = searchQuery
+			.split(' ')
 			.filter(word => word.length > 1)
-			.map(function (word) { return utils.escapeRegexChars(word); })
+			.map(function (word) {
+				return utils.escapeRegexChars(word);
+			})
 			.join('|');
 		const regex = new RegExp('(' + regexStr + ')', 'gi');
 
@@ -334,14 +369,20 @@ define('search', [
 				nested.push($('<div></div>').append($(this)));
 			});
 
-			result.html(result.html().replace(regex, function (match, p1) {
-				return '<strong class="search-match fw-bold text-decoration-underline">' + p1 + '</strong>';
-			}));
+			result.html(
+				result.html().replace(regex, function (match, p1) {
+					return (
+						'<strong class="search-match fw-bold text-decoration-underline">' + p1 + '</strong>'
+					);
+				}),
+			);
 
 			nested.forEach(function (nestedEl, i) {
-				result.html(result.html().replace('<!-- ' + i + ' -->', function () {
-					return nestedEl.html();
-				}));
+				result.html(
+					result.html().replace('<!-- ' + i + ' -->', function () {
+						return nestedEl.html();
+					}),
+				);
 			});
 		});
 

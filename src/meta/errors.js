@@ -19,16 +19,21 @@ let counters = {};
 let total = {};
 
 Errors.init = async function () {
-	new cronJob('0 * * * * *', async () => {
-		publishLocalErrors();
-		if (runJobs) {
-			await setTimeout(2000);
-			await Errors.writeData();
-		}
-	}, null, true);
+	new cronJob(
+		'0 * * * * *',
+		async () => {
+			publishLocalErrors();
+			if (runJobs) {
+				await setTimeout(2000);
+				await Errors.writeData();
+			}
+		},
+		null,
+		true,
+	);
 
 	if (runJobs) {
-		pubsub.on('errors:publish', (data) => {
+		pubsub.on('errors:publish', data => {
 			for (const [key, value] of Object.entries(data.local)) {
 				if (utils.isNumber(value)) {
 					total[key] = total[key] || 0;
@@ -57,7 +62,7 @@ Errors.writeData = async function () {
 
 		const bulkIncrement = [];
 		for (const key of keys) {
-			bulkIncrement.push(['errors:404', _counters[key], key ]);
+			bulkIncrement.push(['errors:404', _counters[key], key]);
 		}
 		await db.sortedSetIncrByBulk(bulkIncrement);
 	} catch (err) {
@@ -77,7 +82,7 @@ Errors.log404 = function (route) {
 
 Errors.get = async function (escape) {
 	const data = await db.getSortedSetRevRangeWithScores('errors:404', 0, 199);
-	data.forEach((nfObject) => {
+	data.forEach(nfObject => {
 		nfObject.value = escape ? validator.escape(String(nfObject.value || '')) : nfObject.value;
 	});
 	return data;

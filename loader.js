@@ -26,7 +26,12 @@ if (!fs.existsSync(logDir)) {
 	mkdirp.sync(path.dirname(outputLogFilePath));
 }
 
-const output = logrotate({ file: outputLogFilePath, size: '10m', keep: 3, compress: true });
+const output = logrotate({
+	file: outputLogFilePath,
+	size: '10m',
+	keep: 3,
+	compress: true,
+});
 const silent = nconf.get('silent') === 'false' ? false : nconf.get('silent') !== false;
 let numProcs;
 const workers = [];
@@ -46,16 +51,20 @@ Loader.init = function () {
 
 Loader.displayStartupMessages = function () {
 	console.log('');
-	console.log(`NodeBB v${pkg.version} Copyright (C) 2013-${(new Date()).getFullYear()} NodeBB Inc.`);
+	console.log(`NodeBB v${pkg.version} Copyright (C) 2013-${new Date().getFullYear()} NodeBB Inc.`);
 	console.log('This program comes with ABSOLUTELY NO WARRANTY.');
-	console.log('This is free software, and you are welcome to redistribute it under certain conditions.');
+	console.log(
+		'This is free software, and you are welcome to redistribute it under certain conditions.',
+	);
 	console.log('For the full license, please visit: http://www.gnu.org/copyleft/gpl.html');
 	console.log('');
 };
 
 Loader.addWorkerEvents = function (worker) {
 	worker.on('exit', (code, signal) => {
-		console.log(`[cluster] Child Process (${worker.pid}) has exited (code: ${code}, signal: ${signal})`);
+		console.log(
+			`[cluster] Child Process (${worker.pid}) has exited (code: ${code}, signal: ${signal})`,
+		);
 		if (!(worker.suicide || code === 0)) {
 			console.log('[cluster] Spinning up another process...');
 
@@ -63,7 +72,7 @@ Loader.addWorkerEvents = function (worker) {
 		}
 	});
 
-	worker.on('message', (message) => {
+	worker.on('message', message => {
 		if (message && typeof message === 'object' && message.action) {
 			switch (message.action) {
 				case 'restart':
@@ -71,12 +80,12 @@ Loader.addWorkerEvents = function (worker) {
 					Loader.restart();
 					break;
 				case 'pubsub':
-					workers.forEach((w) => {
+					workers.forEach(w => {
 						w.send(message);
 					});
 					break;
 				case 'socket.io':
-					workers.forEach((w) => {
+					workers.forEach(w => {
 						if (w !== worker) {
 							w.send(message);
 						}
@@ -127,7 +136,12 @@ function forkWorker(index, isPrimary) {
 	Loader.addWorkerEvents(worker);
 
 	if (silent) {
-		const output = logrotate({ file: outputLogFilePath, size: '1m', keep: 3, compress: true });
+		const output = logrotate({
+			file: outputLogFilePath,
+			size: '1m',
+			keep: 3,
+			compress: true,
+		});
 		worker.stdout.pipe(output);
 		worker.stderr.pipe(output);
 	}
@@ -182,13 +196,13 @@ Loader.stop = function () {
 };
 
 function killWorkers() {
-	workers.forEach((worker) => {
+	workers.forEach(worker => {
 		worker.suicide = true;
 		worker.kill();
 	});
 }
 
-fs.open(pathToConfig, 'r', (err) => {
+fs.open(pathToConfig, 'r', err => {
 	if (err) {
 		// No config detected, kickstart web installer
 		fork('app');

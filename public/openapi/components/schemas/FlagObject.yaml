@@ -71,7 +71,7 @@ FlagObject:
                     description: A six-character hexadecimal colour code assigned to the user. This
                       value is used in conjunction with `icon:text` for
                       the user's auto-generated icon
-                    example: "#f44336"
+                    example: '#f44336'
     - $ref: '#/FlagHistoryObject'
     - $ref: '#/FlagNotesObject'
 FlagHistoryObject:
@@ -139,7 +139,7 @@ FlagHistoryObject:
                   value is used in conjunction with
                   `icon:text` for the user's auto-generated
                   icon
-                example: "#f44336"
+                example: '#f44336'
         required:
           - uid
           - datetime
@@ -195,4 +195,4 @@ FlagNotesObject:
                   value is used in conjunction with
                   `icon:text` for the user's auto-generated
                   icon
-                example: "#f44336"
+                example: '#f44336'

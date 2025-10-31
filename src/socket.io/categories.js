@@ -81,7 +81,9 @@ SocketCategories.getSelectCategories = async function (socket) {
 		user.isAdministrator(socket.uid),
 		categories.buildForSelect(socket.uid, 'find', ['disabled', 'link']),
 	]);
-	return categoriesData.filter(category => category && (!category.disabled || isAdmin) && !category.link);
+	return categoriesData.filter(
+		category => category && (!category.disabled || isAdmin) && !category.link,
+	);
 };
 
 SocketCategories.setWatchState = async function (socket, data) {
@@ -111,7 +113,9 @@ SocketCategories.ignore = async function (socket, data) {
 
 async function ignoreOrWatch(fn, socket, data) {
 	let targetUid = socket.uid;
-	const cids = Array.isArray(data.cid) ? data.cid.map(cid => parseInt(cid, 10)) : [parseInt(data.cid, 10)];
+	const cids = Array.isArray(data.cid)
+		? data.cid.map(cid => parseInt(cid, 10))
+		: [parseInt(data.cid, 10)];
 	if (data.hasOwnProperty('uid')) {
 		targetUid = data.uid;
 	}

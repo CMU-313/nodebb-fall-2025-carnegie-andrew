@@ -1,4 +1,3 @@
-
 'use strict';
 
 const validator = require('validator');
@@ -88,10 +87,7 @@ events.log = async function (data) {
 	const eid = await db.incrObjectField('global', 'nextEid');
 	data.timestamp = Date.now();
 	data.eid = eid;
-	const setKeys = [
-		'events:time',
-		`events:time:${data.type}`,
-	];
+	const setKeys = ['events:time', `events:time:${data.type}`];
 	if (data.hasOwnProperty('uid') && data.uid) {
 		setKeys.push(`events:time:uid:${data.uid}`);
 	}
@@ -128,25 +124,23 @@ events.getEvents = async function (options) {
 				start,
 				stop === -1 ? -1 : stop - start + 1,
 				to,
-				from
+				from,
 			);
 		} else {
 			eids = await Promise.all(
-				uids.map(
-					uid => db.getSortedSetRevIntersect({
+				uids.map(uid =>
+					db.getSortedSetRevIntersect({
 						sets: [`events:time:uid:${uid}`, `events:time:${filter}`],
 						start: 0,
 						stop: -1,
 						weights: [1, 0],
 						withScores: true,
-					})
-				)
+					}),
+				),
 			);
 
 			eids = _.flatten(eids)
-				.filter(
-					i => (from === '-inf' || i.score >= from) && (to === '+inf' || i.score <= to)
-				)
+				.filter(i => (from === '-inf' || i.score >= from) && (to === '+inf' || i.score <= to))
 				.sort((a, b) => b.score - a.score)
 				.slice(start, stop + 1)
 				.map(i => i.value);
@@ -157,51 +151,51 @@ events.getEvents = async function (options) {
 			start,
 			stop === -1 ? -1 : stop - start + 1,
 			to,
-			from
+			from,
 		);
 	}
 
 	return await events.getEventsByEventIds(eids);
 };
 
-events.getEventCount = async (options) => {
+events.getEventCount = async options => {
 	const { filter, uids, from, to } = options;
 
 	if (Array.isArray(uids)) {
 		if (filter === '') {
 			const counts = await Promise.all(
-				uids.map(uid => db.sortedSetCount(`events:time:uid:${uid}`, from, to))
+				uids.map(uid => db.sortedSetCount(`events:time:uid:${uid}`, from, to)),
 			);
 			return counts.reduce((prev, cur) => prev + cur, 0);
 		}
 
 		const eids = await Promise.all(
-			uids.map(
-				uid => db.getSortedSetRevIntersect({
+			uids.map(uid =>
+				db.getSortedSetRevIntersect({
 					sets: [`events:time:uid:${uid}`, `events:time:${filter}`],
 					start: 0,
 					stop: -1,
 					weights: [1, 0],
 					withScores: true,
-				})
-			)
+				}),
+			),
 		);
 
 		return _.flatten(eids).filter(
-			i => (from === '-inf' || i.score >= from) && (to === '+inf' || i.score <= to)
+			i => (from === '-inf' || i.score >= from) && (to === '+inf' || i.score <= to),
 		).length;
 	}
 
 	return await db.sortedSetCount(`events:time${filter ? `:${filter}` : ''}`, from || '-inf', to);
 };
 
-events.getEventsByEventIds = async (eids) => {
+events.getEventsByEventIds = async eids => {
 	let eventsData = await db.getObjects(eids.map(eid => `event:${eid}`));
 	eventsData = eventsData.filter(Boolean);
 	await addUserData(eventsData, 'uid', 'user');
 	await addUserData(eventsData, 'targetUid', 'targetUser');
-	eventsData.forEach((event) => {
-		Object.keys(event).forEach((key) => {
+	eventsData.forEach(event => {
+		Object.keys(event).forEach(key => {
 			if (typeof event[key] === 'string') {
 				event[key] = validator.escape(String(event[key] || ''));
 			}
@@ -236,7 +230,7 @@ async function addUserData(eventsData, field, objectName) {
 		map[user.uid] = user;
 	});
 
-	eventsData.forEach((event) => {
+	eventsData.forEach(event => {
 		if (map[event[field]]) {
 			event[objectName] = map[event[field]];
 		}
@@ -250,18 +244,19 @@ events.deleteEvents = async function (eids) {
 	const sets = _.uniq(
 		['events:time']
 			.concat(eventData.map(e => `events:time:${e.type}`))
-			.concat(eventData.map(e => `events:time:uid:${e.uid}`))
+			.concat(eventData.map(e => `events:time:uid:${e.uid}`)),
 	);
-	await Promise.all([
-		db.deleteAll(keys),
-		db.sortedSetRemove(sets, eids),
-	]);
+	await Promise.all([db.deleteAll(keys), db.sortedSetRemove(sets, eids)]);
 };
 
 events.deleteAll = async function () {
-	await batch.processSortedSet('events:time', async (eids) => {
-		await events.deleteEvents(eids);
-	}, { alwaysStartAt: 0, batch: 500 });
+	await batch.processSortedSet(
+		'events:time',
+		async eids => {
+			await events.deleteEvents(eids);
+		},
+		{ alwaysStartAt: 0, batch: 500 },
+	);
 };
 
 require('./promisify')(events);

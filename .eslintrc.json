@@ -1,0 +1,19 @@
+{
+  "root": true,
+  "extends": [
+    "eslint:recommended",
+    "eslint-config-nodebb",
+    "plugin:prettier/recommended" // MUST be last
+  ],
+  "plugins": ["prettier"],
+  "rules": {
+    "prettier/prettier": "error",
+
+    /* Turn off stylistic rules Prettier should control */
+    "@stylistic/js/arrow-parens": "off",
+    "@stylistic/js/operator-linebreak": "off",
+    "@stylistic/js/function-paren-newline": "off",
+    "@stylistic/js/no-mixed-operators": "off"
+  },
+  "ignorePatterns": ["build/**", "logs/**", "public/**", "vendor/**", "node_modules/**"]
+}

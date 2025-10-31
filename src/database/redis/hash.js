@@ -16,7 +16,7 @@ module.exports = function (module) {
 			delete data[''];
 		}
 
-		Object.keys(data).forEach((key) => {
+		Object.keys(data).forEach(key => {
 			if (data[key] === undefined || data[key] === null) {
 				delete data[key];
 			}
@@ -42,13 +42,15 @@ module.exports = function (module) {
 			return;
 		}
 		if (Array.isArray(args[1])) {
-			console.warn('[deprecated] db.setObjectBulk(keys, data) usage is deprecated, please use db.setObjectBulk(data)');
+			console.warn(
+				'[deprecated] db.setObjectBulk(keys, data) usage is deprecated, please use db.setObjectBulk(data)',
+			);
 			// conver old format to new format for backwards compatibility
 			data = args[0].map((key, i) => [key, args[1][i]]);
 		}
 
 		const batch = module.client.batch();
-		data.forEach((item) => {
+		data.forEach(item => {
 			if (Object.keys(item[1]).length) {
 				batch.hmset(item[0], item[1]);
 			}
@@ -123,7 +125,7 @@ module.exports = function (module) {
 		}
 
 		// convert empty objects into null for back-compat with node_redis
-		data = data.map((elem) => {
+		data = data.map(elem => {
 			if (!Object.keys(elem).length) {
 				return null;
 			}
@@ -138,10 +140,10 @@ module.exports = function (module) {
 		if (!Array.isArray(fields) || !fields.length) {
 			return keys.map(key => (cachedData[key] ? { ...cachedData[key] } : null));
 		}
-		return keys.map((key) => {
+		return keys.map(key => {
 			const item = cachedData[key] || {};
 			const result = {};
-			fields.forEach((field) => {
+			fields.forEach(field => {
 				result[field] = item[field] !== undefined ? item[field] : null;
 			});
 			return result;
@@ -229,7 +231,7 @@ module.exports = function (module) {
 		}
 
 		const batch = module.client.batch();
-		data.forEach((item) => {
+		data.forEach(item => {
 			for (const [field, value] of Object.entries(item[1])) {
 				batch.hincrby(item[0], field, value);
 			}

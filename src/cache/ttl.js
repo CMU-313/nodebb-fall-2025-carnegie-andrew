@@ -93,7 +93,7 @@ module.exports = function (opts) {
 		}
 	});
 
-	pubsub.on(`${cache.name}:ttlCache:del`, (keys) => {
+	pubsub.on(`${cache.name}:ttlCache:del`, keys => {
 		if (Array.isArray(keys)) {
 			keys.forEach(key => ttlCache.delete(key));
 		}
@@ -105,7 +105,7 @@ module.exports = function (opts) {
 		}
 		let data;
 		let isCached;
-		const unCachedKeys = keys.filter((key) => {
+		const unCachedKeys = keys.filter(key => {
 			data = cache.get(key);
 			isCached = data !== undefined;
 			if (isCached) {

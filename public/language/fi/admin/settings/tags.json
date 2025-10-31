@@ -1,13 +1,13 @@
 {
-    "tag": "Tunnisteasetukset",
-    "link-to-manage": "Hallitse tunnisteita",
-    "system-tags": "Järjestelmätunnisteet",
-    "system-tags-help": "Only privileged users will be able to use these tags.",
-    "tags-per-topic": "Tunnisteita aihetta kohden",
-    "min-per-topic": "Tunnisteiden aihekohtainen vähimmäismäärä",
-    "max-per-topic": "Tunnisteiden aihekohtainen enimmäismäärä",
-    "min-length": "Tunnisteen vähimmäispituus",
-    "max-length": "Tunnisteen enimmäispituus",
-    "related-topics": "Liittyvät aiheet",
-    "max-related-topics": "Näytettävien liittyvien aiheiden enimmäismäärä (jos ulkoasuteema tukee)"
+  "tag": "Tunnisteasetukset",
+  "link-to-manage": "Hallitse tunnisteita",
+  "system-tags": "Järjestelmätunnisteet",
+  "system-tags-help": "Only privileged users will be able to use these tags.",
+  "tags-per-topic": "Tunnisteita aihetta kohden",
+  "min-per-topic": "Tunnisteiden aihekohtainen vähimmäismäärä",
+  "max-per-topic": "Tunnisteiden aihekohtainen enimmäismäärä",
+  "min-length": "Tunnisteen vähimmäispituus",
+  "max-length": "Tunnisteen enimmäispituus",
+  "related-topics": "Liittyvät aiheet",
+  "max-related-topics": "Näytettävien liittyvien aiheiden enimmäismäärä (jos ulkoasuteema tukee)"
 }

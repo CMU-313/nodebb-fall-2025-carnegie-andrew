@@ -16,5 +16,5 @@ delete:
         type: string
       example: testuuid
   responses:
-    "200":
+    '200':
       description: User session revoked

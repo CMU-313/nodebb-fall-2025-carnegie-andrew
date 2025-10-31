@@ -75,7 +75,7 @@ TopicObject:
                 value is used in conjunction with
                 `icon:text` for the user's auto-generated
                 icon
-              example: "#f44336"
+              example: '#f44336'
             banned_until_readable:
               type: string
           required:
@@ -136,7 +136,7 @@ TopicObject:
                     value is used in conjunction with
                     `icon:text` for the user's
                     auto-generated icon
-                  example: "#f44336"
+                  example: '#f44336'
             index:
               type: number
           nullable: true
@@ -186,7 +186,7 @@ TopicObject:
           description: A UNIX timestamp indicating when a pinned topic will no longer be pinned (i.e. the pin has expired)
         pinExpiryISO:
           type: string
-          description: "`pinExpiry` rendered as an ISO 8601 format"
+          description: '`pinExpiry` rendered as an ISO 8601 format'
         index:
           type: number
       required:
@@ -249,7 +249,7 @@ TopicObjectSlim:
           description: A UNIX timestamp indicating when a pinned topic will no longer be pinned (i.e. the pin has expired)
         pinExpiryISO:
           type: string
-          description: "`pinExpiry` rendered as an ISO 8601 format"
+          description: '`pinExpiry` rendered as an ISO 8601 format'
         upvotes:
           type: number
         downvotes:

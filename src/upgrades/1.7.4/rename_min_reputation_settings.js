@@ -11,15 +11,19 @@ module.exports = {
 				return callback(err);
 			}
 
-			db.setObject('config', {
-				'min:rep:downvote': parseInt(config['privileges:downvote'], 10) || 0,
-				'min:rep:flag': parseInt(config['privileges:downvote'], 10) || 0,
-			}, (err) => {
-				if (err) {
-					return callback(err);
-				}
-				db.deleteObjectFields('config', ['privileges:downvote', 'privileges:flag'], callback);
-			});
+			db.setObject(
+				'config',
+				{
+					'min:rep:downvote': parseInt(config['privileges:downvote'], 10) || 0,
+					'min:rep:flag': parseInt(config['privileges:downvote'], 10) || 0,
+				},
+				err => {
+					if (err) {
+						return callback(err);
+					}
+					db.deleteObjectFields('config', ['privileges:downvote', 'privileges:flag'], callback);
+				},
+			);
 		});
 	},
 };

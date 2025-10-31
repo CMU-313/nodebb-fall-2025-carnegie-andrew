@@ -23,12 +23,16 @@ Admin.getAnalyticsKeys = async (req, res) => {
 };
 
 Admin.getAnalyticsData = async (req, res) => {
-	helpers.formatApiResponse(200, res, await api.admin.getAnalyticsData(req, {
-		set: req.params.set,
-		until: parseInt(req.query.until, 10) || Date.now(),
-		amount: req.query.amount,
-		units: req.query.units,
-	}));
+	helpers.formatApiResponse(
+		200,
+		res,
+		await api.admin.getAnalyticsData(req, {
+			set: req.params.set,
+			until: parseInt(req.query.until, 10) || Date.now(),
+			amount: req.query.amount,
+			units: req.query.units,
+		}),
+	);
 };
 
 Admin.generateToken = async (req, res) => {

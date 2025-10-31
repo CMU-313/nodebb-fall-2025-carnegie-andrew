@@ -9,7 +9,7 @@ const db = require('../database');
 const Attachments = module.exports;
 const posts = require('./index');
 
-Attachments.get = async (pids) => {
+Attachments.get = async pids => {
 	const isArray = Array.isArray(pids);
 	if (!isArray) {
 		pids = [pids];
@@ -18,14 +18,14 @@ Attachments.get = async (pids) => {
 	const allHashes = _.flatten(postData.map(p => p && p.attachments));
 	const allAttachments = await Attachments.getAttachments(allHashes);
 	const hashToAttachment = _.zipObject(allHashes, allAttachments);
-	const data = postData.map((post) => {
+	const data = postData.map(post => {
 		const pidHashes = post ? post.attachments : [];
 		return pidHashes.map(hash => hashToAttachment[hash]);
 	});
 	return isArray ? data : data[0];
 };
 
-Attachments.getAttachments = async (hashes) => {
+Attachments.getAttachments = async hashes => {
 	const keys = hashes.map(hash => `attachment:${hash}`);
 	return (await db.getObjects(keys)).filter(Boolean);
 };
@@ -40,7 +40,8 @@ Attachments.update = async (pid, attachments) => {
 	};
 	const hashes = [];
 	attachments.filter(Boolean).forEach(({ _type, mediaType, href, url, name, width, height }) => {
-		if (!url && !href) { // one or the other are required
+		if (!url && !href) {
+			// one or the other are required
 			return;
 		}
 
@@ -55,7 +56,8 @@ Attachments.update = async (pid, attachments) => {
 			_type = 'attachment';
 		}
 
-		if (!mediaType) { // MIME type guessing
+		if (!mediaType) {
+			// MIME type guessing
 			const { pathname } = new URL(url);
 			mediaType = mime.getType(pathname);
 		}
@@ -71,7 +73,7 @@ Attachments.update = async (pid, attachments) => {
 	]);
 };
 
-Attachments.empty = async (pids) => {
+Attachments.empty = async pids => {
 	const postKeys = pids.map(pid => `post:${pid}`);
 	const hashes = await posts.getPostsFields(postKeys, ['attachments']);
 	const keys = _.uniq(_.flatten(hashes));

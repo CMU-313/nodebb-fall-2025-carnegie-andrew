@@ -91,5 +91,3 @@ const { body, response } = await request.post('someurl', { body: { foo: 1, baz: 
 exports.post = async (url, config) => call(url, 'POST', config);
 exports.put = async (url, config) => call(url, 'PUT', config);
 exports.patch = async (url, config) => call(url, 'PATCH', config);
-
-

@@ -14,7 +14,7 @@ get:
         type: number
       example: 1
   responses:
-    "200":
+    '200':
       description: An array of moderators for the requested category
       content:
         application/json:

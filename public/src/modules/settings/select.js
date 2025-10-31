@@ -12,7 +12,6 @@ define('settings/select', function () {
 		}
 	}
 
-
 	const SettingsSelect = {
 		types: ['select'],
 		use: function () {

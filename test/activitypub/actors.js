@@ -46,7 +46,9 @@ describe.skip('Actor asserton', () => {
 					publicKeyPem: 'somekey',
 				},
 			});
-			activitypub.helpers._webfingerCache.set('example@example.org', { actorUri });
+			activitypub.helpers._webfingerCache.set('example@example.org', {
+				actorUri,
+			});
 		});
 
 		it('should return true if successfully asserted', async () => {
@@ -63,7 +65,7 @@ describe.skip('Actor asserton', () => {
 			assert.strictEqual(userData.uid, actorUri);
 		});
 
-		it('should save the actor\'s publicly accessible URL in the hash as well', async () => {
+		it("should save the actor's publicly accessible URL in the hash as well", async () => {
 			const url = await user.getUserField(actorUri, 'url');
 			assert.strictEqual(url, actorUri);
 		});
@@ -114,7 +116,9 @@ describe.skip('Actor asserton', () => {
 				for (let x = 0; x < 2; x++) {
 					const { id: pid } = helpers.mocks.note();
 					// eslint-disable-next-line no-await-in-loop
-					const { tid } = await activitypub.notes.assert(0, pid, { skipChecks: 1 });
+					const { tid } = await activitypub.notes.assert(0, pid, {
+						skipChecks: 1,
+					});
 					// eslint-disable-next-line no-await-in-loop
 					await db.sortedSetAdd(`uid:${id}:shares`, Date.now(), tid);
 				}
@@ -137,7 +141,9 @@ describe.skip('Actor asserton', () => {
 				for (let x = 0; x < 2; x++) {
 					const { id: pid } = helpers.mocks.note();
 					// eslint-disable-next-line no-await-in-loop
-					const { tid } = await activitypub.notes.assert(0, pid, { skipChecks: 1 });
+					const { tid } = await activitypub.notes.assert(0, pid, {
+						skipChecks: 1,
+					});
 					// eslint-disable-next-line no-await-in-loop
 					await db.sortedSetAdd(`uid:${id}:shares`, Date.now(), tid);
 
@@ -162,7 +168,9 @@ describe.skip('Actor asserton', () => {
 				const { id } = helpers.mocks.person();
 				await activitypub.actors.assert([id]);
 
-				const followerUid = await user.create({ username: utils.generateUUID() });
+				const followerUid = await user.create({
+					username: utils.generateUUID(),
+				});
 				await Promise.all([
 					db.sortedSetAdd(`followingRemote:${followerUid}`, Date.now(), id),
 					db.sortedSetAdd(`followersRemote:${id}`, Date.now(), followerUid),
@@ -184,7 +192,10 @@ describe.skip('Actor asserton', () => {
 				const { id } = helpers.mocks.person({ preferredUsername });
 				await activitypub.actors.assert([id]);
 
-				const uid = await db.getObjectField('handle:uid', `${preferredUsername.toLowerCase()}@example.org`);
+				const uid = await db.getObjectField(
+					'handle:uid',
+					`${preferredUsername.toLowerCase()}@example.org`,
+				);
 				assert.strictEqual(uid, id);
 			});
 
@@ -194,11 +205,14 @@ describe.skip('Actor asserton', () => {
 				await activitypub.actors.assert([id]);
 				await activitypub.actors.assert([id], { update: true });
 
-				const uid = await db.getObjectField('handle:uid', `${preferredUsername.toLowerCase()}@example.org`);
+				const uid = await db.getObjectField(
+					'handle:uid',
+					`${preferredUsername.toLowerCase()}@example.org`,
+				);
 				assert.strictEqual(uid, id);
 			});
 
-			it('should fail to assert if a passed-in ID\'s webfinger query does not respond with the same ID (gh#13352)', async () => {
+			it("should fail to assert if a passed-in ID's webfinger query does not respond with the same ID (gh#13352)", async () => {
 				const { id } = helpers.mocks.person({
 					preferredUsername: 'foobar',
 				});
@@ -277,7 +291,10 @@ describe.skip('as:Group', () => {
 		});
 
 		it('should contain an entry in categories search zset', async () => {
-			const exists = await db.isSortedSetMember('categories:name', `${actorData.name.toLowerCase()}:${actorUri}`);
+			const exists = await db.isSortedSetMember(
+				'categories:name',
+				`${actorData.name.toLowerCase()}:${actorUri}`,
+			);
 
 			assert(exists);
 		});
@@ -379,7 +396,7 @@ describe.skip('as:Group', () => {
 				assert.strictEqual(activity.object, cid);
 			});
 
-			it('should not show up in the user\'s following list', async () => {
+			it("should not show up in the user's following list", async () => {
 				await user.setCategoryWatchState(uid, cid, categories.watchStates.watching);
 
 				// Trigger inbox accept
@@ -522,7 +539,7 @@ describe.skip('Controllers', () => {
 			assert(body.hasOwnProperty('@context'));
 			assert(body['@context'].includes('https://www.w3.org/ns/activitystreams'));
 
-			['id', 'url', 'followers', 'following', 'inbox', 'outbox'].forEach((prop) => {
+			['id', 'url', 'followers', 'following', 'inbox', 'outbox'].forEach(prop => {
 				assert(body.hasOwnProperty(prop));
 				assert(body[prop]);
 			});
@@ -569,7 +586,7 @@ describe.skip('Controllers', () => {
 			assert(body.hasOwnProperty('@context'));
 			assert(body['@context'].includes('https://www.w3.org/ns/activitystreams'));
 
-			['id', 'url', /* 'followers', 'following', */ 'inbox', 'outbox'].forEach((prop) => {
+			['id', 'url', /* 'followers', 'following', */ 'inbox', 'outbox'].forEach(prop => {
 				assert(body.hasOwnProperty(prop));
 				assert(body[prop]);
 			});
@@ -637,7 +654,7 @@ describe.skip('Controllers', () => {
 			assert(body.hasOwnProperty('@context'));
 			assert(body['@context'].includes('https://www.w3.org/ns/activitystreams'));
 
-			['id', 'url', 'inbox', 'outbox', 'name', 'preferredUsername'].forEach((prop) => {
+			['id', 'url', 'inbox', 'outbox', 'name', 'preferredUsername'].forEach(prop => {
 				assert(body.hasOwnProperty(prop));
 				assert(body[prop]);
 			});
@@ -654,12 +671,21 @@ describe.skip('Controllers', () => {
 		});
 
 		it('should also have a valid WebFinger response tied to `preferredUsername`', async () => {
-			const { response, body: body2 } = await request.get(`${nconf.get('url')}/.well-known/webfinger?resource=acct%3a${body.preferredUsername}@${nconf.get('url_parsed').host}`);
+			const { response, body: body2 } = await request.get(
+				`${nconf.get('url')}/.well-known/webfinger?resource=acct%3a${body.preferredUsername}@${nconf.get('url_parsed').host}`,
+			);
 
 			assert.strictEqual(response.statusCode, 200);
 			assert(body2 && body2.aliases && body2.links);
 			assert(body2.aliases.includes(nconf.get('url')));
-			assert(body2.links.some(item => item.rel === 'self' && item.type === 'application/activity+json' && item.href === `${nconf.get('url')}/actor`));
+			assert(
+				body2.links.some(
+					item =>
+						item.rel === 'self' &&
+						item.type === 'application/activity+json' &&
+						item.href === `${nconf.get('url')}/actor`,
+				),
+			);
 		});
 	});
 
@@ -668,7 +694,9 @@ describe.skip('Controllers', () => {
 		let uid;
 
 		before(async () => {
-			({ cid } = await categories.create({ name: utils.generateUUID().slice(0, 8) }));
+			({ cid } = await categories.create({
+				name: utils.generateUUID().slice(0, 8),
+			}));
 			const slug = slugify(utils.generateUUID().slice(0, 8));
 			uid = await user.create({ username: slug });
 		});
@@ -717,7 +745,7 @@ describe.skip('Controllers', () => {
 					cid,
 					title: 'Lorem "Lipsum" Ipsum',
 					content: 'Lorem ipsum dolor sit amet',
-					timestamp: Date.now() + (1000 * 60 * 60), // 1 hour in the future
+					timestamp: Date.now() + 1000 * 60 * 60, // 1 hour in the future
 				}));
 
 				({ response, body } = await request.get(`${nconf.get('url')}/topic/${topicData.slug}`, {
@@ -739,7 +767,9 @@ describe.skip('Controllers', () => {
 		let uid;
 
 		before(async () => {
-			({ cid } = await categories.create({ name: utils.generateUUID().slice(0, 8) }));
+			({ cid } = await categories.create({
+				name: utils.generateUUID().slice(0, 8),
+			}));
 			const slug = slugify(utils.generateUUID().slice(0, 8));
 			uid = await user.create({ username: slug });
 		});
@@ -786,7 +816,7 @@ describe.skip('Controllers', () => {
 					cid,
 					title: 'Lorem "Lipsum" Ipsum',
 					content: 'Lorem ipsum dolor sit amet',
-					timestamp: Date.now() + (1000 * 60 * 60), // 1 hour in the future
+					timestamp: Date.now() + 1000 * 60 * 60, // 1 hour in the future
 				}));
 
 				({ response, body } = await request.get(`${nconf.get('url')}/post/${postData.pid}`, {

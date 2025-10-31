@@ -32,7 +32,8 @@ adminApi.getAnalyticsData = async (caller, { set, until, amount, units }) => {
 			amount = 24;
 		}
 	}
-	const getStats = units === 'days' ? analytics.getDailyStatsForSet : analytics.getHourlyStatsForSet;
+	const getStats =
+		units === 'days' ? analytics.getDailyStatsForSet : analytics.getHourlyStatsForSet;
 	return await getStats(`analytics:${set}`, parseInt(until, 10) || Date.now(), amount);
 };
 
@@ -40,6 +41,8 @@ adminApi.listGroups = async () => {
 	// N.B. Returns all groups, even hidden. Beware of leakage.
 	// Access control handled at controller level
 
-	const payload = await groups.getNonPrivilegeGroups('groups:createtime', 0, -1, { ephemeral: false });
+	const payload = await groups.getNonPrivilegeGroups('groups:createtime', 0, -1, {
+		ephemeral: false,
+	});
 	return { groups: payload };
 };

@@ -12,7 +12,7 @@ module.exports = function (module) {
 		if (!value.length) {
 			return;
 		}
-		await module.transaction(async (client) => {
+		await module.transaction(async client => {
 			await helpers.ensureLegacyObjectType(client, key, 'set');
 			await client.query({
 				name: 'setAdd',
@@ -38,7 +38,7 @@ DO NOTHING`,
 
 		keys = _.uniq(keys);
 
-		await module.transaction(async (client) => {
+		await module.transaction(async client => {
 			await helpers.ensureLegacyObjectsType(client, keys, 'set');
 			await client.query({
 				name: 'setsAdd',

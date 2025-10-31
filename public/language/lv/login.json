@@ -1,12 +1,12 @@
 {
-    "username-email": "Lietotājvārds / e-pasta adrese",
-    "username": "Lietotājvārds",
-    "remember-me": "Atcerēties mani?",
-    "forgot-password": "Aizmirsi paroli?",
-    "alternative-logins": "Alternatīvie lietotājvārdi",
-    "failed-login-attempt": "Tev ielogoties neveiksmējās",
-    "login-successful": "Tu esi veiksmīgi ielogojies!",
-    "dont-have-account": "Tev nav konta?",
-    "logged-out-due-to-inactivity": "Neaktivitātes dēļ Tu esi bijis izlogots no administrācijas vadības paneļa",
-    "caps-lock-enabled": "Caps Lock is enabled"
+  "username-email": "Lietotājvārds / e-pasta adrese",
+  "username": "Lietotājvārds",
+  "remember-me": "Atcerēties mani?",
+  "forgot-password": "Aizmirsi paroli?",
+  "alternative-logins": "Alternatīvie lietotājvārdi",
+  "failed-login-attempt": "Tev ielogoties neveiksmējās",
+  "login-successful": "Tu esi veiksmīgi ielogojies!",
+  "dont-have-account": "Tev nav konta?",
+  "logged-out-due-to-inactivity": "Neaktivitātes dēļ Tu esi bijis izlogots no administrācijas vadības paneļa",
+  "caps-lock-enabled": "Caps Lock is enabled"
 }

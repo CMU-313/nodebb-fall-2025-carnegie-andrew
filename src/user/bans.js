@@ -42,7 +42,10 @@ module.exports = function (User) {
 		await db.sortedSetAdd('users:banned', now, uid);
 		await db.sortedSetAdd(`uid:${uid}:bans:timestamp`, now, banKey);
 		await db.setObject(banKey, banData);
-		await User.setUserFields(uid, { banned: 1, 'banned:expire': banData.expire });
+		await User.setUserFields(uid, {
+			banned: 1,
+			'banned:expire': banData.expire,
+		});
 		if (until > now) {
 			await db.sortedSetAdd('users:banned:expire', until, uid);
 		} else {
@@ -56,10 +59,12 @@ module.exports = function (User) {
 		const data = {
 			subject: `[[email:banned.subject, ${siteTitle}]]`,
 			username: username,
-			until: until ? (new Date(until)).toUTCString().replace(/,/g, '\\,') : false,
+			until: until ? new Date(until).toUTCString().replace(/,/g, '\\,') : false,
 			reason: reason,
 		};
-		await emailer.send('banned', uid, data).catch(err => winston.error(`[emailer.send] ${err.stack}`));
+		await emailer
+			.send('banned', uid, data)
+			.catch(err => winston.error(`[emailer.send] ${err.stack}`));
 
 		return banData;
 	};
@@ -69,14 +74,17 @@ module.exports = function (User) {
 		uids = isArray ? uids : [uids];
 		const userData = await User.getUsersFields(uids, ['email:confirmed']);
 
-		await db.setObject(uids.map(uid => `user:${uid}`), { banned: 0, 'banned:expire': 0 });
+		await db.setObject(
+			uids.map(uid => `user:${uid}`),
+			{ banned: 0, 'banned:expire': 0 },
+		);
 		const now = Date.now();
 		const unbanDataArray = [];
 		/* eslint-disable no-await-in-loop */
 		for (const user of userData) {
 			const systemGroupsToJoin = [
 				'registered-users',
-				(parseInt(user['email:confirmed'], 10) === 1 ? 'verified-users' : 'unverified-users'),
+				parseInt(user['email:confirmed'], 10) === 1 ? 'verified-users' : 'unverified-users',
 			];
 			const unbanKey = `uid:${user.uid}:unban:${now}`;
 			const unbanData = {
@@ -134,7 +142,8 @@ module.exports = function (User) {
 		userData = userData.map(userData => ({
 			banned: !!(userData && userData.banned),
 			'banned:expire': userData && userData['banned:expire'],
-			banExpired: userData && userData['banned:expire'] <= Date.now() && userData['banned:expire'] !== 0,
+			banExpired:
+				userData && userData['banned:expire'] <= Date.now() && userData['banned:expire'] !== 0,
 		}));
 		return isArray ? userData : userData[0];
 	};

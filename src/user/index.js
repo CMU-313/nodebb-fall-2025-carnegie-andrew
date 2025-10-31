@@ -49,7 +49,9 @@ User.exists = async function (uids) {
 
 	const [localExists, remoteExists] = await Promise.all([
 		db.isSortedSetMembers('users:joindate', uids),
-		meta.config.activitypubEnabled ? db.exists(uids.map(uid => `userRemote:${uid}`)) : uids.map(() => false),
+		meta.config.activitypubEnabled
+			? db.exists(uids.map(uid => `userRemote:${uid}`))
+			: uids.map(() => false),
 	]);
 	const results = localExists.map((local, idx) => local || remoteExists[idx]);
 	return singular ? results.pop() : results;
@@ -68,7 +70,13 @@ User.getUidsFromSet = async function (set, start, stop) {
 	if (set === 'users:online') {
 		const count = parseInt(stop, 10) === -1 ? stop : stop - start + 1;
 		const now = Date.now();
-		return await db.getSortedSetRevRangeByScore(set, start, count, '+inf', now - (meta.config.onlineCutoff * 60000));
+		return await db.getSortedSetRevRangeByScore(
+			set,
+			start,
+			count,
+			'+inf',
+			now - meta.config.onlineCutoff * 60000,
+		);
 	}
 	return await db.getSortedSetRevRange(set, start, stop);
 };
@@ -79,19 +87,38 @@ User.getUsersFromSet = async function (set, uid, start, stop) {
 };
 
 User.getUsersWithFields = async function (uids, fields, uid) {
-	let results = await plugins.hooks.fire('filter:users.addFields', { fields: fields });
+	let results = await plugins.hooks.fire('filter:users.addFields', {
+		fields: fields,
+	});
 	results.fields = _.uniq(results.fields);
 	const userData = await User.getUsersFields(uids, results.fields);
-	results = await plugins.hooks.fire('filter:userlist.get', { users: userData, uid: uid });
+	results = await plugins.hooks.fire('filter:userlist.get', {
+		users: userData,
+		uid: uid,
+	});
 	return results.users;
 };
 
 User.getUsers = async function (uids, uid) {
-	const userData = await User.getUsersWithFields(uids, [
-		'uid', 'username', 'userslug', 'picture', 'status',
-		'postcount', 'reputation', 'email:confirmed', 'lastonline',
-		'flags', 'banned', 'banned:expire', 'joindate',
-	], uid);
+	const userData = await User.getUsersWithFields(
+		uids,
+		[
+			'uid',
+			'username',
+			'userslug',
+			'picture',
+			'status',
+			'postcount',
+			'reputation',
+			'email:confirmed',
+			'lastonline',
+			'flags',
+			'banned',
+			'banned:expire',
+			'joindate',
+		],
+		uid,
+	);
 
 	return User.hidePrivateData(userData, uid);
 };
@@ -100,8 +127,8 @@ User.getStatus = function (userData) {
 	if (userData.uid <= 0) {
 		return 'offline';
 	}
-	const isOnline = (Date.now() - userData.lastonline) < (meta.config.onlineCutoff * 60000);
-	return isOnline ? (userData.status || 'online') : 'offline';
+	const isOnline = Date.now() - userData.lastonline < meta.config.onlineCutoff * 60000;
+	return isOnline ? userData.status || 'online' : 'offline';
 };
 
 User.getUidByUsername = async function (username) {
@@ -146,7 +173,7 @@ User.getUidsByUserslugs = async function (userslugs) {
 		normalSlugs.length ? db.sortedSetScores('userslug:uid', normalSlugs) : [],
 	]);
 
-	apSlugs.forEach((slug) => {
+	apSlugs.forEach(slug => {
 		if (apUids[slug]) {
 			slugToUid[slug] = apUids[slug];
 		}
@@ -215,7 +242,9 @@ User.isPrivileged = async function (uid) {
 		return false;
 	}
 	const results = await User.getPrivileges(uid);
-	return results ? (results.isAdmin || results.isGlobalModerator || results.isModeratorOfAnyCategory) : false;
+	return results
+		? results.isAdmin || results.isGlobalModerator || results.isModeratorOfAnyCategory
+		: false;
 };
 
 User.isAdminOrGlobalMod = async function (uid) {

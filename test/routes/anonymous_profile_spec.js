@@ -12,7 +12,7 @@ describe('anonymous profile route guard', () => {
 	let getStub;
 
 	before(() => {
-		getStub = sinon.stub(nconf, 'get').callsFake((key) => {
+		getStub = sinon.stub(nconf, 'get').callsFake(key => {
 			if (key === 'relative_path') return '';
 			return undefined;
 		});
@@ -25,11 +25,13 @@ describe('anonymous profile route guard', () => {
 	function mkRes() {
 		return {
 			_redirectedTo: null,
-			redirect(path) { this._redirectedTo = path; },
+			redirect(path) {
+				this._redirectedTo = path;
+			},
 		};
 	}
 
-	it('redirects when userslug === anonymous', (done) => {
+	it('redirects when userslug === anonymous', done => {
 		const req = {
 			params: { userslug: 'anonymous' },
 			flash: () => {}, // noop
@@ -44,7 +46,7 @@ describe('anonymous profile route guard', () => {
 		done();
 	});
 
-	it('redirects when userslug === guest', (done) => {
+	it('redirects when userslug === guest', done => {
 		const req = {
 			params: { userslug: 'guest' },
 			flash: () => {},
@@ -59,7 +61,7 @@ describe('anonymous profile route guard', () => {
 		done();
 	});
 
-	it('calls next() for normal users', (done) => {
+	it('calls next() for normal users', done => {
 		const req = { params: { userslug: 'alice' } };
 		const res = mkRes();
 

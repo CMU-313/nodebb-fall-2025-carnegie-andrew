@@ -31,53 +31,100 @@ const Events = module.exports;
 Events._types = {
 	pin: {
 		icon: 'fa-thumb-tack',
-		translation: async (event, language) => translateSimple(event, language, 'topic:user-pinned-topic'),
+		translation: async (event, language) =>
+			translateSimple(event, language, 'topic:user-pinned-topic'),
 	},
 	unpin: {
 		icon: 'fa-thumb-tack fa-rotate-90',
-		translation: async (event, language) => translateSimple(event, language, 'topic:user-unpinned-topic'),
+		translation: async (event, language) =>
+			translateSimple(event, language, 'topic:user-unpinned-topic'),
 	},
 	lock: {
 		icon: 'fa-lock',
-		translation: async (event, language) => translateSimple(event, language, 'topic:user-locked-topic'),
+		translation: async (event, language) =>
+			translateSimple(event, language, 'topic:user-locked-topic'),
 	},
 	unlock: {
 		icon: 'fa-unlock',
-		translation: async (event, language) => translateSimple(event, language, 'topic:user-unlocked-topic'),
+		translation: async (event, language) =>
+			translateSimple(event, language, 'topic:user-unlocked-topic'),
 	},
 	delete: {
 		icon: 'fa-trash',
-		translation: async (event, language) => translateSimple(event, language, 'topic:user-deleted-topic'),
+		translation: async (event, language) =>
+			translateSimple(event, language, 'topic:user-deleted-topic'),
 	},
 	restore: {
 		icon: 'fa-trash-o',
-		translation: async (event, language) => translateSimple(event, language, 'topic:user-restored-topic'),
+		translation: async (event, language) =>
+			translateSimple(event, language, 'topic:user-restored-topic'),
 	},
 	move: {
 		icon: 'fa-arrow-circle-right',
-		translation: async (event, language) => translateEventArgs(event, language, 'topic:user-moved-topic-from', renderUser(event), `${event.fromCategory.name}`, renderTimeago(event)),
+		translation: async (event, language) =>
+			translateEventArgs(
+				event,
+				language,
+				'topic:user-moved-topic-from',
+				renderUser(event),
+				`${event.fromCategory.name}`,
+				renderTimeago(event),
+			),
 	},
 	share: {
 		icon: 'fa-share-alt',
-		translation: async (event, language) => translateEventArgs(event, language, 'topic:user-shared-topic', renderUser(event), renderTimeago(event)),
+		translation: async (event, language) =>
+			translateEventArgs(
+				event,
+				language,
+				'topic:user-shared-topic',
+				renderUser(event),
+				renderTimeago(event),
+			),
 	},
 	'post-queue': {
 		icon: 'fa-history',
-		translation: async (event, language) => translateEventArgs(event, language, 'topic:user-queued-post', renderUser(event), `${relative_path}${event.href}`, renderTimeago(event)),
+		translation: async (event, language) =>
+			translateEventArgs(
+				event,
+				language,
+				'topic:user-queued-post',
+				renderUser(event),
+				`${relative_path}${event.href}`,
+				renderTimeago(event),
+			),
 	},
 	backlink: {
 		icon: 'fa-link',
-		translation: async (event, language) => translateEventArgs(event, language, 'topic:user-referenced-topic', renderUser(event), `${relative_path}${event.href}`, renderTimeago(event)),
+		translation: async (event, language) =>
+			translateEventArgs(
+				event,
+				language,
+				'topic:user-referenced-topic',
+				renderUser(event),
+				`${relative_path}${event.href}`,
+				renderTimeago(event),
+			),
 	},
 	fork: {
 		icon: 'fa-code-fork',
-		translation: async (event, language) => translateEventArgs(event, language, 'topic:user-forked-topic', renderUser(event), `${relative_path}${event.href}`, renderTimeago(event)),
+		translation: async (event, language) =>
+			translateEventArgs(
+				event,
+				language,
+				'topic:user-forked-topic',
+				renderUser(event),
+				`${relative_path}${event.href}`,
+				renderTimeago(event),
+			),
 	},
 };
 
 Events.init = async () => {
 	// Allow plugins to define additional topic event types
-	const { types } = await plugins.hooks.fire('filter:topicEvents.init', { types: Events._types });
+	const { types } = await plugins.hooks.fire('filter:topicEvents.init', {
+		types: Events._types,
+	});
 	Events._types = types;
 };
 
@@ -165,7 +212,13 @@ async function getUserInfo(uids) {
 
 async function getCategoryInfo(cids) {
 	const uniqCids = _.uniq(cids);
-	const catData = await categories.getCategoriesFields(uniqCids, ['name', 'slug', 'icon', 'color', 'bgColor']);
+	const catData = await categories.getCategoriesFields(uniqCids, [
+		'name',
+		'slug',
+		'icon',
+		'color',
+		'bgColor',
+	]);
 	return _.zipObject(uniqCids, catData);
 }
 
@@ -173,12 +226,14 @@ async function addEventsFromPostQueue(tid, uid, events) {
 	const isPrivileged = await user.isPrivileged(uid);
 	if (isPrivileged) {
 		const queuedPosts = await posts.getQueuedPosts({ tid }, { metadata: false });
-		events.push(...queuedPosts.map(item => ({
-			type: 'post-queue',
-			href: `/post-queue/${item.id}`,
-			timestamp: item.data.timestamp || Date.now(),
-			uid: item.data.uid,
-		})));
+		events.push(
+			...queuedPosts.map(item => ({
+				type: 'post-queue',
+				href: `/post-queue/${item.id}`,
+				timestamp: item.data.timestamp || Date.now(),
+				uid: item.data.uid,
+			})),
+		);
 	}
 }
 
@@ -194,19 +249,18 @@ async function modifyEvent({ uid, events }) {
 		events = events.filter(event => event.type !== 'backlink');
 	} else {
 		// remove backlinks that we dont have read permission
-		const backlinkPids = events.filter(e => e.type === 'backlink')
+		const backlinkPids = events
+			.filter(e => e.type === 'backlink')
 			.map(e => e.href.split('/').pop());
 		const pids = await privileges.posts.filter('topics:read', backlinkPids, uid);
-		events = events.filter(
-			e => e.type !== 'backlink' || pids.includes(e.href.split('/').pop())
-		);
+		events = events.filter(e => e.type !== 'backlink' || pids.includes(e.href.split('/').pop()));
 	}
 
 	// Remove events whose types no longer exist (e.g. plugin uninstalled)
 	events = events.filter(event => Events._types.hasOwnProperty(event.type));
 
 	// Add user & metadata
-	events.forEach((event) => {
+	events.forEach(event => {
 		event.timestampISO = utils.toISOString(event.timestamp);
 		event.uid = utils.isNumber(event.uid) ? parseInt(event.uid, 10) : event.uid;
 		if (event.hasOwnProperty('uid')) {
@@ -219,11 +273,13 @@ async function modifyEvent({ uid, events }) {
 		Object.assign(event, Events._types[event.type]);
 	});
 
-	await Promise.all(events.map(async (event) => {
-		if (Events._types[event.type].translation) {
-			event.text = await Events._types[event.type].translation(event, userSettings.userLang);
-		}
-	}));
+	await Promise.all(
+		events.map(async event => {
+			if (Events._types[event.type].translation) {
+				event.text = await Events._types[event.type].translation(event, userSettings.userLang);
+			}
+		}),
+	);
 
 	// Sort events
 	events.sort((a, b) => a.timestamp - b.timestamp);
@@ -238,7 +294,7 @@ Events.log = async (tid, payload) => {
 
 	if (!Events._types.hasOwnProperty(type)) {
 		throw new Error(`[[error:topic-event-unrecognized, ${type}]]`);
-	} else if (!await topics.exists(tid)) {
+	} else if (!(await topics.exists(tid))) {
 		throw new Error('[[error:no-topic]]');
 	}
 
@@ -255,7 +311,9 @@ Events.log = async (tid, payload) => {
 		events: [payload],
 	});
 
-	({ events } = await plugins.hooks.fire('filter:topic.events.log', { events }));
+	({ events } = await plugins.hooks.fire('filter:topic.events.log', {
+		events,
+	}));
 	return events;
 };
 

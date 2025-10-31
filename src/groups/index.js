@@ -139,16 +139,17 @@ Groups.get = async function (groupName, options) {
 		stop = (parseInt(options.userListCount, 10) || 4) - 1;
 	}
 
-	const [groupData, members, isMember, isPending, isInvited, isOwner, isAdmin, isGlobalMod] = await Promise.all([
-		Groups.getGroupData(groupName),
-		Groups.getOwnersAndMembers(groupName, options.uid, 0, stop),
-		Groups.isMember(options.uid, groupName),
-		Groups.isPending(options.uid, groupName),
-		Groups.isInvited(options.uid, groupName),
-		Groups.ownership.isOwner(options.uid, groupName),
-		privileges.admin.can('admin:groups', options.uid),
-		user.isGlobalModerator(options.uid),
-	]);
+	const [groupData, members, isMember, isPending, isInvited, isOwner, isAdmin, isGlobalMod] =
+		await Promise.all([
+			Groups.getGroupData(groupName),
+			Groups.getOwnersAndMembers(groupName, options.uid, 0, stop),
+			Groups.isMember(options.uid, groupName),
+			Groups.isPending(options.uid, groupName),
+			Groups.isInvited(options.uid, groupName),
+			Groups.ownership.isOwner(options.uid, groupName),
+			privileges.admin.can('admin:groups', options.uid),
+			user.isGlobalModerator(options.uid),
+		]);
 
 	if (!groupData) {
 		return null;
@@ -156,21 +157,25 @@ Groups.get = async function (groupName, options) {
 
 	groupData.isOwner = isOwner || isAdmin || (isGlobalMod && !groupData.system);
 	if (groupData.isOwner) {
-		([groupData.pending, groupData.invited] = await Promise.all([
+		[groupData.pending, groupData.invited] = await Promise.all([
 			Groups.getPending(groupName),
 			Groups.getInvites(groupName),
-		]));
+		]);
 	}
 
-
-	const descriptionParsed = await plugins.hooks.fire('filter:parse.raw', String(groupData.description || ''));
+	const descriptionParsed = await plugins.hooks.fire(
+		'filter:parse.raw',
+		String(groupData.description || ''),
+	);
 	groupData.descriptionParsed = descriptionParsed;
 	groupData.members = members;
 	groupData.membersNextStart = stop + 1;
 	groupData.isMember = isMember;
 	groupData.isPending = isPending;
 	groupData.isInvited = isInvited;
-	const results = await plugins.hooks.fire('filter:group.get', { group: groupData });
+	const results = await plugins.hooks.fire('filter:group.get', {
+		group: groupData,
+	});
 	return results.group;
 };
 
@@ -183,7 +188,7 @@ Groups.getOwnersAndMembers = async function (groupName, uid, start, stop) {
 	const countToReturn = stop - start + 1;
 	const ownerUidsOnPage = ownerUids.slice(start, stop !== -1 ? stop + 1 : undefined);
 	const owners = await user.getUsers(ownerUidsOnPage, uid);
-	owners.forEach((user) => {
+	owners.forEach(user => {
 		if (user) {
 			user.isOwner = true;
 		}
@@ -255,7 +260,9 @@ Groups.exists = async function (name) {
 		const slugs = name.map(groupName => slugify(groupName));
 		const isMembersOfRealGroups = await db.isSortedSetMembers('groups:createtime', name);
 		const isMembersOfEphemeralGroups = slugs.map(slug => Groups.ephemeralGroups.includes(slug));
-		return name.map((n, index) => isMembersOfRealGroups[index] || isMembersOfEphemeralGroups[index]);
+		return name.map(
+			(n, index) => isMembersOfRealGroups[index] || isMembersOfEphemeralGroups[index],
+		);
 	}
 	const slug = slugify(name);
 	const isMemberOfRealGroups = await db.isSortedSetMember('groups:createtime', name);

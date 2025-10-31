@@ -31,7 +31,7 @@ before(() => {
 after(() => {
 	console.log('\n\n');
 
-	winstonLogged.forEach((args) => {
+	winstonLogged.forEach(args => {
 		console.log(`${args[0]} ${args[1]}`);
 	});
 });

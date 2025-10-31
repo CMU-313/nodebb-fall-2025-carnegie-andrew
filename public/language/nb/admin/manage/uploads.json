@@ -1,12 +1,12 @@
 {
-    "manage-uploads": "Administrer opplastinger",
-    "upload-file": "Last opp fil",
-    "filename": "Filnavn",
-    "usage": "Bruk i innlegg",
-    "orphaned": "Foreldreløs",
-    "size/filecount": "Størrelse / Antall filer",
-    "confirm-delete": "Vil du virkelig slette denne filen?",
-    "filecount": "%1 filer",
-    "new-folder": "Ny mappe",
-    "name-new-folder": "Skriv inn et navn for den nye mappen"
+  "manage-uploads": "Administrer opplastinger",
+  "upload-file": "Last opp fil",
+  "filename": "Filnavn",
+  "usage": "Bruk i innlegg",
+  "orphaned": "Foreldreløs",
+  "size/filecount": "Størrelse / Antall filer",
+  "confirm-delete": "Vil du virkelig slette denne filen?",
+  "filecount": "%1 filer",
+  "new-folder": "Ny mappe",
+  "name-new-folder": "Skriv inn et navn for den nye mappen"
 }

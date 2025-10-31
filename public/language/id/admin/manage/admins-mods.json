@@ -1,13 +1,13 @@
 {
-    "manage-admins-and-mods": "Manage Admins & Mods",
-    "administrators": "Administrator",
-    "global-moderators": "Moderator Global",
-    "moderators": "Moderators",
-    "no-global-moderators": "Tidak ada Moderator Global",
-    "no-sub-categories": "No subcategories",
-    "view-children": "View children (%1)",
-    "no-moderators": "Tidak ada Moderator",
-    "add-administrator": "Tambah Administrator",
-    "add-global-moderator": "Tambah Moderator Global",
-    "add-moderator": "Tambah Moderator"
+  "manage-admins-and-mods": "Manage Admins & Mods",
+  "administrators": "Administrator",
+  "global-moderators": "Moderator Global",
+  "moderators": "Moderators",
+  "no-global-moderators": "Tidak ada Moderator Global",
+  "no-sub-categories": "No subcategories",
+  "view-children": "View children (%1)",
+  "no-moderators": "Tidak ada Moderator",
+  "add-administrator": "Tambah Administrator",
+  "add-global-moderator": "Tambah Moderator Global",
+  "add-moderator": "Tambah Moderator"
 }

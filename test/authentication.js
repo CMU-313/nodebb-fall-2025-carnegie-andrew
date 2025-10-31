@@ -1,6 +1,5 @@
 'use strict';
 
-
 const assert = require('assert');
 const url = require('url');
 const nconf = require('nconf');
@@ -18,21 +17,28 @@ const helpers = require('./helpers');
 describe('authentication', () => {
 	const jar = request.jar();
 	let regularUid;
-	const dummyEmailerHook = async (data) => {};
+	const dummyEmailerHook = async data => {};
 
-	before((done) => {
+	before(done => {
 		// Attach an emailer hook so related requests do not error
 		plugins.hooks.register('authentication-test', {
 			hook: 'static:email.send',
 			method: dummyEmailerHook,
 		});
 
-		user.create({ username: 'regular', password: 'regularpwd', email: 'regular@nodebb.org' }, (err, uid) => {
-			assert.ifError(err);
-			regularUid = uid;
-			assert.strictEqual(uid, 1);
-			done();
-		});
+		user.create(
+			{
+				username: 'regular',
+				password: 'regularpwd',
+				email: 'regular@nodebb.org',
+			},
+			(err, uid) => {
+				assert.ifError(err);
+				regularUid = uid;
+				assert.strictEqual(uid, 1);
+				done();
+			},
+		);
 	});
 
 	after(() => {
@@ -50,7 +56,11 @@ describe('authentication', () => {
 	it('second user should fail to login with email since email is not confirmed', async () => {
 		const oldValue = meta.config.allowLoginWith;
 		meta.config.allowLoginWith = 'username-email';
-		const uid = await user.create({ username: '2nduser', password: '2ndpassword', email: '2nduser@nodebb.org' });
+		const uid = await user.create({
+			username: '2nduser',
+			password: '2ndpassword',
+			email: '2nduser@nodebb.org',
+		});
 		const { response, body } = await helpers.loginUser('2nduser@nodebb.org', '2ndpassword');
 		assert.strictEqual(response.statusCode, 403);
 		assert.strictEqual(body, '[[error:invalid-login-credentials]]');
@@ -149,7 +159,6 @@ describe('authentication', () => {
 		assert.notStrictEqual(newSid, sid);
 	});
 
-
 	it('should revoke all sessions', async () => {
 		const socketAdmin = require('../src/socket.io/admin');
 		let sessionCount = await db.sortedSetCard(`uid:${regularUid}:sessions`);
@@ -183,7 +192,7 @@ describe('authentication', () => {
 		}
 
 		beforeEach(async () => {
-			([username, password] = [utils.generateUUID().slice(0, 10), utils.generateUUID()]);
+			[username, password] = [utils.generateUUID().slice(0, 10), utils.generateUUID()];
 			uid = await user.create({ username, password });
 		});
 
@@ -225,7 +234,9 @@ describe('authentication', () => {
 		});
 
 		it('should set a cookie that lasts for x days where x is loginDays setting, if asked to remember', async () => {
-			const { response } = await helpers.loginUser(username, password, { remember: 'on' });
+			const { response } = await helpers.loginUser(username, password, {
+				remember: 'on',
+			});
 
 			const expiry = getCookieExpiry(response);
 			const expected = new Date();
@@ -238,7 +249,9 @@ describe('authentication', () => {
 			const _loginDays = meta.config.loginDays;
 			meta.config.loginDays = 5;
 
-			const { response } = await helpers.loginUser(username, password, { remember: 'on' });
+			const { response } = await helpers.loginUser(username, password, {
+				remember: 'on',
+			});
 
 			const expiry = getCookieExpiry(response);
 			const expected = new Date();
@@ -253,7 +266,9 @@ describe('authentication', () => {
 			const _loginSeconds = meta.config.loginSeconds;
 			meta.config.loginSeconds = 60;
 
-			const { response } = await helpers.loginUser(username, password, { remember: 'on' });
+			const { response } = await helpers.loginUser(username, password, {
+				remember: 'on',
+			});
 
 			const expiry = getCookieExpiry(response);
 			const expected = new Date();
@@ -390,10 +405,13 @@ describe('authentication', () => {
 		assert.equal(body.message, '[[register:registration-added-to-queue]]');
 	});
 
-
 	it('should be able to login with email', async () => {
 		const email = 'ginger@nodebb.org';
-		const uid = await user.create({ username: 'ginger', password: '123456', email });
+		const uid = await user.create({
+			username: 'ginger',
+			password: '123456',
+			email,
+		});
 		await user.setUserField(uid, 'email', email);
 		await user.email.confirmByUid(uid);
 		const { response } = await helpers.loginUser('ginger@nodebb.org', '123456');
@@ -432,12 +450,19 @@ describe('authentication', () => {
 		};
 
 		before(async () => {
-			bannedUser.uid = await user.create({ username: 'banme', password: '123456', email: 'ban@me.com' });
+			bannedUser.uid = await user.create({
+				username: 'banme',
+				password: '123456',
+				email: 'ban@me.com',
+			});
 		});
 
 		it('should prevent banned user from logging in', async () => {
 			await user.bans.ban(bannedUser.uid, 0, 'spammer');
-			const { response: res1, body: body1 } = await helpers.loginUser(bannedUser.username, bannedUser.pw);
+			const { response: res1, body: body1 } = await helpers.loginUser(
+				bannedUser.username,
+				bannedUser.pw,
+			);
 			assert.equal(res1.statusCode, 403);
 			delete body1.timestamp;
 			assert.deepStrictEqual(body1, {
@@ -451,7 +476,10 @@ describe('authentication', () => {
 			await user.bans.unban(bannedUser.uid);
 			const expiry = Date.now() + 10000;
 			await user.bans.ban(bannedUser.uid, expiry, '');
-			const { response: res2, body: body2 } = await helpers.loginUser(bannedUser.username, bannedUser.pw);
+			const { response: res2, body: body2 } = await helpers.loginUser(
+				bannedUser.username,
+				bannedUser.pw,
+			);
 			assert.equal(res2.statusCode, 403);
 			assert(body2.banned_until);
 			assert(body2.reason, '[[user:info.banned-no-reason]]');

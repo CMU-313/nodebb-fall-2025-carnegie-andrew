@@ -18,9 +18,8 @@ Analytics.get = async function (socket, data) {
 			data.amount = 24;
 		}
 	}
-	const getStats = data.units === 'days' ?
-		analytics.getDailyStatsForSet :
-		analytics.getHourlyStatsForSet;
+	const getStats =
+		data.units === 'days' ? analytics.getDailyStatsForSet : analytics.getHourlyStatsForSet;
 
 	if (data.graph === 'traffic') {
 		const until = data.until || Date.now();
@@ -34,7 +33,8 @@ Analytics.get = async function (socket, data) {
 		});
 		result.pastDay = result.pageviews.reduce((a, b) => parseInt(a, 10) + parseInt(b, 10));
 		const last = result.pageviews.length - 1;
-		result.pageviews[last] = parseInt(result.pageviews[last], 10) + analytics.getUnwrittenPageviews();
+		result.pageviews[last] =
+			parseInt(result.pageviews[last], 10) + analytics.getUnwrittenPageviews();
 		return result;
 	}
 };

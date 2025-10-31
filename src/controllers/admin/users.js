@@ -14,8 +14,18 @@ const utils = require('../../utils');
 const usersController = module.exports;
 
 const userFields = [
-	'uid', 'username', 'userslug', 'email', 'postcount', 'joindate', 'banned',
-	'reputation', 'picture', 'flags', 'lastonline', 'email:confirmed',
+	'uid',
+	'username',
+	'userslug',
+	'email',
+	'postcount',
+	'joindate',
+	'banned',
+	'reputation',
+	'picture',
+	'flags',
+	'lastonline',
+	'email:confirmed',
 ];
 
 usersController.index = async function (req, res) {
@@ -36,7 +46,9 @@ async function getUsers(req, res) {
 		resultsPerPage = 50;
 	}
 	let sortBy = validator.escape(req.query.sortBy || '');
-	const filterBy = Array.isArray(req.query.filters || []) ? (req.query.filters || []) : [req.query.filters];
+	const filterBy = Array.isArray(req.query.filters || [])
+		? req.query.filters || []
+		: [req.query.filters];
 	const start = Math.max(0, page - 1) * resultsPerPage;
 	const stop = start + resultsPerPage - 1;
 
@@ -146,7 +158,7 @@ usersController.search = async function (req, res) {
 			const data = await db.getSortedSetScan({
 				key: `${searchBy}:sorted`,
 				match: query,
-				limit: hardCap || (resultsPerPage * 10),
+				limit: hardCap || resultsPerPage * 10,
 			});
 			return data.map(data => data.split(':').pop());
 		},
@@ -155,7 +167,7 @@ usersController.search = async function (req, res) {
 	const uids = searchData.users.map(user => user && user.uid);
 	searchData.users = await loadUserInfo(req.uid, uids);
 	if (req.query.searchBy === 'ip') {
-		searchData.users.forEach((user) => {
+		searchData.users.forEach(user => {
 			user.ip = user.ips.find(ip => ip.includes(String(req.query.query)));
 		});
 	}
@@ -215,7 +227,9 @@ usersController.registrationQueue = async function (req, res) {
 	const data = await utils.promiseParallel({
 		registrationQueueCount: db.sortedSetCard('registration:queue'),
 		users: user.getRegistrationQueue(start, stop),
-		customHeaders: plugins.hooks.fire('filter:admin.registrationQueue.customHeaders', { headers: [] }),
+		customHeaders: plugins.hooks.fire('filter:admin.registrationQueue.customHeaders', {
+			headers: [],
+		}),
 		invites: getInvites(),
 	});
 	const pageCount = Math.max(1, Math.ceil(data.registrationQueueCount / itemsPerPage));
@@ -236,12 +250,17 @@ async function getInvites() {
 	});
 
 	async function getUsernamesByEmails(emails) {
-		const uids = await db.sortedSetScores('email:uid', emails.map(email => String(email).toLowerCase()));
+		const uids = await db.sortedSetScores(
+			'email:uid',
+			emails.map(email => String(email).toLowerCase()),
+		);
 		const usernames = await user.getUsersFields(uids, ['username']);
 		return usernames.map(user => user.username);
 	}
 
-	usernames = await Promise.all(invitations.map(invites => getUsernamesByEmails(invites.invitations)));
+	usernames = await Promise.all(
+		invitations.map(invites => getUsernamesByEmails(invites.invitations)),
+	);
 
 	invitations.forEach((invites, index) => {
 		invites.invitations = invites.invitations.map((email, i) => ({
@@ -263,8 +282,10 @@ async function render(req, res, data) {
 	if (req.query.searchBy) {
 		data[`searchBy_${validator.escape(String(req.query.searchBy))}`] = true;
 	}
-	const filterBy = Array.isArray(req.query.filters || []) ? (req.query.filters || []) : [req.query.filters];
-	filterBy.forEach((filter) => {
+	const filterBy = Array.isArray(req.query.filters || [])
+		? req.query.filters || []
+		: [req.query.filters];
+	filterBy.forEach(filter => {
 		data[`filterBy_${validator.escape(String(filter))}`] = true;
 	});
 	data.userCount = parseInt(await db.getObjectField('global', 'userCount'), 10);
@@ -285,27 +306,31 @@ usersController.getCSV = async function (req, res, next) {
 	});
 	const path = require('path');
 	const { baseDir } = require('../../constants').paths;
-	res.sendFile('users.csv', {
-		root: path.join(baseDir, 'build/export'),
-		headers: {
-			'Content-Type': 'text/csv',
-			'Content-Disposition': 'attachment; filename=users.csv',
+	res.sendFile(
+		'users.csv',
+		{
+			root: path.join(baseDir, 'build/export'),
+			headers: {
+				'Content-Type': 'text/csv',
+				'Content-Disposition': 'attachment; filename=users.csv',
+			},
 		},
-	}, (err) => {
-		if (err) {
-			if (err.code === 'ENOENT') {
-				res.locals.isAPI = false;
-				return next();
+		err => {
+			if (err) {
+				if (err.code === 'ENOENT') {
+					res.locals.isAPI = false;
+					return next();
+				}
+				return next(err);
 			}
-			return next(err);
-		}
-	});
+		},
+	);
 };
 
 usersController.customFields = async function (req, res) {
 	const keys = await db.getSortedSetRange('user-custom-fields', 0, -1);
 	const fields = (await db.getObjects(keys.map(k => `user-custom-field:${k}`))).filter(Boolean);
-	fields.forEach((field) => {
+	fields.forEach(field => {
 		if (field['select-options']) {
 			field.selectOptionsFormatted = field['select-options'].trim().split('\n').join(', ');
 		}

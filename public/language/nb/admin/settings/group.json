@@ -1,13 +1,13 @@
 {
-	"general": "Generelt",
-	"private-groups": "Private grupper",
-	"private-groups.help": "Hvis aktivert, krever innmelding i grupper godkjenning av gruppeeieren <em>(Standard: aktivert)</em>",
-	"private-groups.warning": "<strong>Obs!</strong> Hvis dette alternativet deaktiveres og du har private grupper, blir de automatisk offentlige.",
-	"allow-multiple-badges": "Tillat flere merker",
-	"allow-multiple-badges-help": "Dette flagget kan brukes for å la brukere velge flere gruppemerker. Krever temasupport.",
-	"max-name-length": "Maksimal lengde på gruppenavn",
-	"max-title-length": "Maksimal lengde på gruppetittel",
-	"cover-image": "Gruppens omslagsbilde",
-	"default-cover": "Standard omslagsbilder",
-	"default-cover-help": "Legg til kommaseparerte standard omslagsbilder for grupper uten opplastet omslagsbilde"
+  "general": "Generelt",
+  "private-groups": "Private grupper",
+  "private-groups.help": "Hvis aktivert, krever innmelding i grupper godkjenning av gruppeeieren <em>(Standard: aktivert)</em>",
+  "private-groups.warning": "<strong>Obs!</strong> Hvis dette alternativet deaktiveres og du har private grupper, blir de automatisk offentlige.",
+  "allow-multiple-badges": "Tillat flere merker",
+  "allow-multiple-badges-help": "Dette flagget kan brukes for å la brukere velge flere gruppemerker. Krever temasupport.",
+  "max-name-length": "Maksimal lengde på gruppenavn",
+  "max-title-length": "Maksimal lengde på gruppetittel",
+  "cover-image": "Gruppens omslagsbilde",
+  "default-cover": "Standard omslagsbilder",
+  "default-cover-help": "Legg til kommaseparerte standard omslagsbilder for grupper uten opplastet omslagsbilde"
 }

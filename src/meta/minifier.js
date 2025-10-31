@@ -37,7 +37,7 @@ Object.defineProperty(Minifier, 'maxThreads', {
 Minifier.maxThreads = Math.max(1, os.cpus().length - 1);
 
 Minifier.killAll = function () {
-	pool.forEach((child) => {
+	pool.forEach(child => {
 		child.kill('SIGTERM');
 	});
 
@@ -76,7 +76,7 @@ function removeChild(proc) {
 function forkAction(action) {
 	return new Promise((resolve, reject) => {
 		const proc = getChild();
-		proc.on('message', (message) => {
+		proc.on('message', message => {
 			freeChild(proc);
 
 			if (message.type === 'error') {
@@ -87,7 +87,7 @@ function forkAction(action) {
 				resolve(message.result);
 			}
 		});
-		proc.on('error', (err) => {
+		proc.on('error', err => {
 			proc.kill();
 			removeChild(proc);
 			reject(err);
@@ -103,7 +103,7 @@ function forkAction(action) {
 const actions = {};
 
 if (process.env.minifier_child) {
-	process.on('message', async (message) => {
+	process.on('message', async message => {
 		if (message.type === 'action') {
 			const { action } = message;
 			if (typeof actions[action.act] !== 'function') {
@@ -130,7 +130,7 @@ if (process.env.minifier_child) {
 }
 
 async function executeAction(action, fork) {
-	if (fork && (pool.length - free.length) < Minifier.maxThreads) {
+	if (fork && pool.length - free.length < Minifier.maxThreads) {
 		return await forkAction(action);
 	}
 	if (typeof actions[action.act] !== 'function') {
@@ -141,7 +141,11 @@ async function executeAction(action, fork) {
 
 actions.concat = async function concat(data) {
 	if (data.files && data.files.length) {
-		const files = await async.mapLimit(data.files, 1000, async ref => await fs.promises.readFile(ref.srcPath, 'utf8'));
+		const files = await async.mapLimit(
+			data.files,
+			1000,
+			async ref => await fs.promises.readFile(ref.srcPath, 'utf8'),
+		);
 		const output = files.join('\n;');
 		await fs.promises.writeFile(data.destPath, output);
 	}
@@ -149,12 +153,15 @@ actions.concat = async function concat(data) {
 
 Minifier.js = {};
 Minifier.js.bundle = async function (data, fork) {
-	return await executeAction({
-		act: 'concat',
-		files: data.files,
-		filename: data.filename,
-		destPath: data.destPath,
-	}, fork);
+	return await executeAction(
+		{
+			act: 'concat',
+			files: data.files,
+			filename: data.filename,
+			destPath: data.destPath,
+		},
+		fork,
+	);
 };
 
 actions.buildCSS = async function buildCSS(data) {
@@ -165,8 +172,11 @@ actions.buildCSS = async function buildCSS(data) {
 		};
 		if (data.minify) {
 			opts.silenceDeprecations = [
-				'legacy-js-api', 'mixed-decls', 'color-functions',
-				'global-builtin', 'import',
+				'legacy-js-api',
+				'mixed-decls',
+				'color-functions',
+				'global-builtin',
+				'import',
 			];
 		}
 		const scssOutput = await sass.compileStringAsync(data.source, opts);
@@ -174,7 +184,6 @@ actions.buildCSS = async function buildCSS(data) {
 	} catch (err) {
 		console.error(err.stack);
 	}
-
 
 	async function processScss(direction) {
 		if (direction === 'rtl') {
@@ -184,19 +193,18 @@ actions.buildCSS = async function buildCSS(data) {
 		}
 		const postcssArgs = [autoprefixer];
 		if (data.minify) {
-			postcssArgs.push(clean({
-				processImportFrom: ['local'],
-			}));
+			postcssArgs.push(
+				clean({
+					processImportFrom: ['local'],
+				}),
+			);
 		}
 		return await postcss(postcssArgs).process(css, {
 			from: undefined,
 		});
 	}
 
-	const [ltrresult, rtlresult] = await Promise.all([
-		processScss('ltr'),
-		processScss('rtl'),
-	]);
+	const [ltrresult, rtlresult] = await Promise.all([processScss('ltr'), processScss('rtl')]);
 
 	return {
 		ltr: { code: ltrresult.css },
@@ -206,12 +214,15 @@ actions.buildCSS = async function buildCSS(data) {
 
 Minifier.css = {};
 Minifier.css.bundle = async function (source, paths, minify, fork) {
-	return await executeAction({
-		act: 'buildCSS',
-		source: source,
-		paths: paths,
-		minify: minify,
-	}, fork);
+	return await executeAction(
+		{
+			act: 'buildCSS',
+			source: source,
+			paths: paths,
+			minify: minify,
+		},
+		fork,
+	);
 };
 
 require('../promisify')(exports);

@@ -19,7 +19,10 @@ file.saveFileToLocal = async function (filename, folder, tempPath) {
 	/*
 	 * remarkable doesn't allow spaces in hyperlinks, once that's fixed, remove this.
 	 */
-	filename = filename.split('.').map(name => slugify(name)).join('.');
+	filename = filename
+		.split('.')
+		.map(name => slugify(name))
+		.join('.');
 
 	const uploadPath = path.join(nconf.get('upload_path'), folder, filename);
 	if (!uploadPath.startsWith(nconf.get('upload_path'))) {
@@ -65,7 +68,7 @@ file.allowedExtensions = function () {
 		return [];
 	}
 	allowedExtensions = allowedExtensions.split(',');
-	allowedExtensions = allowedExtensions.filter(Boolean).map((extension) => {
+	allowedExtensions = allowedExtensions.filter(Boolean).map(extension => {
 		extension = extension.trim();
 		if (!extension.startsWith('.')) {
 			extension = `.${extension}`;
@@ -138,7 +141,7 @@ file.linkDirs = async function linkDirs(sourceDir, destDir, relative) {
 		sourceDir = path.relative(path.dirname(destDir), sourceDir);
 	}
 
-	const type = (process.platform === 'win32') ? 'junction' : 'dir';
+	const type = process.platform === 'win32' ? 'junction' : 'dir';
 	await fs.promises.symlink(sourceDir, destDir, type);
 };
 
@@ -153,10 +156,12 @@ file.typeToExtension = function (type) {
 // Adapted from http://stackoverflow.com/questions/5827612/node-js-fs-readdir-recursive-directory-search
 file.walk = async function (dir) {
 	const subdirs = await fs.promises.readdir(dir);
-	const files = await Promise.all(subdirs.map(async (subdir) => {
-		const res = path.resolve(dir, subdir);
-		return (await fs.promises.stat(res)).isDirectory() ? file.walk(res) : res;
-	}));
+	const files = await Promise.all(
+		subdirs.map(async subdir => {
+			const res = path.resolve(dir, subdir);
+			return (await fs.promises.stat(res)).isDirectory() ? file.walk(res) : res;
+		}),
+	);
 	return files.reduce((a, f) => a.concat(f), []);
 };
 
@@ -164,27 +169,80 @@ async function sanitizeSvg(filePath) {
 	const dirty = await fs.promises.readFile(filePath, 'utf8');
 	const clean = sanitizeHtml(dirty, {
 		allowedTags: [
-			'svg', 'g', 'defs', 'linearGradient', 'radialGradient', 'stop',
-			'circle', 'ellipse', 'polygon', 'polyline', 'path', 'rect',
-			'line', 'text', 'tspan', 'use', 'symbol', 'clipPath', 'mask', 'pattern',
-			'filter', 'feGaussianBlur', 'feOffset', 'feBlend', 'feColorMatrix', 'feMerge', 'feMergeNode',
+			'svg',
+			'g',
+			'defs',
+			'linearGradient',
+			'radialGradient',
+			'stop',
+			'circle',
+			'ellipse',
+			'polygon',
+			'polyline',
+			'path',
+			'rect',
+			'line',
+			'text',
+			'tspan',
+			'use',
+			'symbol',
+			'clipPath',
+			'mask',
+			'pattern',
+			'filter',
+			'feGaussianBlur',
+			'feOffset',
+			'feBlend',
+			'feColorMatrix',
+			'feMerge',
+			'feMergeNode',
 		],
 		allowedAttributes: {
 			'*': [
 				// Geometry
-				'x', 'y', 'x1', 'x2', 'y1', 'y2', 'cx', 'cy', 'r', 'rx', 'ry',
-				'width', 'height', 'd', 'points', 'viewBox', 'transform',
+				'x',
+				'y',
+				'x1',
+				'x2',
+				'y1',
+				'y2',
+				'cx',
+				'cy',
+				'r',
+				'rx',
+				'ry',
+				'width',
+				'height',
+				'd',
+				'points',
+				'viewBox',
+				'transform',
 
 				// Presentation
-				'fill', 'stroke', 'stroke-width', 'opacity',
-				'stop-color', 'stop-opacity', 'offset', 'style', 'class',
+				'fill',
+				'stroke',
+				'stroke-width',
+				'opacity',
+				'stop-color',
+				'stop-opacity',
+				'offset',
+				'style',
+				'class',
 
 				// Text
-				'text-anchor', 'font-size', 'font-family',
+				'text-anchor',
+				'font-size',
+				'font-family',
 
 				// Misc
-				'id', 'clip-path', 'mask', 'filter', 'gradientUnits', 'gradientTransform',
-				'xmlns', 'preserveAspectRatio',
+				'id',
+				'clip-path',
+				'mask',
+				'filter',
+				'gradientUnits',
+				'gradientTransform',
+				'xmlns',
+				'preserveAspectRatio',
 			],
 		},
 		parser: {

@@ -18,11 +18,11 @@ module.exports = function (SocketTopics) {
 			utils.isNumber(data.cid) ? categories.getTagWhitelist([data.cid]) : [],
 			user.isPrivileged(socket.uid),
 		]);
-		return isPrivileged ||
-			(
-				!systemTags.includes(data.tag) &&
-				(!tagWhitelist[0].length || tagWhitelist[0].includes(data.tag))
-			);
+		return (
+			isPrivileged ||
+			(!systemTags.includes(data.tag) &&
+				(!tagWhitelist[0].length || tagWhitelist[0].includes(data.tag)))
+		);
 	};
 
 	SocketTopics.canRemoveTag = async function (socket, data) {
@@ -77,7 +77,8 @@ module.exports = function (SocketTopics) {
 		let cids = [];
 		if (Array.isArray(data.cids)) {
 			cids = await privileges.categories.filterCids('topics:read', data.cids, socket.uid);
-		} else { // if no cids passed in get all cids we can read
+		} else {
+			// if no cids passed in get all cids we can read
 			cids = await categories.getCidsByPrivilege('categories:cid', socket.uid, 'topics:read');
 			cids = cids.filter(cid => cid !== -1);
 		}

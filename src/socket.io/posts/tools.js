@@ -47,7 +47,8 @@ module.exports = function (SocketPosts) {
 		postData.display_moderator_tools = postData.display_edit_tools || postData.display_delete_tools;
 		postData.display_move_tools = results.isAdmin || results.isModerator;
 		postData.display_change_owner_tools = results.isAdmin || results.isModerator;
-		postData.display_manage_editors_tools = results.isAdmin || results.isModerator || postData.selfPost;
+		postData.display_manage_editors_tools =
+			results.isAdmin || results.isModerator || postData.selfPost;
 		postData.display_ip_ban = (results.isAdmin || results.isGlobalMod) && !postData.selfPost;
 		postData.display_history = results.history && results.canViewHistory;
 		postData.display_original_url = !utils.isNumber(data.pid);
@@ -83,15 +84,17 @@ module.exports = function (SocketPosts) {
 		}
 
 		const postData = await posts.changeOwner(data.pids, data.toUid);
-		const logs = postData.map(({ pid, uid, cid }) => (events.log({
-			type: 'post-change-owner',
-			uid: socket.uid,
-			ip: socket.ip,
-			targetUid: data.toUid,
-			pid: pid,
-			originalUid: uid,
-			cid: cid,
-		})));
+		const logs = postData.map(({ pid, uid, cid }) =>
+			events.log({
+				type: 'post-change-owner',
+				uid: socket.uid,
+				ip: socket.ip,
+				targetUid: data.toUid,
+				pid: pid,
+				originalUid: uid,
+				cid: cid,
+			}),
+		);
 
 		await Promise.all(logs);
 	};

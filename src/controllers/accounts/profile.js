@@ -51,7 +51,10 @@ profileController.get = async function (req, res, next) {
 
 	if (meta.config.activitypubEnabled) {
 		// Include link header for richer parsing
-		res.set('Link', `<${nconf.get('url')}/uid/${userData.uid}>; rel="alternate"; type="application/activity+json"`);
+		res.set(
+			'Link',
+			`<${nconf.get('url')}/uid/${userData.uid}>; rel="alternate"; type="application/activity+json"`,
+		);
 	}
 
 	res.render('account/profile', userData);
@@ -63,7 +66,8 @@ async function incrementProfileViews(req, userData) {
 
 		if (
 			req.uid !== userData.uid &&
-			(!req.session.uids_viewed[userData.uid] || req.session.uids_viewed[userData.uid] < Date.now() - 3600000)
+			(!req.session.uids_viewed[userData.uid] ||
+				req.session.uids_viewed[userData.uid] < Date.now() - 3600000)
 		) {
 			await user.incrementUserFieldBy(userData.uid, 'profileviews', 1);
 			req.session.uids_viewed[userData.uid] = Date.now();
@@ -108,15 +112,20 @@ async function getPosts(callerUid, userData, setSuffix) {
 				setSuffix,
 				pids,
 			}));
-			const p = await posts.getPostSummaryByPids(pids, callerUid, { stripTags: false });
-			postData.push(...p.filter(
-				p => p && p.topic && (
-					isAdmin ||
-					isModOfCid[p.topic.cid] ||
-					(p.topic.scheduled && cidToCanSchedule[p.topic.cid]) ||
-					(!p.deleted && !p.topic.deleted)
-				)
-			));
+			const p = await posts.getPostSummaryByPids(pids, callerUid, {
+				stripTags: false,
+			});
+			postData.push(
+				...p.filter(
+					p =>
+						p &&
+						p.topic &&
+						(isAdmin ||
+							isModOfCid[p.topic.cid] ||
+							(p.topic.scheduled && cidToCanSchedule[p.topic.cid]) ||
+							(!p.deleted && !p.topic.deleted)),
+				),
+			);
 		}
 		start += count;
 	} while (postData.length < count && hasMorePosts);
@@ -124,7 +133,9 @@ async function getPosts(callerUid, userData, setSuffix) {
 }
 
 function addTags(res, userData) {
-	const plainAboutMe = userData.aboutme ? utils.stripHTMLTags(utils.decodeHTMLEntities(userData.aboutme)) : '';
+	const plainAboutMe = userData.aboutme
+		? utils.stripHTMLTags(utils.decodeHTMLEntities(userData.aboutme))
+		: '';
 	res.locals.metaTags = [
 		{
 			name: 'title',
@@ -157,7 +168,7 @@ function addTags(res, userData) {
 				property: 'og:image:url',
 				content: userData.picture,
 				noEscape: true,
-			}
+			},
 		);
 	}
 

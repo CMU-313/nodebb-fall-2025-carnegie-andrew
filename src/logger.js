@@ -13,7 +13,6 @@ const morgan = require('morgan');
 const file = require('./file');
 const meta = require('./meta');
 
-
 const opts = {
 	/*
 	 * state used by Logger
@@ -77,7 +76,9 @@ Logger.open = function (value) {
 			const stats = fs.statSync(value);
 			if (stats) {
 				if (stats.isDirectory()) {
-					stream = fs.createWriteStream(path.join(value, 'nodebb.log'), { flags: 'a' });
+					stream = fs.createWriteStream(path.join(value, 'nodebb.log'), {
+						flags: 'a',
+					});
 				} else {
 					stream = fs.createWriteStream(value, { flags: 'a' });
 				}
@@ -87,7 +88,7 @@ Logger.open = function (value) {
 		}
 
 		if (stream) {
-			stream.on('error', (err) => {
+			stream.on('error', err => {
 				winston.error(err.stack);
 			});
 		}

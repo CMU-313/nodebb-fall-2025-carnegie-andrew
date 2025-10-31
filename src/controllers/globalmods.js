@@ -28,7 +28,6 @@ globalModsController.ipBlacklist = async function (req, res, next) {
 	});
 };
 
-
 globalModsController.registrationQueue = async function (req, res, next) {
 	const isAdminOrGlobalMod = await user.isAdminOrGlobalMod(req.uid);
 	if (!isAdminOrGlobalMod) {

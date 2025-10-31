@@ -125,7 +125,9 @@ describe('http signature signing and verification', () => {
 			const endpoint = `${nconf.get('url')}/user/${username}/inbox`;
 			const path = `/user/${username}/inbox`;
 			const keyData = await activitypub.getPrivateKey('uid', uid);
-			const signature = await activitypub.sign(keyData, endpoint, { foo: 'bar' });
+			const signature = await activitypub.sign(keyData, endpoint, {
+				foo: 'bar',
+			});
 			const { host } = nconf.get('url_parsed');
 			const req = {
 				...mockReqBase,

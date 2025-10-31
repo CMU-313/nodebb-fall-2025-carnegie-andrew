@@ -52,11 +52,14 @@ describe.skip('FEPs', () => {
 				let topicData;
 
 				before(async () => {
-					topicData = await api.topics.create({ uid }, {
-						cid,
-						title: utils.generateUUID(),
-						content: utils.generateUUID(),
-					});
+					topicData = await api.topics.create(
+						{ uid },
+						{
+							cid,
+							title: utils.generateUUID(),
+							content: utils.generateUUID(),
+						},
+					);
 				});
 
 				afterEach(() => {
@@ -66,66 +69,95 @@ describe.skip('FEPs', () => {
 				it('should have federated out both Announce(Create(Article)) and Announce(Article)', () => {
 					const activities = Array.from(activitypub._sent);
 
-					const test1 = activities.some((activity) => {
+					const test1 = activities.some(activity => {
 						[, activity] = activity;
-						return activity.type === 'Announce' &&
-							activity.object && activity.object.type === 'Create' &&
-							activity.object.object && activity.object.object.type === 'Article';
+						return (
+							activity.type === 'Announce' &&
+							activity.object &&
+							activity.object.type === 'Create' &&
+							activity.object.object &&
+							activity.object.object.type === 'Article'
+						);
 					});
 
-					const test2 = activities.some((activity) => {
+					const test2 = activities.some(activity => {
 						[, activity] = activity;
-						return activity.type === 'Announce' &&
-							activity.object && activity.object.type === 'Article';
+						return (
+							activity.type === 'Announce' && activity.object && activity.object.type === 'Article'
+						);
 					});
 
 					assert(test1 && test2);
 				});
 
 				it('should federate out Announce(Create(Note)) on local reply', async () => {
-					await api.topics.reply({ uid }, {
-						tid: topicData.tid,
-						content: utils.generateUUID(),
-					});
+					await api.topics.reply(
+						{ uid },
+						{
+							tid: topicData.tid,
+							content: utils.generateUUID(),
+						},
+					);
 
 					const activities = Array.from(activitypub._sent);
 
-					assert(activities.some((activity) => {
-						[, activity] = activity;
-						return activity.type === 'Announce' &&
-							activity.object && activity.object.type === 'Create' &&
-							activity.object.object && activity.object.object.type === 'Note';
-					}));
+					assert(
+						activities.some(activity => {
+							[, activity] = activity;
+							return (
+								activity.type === 'Announce' &&
+								activity.object &&
+								activity.object.type === 'Create' &&
+								activity.object.object &&
+								activity.object.object.type === 'Note'
+							);
+						}),
+					);
 				});
 
 				it('should NOT federate out Announce(Note) on local reply', async () => {
-					await api.topics.reply({ uid }, {
-						tid: topicData.tid,
-						content: utils.generateUUID(),
-					});
+					await api.topics.reply(
+						{ uid },
+						{
+							tid: topicData.tid,
+							content: utils.generateUUID(),
+						},
+					);
 
 					const activities = Array.from(activitypub._sent);
 
-					assert(activities.every((activity) => {
-						[, activity] = activity;
-						if (activity.type === 'Announce' && activity.object && activity.object.type === 'Note') {
-							return false;
-						}
+					assert(
+						activities.every(activity => {
+							[, activity] = activity;
+							if (
+								activity.type === 'Announce' &&
+								activity.object &&
+								activity.object.type === 'Note'
+							) {
+								return false;
+							}
 
-						return true;
-					}));
+							return true;
+						}),
+					);
 				});
 
 				it('should federate out Announce(Like) on local vote', async () => {
 					activitypub._sent.clear();
-					await api.posts.upvote({ uid: adminUid }, { pid: topicData.mainPid, room_id: `topic_${topicData.tid}` });
+					await api.posts.upvote(
+						{ uid: adminUid },
+						{ pid: topicData.mainPid, room_id: `topic_${topicData.tid}` },
+					);
 					const activities = Array.from(activitypub._sent);
 
-					assert(activities.some((activity) => {
-						[, activity] = activity;
-						return activity.type === 'Announce' &&
-							activity.object && activity.object.type === 'Like';
-					}));
+					assert(
+						activities.some(activity => {
+							[, activity] = activity;
+							return (
+								activity.type === 'Announce' && activity.object && activity.object.type === 'Like'
+							);
+						}),
+					);
 				});
 			});
 
@@ -135,11 +167,14 @@ describe.skip('FEPs', () => {
 				let topicData;
 
 				before(async () => {
-					topicData = await api.topics.create({ uid }, {
-						cid,
-						title: utils.generateUUID(),
-						content: utils.generateUUID(),
-					});
+					topicData = await api.topics.create(
+						{ uid },
+						{
+							cid,
+							title: utils.generateUUID(),
+							content: utils.generateUUID(),
+						},
+					);
 				});
 
 				afterEach(() => {
@@ -168,17 +203,22 @@ describe.skip('FEPs', () => {
 
 					const activities = Array.from(activitypub._sent);
 
-					const test1 = activities.some((activity) => {
+					const test1 = activities.some(activity => {
 						[, activity] = activity;
-						return activity.type === 'Announce' &&
-							activity.object && activity.object.type === 'Create' &&
-							activity.object.object && activity.object.object.type === 'Note';
+						return (
+							activity.type === 'Announce' &&
+							activity.object &&
+							activity.object.type === 'Create' &&
+							activity.object.object &&
+							activity.object.object.type === 'Note'
+						);
 					});
 
-					const test2 = activities.some((activity) => {
+					const test2 = activities.some(activity => {
 						[, activity] = activity;
-						return activity.type === 'Announce' &&
-							activity.object && activity.object.type === 'Note';
+						return (
+							activity.type === 'Announce' && activity.object && activity.object.type === 'Note'
+						);
 					});
 
 					assert(test1 && test2);
@@ -195,12 +235,18 @@ describe.skip('FEPs', () => {
 
 					const activities = Array.from(activitypub._sent);
 
-					assert(activities.some((activity) => {
-						[, activity] = activity;
-						return activity.type === 'Announce' &&
-							activity.object && activity.object.type === 'Create' &&
-							activity.object.object && activity.object.object.type === 'Note';
-					}));
+					assert(
+						activities.some(activity => {
+							[, activity] = activity;
+							return (
+								activity.type === 'Announce' &&
+								activity.object &&
+								activity.object.type === 'Create' &&
+								activity.object.object &&
+								activity.object.object.type === 'Note'
+							);
+						}),
+					);
 				});
 
 				it('should federate out an Announce(Like) on vote', async () => {
@@ -212,11 +258,14 @@ describe.skip('FEPs', () => {
 					await activitypub.inbox.like({ body: activity });
 
 					const activities = Array.from(activitypub._sent);
-					assert(activities.some((activity) => {
-						[, activity] = activity;
-						return activity.type === 'Announce' &&
-							activity.object && activity.object.type === 'Like';
-					}));
+					assert(
+						activities.some(activity => {
+							[, activity] = activity;
+							return (
+								activity.type === 'Announce' && activity.object && activity.object.type === 'Like'
+							);
+						}),
+					);
 				});
 			});
 
@@ -231,10 +280,13 @@ describe.skip('FEPs', () => {
 
 					assert(topicData);
 
-					await api.topics.move({ uid: adminUid }, {
-						tid: topicData.tid,
-						cid,
-					});
+					await api.topics.move(
+						{ uid: adminUid },
+						{
+							tid: topicData.tid,
+							cid,
+						},
+					);
 
 					assert.strictEqual(activitypub._sent.size, 2);
 
@@ -253,10 +305,22 @@ describe.skip('FEPs', () => {
 						content: utils.generateUUID(),
 					});
 					const { tid } = topicData;
-					const { pid: reply1Pid } = await topics.reply({ uid, tid, content: utils.generateUUID() });
-					const { pid: reply2Pid } = await topics.reply({ uid, tid, content: utils.generateUUID() });
+					const { pid: reply1Pid } = await topics.reply({
+						uid,
+						tid,
+						content: utils.generateUUID(),
+					});
+					const { pid: reply2Pid } = await topics.reply({
+						uid,
+						tid,
+						content: utils.generateUUID(),
+					});
 					await topics.createTopicFromPosts(
-						adminUid, utils.generateUUID(), [reply1Pid, reply2Pid], tid, cid
+						adminUid,
+						utils.generateUUID(),
+						[reply1Pid, reply2Pid],
+						tid,
+						cid,
 					);
 
 					assert.strictEqual(activitypub._sent.size, 2, activitypub._sent.keys());
@@ -287,11 +351,17 @@ describe.skip('FEPs', () => {
 					assert(topic1 && topic2);
 
 					// Create new reply and move it to topic 2
-					const { pid } = await topics.reply({ uid, tid: topic1.tid, content: utils.generateUUID() });
+					const { pid } = await topics.reply({
+						uid,
+						tid: topic1.tid,
+						content: utils.generateUUID(),
+					});
 					await api.posts.move({ uid: adminUid }, { pid, tid: topic2.tid });
 
 					assert.strictEqual(activitypub._sent.size, 1);
-					const activities = Array.from(activitypub._sent.keys()).map(key => activitypub._sent.get(key));
+					const activities = Array.from(activitypub._sent.keys()).map(key =>
+						activitypub._sent.get(key),
+					);
 
 					const activity = activities.pop();
 					assert.strictEqual(activity.type, 'Announce');

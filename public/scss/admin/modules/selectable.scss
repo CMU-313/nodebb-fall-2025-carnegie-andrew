@@ -1,23 +1,24 @@
 .selectable {
-	user-select: none;
-	position: relative;
+  user-select: none;
+  position: relative;
 
-	.selector {
-		position: absolute;
-		border: 1px solid #89B;
-		background: #BCE;
-		background-color: #BEC;
-		border-color: #8B9;
-		z-index: 999;
-	}
+  .selector {
+    position: absolute;
+    border: 1px solid #89b;
+    background: #bce;
+    background-color: #bec;
+    border-color: #8b9;
+    z-index: 999;
+  }
 
-	.selection {
-		border: 1px solid transparent;
-		margin: 2px;
+  .selection {
+    border: 1px solid transparent;
+    margin: 2px;
 
-		&.selected, &.active {
-			background-color: #ECF1DB;
-			border: 1px dashed #9B8;
-		}
-	}
+    &.selected,
+    &.active {
+      background-color: #ecf1db;
+      border: 1px dashed #9b8;
+    }
+  }
 }

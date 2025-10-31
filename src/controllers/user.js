@@ -46,7 +46,7 @@ userController.getUserDataByField = async function (callerUid, field, fieldValue
 		if (uid) {
 			const isPrivileged = await user.isAdminOrGlobalMod(callerUid);
 			const settings = await user.getSettings(uid);
-			if (!isPrivileged && (settings && !settings.showemail)) {
+			if (!isPrivileged && settings && !settings.showemail) {
 				uid = 0;
 			}
 		}
@@ -77,5 +77,8 @@ userController.getUserDataByUID = async function (callerUid, uid) {
 };
 
 require('../promisify')(userController, [
-	'getCurrentUser', 'getUserByUID', 'getUserByUsername', 'getUserByEmail',
+	'getCurrentUser',
+	'getUserByUID',
+	'getUserByUsername',
+	'getUserByEmail',
 ]);

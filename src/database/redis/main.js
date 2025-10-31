@@ -34,7 +34,7 @@ module.exports = function (module) {
 			/* eslint-disable no-await-in-loop */
 			const res = await module.client.scan(cursor, 'MATCH', params.match, 'COUNT', 10000);
 			cursor = res[0];
-			const values = res[1].filter((value) => {
+			const values = res[1].filter(value => {
 				const isSeen = !!seen[value];
 				if (!isSeen) {
 					seen[value] = 1;

@@ -1,4 +1,3 @@
-
 'use strict';
 
 const nconf = require('nconf');
@@ -15,7 +14,10 @@ topController.get = async function (req, res, next) {
 		return next();
 	}
 	const term = helpers.terms[req.query.term] || 'alltime';
-	if (req.originalUrl.startsWith(`${nconf.get('relative_path')}/api/top`) || req.originalUrl.startsWith(`${nconf.get('relative_path')}/top`)) {
+	if (
+		req.originalUrl.startsWith(`${nconf.get('relative_path')}/api/top`) ||
+		req.originalUrl.startsWith(`${nconf.get('relative_path')}/top`)
+	) {
 		data.title = `[[pages:top-${term}]]`;
 	}
 

@@ -30,11 +30,15 @@ describe('API tokens', () => {
 
 	describe('.create()', () => {
 		it('should fail to create a token for a user that does not exist', async () => {
-			await assert.rejects(api.utils.tokens.generate({ uid: 1 }), { message: '[[error:no-user]]' });
+			await assert.rejects(api.utils.tokens.generate({ uid: 1 }), {
+				message: '[[error:no-user]]',
+			});
 		});
 
 		it('should create a token for a user that exists', async () => {
-			const uid = await user.create({ username: utils.generateUUID().slice(0, 8) });
+			const uid = await user.create({
+				username: utils.generateUUID().slice(0, 8),
+			});
 			const token = await api.utils.tokens.generate({ uid });
 			const tokenObj = await api.utils.tokens.get(token);
 
@@ -56,14 +60,16 @@ describe('API tokens', () => {
 			const tokens = await api.utils.tokens.get([token, second]);
 
 			assert(Array.isArray(tokens));
-			tokens.forEach((t) => {
+			tokens.forEach(t => {
 				assert(t);
 				assert.strictEqual(parseInt(t.uid, 10), 0);
 			});
 		});
 
 		it('should fail if you pass in invalid data', async () => {
-			await assert.rejects(api.utils.tokens.get(null), { message: '[[error:invalid-data]]' });
+			await assert.rejects(api.utils.tokens.get(null), {
+				message: '[[error:invalid-data]]',
+			});
 		});
 
 		it('should show lastSeen and lastSeenISO as undefined/null if it is a new token', async () => {

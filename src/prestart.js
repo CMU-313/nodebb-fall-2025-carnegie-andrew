@@ -23,7 +23,7 @@ function setupWinston() {
 		formats.push(winston.format.timestamp());
 		formats.push(winston.format.json());
 	} else {
-		const timestampFormat = winston.format((info) => {
+		const timestampFormat = winston.format(info => {
 			const dateString = `${new Date().toISOString()} [${nconf.get('port')}/${global.process.pid}]`;
 			info.level = `${dateString} - ${info.level}`;
 			return info;
@@ -68,7 +68,7 @@ function loadConfig(configFile) {
 	// Explicitly cast as Bool, loader.js passes in isCluster as string 'true'/'false'
 	const castAsBool = ['isCluster', 'isPrimary', 'jobsDisabled', 'acpPluginInstallDisabled'];
 	nconf.stores.env.readOnly = false;
-	castAsBool.forEach((prop) => {
+	castAsBool.forEach(prop => {
 		const value = nconf.get(prop);
 		if (value !== undefined) {
 			nconf.set(prop, ['1', 1, 'true', true].includes(value));
@@ -83,7 +83,6 @@ function loadConfig(configFile) {
 
 	nconf.set('upload_path', path.resolve(nconf.get('base_dir'), nconf.get('upload_path')));
 	nconf.set('upload_url', '/assets/uploads');
-
 
 	// nconf defaults, if not set in config
 	if (!nconf.get('sessionKey')) {
@@ -103,7 +102,14 @@ function loadConfig(configFile) {
 		if (!nconf.get('asset_base_url')) {
 			nconf.set('asset_base_url', `${relativePath}/assets`);
 		}
-		nconf.set('port', nconf.get('PORT') || nconf.get('port') || urlObject.port || (nconf.get('PORT_ENV_VAR') ? nconf.get(nconf.get('PORT_ENV_VAR')) : false) || 4567);
+		nconf.set(
+			'port',
+			nconf.get('PORT') ||
+				nconf.get('port') ||
+				urlObject.port ||
+				(nconf.get('PORT_ENV_VAR') ? nconf.get(nconf.get('PORT_ENV_VAR')) : false) ||
+				4567,
+		);
 
 		// cookies don't provide isolation by port: http://stackoverflow.com/a/16328399/122353
 		const domain = nconf.get('cookieDomain') || urlObject.hostname;
@@ -119,7 +125,9 @@ function versionCheck() {
 	const compatible = semver.satisfies(version, range);
 
 	if (!compatible) {
-		winston.warn('Your version of Node.js is too outdated for NodeBB. Please update your version of Node.js.');
+		winston.warn(
+			'Your version of Node.js is too outdated for NodeBB. Please update your version of Node.js.',
+		);
 		winston.warn(`Recommended ${chalk.green(range)}, ${chalk.yellow(version)} provided\n`);
 	}
 }

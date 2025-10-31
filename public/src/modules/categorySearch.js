@@ -24,7 +24,8 @@ define('categorySearch', ['alerts', 'bootstrap', 'api'], function (alerts, boots
 			return;
 		}
 
-		const toggleVisibility = searchEl.parents('[component="category/dropdown"]').length > 0 ||
+		const toggleVisibility =
+			searchEl.parents('[component="category/dropdown"]').length > 0 ||
 			searchEl.parents('[component="category-selector"]').length > 0;
 
 		el.on('show.bs.dropdown', function () {
@@ -68,20 +69,24 @@ define('categorySearch', ['alerts', 'bootstrap', 'api'], function (alerts, boots
 		});
 
 		function loadList(search, callback) {
-			api.get('/search/categories', {
-				search: search,
-				query: utils.params(),
-				parentCid: options.parentCid || 0,
-				selectedCids: options.selectedCids,
-				privilege: options.privilege,
-				states: options.states,
-				showLinks: options.showLinks,
-			}, function (err, { categories }) {
-				if (err) {
-					return alerts.error(err);
-				}
-				callback(localCategories.concat(categories));
-			});
+			api.get(
+				'/search/categories',
+				{
+					search: search,
+					query: utils.params(),
+					parentCid: options.parentCid || 0,
+					selectedCids: options.selectedCids,
+					privilege: options.privilege,
+					states: options.states,
+					showLinks: options.showLinks,
+				},
+				function (err, { categories }) {
+					if (err) {
+						return alerts.error(err);
+					}
+					callback(localCategories.concat(categories));
+				},
+			);
 		}
 
 		function renderList(categories) {
@@ -89,21 +94,28 @@ define('categorySearch', ['alerts', 'bootstrap', 'api'], function (alerts, boots
 			categories.forEach(function (c) {
 				c.selected = selectedCids.includes(String(c.cid));
 			});
-			app.parseAndTranslate(options.template, {
-				categoryItems: categories.slice(0, 200),
-				selectedCategory: ajaxify.data.selectedCategory,
-				allCategoriesUrl: ajaxify.data.allCategoriesUrl,
-			}, function (html) {
-				el.find('[component="category/list"]')
-					.html(html.find('[component="category/list"]').html());
-				el.find('[component="category/list"] [component="category/no-matches"]')
-					.toggleClass('hidden', !!categories.length);
+			app.parseAndTranslate(
+				options.template,
+				{
+					categoryItems: categories.slice(0, 200),
+					selectedCategory: ajaxify.data.selectedCategory,
+					allCategoriesUrl: ajaxify.data.allCategoriesUrl,
+				},
+				function (html) {
+					el.find('[component="category/list"]').html(
+						html.find('[component="category/list"]').html(),
+					);
+					el.find('[component="category/list"] [component="category/no-matches"]').toggleClass(
+						'hidden',
+						!!categories.length,
+					);
 
-				const bsDropdown = bootstrap.Dropdown.getInstance(el.find('.dropdown-toggle').get(0));
-				if (bsDropdown) {
-					bsDropdown.update();
-				}
-			});
+					const bsDropdown = bootstrap.Dropdown.getInstance(el.find('.dropdown-toggle').get(0));
+					if (bsDropdown) {
+						bsDropdown.update();
+					}
+				},
+			);
 		}
 	};
 

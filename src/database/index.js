@@ -14,17 +14,16 @@ const primaryDB = require(`./${databaseName}`);
 const utils = require('../utils');
 
 primaryDB.parseIntFields = function (data, intFields, requestedFields) {
-	intFields.forEach((field) => {
+	intFields.forEach(field => {
 		if (!requestedFields || !requestedFields.length || requestedFields.includes(field)) {
-			data[field] = utils.isNumber(data[field]) ?
-				parseInt(data[field], 10) :
-				data[field] || 0;
+			data[field] = utils.isNumber(data[field]) ? parseInt(data[field], 10) : data[field] || 0;
 		}
 	});
 };
 
 primaryDB.initSessionStore = async function () {
-	const sessionStoreConfig = nconf.get('session_store') || nconf.get('redis') || nconf.get(databaseName);
+	const sessionStoreConfig =
+		nconf.get('session_store') || nconf.get('redis') || nconf.get(databaseName);
 	let sessionStoreDB = primaryDB;
 
 	if (nconf.get('session_store')) {

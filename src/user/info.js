@@ -24,9 +24,9 @@ module.exports = function (User) {
 			uid: uid,
 			timestamp: banInfo.timestamp,
 			banned_until: expire,
-			expiry: expire, /* backward compatible alias */
+			expiry: expire /* backward compatible alias */,
 			banned_until_readable: expire_readable,
-			expiry_readable: expire_readable, /* backward compatible alias */
+			expiry_readable: expire_readable /* backward compatible alias */,
 			reason: validator.escape(String(banInfo.reason || '')),
 		};
 	};
@@ -34,12 +34,12 @@ module.exports = function (User) {
 	User.getModerationHistory = async function (uid) {
 		let [flags, bans, mutes] = await Promise.all([
 			db.getSortedSetRevRangeWithScores(`flags:byTargetUid:${uid}`, 0, 19),
-			db.getSortedSetRevRange([
-				`uid:${uid}:bans:timestamp`, `uid:${uid}:unbans:timestamp`,
-			], 0, 19),
-			db.getSortedSetRevRange([
-				`uid:${uid}:mutes:timestamp`, `uid:${uid}:unmutes:timestamp`,
-			], 0, 19),
+			db.getSortedSetRevRange([`uid:${uid}:bans:timestamp`, `uid:${uid}:unbans:timestamp`], 0, 19),
+			db.getSortedSetRevRange(
+				[`uid:${uid}:mutes:timestamp`, `uid:${uid}:unmutes:timestamp`],
+				0,
+				19,
+			),
 		]);
 
 		const keys = flags.map(flagObj => `flag:${flagObj.value}`);
@@ -60,7 +60,7 @@ module.exports = function (User) {
 
 	User.getHistory = async function (set) {
 		const data = await db.getSortedSetRevRangeWithScores(set, 0, -1);
-		data.forEach((set) => {
+		data.forEach(set => {
 			set.timestamp = set.score;
 			set.timestampISO = utils.toISOString(set.score);
 			const parts = set.value.split(':');
@@ -72,7 +72,7 @@ module.exports = function (User) {
 		const uids = _.uniq(data.map(d => d && d.byUid).filter(Boolean));
 		const usersData = await User.getUsersFields(uids, ['uid', 'username', 'userslug', 'picture']);
 		const uidToUser = _.zipObject(uids, usersData);
-		data.forEach((d) => {
+		data.forEach(d => {
 			if (d.byUid) {
 				d.byUser = uidToUser[d.byUid];
 			}
@@ -139,13 +139,15 @@ module.exports = function (User) {
 			}
 		});
 		const userData = await User.getUsersFields(uids, ['uid', 'username', 'userslug', 'picture']);
-		await Promise.all(notes.map(async (note, index) => {
-			if (note) {
-				note.rawNote = validator.escape(String(note.note));
-				note.note = await plugins.hooks.fire('filter:parse.raw', String(note.note));
-				note.user = userData[index];
-			}
-		}));
+		await Promise.all(
+			notes.map(async (note, index) => {
+				if (note) {
+					note.rawNote = validator.escape(String(note.note));
+					note.note = await plugins.hooks.fire('filter:parse.raw', String(note.note));
+					note.user = userData[index];
+				}
+			}),
+		);
 		return notes;
 	};
 

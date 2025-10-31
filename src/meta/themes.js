@@ -23,37 +23,39 @@ Themes.get = async () => {
 
 	let themes = await getThemes(themePath);
 	themes = _.flatten(themes).filter(Boolean);
-	themes = await Promise.all(themes.map(async (theme) => {
-		const config = path.join(themePath, theme, 'theme.json');
-		const pack = path.join(themePath, theme, 'package.json');
-		try {
-			const [configFile, packageFile] = await Promise.all([
-				fs.promises.readFile(config, 'utf8'),
-				fs.promises.readFile(pack, 'utf8'),
-			]);
-			const configObj = JSON.parse(configFile);
-			const packageObj = JSON.parse(packageFile);
+	themes = await Promise.all(
+		themes.map(async theme => {
+			const config = path.join(themePath, theme, 'theme.json');
+			const pack = path.join(themePath, theme, 'package.json');
+			try {
+				const [configFile, packageFile] = await Promise.all([
+					fs.promises.readFile(config, 'utf8'),
+					fs.promises.readFile(pack, 'utf8'),
+				]);
+				const configObj = JSON.parse(configFile);
+				const packageObj = JSON.parse(packageFile);
 
-			configObj.id = packageObj.name;
+				configObj.id = packageObj.name;
 
-			// Minor adjustments for API output
-			configObj.type = 'local';
-			if (configObj.screenshot) {
-				configObj.screenshot_url = `${nconf.get('relative_path')}/css/previews/${encodeURIComponent(configObj.id)}`;
-			} else {
-				configObj.screenshot_url = `${nconf.get('relative_path')}/assets/images/themes/default.png`;
-			}
+				// Minor adjustments for API output
+				configObj.type = 'local';
+				if (configObj.screenshot) {
+					configObj.screenshot_url = `${nconf.get('relative_path')}/css/previews/${encodeURIComponent(configObj.id)}`;
+				} else {
+					configObj.screenshot_url = `${nconf.get('relative_path')}/assets/images/themes/default.png`;
+				}
 
-			return configObj;
-		} catch (err) {
-			if (err.code === 'ENOENT') {
+				return configObj;
+			} catch (err) {
+				if (err.code === 'ENOENT') {
+					return false;
+				}
+
+				winston.error(`[themes] Unable to parse theme.json ${theme}`);
 				return false;
 			}
-
-			winston.error(`[themes] Unable to parse theme.json ${theme}`);
-			return false;
-		}
-	}));
+		}),
+	);
 
 	return themes.filter(Boolean);
 };
@@ -61,31 +63,33 @@ Themes.get = async () => {
 async function getThemes(themePath) {
 	let dirs = await fs.promises.readdir(themePath);
 	dirs = dirs.filter(dir => themeNamePattern.test(dir) || dir.startsWith('@'));
-	return await Promise.all(dirs.map(async (dir) => {
-		try {
-			const dirpath = path.join(themePath, dir);
-			const stat = await fs.promises.stat(dirpath);
-			if (!stat.isDirectory()) {
-				return false;
-			}
+	return await Promise.all(
+		dirs.map(async dir => {
+			try {
+				const dirpath = path.join(themePath, dir);
+				const stat = await fs.promises.stat(dirpath);
+				if (!stat.isDirectory()) {
+					return false;
+				}
 
-			if (!dir.startsWith('@')) {
-				return dir;
-			}
+				if (!dir.startsWith('@')) {
+					return dir;
+				}
 
-			const themes = await getThemes(path.join(themePath, dir));
-			return themes.map(theme => path.join(dir, theme));
-		} catch (err) {
-			if (err.code === 'ENOENT') {
-				return false;
-			}
+				const themes = await getThemes(path.join(themePath, dir));
+				return themes.map(theme => path.join(dir, theme));
+			} catch (err) {
+				if (err.code === 'ENOENT') {
+					return false;
+				}
 
-			throw err;
-		}
-	}));
+				throw err;
+			}
+		}),
+	);
 }
 
-Themes.set = async (data) => {
+Themes.set = async data => {
 	switch (data.type) {
 		case 'local': {
 			const current = await Meta.configs.get('theme:id');
@@ -108,7 +112,9 @@ Themes.set = async (data) => {
 					await db.sortedSetAdd('plugins:active', score || 0, data.id);
 				} else if (!activePluginsConfig.includes(data.id)) {
 					// This prevents changing theme when configuration doesn't include it, but allows it otherwise
-					winston.error(`When defining active plugins in configuration, changing themes requires adding the theme '${data.id}' to the list of active plugins before updating it in the ACP`);
+					winston.error(
+						`When defining active plugins in configuration, changing themes requires adding the theme '${data.id}' to the list of active plugins before updating it in the ACP`,
+					);
 					throw new Error('[[error:theme-not-set-in-configuration]]');
 				}
 
@@ -175,7 +181,9 @@ Themes.setPath = function (themeObj) {
 	} else if (file.existsSync(fallback)) {
 		themePath = fallback;
 	} else {
-		winston.error('[themes] Unable to resolve this theme\'s templates. Expected to be at "templates/" or defined in the "templates" property of "theme.json"');
+		winston.error(
+			'[themes] Unable to resolve this theme\'s templates. Expected to be at "templates/" or defined in the "templates" property of "theme.json"',
+		);
 		throw new Error('theme-missing-templates');
 	}
 

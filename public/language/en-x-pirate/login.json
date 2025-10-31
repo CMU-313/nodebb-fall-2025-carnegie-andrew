@@ -1,12 +1,12 @@
 {
-    "username-email": "Username / Email",
-    "username": "Username",
-    "remember-me": "Remember Me?",
-    "forgot-password": "My mind be a scatt'rbrain, help a matey out!",
-    "alternative-logins": "Oth'r gangplanks",
-    "failed-login-attempt": "Ye be refused boardin'",
-    "login-successful": "Welcome on board, matey!",
-    "dont-have-account": "Don't have an account?",
-    "logged-out-due-to-inactivity": "You have been logged out of the Admin Control Panel due to inactivity",
-    "caps-lock-enabled": "Caps Lock is enabled"
+  "username-email": "Username / Email",
+  "username": "Username",
+  "remember-me": "Remember Me?",
+  "forgot-password": "My mind be a scatt'rbrain, help a matey out!",
+  "alternative-logins": "Oth'r gangplanks",
+  "failed-login-attempt": "Ye be refused boardin'",
+  "login-successful": "Welcome on board, matey!",
+  "dont-have-account": "Don't have an account?",
+  "logged-out-due-to-inactivity": "You have been logged out of the Admin Control Panel due to inactivity",
+  "caps-lock-enabled": "Caps Lock is enabled"
 }

@@ -40,7 +40,8 @@ exports.handleURIErrors = async function handleURIErrors(err, req, res, next) {
 
 // this needs to have four arguments or express treats it as `(req, res, next)`
 // don't remove `next`!
-exports.handleErrors = async function handleErrors(err, req, res, next) { // eslint-disable-line no-unused-vars
+// eslint-disable-next-line no-unused-vars
+exports.handleErrors = async function handleErrors(err, req, res, next) {
 	const cases = {
 		EBADCSRFTOKEN: function () {
 			winston.error(`${req.method} ${req.originalUrl}\n${err.message}`);
@@ -57,7 +58,9 @@ exports.handleErrors = async function handleErrors(err, req, res, next) { // esl
 	};
 
 	const notBuiltHandler = async () => {
-		let file = await fs.promises.readFile(path.join(__dirname, '../../public/500.html'), { encoding: 'utf-8' });
+		let file = await fs.promises.readFile(path.join(__dirname, '../../public/500.html'), {
+			encoding: 'utf-8',
+		});
 		file = file.replace('{message}', 'Failed to lookup view! Did you run `./nodebb build`?');
 		return res.type('text/html').send(file);
 	};
@@ -69,9 +72,9 @@ exports.handleErrors = async function handleErrors(err, req, res, next) { // esl
 		// Display NodeBB error page
 		const status = parseInt(err.status, 10);
 		if ((status === 302 || status === 308) && err.path) {
-			return res.locals.isAPI ?
-				res.set('X-Redirect', encodeURIComponent(err.path)).status(200).json(err.path) :
-				res.redirect(nconf.get('relative_path') + err.path);
+			return res.locals.isAPI
+				? res.set('X-Redirect', encodeURIComponent(err.path)).status(200).json(err.path)
+				: res.redirect(nconf.get('relative_path') + err.path);
 		}
 
 		const path = String(req.path || '');
@@ -103,7 +106,11 @@ exports.handleErrors = async function handleErrors(err, req, res, next) { // esl
 	try {
 		if (data.cases.hasOwnProperty(err.code)) {
 			data.cases[err.code](err, req, res, defaultHandler);
-		} else if (err.message && err.message.startsWith('[[error:no-') && err.message !== '[[error:no-privileges]]') {
+		} else if (
+			err.message &&
+			err.message.startsWith('[[error:no-') &&
+			err.message !== '[[error:no-privileges]]'
+		) {
 			notFoundHandler();
 		} else if (err.message && err.message.startsWith('Failed to lookup view')) {
 			notBuiltHandler();

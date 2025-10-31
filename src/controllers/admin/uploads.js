@@ -12,7 +12,14 @@ const image = require('../../image');
 const plugins = require('../../plugins');
 const pagination = require('../../pagination');
 
-const allowedImageTypes = ['image/png', 'image/jpeg', 'image/pjpeg', 'image/jpg', 'image/gif', 'image/svg+xml'];
+const allowedImageTypes = [
+	'image/png',
+	'image/jpeg',
+	'image/pjpeg',
+	'image/jpg',
+	'image/gif',
+	'image/svg+xml',
+];
 
 const uploadsController = module.exports;
 
@@ -109,9 +116,9 @@ function buildBreadcrumbs(currentFolder) {
 			text: part || 'Uploads',
 		};
 		if (i < parts.length - 1) {
-			crumb.url = part ?
-				(`${nconf.get('relative_path')}/admin/manage/uploads?dir=${dir}`) :
-				`${nconf.get('relative_path')}/admin/manage/uploads`;
+			crumb.url = part
+				? `${nconf.get('relative_path')}/admin/manage/uploads?dir=${dir}`
+				: `${nconf.get('relative_path')}/admin/manage/uploads`;
 		}
 		crumbs.push(crumb);
 		currentPath = dir;
@@ -202,14 +209,17 @@ uploadsController.uploadTouchIcon = async function (req, res, next) {
 	}
 };
 
-
 uploadsController.uploadMaskableIcon = async function (req, res, next) {
 	const uploadedFile = req.files.files[0];
 	const allowedTypes = ['image/png'];
 
 	await validateUpload(uploadedFile, allowedTypes);
 	try {
-		const imageObj = await file.saveFileToLocal('maskableicon-orig.png', 'system', uploadedFile.path);
+		const imageObj = await file.saveFileToLocal(
+			'maskableicon-orig.png',
+			'system',
+			uploadedFile.path,
+		);
 		res.json([{ name: uploadedFile.name, url: imageObj.url }]);
 	} catch (err) {
 		next(err);
@@ -228,7 +238,7 @@ uploadsController.uploadFile = async function (req, res, next) {
 		return next(new Error('[[error:invalid-json]]'));
 	}
 
-	if (!await file.exists(path.join(nconf.get('upload_path'), params.folder))) {
+	if (!(await file.exists(path.join(nconf.get('upload_path'), params.folder)))) {
 		return next(new Error('[[error:invalid-path]]'));
 	}
 	try {
@@ -272,7 +282,11 @@ async function uploadImage(filename, folder, uploadedFile, req, res, next) {
 	let imageData;
 	try {
 		if (plugins.hooks.hasListeners('filter:uploadImage')) {
-			imageData = await plugins.hooks.fire('filter:uploadImage', { image: uploadedFile, uid: req.uid, folder: folder });
+			imageData = await plugins.hooks.fire('filter:uploadImage', {
+				image: uploadedFile,
+				uid: req.uid,
+				folder: folder,
+			});
 		} else {
 			imageData = await file.saveFileToLocal(filename, folder, uploadedFile.path);
 		}
@@ -284,20 +298,33 @@ async function uploadImage(filename, folder, uploadedFile, req, res, next) {
 				target: uploadPath,
 				height: 50,
 			});
-			await meta.configs.set('brand:emailLogo', path.join(nconf.get('upload_url'), 'system/site-logo-x50.png'));
+			await meta.configs.set(
+				'brand:emailLogo',
+				path.join(nconf.get('upload_url'), 'system/site-logo-x50.png'),
+			);
 			const size = await image.size(uploadedFile.path);
 			await meta.configs.setMultiple({
 				'brand:logo:width': size.width,
 				'brand:logo:height': size.height,
 			});
-		} else if (path.basename(filename, path.extname(filename)) === 'og:image' && folder === 'system') {
+		} else if (
+			path.basename(filename, path.extname(filename)) === 'og:image' &&
+			folder === 'system'
+		) {
 			const size = await image.size(uploadedFile.path);
 			await meta.configs.setMultiple({
 				'og:image:width': size.width,
 				'og:image:height': size.height,
 			});
 		}
-		res.json([{ name: uploadedFile.name, url: imageData.url.startsWith('http') ? imageData.url : nconf.get('relative_path') + imageData.url }]);
+		res.json([
+			{
+				name: uploadedFile.name,
+				url: imageData.url.startsWith('http')
+					? imageData.url
+					: nconf.get('relative_path') + imageData.url,
+			},
+		]);
 	} catch (err) {
 		next(err);
 	} finally {

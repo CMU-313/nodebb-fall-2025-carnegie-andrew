@@ -10,12 +10,20 @@ module.exports = {
 		const meta = require('../../meta');
 
 		const tasks = [
-			async.apply(privileges.global.give, ['groups:view:users', 'groups:view:tags', 'groups:view:groups'], 'registered-users'),
+			async.apply(
+				privileges.global.give,
+				['groups:view:users', 'groups:view:tags', 'groups:view:groups'],
+				'registered-users',
+			),
 		];
 
 		if (parseInt(meta.config.privateUserInfo, 10) !== 1) {
-			tasks.push(async.apply(privileges.global.give, ['groups:view:users', 'groups:view:groups'], 'guests'));
-			tasks.push(async.apply(privileges.global.give, ['groups:view:users', 'groups:view:groups'], 'spiders'));
+			tasks.push(
+				async.apply(privileges.global.give, ['groups:view:users', 'groups:view:groups'], 'guests'),
+			);
+			tasks.push(
+				async.apply(privileges.global.give, ['groups:view:users', 'groups:view:groups'], 'spiders'),
+			);
 		}
 
 		if (parseInt(meta.config.privateTagListing, 10) !== 1) {

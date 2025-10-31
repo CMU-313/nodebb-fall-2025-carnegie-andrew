@@ -61,10 +61,7 @@ groupsAPI.update = async function (caller, data) {
 groupsAPI.delete = async function (caller, data) {
 	const groupName = await groups.getGroupNameByGroupSlug(data.slug);
 	await isOwner(caller, groupName);
-	if (
-		groups.systemGroups.includes(groupName) ||
-		groups.ephemeralGroups.includes(groupName)
-	) {
+	if (groups.systemGroups.includes(groupName) || groups.ephemeralGroups.includes(groupName)) {
 		throw new Error('[[error:not-allowed]]');
 	}
 
@@ -79,7 +76,7 @@ groupsAPI.listMembers = async (caller, data) => {
 	const groupName = await groups.getGroupNameByGroupSlug(data.slug);
 
 	await canSearchMembers(caller.uid, groupName);
-	if (!await privileges.global.can('search:users', caller.uid)) {
+	if (!(await privileges.global.can('search:users', caller.uid))) {
 		throw new Error('[[error:no-privileges]]');
 	}
 
@@ -133,10 +130,10 @@ groupsAPI.join = async function (caller, data) {
 	}
 
 	const isCallerAdmin = await privileges.admin.can('admin:groups', caller.uid);
-	if (!isCallerAdmin && (
-		groups.systemGroups.includes(groupName) ||
-		groups.isPrivilegeGroup(groupName)
-	)) {
+	if (
+		!isCallerAdmin &&
+		(groups.systemGroups.includes(groupName) || groups.isPrivilegeGroup(groupName))
+	) {
 		throw new Error('[[error:not-allowed]]');
 	}
 

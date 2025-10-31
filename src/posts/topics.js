@@ -1,4 +1,3 @@
-
 'use strict';
 
 const topics = require('../topics');
@@ -16,7 +15,10 @@ module.exports = function (Posts) {
 		const isArray = Array.isArray(pids);
 		pids = isArray ? pids : [pids];
 		const postData = await Posts.getPostsFields(pids, ['tid']);
-		const topicData = await topics.getTopicsFields(postData.map(t => t.tid), ['mainPid']);
+		const topicData = await topics.getTopicsFields(
+			postData.map(t => t.tid),
+			['mainPid'],
+		);
 		const result = pids.map((pid, i) => String(pid) === String(topicData[i].mainPid));
 		return isArray ? result : result[0];
 	};

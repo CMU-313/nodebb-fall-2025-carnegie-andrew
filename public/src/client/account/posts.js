@@ -1,7 +1,10 @@
 'use strict';
 
-
-define('forum/account/posts', ['forum/account/header', 'forum/infinitescroll', 'hooks'], function (header, infinitescroll, hooks) {
+define('forum/account/posts', ['forum/account/header', 'forum/infinitescroll', 'hooks'], function (
+	header,
+	infinitescroll,
+	hooks,
+) {
 	const AccountPosts = {};
 
 	let template;

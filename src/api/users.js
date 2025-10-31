@@ -191,7 +191,7 @@ usersAPI.unfollow = async function (caller, data) {
 };
 
 usersAPI.ban = async function (caller, data) {
-	if (!await privileges.users.hasBanPrivilege(caller.uid)) {
+	if (!(await privileges.users.hasBanPrivilege(caller.uid))) {
 		throw new Error('[[error:no-privileges]]');
 	} else if (await user.isAdministrator(data.uid)) {
 		throw new Error('[[error:cant-ban-other-admins]]');
@@ -232,7 +232,7 @@ usersAPI.ban = async function (caller, data) {
 };
 
 usersAPI.unban = async function (caller, data) {
-	if (!await privileges.users.hasBanPrivilege(caller.uid)) {
+	if (!(await privileges.users.hasBanPrivilege(caller.uid))) {
 		throw new Error('[[error:no-privileges]]');
 	}
 
@@ -255,7 +255,7 @@ usersAPI.unban = async function (caller, data) {
 };
 
 usersAPI.mute = async function (caller, data) {
-	if (!await privileges.users.hasMutePrivilege(caller.uid)) {
+	if (!(await privileges.users.hasMutePrivilege(caller.uid))) {
 		throw new Error('[[error:no-privileges]]');
 	} else if (await user.isAdministrator(data.uid)) {
 		throw new Error('[[error:cant-mute-other-admins]]');
@@ -296,7 +296,7 @@ usersAPI.mute = async function (caller, data) {
 };
 
 usersAPI.unmute = async function (caller, data) {
-	if (!await privileges.users.hasMutePrivilege(caller.uid)) {
+	if (!(await privileges.users.hasMutePrivilege(caller.uid))) {
 		throw new Error('[[error:no-privileges]]');
 	}
 
@@ -351,7 +351,7 @@ usersAPI.deleteToken = async (caller, { uid, token }) => {
 
 usersAPI.revokeSession = async (caller, { uid, uuid }) => {
 	// Only admins or global mods (besides the user themselves) can revoke sessions
-	if (parseInt(uid, 10) !== caller.uid && !await user.isAdminOrGlobalMod(caller.uid)) {
+	if (parseInt(uid, 10) !== caller.uid && !(await user.isAdminOrGlobalMod(caller.uid))) {
 		throw new Error('[[error:invalid-uid]]');
 	}
 
@@ -401,7 +401,10 @@ usersAPI.invite = async (caller, { emails, groupsToJoin, uid }) => {
 	}
 
 	const max = meta.config.maximumInvites;
-	const emailsArr = emails.split(',').map(email => email.trim()).filter(Boolean);
+	const emailsArr = emails
+		.split(',')
+		.map(email => email.trim())
+		.filter(Boolean);
 
 	for (const email of emailsArr) {
 		/* eslint-disable no-await-in-loop */
@@ -434,7 +437,7 @@ usersAPI.addEmail = async (caller, { email, skipConfirmation, uid }) => {
 		if (!email.length) {
 			await user.email.remove(uid);
 		} else {
-			if (!await user.email.available(email)) {
+			if (!(await user.email.available(email))) {
 				throw new Error('[[error:email-taken]]');
 			}
 			await user.setUserField(uid, 'email', email);
@@ -483,11 +486,13 @@ usersAPI.confirmEmail = async (caller, { uid, email, sessionId }) => {
 		throw new Error('[[error:no-privileges]]');
 	}
 
-	if (pending) { // has active confirmation request
+	if (pending) {
+		// has active confirmation request
 		const code = await db.get(`confirm:byUid:${uid}`);
 		await user.email.confirmByCode(code, sessionId);
 		return true;
-	} else if (current && current === email) { // i.e. old account w/ unconf. email in user hash
+	} else if (current && current === email) {
+		// i.e. old account w/ unconf. email in user hash
 		await user.email.confirmByUid(uid, caller.uid);
 		return true;
 	}
@@ -549,7 +554,10 @@ async function processDeletion({ uid, method, password, caller }) {
 	}
 	userData = userData || {};
 
-	sockets.server.sockets.emit('event:user_status_change', { uid: caller.uid, status: 'offline' });
+	sockets.server.sockets.emit('event:user_status_change', {
+		uid: caller.uid,
+		status: 'offline',
+	});
 
 	plugins.hooks.fire('action:user.delete', {
 		callerUid: caller.uid,
@@ -590,13 +598,13 @@ usersAPI.search = async function (caller, data) {
 	]);
 	let filters = data.filters || [];
 	filters = Array.isArray(filters) ? filters : [filters];
-	if (!allowed ||
-		((
-			data.searchBy === 'ip' ||
+	if (
+		!allowed ||
+		((data.searchBy === 'ip' ||
 			data.searchBy === 'email' ||
 			filters.includes('banned') ||
-			filters.includes('flagged')
-		) && !isPrivileged)
+			filters.includes('flagged')) &&
+			!isPrivileged)
 	) {
 		throw new Error('[[error:no-privileges]]');
 	}
@@ -644,11 +652,15 @@ usersAPI.changePicture = async (caller, data) => {
 		data.bgColor = validBackgrounds[0];
 	}
 
-	await user.updateProfile(caller.uid, {
-		uid: data.uid,
-		picture: picture,
-		'icon:bgColor': data.bgColor,
-	}, ['picture', 'icon:bgColor']);
+	await user.updateProfile(
+		caller.uid,
+		{
+			uid: data.uid,
+			picture: picture,
+			'icon:bgColor': data.bgColor,
+		},
+		['picture', 'icon:bgColor'],
+	);
 };
 
 const exportMetadata = new Map([
@@ -699,7 +711,7 @@ usersAPI.generateExport = async (caller, { uid, type }) => {
 		env: process.env,
 	});
 	child.send({ uid });
-	child.on('error', async (err) => {
+	child.on('error', async err => {
 		winston.error(err.stack);
 		await db.deleteObjectField('locks', `export:${uid}${type}`);
 	});

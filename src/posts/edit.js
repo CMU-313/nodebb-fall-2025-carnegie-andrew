@@ -29,7 +29,13 @@ module.exports = function (Posts) {
 		}
 
 		const topicData = await topics.getTopicFields(postData.tid, [
-			'cid', 'mainPid', 'title', 'timestamp', 'scheduled', 'slug', 'tags',
+			'cid',
+			'mainPid',
+			'title',
+			'timestamp',
+			'scheduled',
+			'slug',
+			'tags',
 		]);
 
 		await scheduledTopicCheck(data, topicData);
@@ -55,9 +61,8 @@ module.exports = function (Posts) {
 		]);
 
 		await Posts.setPostFields(data.pid, result.post);
-		const contentChanged = ((data.sourceContent || data.content) !== oldContent) ||
-			topic.renamed ||
-			topic.tagsupdated;
+		const contentChanged =
+			(data.sourceContent || data.content) !== oldContent || topic.renamed || topic.tagsupdated;
 
 		if (meta.config.enablePostHistory === 1 && contentChanged) {
 			await Posts.diffs.save({
@@ -89,7 +94,11 @@ module.exports = function (Posts) {
 		});
 		await topics.syncBacklinks(returnPostData);
 
-		plugins.hooks.fire('action:post.edit', { post: { ...returnPostData, _activitypub }, data: data, uid: data.uid });
+		plugins.hooks.fire('action:post.edit', {
+			post: { ...returnPostData, _activitypub },
+			data: data,
+			uid: data.uid,
+		});
 
 		Posts.clearCachedPost(String(postData.pid));
 		pubsub.publish('post:edit', String(postData.pid));
@@ -131,8 +140,12 @@ module.exports = function (Posts) {
 			newTopicData.slug = `${tid}/${slugify(title) || 'topic'}`;
 		}
 
-		const tagsupdated = Array.isArray(data.tags) &&
-			!_.isEqual(data.tags, topicData.tags.map(tag => tag.value));
+		const tagsupdated =
+			Array.isArray(data.tags) &&
+			!_.isEqual(
+				data.tags,
+				topicData.tags.map(tag => tag.value),
+			);
 
 		if (tagsupdated) {
 			const canTag = await privileges.categories.can('topics:tag', topicData.cid, data.uid);
@@ -160,7 +173,10 @@ module.exports = function (Posts) {
 		newTopicData.tags = data.tags;
 		newTopicData.oldTitle = topicData.title;
 		const renamed = title && translator.escape(validator.escape(String(title))) !== topicData.title;
-		plugins.hooks.fire('action:topic.edit', { topic: newTopicData, uid: data.uid });
+		plugins.hooks.fire('action:topic.edit', {
+			topic: newTopicData,
+			uid: data.uid,
+		});
 		return {
 			tid: tid,
 			cid: newTopicData.cid,
@@ -199,7 +215,9 @@ module.exports = function (Posts) {
 		};
 
 		// For posts in scheduled topics, if edited before, use edit timestamp
-		editPostData.edited = topicData.scheduled ? (postData.edited || postData.timestamp) + 1 : Date.now();
+		editPostData.edited = topicData.scheduled
+			? (postData.edited || postData.timestamp) + 1
+			: Date.now();
 
 		// if rescheduling the main post
 		if (rescheduling(data, topicData)) {

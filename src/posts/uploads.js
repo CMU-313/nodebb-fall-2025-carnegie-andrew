@@ -25,22 +25,34 @@ module.exports = function (Posts) {
 	const searchRegex = /\/assets\/uploads(\/files\/[^\s")]+\.?[\w]*)/g;
 
 	const _getFullPath = relativePath => path.join(pathPrefix, relativePath);
-	const _filterValidPaths = async filePaths => (await Promise.all(filePaths.map(async (filePath) => {
-		const fullPath = _getFullPath(filePath);
-		return fullPath.startsWith(pathPrefix) && await file.exists(fullPath) ? filePath : false;
-	}))).filter(Boolean);
+	const _filterValidPaths = async filePaths =>
+		(
+			await Promise.all(
+				filePaths.map(async filePath => {
+					const fullPath = _getFullPath(filePath);
+					return fullPath.startsWith(pathPrefix) && (await file.exists(fullPath))
+						? filePath
+						: false;
+				}),
+			)
+		).filter(Boolean);
 
 	const runJobs = nconf.get('runJobs');
 	if (runJobs) {
-		new cronJob('0 2 * * 0', async () => {
-			const orphans = await Posts.uploads.cleanOrphans();
-			if (orphans.length) {
-				winston.info(`[posts/uploads] Deleting ${orphans.length} orphaned uploads...`);
-				orphans.forEach((relPath) => {
-					process.stdout.write(`${chalk.red('  - ')} ${relPath}`);
-				});
-			}
-		}, null, true);
+		new cronJob(
+			'0 2 * * 0',
+			async () => {
+				const orphans = await Posts.uploads.cleanOrphans();
+				if (orphans.length) {
+					winston.info(`[posts/uploads] Deleting ${orphans.length} orphaned uploads...`);
+					orphans.forEach(relPath => {
+						process.stdout.write(`${chalk.red('  - ')} ${relPath}`);
+					});
+				}
+			},
+			null,
+			true,
+		);
 	}
 
 	Posts.uploads.sync = async function (pid) {
@@ -64,9 +76,14 @@ module.exports = function (Posts) {
 		if (isMainPost) {
 			const tid = await Posts.getPostField(pid, 'tid');
 			let thumbs = await topics.thumbs.get(tid, { thumbsOnly: true });
-			thumbs = thumbs.map(thumb => thumb.path).filter(path => !validator.isURL(path, {
-				require_protocol: true,
-			}));
+			thumbs = thumbs
+				.map(thumb => thumb.path)
+				.filter(
+					path =>
+						!validator.isURL(path, {
+							require_protocol: true,
+						}),
+				);
 			thumbs.forEach(t => uploads.add(t));
 		}
 
@@ -75,10 +92,7 @@ module.exports = function (Posts) {
 		// Create add/remove sets
 		const add = uploads.filter(path => !currentUploads.includes(path));
 		const remove = currentUploads.filter(path => !uploads.includes(path));
-		await Promise.all([
-			Posts.uploads.associate(pid, add),
-			Posts.uploads.dissociate(pid, remove),
-		]);
+		await Promise.all([Posts.uploads.associate(pid, add), Posts.uploads.dissociate(pid, remove)]);
 	};
 
 	Posts.uploads.list = async function (pid) {
@@ -87,7 +101,7 @@ module.exports = function (Posts) {
 
 	Posts.uploads.listWithSizes = async function (pid) {
 		const paths = await Posts.uploads.list(pid);
-		const sizes = await db.getObjects(paths.map(path => `upload:${md5(path)}`)) || [];
+		const sizes = (await db.getObjects(paths.map(path => `upload:${md5(path)}`))) || [];
 
 		return sizes.map((sizeObj, idx) => ({
 			...sizeObj,
@@ -103,9 +117,11 @@ module.exports = function (Posts) {
 		const tsPrefix = /^\d{13}-/;
 		files = files.filter(filename => tsPrefix.test(filename));
 
-		files = await Promise.all(files.map(
-			async filename => (await Posts.uploads.isOrphan(`/files/${filename}`) ? `/files/${filename}` : null)
-		));
+		files = await Promise.all(
+			files.map(async filename =>
+				(await Posts.uploads.isOrphan(`/files/${filename}`)) ? `/files/${filename}` : null,
+			),
+		);
 		files = files.filter(Boolean);
 
 		return files;
@@ -113,7 +129,7 @@ module.exports = function (Posts) {
 
 	Posts.uploads.cleanOrphans = async () => {
 		const now = Date.now();
-		const expiration = now - (1000 * 60 * 60 * 24 * meta.config.orphanExpiryDays);
+		const expiration = now - 1000 * 60 * 60 * 24 * meta.config.orphanExpiryDays;
 		const days = meta.config.orphanExpiryDays;
 		if (!days) {
 			return [];
@@ -121,15 +137,19 @@ module.exports = function (Posts) {
 
 		let orphans = await Posts.uploads.getOrphans();
 
-		orphans = await Promise.all(orphans.map(async (relPath) => {
-			const { mtimeMs } = await fs.stat(_getFullPath(relPath));
-			return mtimeMs < expiration ? relPath : null;
-		}));
+		orphans = await Promise.all(
+			orphans.map(async relPath => {
+				const { mtimeMs } = await fs.stat(_getFullPath(relPath));
+				return mtimeMs < expiration ? relPath : null;
+			}),
+		);
 		orphans = orphans.filter(Boolean);
 
-		await Promise.all(orphans.map(async (relPath) => {
-			await file.delete(_getFullPath(relPath));
-		}));
+		await Promise.all(
+			orphans.map(async relPath => {
+				await file.delete(_getFullPath(relPath));
+			}),
+		);
 
 		return orphans;
 	};
@@ -148,11 +168,13 @@ module.exports = function (Posts) {
 		// windows path => 'files\\1685368788211-1-profileimg.jpg'
 		// linux path => files/1685368788211-1-profileimg.jpg
 		// turn them into => '/files/1685368788211-1-profileimg.jpg'
-		filePaths.forEach((file) => {
+		filePaths.forEach(file => {
 			file.path = `/${file.path.split(path.sep).join(path.posix.sep)}`;
 		});
 
-		const keys = filePaths.map(fileObj => `upload:${md5(fileObj.path.replace('-resized', ''))}:pids`);
+		const keys = filePaths.map(
+			fileObj => `upload:${md5(fileObj.path.replace('-resized', ''))}:pids`,
+		);
 		return await Promise.all(keys.map(k => db.getSortedSetRange(k, 0, -1)));
 	};
 
@@ -190,26 +212,34 @@ module.exports = function (Posts) {
 		await Promise.all(promises);
 
 		if (!meta.config.preserveOrphanedUploads) {
-			const deletePaths = (await Promise.all(
-				filePaths.map(async filePath => (await Posts.uploads.isOrphan(filePath) ? filePath : false))
-			)).filter(Boolean);
+			const deletePaths = (
+				await Promise.all(
+					filePaths.map(async filePath =>
+						(await Posts.uploads.isOrphan(filePath)) ? filePath : false,
+					),
+				)
+			).filter(Boolean);
 
-			const uploaderUids = (await db.getObjectsFields(
-				deletePaths.map(path => `upload:${md5(path)}`, ['uid'])
-			)).map(o => (o ? o.uid || null : null));
-			await Promise.all(uploaderUids.map((uid, idx) => (
-				uid && isFinite(uid) ? user.deleteUpload(uid, uid, deletePaths[idx]) : null
-			)).filter(Boolean));
+			const uploaderUids = (
+				await db.getObjectsFields(deletePaths.map(path => `upload:${md5(path)}`, ['uid']))
+			).map(o => (o ? o.uid || null : null));
+			await Promise.all(
+				uploaderUids
+					.map((uid, idx) =>
+						uid && isFinite(uid) ? user.deleteUpload(uid, uid, deletePaths[idx]) : null,
+					)
+					.filter(Boolean),
+			);
 			await Posts.uploads.deleteFromDisk(deletePaths);
 		}
 	};
 
-	Posts.uploads.dissociateAll = async (pid) => {
+	Posts.uploads.dissociateAll = async pid => {
 		const current = await Posts.uploads.list(pid);
 		await Posts.uploads.dissociate(pid, current);
 	};
 
-	Posts.uploads.deleteFromDisk = async (filePaths) => {
+	Posts.uploads.deleteFromDisk = async filePaths => {
 		if (typeof filePaths === 'string') {
 			filePaths = [filePaths];
 		} else if (!Array.isArray(filePaths)) {
@@ -220,21 +250,25 @@ module.exports = function (Posts) {
 		await Promise.all(filePaths.map(file.delete));
 	};
 
-	Posts.uploads.saveSize = async (filePaths) => {
-		filePaths = filePaths.filter((fileName) => {
+	Posts.uploads.saveSize = async filePaths => {
+		filePaths = filePaths.filter(fileName => {
 			const type = mime.getType(fileName);
 			return type && type.match(/image./);
 		});
-		await Promise.all(filePaths.map(async (fileName) => {
-			try {
-				const size = await image.size(_getFullPath(fileName));
-				await db.setObject(`upload:${md5(fileName)}`, {
-					width: size.width,
-					height: size.height,
-				});
-			} catch (err) {
-				winston.error(`[posts/uploads] Error while saving post upload sizes (${fileName}): ${err.message}`);
-			}
-		}));
+		await Promise.all(
+			filePaths.map(async fileName => {
+				try {
+					const size = await image.size(_getFullPath(fileName));
+					await db.setObject(`upload:${md5(fileName)}`, {
+						width: size.width,
+						height: size.height,
+					});
+				} catch (err) {
+					winston.error(
+						`[posts/uploads] Error while saving post upload sizes (${fileName}): ${err.message}`,
+					);
+				}
+			}),
+		);
 	};
 };

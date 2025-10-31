@@ -1,4 +1,3 @@
-
 'use strict';
 
 const _ = require('lodash');
@@ -73,7 +72,9 @@ Categories.getCategoryById = async function (data) {
 	category.isTracked = watchState[0] === Categories.watchStates.tracking;
 	category.isNotWatched = watchState[0] === Categories.watchStates.notwatching;
 	category.isIgnored = watchState[0] === Categories.watchStates.ignoring;
-	category.hasFollowers = localFollowers ? (localFollowers.uids.size + localFollowers.cids.size) > 0 : localFollowers;
+	category.hasFollowers = localFollowers
+		? localFollowers.uids.size + localFollowers.cids.size > 0
+		: localFollowers;
 	category.parent = parent;
 
 	calculateTopicPostCount(category);
@@ -185,7 +186,7 @@ Categories.setUnread = async function (tree, cids, uid) {
 Categories.getTagWhitelist = async function (cids) {
 	const cachedData = {};
 
-	const nonCachedCids = cids.filter((cid) => {
+	const nonCachedCids = cids.filter(cid => {
 		const data = cache.get(`cid:${cid}:tag:whitelist`);
 		const isInCache = data !== undefined;
 		if (isInCache) {
@@ -225,7 +226,7 @@ function calculateTopicPostCount(category) {
 	let postCount = category.post_count;
 	let topicCount = category.topic_count;
 	if (Array.isArray(category.children)) {
-		category.children.forEach((child) => {
+		category.children.forEach(child => {
 			calculateTopicPostCount(child);
 			postCount += parseInt(child.totalPostCount, 10) || 0;
 			topicCount += parseInt(child.totalTopicCount, 10) || 0;
@@ -250,7 +251,10 @@ Categories.getParents = async function (cids) {
 
 Categories.getChildren = async function (cids, uid) {
 	const categoryData = await Categories.getCategoriesFields(cids, ['parentCid']);
-	const categories = categoryData.map((category, index) => ({ cid: cids[index], parentCid: category.parentCid }));
+	const categories = categoryData.map((category, index) => ({
+		cid: cids[index],
+		parentCid: category.parentCid,
+	}));
 	await Promise.all(categories.map(c => getChildrenTree(c, uid)));
 	return categories.map(c => c && c.children);
 };
@@ -311,7 +315,7 @@ Categories.getChildrenCids = async function (rootCid) {
 };
 
 Categories.flattenCategories = function (allCategories, categoryData) {
-	categoryData.forEach((category) => {
+	categoryData.forEach(category => {
 		if (category) {
 			allCategories.push(category);
 
@@ -343,7 +347,7 @@ Categories.getTree = function (categories, parentCid) {
 
 	const tree = [];
 
-	categories.forEach((category) => {
+	categories.forEach(category => {
 		if (category) {
 			category.children = category.children || [];
 			if (!category.cid) {
@@ -372,7 +376,7 @@ Categories.getTree = function (categories, parentCid) {
 			}
 			return a.cid - b.cid;
 		});
-		tree.forEach((category) => {
+		tree.forEach(category => {
 			if (category && Array.isArray(category.children)) {
 				sortTree(category.children);
 			}
@@ -409,13 +413,17 @@ Categories.buildForSelectCategories = function (categories, fields, parentCid) {
 		category.depth = depth;
 		categoriesData.push(category);
 		if (Array.isArray(category.children)) {
-			category.children.forEach(child => recursive(child, categoriesData, `&nbsp;&nbsp;&nbsp;&nbsp;${level}`, depth + 1));
+			category.children.forEach(child =>
+				recursive(child, categoriesData, `&nbsp;&nbsp;&nbsp;&nbsp;${level}`, depth + 1),
+			);
 		}
 	}
 	parentCid = parentCid || 0;
 	const categoriesData = [];
 
-	const rootCategories = categories.filter(category => category && category.parentCid === parentCid);
+	const rootCategories = categories.filter(
+		category => category && category.parentCid === parentCid,
+	);
 
 	rootCategories.sort((a, b) => {
 		if (a.order !== b.order) {
@@ -427,8 +435,15 @@ Categories.buildForSelectCategories = function (categories, fields, parentCid) {
 	rootCategories.forEach(category => recursive(category, categoriesData, '', 0));
 
 	const pickFields = [
-		'cid', 'name', 'level', 'icon', 'parentCid',
-		'color', 'bgColor', 'backgroundImage', 'imageClass',
+		'cid',
+		'name',
+		'level',
+		'icon',
+		'parentCid',
+		'color',
+		'bgColor',
+		'backgroundImage',
+		'imageClass',
 	];
 	fields = fields || [];
 	if (fields.includes('text') && fields.includes('value')) {

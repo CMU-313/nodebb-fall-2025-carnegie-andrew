@@ -2,7 +2,7 @@
 
 /**
  * User pinning functionality - handles both topics and posts
- * 
+ *
  * Topic pins: users can bookmark important topics (stored in sets)
  * Post pins: mods can highlight key comments in discussions (stored as flags)
  */
@@ -32,9 +32,7 @@ async function canPin(uid) {
 
 async function getPinnedTids(uid) {
 	const tids = await db.getSetMembers(keyFor(uid));
-	return (tids || [])
-		.map(t => Number(t))
-		.filter(n => Number.isFinite(n));
+	return (tids || []).map(t => Number(t)).filter(n => Number.isFinite(n));
 }
 
 async function addPinnedTid(uid, tid) {
@@ -215,7 +213,7 @@ module.exports = {
 	getPinnedTids,
 	addPinnedTid,
 	removePinnedTid,
-	
+
 	// post stuff
 	canPinPosts,
 	pinPost,

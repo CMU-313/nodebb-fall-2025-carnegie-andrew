@@ -12,13 +12,22 @@ const meta = require('../meta');
 
 module.exports = function (Plugins) {
 	Plugins.startJobs = function () {
-		new cronJob('0 0 0 * * *', (async () => {
-			await Plugins.submitUsageData();
-		}), null, true);
+		new cronJob(
+			'0 0 0 * * *',
+			async () => {
+				await Plugins.submitUsageData();
+			},
+			null,
+			true,
+		);
 	};
 
 	Plugins.submitUsageData = async function () {
-		if (!meta.config.submitPluginUsage || !Plugins.loadedPlugins.length || global.env !== 'production') {
+		if (
+			!meta.config.submitPluginUsage ||
+			!Plugins.loadedPlugins.length ||
+			global.env !== 'production'
+		) {
 			return;
 		}
 

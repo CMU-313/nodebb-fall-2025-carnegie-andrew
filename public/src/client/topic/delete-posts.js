@@ -1,8 +1,10 @@
 'use strict';
 
-define('forum/topic/delete-posts', [
-	'postSelect', 'alerts', 'api',
-], function (postSelect, alerts, api) {
+define('forum/topic/delete-posts', ['postSelect', 'alerts', 'api'], function (
+	postSelect,
+	alerts,
+	api,
+) {
 	const DeletePosts = {};
 	let modal;
 	let deleteBtn;
@@ -28,12 +30,15 @@ define('forum/topic/delete-posts', [
 
 			modal.find('#delete_posts_cancel').on('click', closeModal);
 
-			postSelect.init(function () {
-				checkButtonEnable();
-				showPostsSelected();
-			}, {
-				allowMainPostSelect: true,
-			});
+			postSelect.init(
+				function () {
+					checkButtonEnable();
+					showPostsSelected();
+				},
+				{
+					allowMainPostSelect: true,
+				},
+			);
 			showPostsSelected();
 
 			deleteBtn.on('click', function () {

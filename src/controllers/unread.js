@@ -1,4 +1,3 @@
-
 'use strict';
 
 const nconf = require('nconf');
@@ -39,7 +38,10 @@ unreadController.get = async function (req, res) {
 		query: req.query,
 	});
 
-	const isDisplayedAsHome = !(req.originalUrl.startsWith(`${relative_path}/api/unread`) || req.originalUrl.startsWith(`${relative_path}/unread`));
+	const isDisplayedAsHome = !(
+		req.originalUrl.startsWith(`${relative_path}/api/unread`) ||
+		req.originalUrl.startsWith(`${relative_path}/unread`)
+	);
 	const baseUrl = isDisplayedAsHome ? '' : 'unread';
 
 	if (isDisplayedAsHome) {

@@ -21,5 +21,8 @@ errorsController.export = async function (req, res) {
 	const fields = data.length ? Object.keys(data[0]) : [];
 	const opts = { fields };
 	const csv = await json2csvAsync(data, opts);
-	res.set('Content-Type', 'text/csv').set('Content-Disposition', 'attachment; filename="404.csv"').send(csv);
+	res
+		.set('Content-Type', 'text/csv')
+		.set('Content-Disposition', 'attachment; filename="404.csv"')
+		.send(csv);
 };

@@ -27,18 +27,22 @@ module.exports = function (module) {
 
 	async function listPush(key, values, position) {
 		values = values.map(helpers.valueToString);
-		await module.client.collection('objects').updateOne({
-			_key: key,
-		}, {
-			$push: {
-				array: {
-					$each: values,
-					...(position || {}),
+		await module.client.collection('objects').updateOne(
+			{
+				_key: key,
+			},
+			{
+				$push: {
+					array: {
+						$each: values,
+						...(position || {}),
+					},
 				},
 			},
-		}, {
-			upsert: true,
-		});
+			{
+				upsert: true,
+			},
+		);
 	}
 
 	module.listRemoveLast = async function (key) {
@@ -47,7 +51,7 @@ module.exports = function (module) {
 		}
 		const value = await module.getListRange(key, -1, -1);
 		module.client.collection('objects').updateOne({ _key: key }, { $pop: { array: 1 } });
-		return (value && value.length) ? value[0] : null;
+		return value && value.length ? value[0] : null;
 	};
 
 	module.listRemoveAll = async function (key, value) {
@@ -61,11 +65,14 @@ module.exports = function (module) {
 			value = helpers.valueToString(value);
 		}
 
-		await module.client.collection('objects').updateOne({
-			_key: key,
-		}, {
-			$pull: { array: isArray ? { $in: value } : value },
-		});
+		await module.client.collection('objects').updateOne(
+			{
+				_key: key,
+			},
+			{
+				$pull: { array: isArray ? { $in: value } : value },
+			},
+		);
 	};
 
 	module.listTrim = async function (key, start, stop) {
@@ -90,10 +97,10 @@ module.exports = function (module) {
 	};
 
 	module.listLength = async function (key) {
-		const result = await module.client.collection('objects').aggregate([
-			{ $match: { _key: key } },
-			{ $project: { count: { $size: '$array' } } },
-		]).toArray();
+		const result = await module.client
+			.collection('objects')
+			.aggregate([{ $match: { _key: key } }, { $project: { count: { $size: '$array' } } }])
+			.toArray();
 		return Array.isArray(result) && result.length && result[0].count;
 	};
 };

@@ -1,18 +1,18 @@
 {
-	"alert.confirm-rebuild-and-restart": "Jste si jist/a, že chcete znovu sestavit a restartovat NodeBB?",
-	"alert.confirm-restart": "Jste si jist/a, že si přejete restartovat NodeBB?",
+  "alert.confirm-rebuild-and-restart": "Jste si jist/a, že chcete znovu sestavit a restartovat NodeBB?",
+  "alert.confirm-restart": "Jste si jist/a, že si přejete restartovat NodeBB?",
 
-	"acp-title": "Ovládací panel správce NodeBB | %1",
-	"settings-header-contents": "Obsah",
-	"changes-saved": "Změny byly uloženy",
-	"changes-saved-message": "Vaše změny v NodeBB konfiguraci byly uloženy.",
-	"changes-not-saved": "Změny nebyly uloženy",
-	"changes-not-saved-message": "NodeBB narazil na problém při ukládání vašich změn. (%1)",
-	"save-changes": "Uložit změny",
-	"min": "Min:",
-	"max": "Max:",
-	"view": "Zobrazit",
-	"edit": "Upravit",
-	"add": "Přidat",
-	"select-icon": "Vybrat ikonu"
+  "acp-title": "Ovládací panel správce NodeBB | %1",
+  "settings-header-contents": "Obsah",
+  "changes-saved": "Změny byly uloženy",
+  "changes-saved-message": "Vaše změny v NodeBB konfiguraci byly uloženy.",
+  "changes-not-saved": "Změny nebyly uloženy",
+  "changes-not-saved-message": "NodeBB narazil na problém při ukládání vašich změn. (%1)",
+  "save-changes": "Uložit změny",
+  "min": "Min:",
+  "max": "Max:",
+  "view": "Zobrazit",
+  "edit": "Upravit",
+  "add": "Přidat",
+  "select-icon": "Vybrat ikonu"
 }

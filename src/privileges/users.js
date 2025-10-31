@@ -1,4 +1,3 @@
-
 'use strict';
 
 const _ = require('lodash');
@@ -34,12 +33,20 @@ privsUsers.isModerator = async function (uid, cid) {
 
 async function isModeratorOfCategories(cids, uid) {
 	if (parseInt(uid, 10) <= 0) {
-		return await filterIsModerator(cids, uid, cids.map(() => false));
+		return await filterIsModerator(
+			cids,
+			uid,
+			cids.map(() => false),
+		);
 	}
 
 	const isGlobalModerator = await privsUsers.isGlobalModerator(uid);
 	if (isGlobalModerator) {
-		return await filterIsModerator(cids, uid, cids.map(() => true));
+		return await filterIsModerator(
+			cids,
+			uid,
+			cids.map(() => true),
+		);
 	}
 	const uniqueCids = _.uniq(cids);
 	const isAllowed = await helpers.isAllowedTo('moderate', uid, uniqueCids);
@@ -65,7 +72,11 @@ async function isModeratorOfCategory(cid, uid) {
 }
 
 async function filterIsModerator(cid, uid, isModerator) {
-	const data = await plugins.hooks.fire('filter:user.isModerator', { uid: uid, cid: cid, isModerator: isModerator });
+	const data = await plugins.hooks.fire('filter:user.isModerator', {
+		uid: uid,
+		cid: cid,
+		isModerator: isModerator,
+	});
 	if ((Array.isArray(uid) || Array.isArray(cid)) && !Array.isArray(data.isModerator)) {
 		throw new Error('filter:user.isModerator - i/o mismatch');
 	}
@@ -134,7 +145,7 @@ privsUsers.canFlag = async function (callerUid, uid) {
 		user.isPrivileged(callerUid),
 	]);
 	const minimumReputation = meta.config['min:rep:flag'];
-	let canFlag = reporterPrivileged || (userReputation >= minimumReputation);
+	let canFlag = reporterPrivileged || userReputation >= minimumReputation;
 
 	if (targetPrivileged && !reporterPrivileged) {
 		canFlag = false;
@@ -149,7 +160,10 @@ privsUsers.hasInvitePrivilege = async uid => await hasGlobalPrivilege('invite', 
 
 async function hasGlobalPrivilege(privilege, uid) {
 	const privsGlobal = require('./global');
-	const privilegeName = privilege.split('-').map(word => word.slice(0, 1).toUpperCase() + word.slice(1)).join('');
+	const privilegeName = privilege
+		.split('-')
+		.map(word => word.slice(0, 1).toUpperCase() + word.slice(1))
+		.join('');
 	let payload = { uid };
 	payload[`can${privilegeName}`] = await privsGlobal.can(privilege, uid);
 	payload = await plugins.hooks.fire(`filter:user.has${privilegeName}Privilege`, payload);

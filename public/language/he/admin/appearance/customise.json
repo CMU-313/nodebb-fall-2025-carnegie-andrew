@@ -1,20 +1,20 @@
 {
-	"customise": "התאמה אישית",
-	"custom-css": "CSS/SASS מותאם אישית",
-	"custom-css.description": "הזינו כאן הצהרות CSS/SASS משלך, שיוחלו לאחר כל הסגנונות האחרים.",
-	"custom-css.enable": "הפעלת CSS/SASS מותאם אישית",
+  "customise": "התאמה אישית",
+  "custom-css": "CSS/SASS מותאם אישית",
+  "custom-css.description": "הזינו כאן הצהרות CSS/SASS משלך, שיוחלו לאחר כל הסגנונות האחרים.",
+  "custom-css.enable": "הפעלת CSS/SASS מותאם אישית",
 
-	"custom-js": "Javascript מותאם אישית",
-	"custom-js.description": "הכניסו כאן JavaScript משלכם, שיבוצע לאחר טעינת הדף לחלוטין.",
-	"custom-js.enable": "הפעלת Javascript מותאם אישית",
+  "custom-js": "Javascript מותאם אישית",
+  "custom-js.description": "הכניסו כאן JavaScript משלכם, שיבוצע לאחר טעינת הדף לחלוטין.",
+  "custom-js.enable": "הפעלת Javascript מותאם אישית",
 
-	"custom-header": "Header מותאם אישית",
-	"custom-header.description": "הכניסו כאן HTML משלכם (לדוגמא תגיות Meta), שיתווספו לתגית ה-<code>head</code> של הפורום. ניתן להכניס סקריפטים, אך מומלץ להכניס אותם בכרטיסיית <a href=\"#custom-js\" data-toggle=\"tab\">Javascript מותאם אישית</a>.",
-	"custom-header.enable": "הפעלת HTML מותאם אישית",
+  "custom-header": "Header מותאם אישית",
+  "custom-header.description": "הכניסו כאן HTML משלכם (לדוגמא תגיות Meta), שיתווספו לתגית ה-<code>head</code> של הפורום. ניתן להכניס סקריפטים, אך מומלץ להכניס אותם בכרטיסיית <a href=\"#custom-js\" data-toggle=\"tab\">Javascript מותאם אישית</a>.",
+  "custom-header.enable": "הפעלת HTML מותאם אישית",
 
-	"custom-css.livereload": "הפעלת טעינה מחדש אוטומטית.",
-	"custom-css.livereload.description": "הפעלה זו נועדה כדי לרענן את כל החיבורים מכל מכשיר, כאשר תשמרו את הדף המותאם אישית.",
-	"bsvariables": "_variables.scss",
-	"bsvariables.description": "ניתן לעקוף משתני Bootstrap כאן. תוכלו גם להשתמש בכלי כמו <a href=\"https://bootstrap.build/app\">bootstrap.build</a> ולהדביק את הפלט כאן.<br/> שינויים דורשים בנייה מחדש והפעלה מחדש.",
-	"bsvariables.enable": "Enable _variables.scss"
+  "custom-css.livereload": "הפעלת טעינה מחדש אוטומטית.",
+  "custom-css.livereload.description": "הפעלה זו נועדה כדי לרענן את כל החיבורים מכל מכשיר, כאשר תשמרו את הדף המותאם אישית.",
+  "bsvariables": "_variables.scss",
+  "bsvariables.description": "ניתן לעקוף משתני Bootstrap כאן. תוכלו גם להשתמש בכלי כמו <a href=\"https://bootstrap.build/app\">bootstrap.build</a> ולהדביק את הפלט כאן.<br/> שינויים דורשים בנייה מחדש והפעלה מחדש.",
+  "bsvariables.enable": "Enable _variables.scss"
 }
