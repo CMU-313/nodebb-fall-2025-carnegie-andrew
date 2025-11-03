@@ -37,8 +37,14 @@
     "url": "https://github.com/NodeBB/nodebb-theme-harmony/issues"
   },
   "dependencies": {
+<<<<<<< HEAD:vendor/nodebb-theme-harmony-2.1.15/package.json
     "@fontsource/inter": "5.0.15",
     "@fontsource/poppins": "5.0.8"
+=======
+    "@fontsource-utils/scss": "^0.2.2",
+    "@fontsource/inter": "5.2.8",
+    "@fontsource/poppins": "5.2.7"
+>>>>>>> 4f399ebaff (Changes to add translate button to ui):vendor/nodebb-theme-harmony-2.1.23/package.json
   },
   "devDependencies": {
     "eslint": "9.27.0",

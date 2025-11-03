@@ -5,4 +5,8 @@ sftp-config.json
 *.sublime-workspace
 .idea
 .vscode
+<<<<<<< HEAD:vendor/nodebb-theme-harmony-2.1.15/.gitignore
 node_modules/
+=======
+node_modules/
+>>>>>>> 4f399ebaff (Changes to add translate button to ui):vendor/nodebb-theme-harmony-2.1.23/.gitignore
