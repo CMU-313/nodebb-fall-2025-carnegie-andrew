@@ -90,7 +90,7 @@ jobs:
       - name: Test coverage
         uses: coverallsapp/github-action@v2
 
-      # ---------- NEW: start NodeBB, run Artillery, stop NodeBB ----------
+      # start NodeBB, run Artillery, stop NodeBB
       - name: Start NodeBB (background)
         run: |
           npm start &
