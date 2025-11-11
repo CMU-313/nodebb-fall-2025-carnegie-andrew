@@ -8,7 +8,7 @@ translatorApi.translate = function (postData) {
 	console.log('[TRANSLATE API DEBUG] translate called with:', { 
 		content: postData?.content ? postData.content.substring(0, 100) : 'no content',
 		hasContent: !!postData?.content,
-		keys: Object.keys(postData || {})
+		keys: Object.keys(postData || {}),
 	});
 	const result = ['is_english', postData];
 	console.log('[TRANSLATE API DEBUG] translate returning:', { isEnglish: result[0], hasTranslated: !!result[1] });

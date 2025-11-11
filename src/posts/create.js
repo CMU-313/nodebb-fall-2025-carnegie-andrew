@@ -23,16 +23,14 @@ module.exports = function (Posts) {
 			pid: data.pid, 
 			tid: data.tid, 
 			contentLength: content.length,
-			contentPreview: content.substring(0, 100)
+			contentPreview: content.substring(0, 100),
 		});
 		const [isEnglish, translatedContent] = await translate.translate(data);
 		console.log('[POSTS CREATE DEBUG] Translation result:', {
 			isEnglish,
 			hasTranslatedContent: !!translatedContent,
 			translatedContentType: typeof translatedContent,
-			translatedContentPreview: typeof translatedContent === 'string'
-				? translatedContent.substring(0, 100)
-				: '[non-string value]'
+			translatedContentPreview: typeof translatedContent === 'string' ? translatedContent.substring(0, 100) : '[non-string value]',
 		});
 
 		if (!uid && parseInt(uid, 10) !== 0) {

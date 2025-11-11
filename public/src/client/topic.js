@@ -89,7 +89,7 @@ define('forum/topic', [
 			console.log('[TRANSLATE BUTTON DEBUG] Found translated content:', { 
 				exists: $translatedContent.length > 0,
 				currentlyVisible: $translatedContent.is(':visible'),
-				contentLength: $translatedContent.length ? $translatedContent.text().length : 0
+				contentLength: $translatedContent.length ? $translatedContent.text().length : 0,
 			});
 			// Toggle the visibility of the next .translated-content div
 			$translatedContent.toggle();
