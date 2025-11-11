@@ -26,10 +26,13 @@ module.exports = function (Posts) {
 			contentPreview: content.substring(0, 100)
 		});
 		const [isEnglish, translatedContent] = await translate.translate(data);
-		console.log('[POSTS CREATE DEBUG] Translation result:', { 
-			isEnglish, 
+		console.log('[POSTS CREATE DEBUG] Translation result:', {
+			isEnglish,
 			hasTranslatedContent: !!translatedContent,
-			translatedContentPreview: translatedContent ? translatedContent.substring(0, 100) : 'none'
+			translatedContentType: typeof translatedContent,
+			translatedContentPreview: typeof translatedContent === 'string'
+				? translatedContent.substring(0, 100)
+				: '[non-string value]'
 		});
 
 		if (!uid && parseInt(uid, 10) !== 0) {
