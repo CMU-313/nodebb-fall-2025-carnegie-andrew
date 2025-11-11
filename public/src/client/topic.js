@@ -83,14 +83,23 @@ define('forum/topic', [
 
 	function configurePostToggle() {
 		$('.topic').on('click', '.view-translated-btn', function () {
+			console.log('[TRANSLATE BUTTON DEBUG] Button clicked');
+			const $btn = $(this);
+			const $translatedContent = $btn.closest('.sensitive-content-message').next('.translated-content');
+			console.log('[TRANSLATE BUTTON DEBUG] Found translated content:', { 
+				exists: $translatedContent.length > 0,
+				currentlyVisible: $translatedContent.is(':visible'),
+				contentLength: $translatedContent.length ? $translatedContent.text().length : 0
+			});
 			// Toggle the visibility of the next .translated-content div
-			$(this).closest('.sensitive-content-message').next('.translated-content').toggle();
+			$translatedContent.toggle();
 			// Optionally, change the button text based on visibility
-			var isVisible = $(this).closest('.sensitive-content-message').next('.translated-content').is(':visible');
+			var isVisible = $translatedContent.is(':visible');
+			console.log('[TRANSLATE BUTTON DEBUG] After toggle, isVisible:', isVisible);
 			if (isVisible) {
-				$(this).text('Hide the translated message.');
+				$btn.text('Hide the translated message.');
 			} else {
-				$(this).text('Click here to view the translated message.');
+				$btn.text('Click here to view the translated message.');
 			}
 		});
 	}

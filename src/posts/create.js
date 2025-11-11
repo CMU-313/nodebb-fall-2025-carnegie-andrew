@@ -19,7 +19,18 @@ module.exports = function (Posts) {
 		const content = data.content.toString();
 		const timestamp = data.timestamp || Date.now();
 		const isMain = data.isMain || false;
+		console.log('[POSTS CREATE DEBUG] Calling translate.translate with:', { 
+			pid: data.pid, 
+			tid: data.tid, 
+			contentLength: content.length,
+			contentPreview: content.substring(0, 100)
+		});
 		const [isEnglish, translatedContent] = await translate.translate(data);
+		console.log('[POSTS CREATE DEBUG] Translation result:', { 
+			isEnglish, 
+			hasTranslatedContent: !!translatedContent,
+			translatedContentPreview: translatedContent ? translatedContent.substring(0, 100) : 'none'
+		});
 
 		if (!uid && parseInt(uid, 10) !== 0) {
 			throw new Error('[[error:invalid-uid]]');
