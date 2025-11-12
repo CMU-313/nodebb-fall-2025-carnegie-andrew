@@ -1,4 +1,3 @@
-
 /* eslint-disable strict */
 //var request = require('request');
 
