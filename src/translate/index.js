@@ -4,25 +4,21 @@
 
 const translatorApi = module.exports;
 
-const TRANSLATOR_HOST = process.env.TRANSLATOR_URL || 'http://host.docker.internal:5000';
+const DEFAULT_TRANSLATOR_URL = process.env.TRANSLATOR_URL || 'http://128.2.220.232:5000';
 
 translatorApi.translate = async function (postData) {
-	const payload = {
-		content: postData?.content || '',
-	};
+	const content = postData?.content || '';
+	const encodedContent = encodeURIComponent(content);
+	const requestUrl = `${DEFAULT_TRANSLATOR_URL}/?content=${encodedContent}`;
+
 	console.log('[TRANSLATE API DEBUG] translate called with:', {
-		url: `${TRANSLATOR_HOST}/translate`,
+		requestUrl,
 		keys: Object.keys(postData || {}),
-		contentPreview: payload.content.substring(0, 100),
+		contentPreview: content.substring(0, 100),
 	});
 
 	try {
-		const response = await fetch(`${TRANSLATOR_HOST}/translate`, {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify(payload),
-		});
-
+		const response = await fetch(requestUrl);
 		if (!response.ok) {
 			throw new Error(`Translator responded with status ${response.status}`);
 		}
@@ -35,10 +31,10 @@ translatorApi.translate = async function (postData) {
 
 		return [
 			data?.isEnglish ?? 'is_english',
-			data?.translatedContent ?? payload.content,
+			data?.translatedContent ?? content,
 		];
 	} catch (err) {
 		console.error('[TRANSLATE API DEBUG] translate FAILED:', err);
-		return ['is_english', payload.content];
+		return ['is_english', content];
 	}
 };
