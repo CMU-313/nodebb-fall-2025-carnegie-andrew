@@ -10,7 +10,13 @@ services:
       - nodebb-uploads:/usr/src/app/public/uploads
       - nodebb-config:/opt/config
       - ./install/docker/setup.json:/usr/src/app/setup.json
-
+    environment:
+      # Translator Flask service URL reachable from inside the container
+      TRANSLATOR_URL: "http://host.docker.internal:5000"
+      TRANSLATOR_TIMEOUT_MS: "6000"
+    # Let Linux containers resolve host.docker.internal to the host gateway
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   mongo:
     image: 'mongo:7-jammy'
     restart: unless-stopped
