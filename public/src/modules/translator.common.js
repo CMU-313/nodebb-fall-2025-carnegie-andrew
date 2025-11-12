@@ -232,24 +232,32 @@ module.exports = function (utils, load, warn) {
 			const namespace = result[0];
 			const key = result[1];
 
+			console.log('[TRANSLATOR DEBUG] translateKey called:', { name, namespace, key, language: self.lang, hasModule: !!self.modules[namespace], args: args && args.length });
+
 			if (self.modules[namespace]) {
-				return Promise.resolve(self.modules[namespace](key, args));
+				const moduleResult = self.modules[namespace](key, args);
+				console.log('[TRANSLATOR DEBUG] translateKey using module:', { name, namespace, key, result: moduleResult });
+				return Promise.resolve(moduleResult);
 			}
 
 			if (namespace && result.length === 1) {
+				console.warn('[TRANSLATOR DEBUG] translateKey missing key part:', { name, namespace });
 				return Promise.resolve('[[' + namespace + ']]');
 			}
 
 			if (namespace && !key) {
 				warn('Missing key in translation token "' + name + '" for language "' + self.lang + '"');
+				console.warn('[TRANSLATOR DEBUG] translateKey missing key:', { name, namespace, language: self.lang });
 				return Promise.resolve('[[' + namespace + ']]');
 			}
 
 			const translation = this.getTranslation(namespace, key);
 			return translation.then(function (translated) {
+				console.log('[TRANSLATOR DEBUG] translateKey result:', { name, namespace, key, translated: translated ? translated.substring(0, 100) : 'null/undefined', hasTranslation: !!translated });
 				// check if the translation is missing first
 				if (!translated) {
 					warn('Missing translation "' + name + '" for language "' + self.lang + '"');
+					console.warn('[TRANSLATOR DEBUG] translateKey missing translation:', { name, namespace, key, language: self.lang, backup });
 					return backup || key;
 				}
 
@@ -266,6 +274,7 @@ module.exports = function (utils, load, warn) {
 							.replace(/&amp;rsqb;/g, '&rsqb;');
 						out = out.replace(new RegExp('%' + (i + 1), 'g'), escaped);
 					});
+					console.log('[TRANSLATOR DEBUG] translateKey final output:', { name, output: out.substring(0, 100) });
 					return out;
 				});
 			});
@@ -278,18 +287,24 @@ module.exports = function (utils, load, warn) {
 		 * @returns {Promise<{ [key: string]: string } | string>}
 		 */
 		Translator.prototype.getTranslation = function getTranslation(namespace, key) {
+			console.log('[TRANSLATOR DEBUG] getTranslation called:', { language: this.lang, namespace, key, hasCached: !!this.translations[namespace] });
 			let translation;
 			if (!namespace) {
 				warn('[translator] Parameter `namespace` is ' + namespace + (namespace === '' ? '(empty string)' : ''));
 				translation = Promise.resolve({});
 			} else {
+				const self = this;
 				this.translations[namespace] = this.translations[namespace] ||
-					this.load(this.lang, namespace).catch(function () { return {}; });
+					this.load(this.lang, namespace).catch(function (err) {
+						console.error('[TRANSLATOR DEBUG] getTranslation load error:', { language: self.lang, namespace, error: err });
+						return {};
+					});
 				translation = this.translations[namespace];
 			}
 
 			if (key) {
 				return translation.then(function (x) {
+					console.log('[TRANSLATOR DEBUG] getTranslation result:', { namespace, key, hasKey: typeof x[key] === 'string', translationKeys: Object.keys(x || {}).slice(0, 10) });
 					if (typeof x[key] === 'string') return x[key];
 					const keyParts = key.split('.');
 					for (let i = 0; i <= keyParts.length; i++) {
@@ -541,7 +556,10 @@ module.exports = function (utils, load, warn) {
 				lang = null;
 			}
 
+			console.log('[TRANSLATOR DEBUG] adaptor.translate called:', { text: text ? text.substring(0, 100) : text, language: lang, hasCallback: !!cb });
+
 			if (!(typeof text === 'string' || text instanceof String) || text === '') {
+				console.log('[TRANSLATOR DEBUG] adaptor.translate empty/invalid text:', { text, type: typeof text });
 				if (cb) {
 					return setTimeout(cb, 0, '');
 				}
@@ -549,11 +567,13 @@ module.exports = function (utils, load, warn) {
 			}
 
 			return Translator.create(lang).translate(text).then(function (output) {
+				console.log('[TRANSLATOR DEBUG] adaptor.translate success:', { inputLength: text.length, outputLength: output ? output.length : 0, preview: output ? output.substring(0, 100) : output });
 				if (cb) {
 					setTimeout(cb, 0, output);
 				}
 				return output;
 			}, function (err) {
+				console.error('[TRANSLATOR DEBUG] adaptor.translate FAILED:', { text: text ? text.substring(0, 100) : text, language: lang, error: err, stack: err.stack });
 				warn('Translation failed: ' + err.stack);
 			});
 		},
