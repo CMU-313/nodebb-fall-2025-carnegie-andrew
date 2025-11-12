@@ -1,3 +1,4 @@
+"use strict";
 const translatorApi = module.exports;
 
 // translatorApi.translate = function (postData) {
@@ -15,3 +16,4 @@ translatorApi.translate = async function (postData) {
 		return ['is_english', postData.content];
 	}
 };
+
