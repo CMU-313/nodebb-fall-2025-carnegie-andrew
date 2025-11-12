@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama-server
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama-models:/root/.ollama
+    environment:
+      - OLLAMA_ORIGINS=*
+    networks:
+      - translator-net
+
+  translator:
+    build:
+      context: ./translator-service
+    container_name: translator-service
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - OLLAMA_API_URL=http://ollama:11434
+    depends_on:
+      - ollama
+    networks:
+      - translator-net
+
+networks:
+  translator-net:
+    driver: bridge
+
+volumes:
+  ollama-models:
