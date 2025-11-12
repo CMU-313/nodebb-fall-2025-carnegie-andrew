@@ -4,21 +4,41 @@
 
 const translatorApi = module.exports;
 
-translatorApi.translate = function (postData) {
-	console.log('[TRANSLATE API DEBUG] translate called with:', { 
-		content: postData?.content ? postData.content.substring(0, 100) : 'no content',
-		hasContent: !!postData?.content,
-		keys: Object.keys(postData || {}),
-	});
-	const result = ['is_english', postData];
-	console.log('[TRANSLATE API DEBUG] translate returning:', { isEnglish: result[0], hasTranslated: !!result[1] });
-	return result;
-};
+const TRANSLATOR_HOST = process.env.TRANSLATOR_URL || 'http://host.docker.internal:5000';
 
-// translatorApi.translate = async function (postData) {
-//  Edit the translator URL below
-//  const TRANSLATOR_API = "TODO"
-//  const response = await fetch(TRANSLATOR_API+'/?content='+postData.content);
-//  const data = await response.json();
-//  return ['is_english','translated_content'];
-// };
+translatorApi.translate = async function (postData) {
+	const payload = {
+		content: postData?.content || '',
+	};
+	console.log('[TRANSLATE API DEBUG] translate called with:', {
+		url: `${TRANSLATOR_HOST}/translate`,
+		keys: Object.keys(postData || {}),
+		contentPreview: payload.content.substring(0, 100),
+	});
+
+	try {
+		const response = await fetch(`${TRANSLATOR_HOST}/translate`, {
+			method: 'POST',
+			headers: { 'Content-Type': 'application/json' },
+			body: JSON.stringify(payload),
+		});
+
+		if (!response.ok) {
+			throw new Error(`Translator responded with status ${response.status}`);
+		}
+
+		const data = await response.json();
+		console.log('[TRANSLATE API DEBUG] translate success:', {
+			isEnglish: data?.isEnglish,
+			translatedPreview: typeof data?.translatedContent === 'string' ? data.translatedContent.substring(0, 100) : '[non-string value]',
+		});
+
+		return [
+			data?.isEnglish ?? 'is_english',
+			data?.translatedContent ?? payload.content,
+		];
+	} catch (err) {
+		console.error('[TRANSLATE API DEBUG] translate FAILED:', err);
+		return ['is_english', payload.content];
+	}
+};
