@@ -1,7 +1,3 @@
-const os = require('os');
-const dns = require('dns').promises;
-const { URL } = require('url');
-
 const translatorApi = module.exports;
 
 // translatorApi.translate = function (postData) {
